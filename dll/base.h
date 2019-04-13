@@ -21,6 +21,9 @@
 #if defined(WIN32) || defined(_WIN32)
 #define STEAM_WIN32
 #pragma warning( disable : 4716)
+#ifndef NOMINMAX
+# define NOMINMAX
+#endif
 #endif
 
 #define STEAM_API_EXPORTS
