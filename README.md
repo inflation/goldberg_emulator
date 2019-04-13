@@ -6,6 +6,10 @@ You replace the steam api .dll or .so with mine (for complete steps see the [Rel
 
 If you are a game developper and made the mistake of depending too much on the steam api and want to release of version of your game without it and don't want to rewrite your game, this is for you. It is licenced LGPLv3+ so the only source code you need to publish is the source code of this emulator (and only if you make modification to it).
 
+## Download Binaries
+
+You can download the latest binaries for Linux and Windows in the [release section](https://gitlab.com/Mr_Goldberg/goldberg_emulator/releases) of this repo.
+
 ## Contributions
 
 One of the reasons I made this code open source is because I want contributions. Unless your code is related to the experimental stuff it needs to work on both Linux and Windows. Having accurate behavior is more important than making games work. Having inaccurate behavior might fix one game but it will break others.
