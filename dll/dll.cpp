@@ -61,31 +61,45 @@ static void load_old_interface_versions()
         line.erase(std::remove(line.begin(), line.end(), '\t'), line.end());
 #define REPLACE_WITH_FILE(s, f) {if (line.find(s) != std::string::npos) {strncpy(f, line.c_str(), sizeof(f) - 1); continue;}}
         REPLACE_WITH_FILE("SteamClient", old_client);
+        REPLACE_WITH_FILE("SteamGameServerStats", old_gameserver_stats);
         REPLACE_WITH_FILE("SteamFriends", old_friends);
         REPLACE_WITH_FILE("SteamMatchMakingServers", old_matchmaking_servers);
         REPLACE_WITH_FILE("SteamMatchMaking", old_matchmaking);
         REPLACE_WITH_FILE("STEAMREMOTESTORAGE_INTERFACE_VERSION", old_remote_storage_interface);
+        REPLACE_WITH_FILE("STEAMSCREENSHOTS_INTERFACE_VERSION", old_screenshots);
+        REPLACE_WITH_FILE("STEAMHTTP_INTERFACE_VERSION", old_http);
         REPLACE_WITH_FILE("STEAMCONTROLLER_INTERFACE_VERSION", old_controller);
         REPLACE_WITH_FILE("SteamController", old_controller);
         REPLACE_WITH_FILE("STEAMUGC_INTERFACE_VERSION", old_ugc_interface);
         REPLACE_WITH_FILE("STEAMINVENTORY_INTERFACE", old_inventory);
         REPLACE_WITH_FILE("STEAMUSERSTATS_INTERFACE_VERSION", old_userstats);
+        REPLACE_WITH_FILE("STEAMAPPS_INTERFACE_VERSION", old_apps);
+        REPLACE_WITH_FILE("STEAMHTMLSURFACE_INTERFACE_VERSION", old_html_surface);
         REPLACE_WITH_FILE("SteamNetworking", old_networking);
         REPLACE_WITH_FILE("SteamUser", old_user);
+        REPLACE_WITH_FILE("SteamUtils", old_utils);
+        REPLACE_WITH_FILE("SteamGameServer", old_gameserver);
         PRINT_DEBUG("NOT REPLACED %s\n", line.c_str());
 #undef REPLACE_WITH_FILE
     }
 
     PRINT_DEBUG("client: %s\n", old_client);
+    PRINT_DEBUG("gameserver: %s\n", old_gameserver);
+    PRINT_DEBUG("gameserver stats: %s\n", old_gameserver_stats);
     PRINT_DEBUG("user: %s\n", old_user);
     PRINT_DEBUG("friends: %s\n", old_friends);
     PRINT_DEBUG("matchmaking: %s\n", old_matchmaking);
     PRINT_DEBUG("remote: %s\n", old_remote_storage_interface);
+    PRINT_DEBUG("screenshots: %s\n", old_screenshots);
+    PRINT_DEBUG("http: %s\n", old_http);
     PRINT_DEBUG("controller %s\n", old_controller);
     PRINT_DEBUG("ugc: %s\n", old_ugc_interface);
     PRINT_DEBUG("inventory: %s\n", old_inventory);
     PRINT_DEBUG("userstats: %s\n", old_userstats);
+    PRINT_DEBUG("apps: %s\n", old_apps);
     PRINT_DEBUG("networking: %s\n", old_networking);
+    PRINT_DEBUG("html surface: %s\n", old_html_surface);
+    PRINT_DEBUG("utils: %s\n", old_utils);
     loaded = true;
 }
 
