@@ -6,6 +6,16 @@ You replace the steam api .dll or .so with mine (for complete steps see the [Rel
 
 If you are a game developper and made the mistake of depending too much on the steam api and want to release of version of your game without it and don't want to rewrite your game, this is for you. It is licenced LGPLv3+ so the only source code you need to publish is the source code of this emulator (and only if you make modification to it).
 
+## How to use
+
+Replace the steam_api(64).dll (libsteam_api.so on linux) from the game with mine. For linux make sure that if the original api is 32 bit you use a 32 bit build and if it's 64 bit you use a 64 bit build.
+
+Put a steam_appid.txt file that contains the appid of the game right beside it if there isn't one already.
+
+If your game has an original steam_api(64).dll or libsteam_api.so older than may 2016 (On windows: Properties->Digital Signatures->Timestamp) you might have to add a steam_interfaces.txt beside my emulator library if the game isn't working. There is a linux script to generate it in the scripts folder of this repo.
+
+For more information see: [The Release Readme](Readme_release.txt)
+
 ## Download Binaries
 
 You can download the latest binaries for Linux and Windows in the [release section](https://gitlab.com/Mr_Goldberg/goldberg_emulator/releases) of this repo.
