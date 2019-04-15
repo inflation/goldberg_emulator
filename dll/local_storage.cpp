@@ -408,9 +408,17 @@ std::string Local_Storage::get_user_appdata_path()
     }
 
 #else
-    char *homedir = getenv("HOME");
-    if (homedir) {
-        user_appdata_path = homedir;
+    /* $XDG_DATA_HOME defines the base directory relative to which user specific data files should be stored. 
+    If $XDG_DATA_HOME is either not set or empty, a default equal to $HOME/.local/share should be used. */
+    char *datadir = getenv("XDG_DATA_HOME");
+    if (datadir) {
+        user_appdata_path = datadir;
+    } else {
+        char *homedir = getenv("HOME");
+        if (homedir) {
+            user_appdata_path = homedir;
+            user_appdata_path.append(PATH_SEPARATOR).append(".local").append(PATH_SEPARATOR).append("share");
+        }
     }
 #endif
     return user_appdata_path.append(PATH_SEPARATOR).append(PROGRAM_NAME).append(" Saves");
