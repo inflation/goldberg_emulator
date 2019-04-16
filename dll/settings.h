@@ -43,6 +43,11 @@ class Settings {
     std::vector<struct DLC_entry> DLCs;
     std::vector<struct Mod_entry> mods;
 public:
+#ifdef LOBBY_CONNECT
+    static const bool is_lobby_connect = true;
+#else
+    static const bool is_lobby_connect = false;
+#endif
     static std::string sanitize(std::string name);
     Settings(CSteamID steam_id, CGameID game_id, std::string name, std::string language);
     CSteamID get_local_steam_id();

@@ -1,15 +1,21 @@
+/* Copyright (C) 2019 Mr Goldberg
+   This file is part of the Goldberg Emulator
+
+   The Goldberg Emulator is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
+
+   The Goldberg Emulator is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the Goldberg Emulator; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
 /*
-This is the source code for the lobby_connect.exe program.
-If you want to build it, just dl the steam sdk and link it to the steam api dll
-Then to execute it just use my emu dll instead of the steam sdk dll.
-
-If you make any improvements and want to share them post your code in the thread and if it improves it I'll use it.
-
-You can also use this code to add this functionality to your launchers.
-
-Note if you use my steam emu dll: When I build my lobby_connect.exe I static link it to a build of my emu that has reading from disk disabled.
-This means that it's a good idea for you to use local_save.txt so that your launcher doesn't conflict with running
-games by having the same steam user id. There must also be no steam_appid.txt or else you will only see games with that appid.
 */
 
 #include "sdk_includes/steam_api.h"
@@ -20,8 +26,12 @@ games by having the same steam user id. There must also be no steam_appid.txt or
 #include <thread>
 #include <string>
 #include <vector>
-#include <windows.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+
+#endif
 int main() {
     if (SteamAPI_Init()) {
         //Set appid to: LOBBY_CONNECT_APPID
@@ -75,6 +85,7 @@ top:
 
         if (choice >= arguments.size()) goto top;
 
+#ifdef _WIN32
         std::cout << "starting the game with: " << arguments[choice] << std::endl << "Please select the game exe" << std::endl;
 
         OPENFILENAMEA ofn;
@@ -106,5 +117,8 @@ top:
                         &lpProcessInfo
                         );
         }
+#else
+        std::cout << "Please launch the game with these arguments: " << arguments[choice] << std::endl;
+#endif
     }
 }

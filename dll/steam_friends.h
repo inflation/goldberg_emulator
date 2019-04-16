@@ -75,10 +75,10 @@ void rich_presence_updated(CSteamID id, AppId_t appid)
     callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
 }
 
-bool isSameAppId(Friend *f)
+bool isAppIdCompatible(Friend *f)
 {
-    //in my emu 0 appid is the same as any appid, it's useful for things like my lobby connect program
-    if (!settings->get_local_game_id().AppID()) return true;
+    if (settings->is_lobby_connect) return true;
+    if (f == &us) return true;
     return settings->get_local_game_id().AppID() == f->appid();
 }
 

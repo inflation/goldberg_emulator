@@ -7,4 +7,3 @@ Most steam games also let you join lobbies in game without having started the ga
 
 Just run this tool and follow the instructions then pick the exe of the game. Make sure that you have installed my emu on the game first and that it works or it won't work.
 
-If you want to help me improve it, the source can be found in the source folder.
