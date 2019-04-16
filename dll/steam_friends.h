@@ -222,10 +222,10 @@ EFriendRelationship GetFriendRelationship( CSteamID steamIDFriend )
 {
     PRINT_DEBUG("Steam_Friends::GetFriendRelationship %llu\n", steamIDFriend.ConvertToUint64());
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    EFriendRelationship r = k_EFriendRelationshipNone;
-    if (find_friend(steamIDFriend)) r = k_EFriendRelationshipFriend;
-    
-    return r;
+    if (steamIDFriend == settings->get_local_steam_id()) return k_EFriendRelationshipNone; //Real steam behavior
+    if (find_friend(steamIDFriend)) return k_EFriendRelationshipFriend;
+
+    return k_EFriendRelationshipNone;
 }
 
 
@@ -261,7 +261,6 @@ const char *GetFriendPersonaName( CSteamID steamIDFriend )
         if (f) name = f->name().c_str();
     }
 
-    
     return name;
 }
 
@@ -269,24 +268,37 @@ const char *GetFriendPersonaName( CSteamID steamIDFriend )
 // returns true if the friend is actually in a game, and fills in pFriendGameInfo with an extra details 
 bool GetFriendGamePlayed( CSteamID steamIDFriend, STEAM_OUT_STRUCT() FriendGameInfo_t *pFriendGameInfo )
 {
-    PRINT_DEBUG("Steam_Friends::GetFriendGamePlayed\n");
+    PRINT_DEBUG("Steam_Friends::GetFriendGamePlayed %llu\n", steamIDFriend.ConvertToUint64());
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     bool ret = false;
-    Friend *f = find_friend(steamIDFriend);
-    if (f) {
+
+    if (steamIDFriend == settings->get_local_steam_id()) {
         if (pFriendGameInfo) {
-            pFriendGameInfo->m_gameID = CGameID(f->appid());
+            pFriendGameInfo->m_gameID = settings->get_local_game_id();
             pFriendGameInfo->m_unGameIP = 0;
             pFriendGameInfo->m_usGamePort = 0;
             pFriendGameInfo->m_usQueryPort = 0;
-            pFriendGameInfo->m_steamIDLobby = CSteamID((uint64)f->lobby_id());
-            PRINT_DEBUG("%u %llu\n", f->appid(), f->lobby_id());
+            pFriendGameInfo->m_steamIDLobby = settings->get_lobby();
+            PRINT_DEBUG("self %llu %llu\n", settings->get_local_game_id().ToUint64(), settings->get_lobby().ConvertToUint64());
         }
 
         ret = true;
+    } else {
+        Friend *f = find_friend(steamIDFriend);
+        if (f) {
+            if (pFriendGameInfo) {
+                pFriendGameInfo->m_gameID = CGameID(f->appid());
+                pFriendGameInfo->m_unGameIP = 0;
+                pFriendGameInfo->m_usGamePort = 0;
+                pFriendGameInfo->m_usQueryPort = 0;
+                pFriendGameInfo->m_steamIDLobby = CSteamID((uint64)f->lobby_id());
+                PRINT_DEBUG("%u %llu\n", f->appid(), f->lobby_id());
+            }
+
+            ret = true;
+        }
     }
 
-    
     return ret;
 }
 
@@ -679,13 +691,18 @@ const char *GetFriendRichPresence( CSteamID steamIDFriend, const char *pchKey )
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     const char *value = "";
 
-    Friend *f = find_friend(steamIDFriend);
-    if (f && isSameAppId(f)) {
+    Friend *f = NULL;
+    if (settings->get_local_steam_id() == steamIDFriend) {
+        f = &us;
+    } else {
+        f = find_friend(steamIDFriend);
+    }
+
+    if (f && isAppIdCompatible(f)) {
         auto result = f->rich_presence().find(pchKey);
         if (result != f->rich_presence().end()) value = result->second.c_str();
     }
 
-    
     return value;
 }
 
@@ -694,8 +711,15 @@ int GetFriendRichPresenceKeyCount( CSteamID steamIDFriend )
     PRINT_DEBUG("Steam_Friends::GetFriendRichPresenceKeyCount\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     int num = 0;
-    Friend *f = find_friend(steamIDFriend);
-    if (f && isSameAppId(f)) num = f->rich_presence().size();
+
+    Friend *f = NULL;
+    if (settings->get_local_steam_id() == steamIDFriend) {
+        f = &us;
+    } else {
+        f = find_friend(steamIDFriend);
+    }
+
+    if (f && isAppIdCompatible(f)) num = f->rich_presence().size();
     
     return num;
 }
@@ -705,8 +729,15 @@ const char *GetFriendRichPresenceKeyByIndex( CSteamID steamIDFriend, int iKey )
     PRINT_DEBUG("Steam_Friends::GetFriendRichPresenceKeyByIndex\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     const char *key = "";
-    Friend *f = find_friend(steamIDFriend);
-    if (f && isSameAppId(f) && f->rich_presence().size() > iKey && iKey >= 0) {
+
+    Friend *f = NULL;
+    if (settings->get_local_steam_id() == steamIDFriend) {
+        f = &us;
+    } else {
+        f = find_friend(steamIDFriend);
+    }
+
+    if (f && isAppIdCompatible(f) && f->rich_presence().size() > iKey && iKey >= 0) {
         auto friend_data = f->rich_presence().begin();
         for (int i = 0; i < iKey; ++i) ++friend_data;
         key = friend_data->first.c_str();
@@ -962,7 +993,7 @@ void Callback(Common_Message *msg)
 
             if (map1 != map2) {
                 //The App ID of the game. This should always be the current game.
-                if (isSameAppId(f)) {
+                if (isAppIdCompatible(f)) {
                     rich_presence_updated((uint64)msg->friend_().id(), (uint64)msg->friend_().appid());
                 }
             }
