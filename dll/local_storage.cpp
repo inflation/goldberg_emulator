@@ -416,8 +416,7 @@ std::string Local_Storage::get_user_appdata_path()
     } else {
         char *homedir = getenv("HOME");
         if (homedir) {
-            user_appdata_path = homedir;
-            user_appdata_path.append(PATH_SEPARATOR).append(".local").append(PATH_SEPARATOR).append("share");
+            user_appdata_path = std::string(homedir) + "/.local/share";
         }
     }
 #endif
