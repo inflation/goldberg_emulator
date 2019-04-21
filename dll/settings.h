@@ -40,6 +40,7 @@ class Settings {
     CSteamID lobby_id;
 
     bool unlockAllDLCs;
+    bool offline;
     std::vector<struct DLC_entry> DLCs;
     std::vector<struct Mod_entry> mods;
 public:
@@ -49,7 +50,7 @@ public:
     static const bool is_lobby_connect = false;
 #endif
     static std::string sanitize(std::string name);
-    Settings(CSteamID steam_id, CGameID game_id, std::string name, std::string language);
+    Settings(CSteamID steam_id, CGameID game_id, std::string name, std::string language, bool offline);
     CSteamID get_local_steam_id();
     CGameID get_local_game_id();
     const char *get_local_name();
@@ -57,6 +58,7 @@ public:
     void set_game_id(CGameID game_id);
     void set_lobby(CSteamID lobby_id);
     CSteamID get_lobby();
+    bool is_offline() {return offline; }
 
     //DLC stuff
     void unlockAllDLC(bool value);

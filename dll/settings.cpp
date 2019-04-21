@@ -33,7 +33,7 @@ std::string Settings::sanitize(std::string name)
     return name;
 }
 
-Settings::Settings(CSteamID steam_id, CGameID game_id, std::string name, std::string language)
+Settings::Settings(CSteamID steam_id, CGameID game_id, std::string name, std::string language, bool offline)
 {
     this->steam_id = steam_id;
     this->game_id = game_id;
@@ -52,6 +52,8 @@ Settings::Settings(CSteamID steam_id, CGameID game_id, std::string name, std::st
     this->language = lang;
     this->lobby_id = k_steamIDNil;
     this->unlockAllDLCs = true;
+
+    this->offline = offline;
 }
 
 CSteamID Settings::get_local_steam_id()

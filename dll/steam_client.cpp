@@ -46,7 +46,7 @@ Steam_Client::Steam_Client()
 
     char array[10] = {};
     array[0] = '0';
-    Local_Storage::get_file_data(program_path + "steam_appid.txt", array, sizeof(array) - 1);
+    Local_Storage::get_file_data(Local_Storage::get_game_settings_path() + "steam_appid.txt", array, sizeof(array) - 1);
     uint32 appid = 0;
     try {
         appid = std::stoi(array);
@@ -61,7 +61,7 @@ Steam_Client::Steam_Client()
         if (!appid) {
             memset(array, 0, sizeof(array));
             array[0] = '0';
-            Local_Storage::get_file_data(Local_Storage::get_game_settings_path() + "steam_appid.txt", array, sizeof(array) - 1);
+            Local_Storage::get_file_data(program_path + "steam_appid.txt", array, sizeof(array) - 1);
             try {
                 appid = std::stoi(array);
             } catch (...) {}
@@ -169,8 +169,21 @@ Steam_Client::Steam_Client()
         local_storage->store_data_settings("user_steam_id.txt", temp_text, strlen(temp_text));
     }
 
-    settings_client = new Settings(user_id, CGameID(appid), name, language);
-    settings_server = new Settings(generate_steam_id_server(), CGameID(appid), name, language);
+    bool steam_offline_mode = false;
+    {
+        std::string steam_settings_path = Local_Storage::get_game_settings_path();
+
+        std::vector<std::string> paths = Local_Storage::get_filenames_path(steam_settings_path);
+        for (auto & p: paths) {
+            PRINT_DEBUG("steam settings path %s\n", p.c_str());
+            if (p == "offline.txt") {
+                steam_offline_mode = true;
+            }
+        }
+    }
+
+    settings_client = new Settings(user_id, CGameID(appid), name, language, steam_offline_mode);
+    settings_server = new Settings(generate_steam_id_server(), CGameID(appid), name, language, steam_offline_mode);
 
     {
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "DLC.txt";

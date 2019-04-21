@@ -44,9 +44,12 @@ Mod folders must be a number corresponding to the file id of the mod.
 See the steam_settings.EXAMPLE folder for an example.
 
 Steam appid:
-The steam_appid.txt can be put in the steam_settings folder if for some reason you can't put it beside the steam api dll.
+The best place to put your steam_appid.txt is in the steam_settings folder because this is where the emulator checks first.
+If there is no steam_appid.txt in the steam_settings folder it will try opening it from the run path of the game. If one isn't there it will try to load it from beside my steam api dll.
 The steam appid can also be set using the SteamAppId or SteamGameId env variables (this is how real steam tells games what their appid is).
 
+Offline mode:
+Some games that connect to online servers might only work if the steam emu behaves like steam is in offline mode. If you need this create a offline.txt file in the steam_settings folder.
 
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
 

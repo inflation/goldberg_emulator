@@ -74,7 +74,7 @@ HSteamUser GetHSteamUser()
 bool BLoggedOn()
 {
     PRINT_DEBUG("BLoggedOn\n");
-    return true;
+    return !settings->is_offline();
 }
 
 // returns the CSteamID of the account currently logged into the Steam client
