@@ -3,3 +3,10 @@
 *.o
 net.pb.*
 *steam_api*
+release/*
+*.obj
+base.exp
+base.lib
+rtlgenrandom*
+steamclient.exp
+steamclient.lib
