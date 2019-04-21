@@ -251,6 +251,8 @@ bool Steam_HTTP::ReleaseHTTPRequest( HTTPRequestHandle hRequest )
         if (c->handle == hRequest) {
             c = requests.erase(c);
             return true;
+        } else {
+            ++c;
         }
     }
 
