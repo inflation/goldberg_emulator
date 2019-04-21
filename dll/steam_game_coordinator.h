@@ -16,7 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
-
+#include <queue>
 
 class Steam_Game_Coordinator :
 public ISteamGameCoordinator
@@ -26,6 +26,18 @@ public ISteamGameCoordinator
     class SteamCallResults *callback_results;
     class SteamCallBacks *callbacks;
     class RunEveryRunCB *run_every_runcb;
+
+    static const uint32 protobuf_mask = 0x80000000;
+    std::queue<std::string> outgoing_messages;
+
+void push_incoming(std::string message)
+{
+    outgoing_messages.push(message);
+
+    struct GCMessageAvailable_t data;
+    data.m_nMessageSize = message.size();
+    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+}
 
 public:
 static void steam_callback(void *object, Common_Message *msg)
@@ -65,7 +77,19 @@ Steam_Game_Coordinator(class Settings *settings, class Networking *network, clas
 // sends a message to the Game Coordinator
 EGCResults SendMessage_( uint32 unMsgType, const void *pubData, uint32 cubData )
 {
-    PRINT_DEBUG("Steam_Game_Coordinator::SendMessage %u\n", unMsgType);
+    PRINT_DEBUG("Steam_Game_Coordinator::SendMessage %X %u len %u\n", unMsgType, (~protobuf_mask) & unMsgType, cubData);
+    if (protobuf_mask & unMsgType) {
+        uint32 message_type = (~protobuf_mask) & unMsgType;
+        if (message_type == 4006) { //client hello
+            std::string message("\xA4\x0F\x00\x80\x00\x00\x00\x00\x08\x00", 10);
+            push_incoming(message);
+        } else
+        if (message_type == 4007) { //server hello
+            std::string message("\xA5\x0F\x00\x80\x00\x00\x00\x00\x08\x00", 10);
+            push_incoming(message);
+        }
+    }
+
     return k_EGCResultOK;
 }
 
@@ -73,7 +97,12 @@ EGCResults SendMessage_( uint32 unMsgType, const void *pubData, uint32 cubData )
 bool IsMessageAvailable( uint32 *pcubMsgSize )
 {
     PRINT_DEBUG("Steam_Game_Coordinator::IsMessageAvailable\n");
-    return false;
+    if (outgoing_messages.size()) {
+        if (pcubMsgSize) *pcubMsgSize = outgoing_messages.front().size();
+        return true;
+    } else {
+        return false;
+    }
 }
 
 // fills the provided buffer with the first message in the queue and returns k_EGCResultOK or 
@@ -83,7 +112,23 @@ bool IsMessageAvailable( uint32 *pcubMsgSize )
 EGCResults RetrieveMessage( uint32 *punMsgType, void *pubDest, uint32 cubDest, uint32 *pcubMsgSize )
 {
     PRINT_DEBUG("Steam_Game_Coordinator::RetrieveMessage\n");
-    return k_EGCResultNoMessage;
+    if (outgoing_messages.size()) {
+        if (outgoing_messages.front().size() > cubDest) {
+            return k_EGCResultBufferTooSmall;
+        }
+
+        outgoing_messages.front().copy((char *)pubDest, cubDest);
+        if (pcubMsgSize) *pcubMsgSize = outgoing_messages.front().size();
+        if (punMsgType && outgoing_messages.front().size() >= sizeof(uint32)) {
+            outgoing_messages.front().copy((char *)punMsgType, sizeof(uint32));
+            *punMsgType = ntohl(*punMsgType);
+        }
+
+        outgoing_messages.pop();
+        return k_EGCResultOK;
+    } else {
+        return k_EGCResultNoMessage;
+    }
 }
 
 void RunCallbacks()

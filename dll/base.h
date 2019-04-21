@@ -47,6 +47,7 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define PRINT_DEBUG(a, ...) do {FILE *t = fopen("STEAM_LOG.txt", "a"); fprintf(t, "%u " a, GetCurrentThreadId(), __VA_ARGS__); fclose(t); WSASetLastError(0);} while (0)
 #endif
 #else
+#include <arpa/inet.h>
 #define PATH_SEPARATOR "/" 
 #ifndef EMU_RELEASE_BUILD
 #define PRINT_DEBUG(...) {FILE *t = fopen("STEAM_LOG.txt", "a"); fprintf(t, __VA_ARGS__); fclose(t);}
