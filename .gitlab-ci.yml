@@ -1,0 +1,55 @@
+stages:
+  - dependencies
+  - build
+  - deploy
+
+protobuf_static_steamos:
+  stage: dependencies
+  image: tianon/steamos
+
+  script:
+      # don't rebuild every time
+      - test -e ./protobuf/prefix && exit 0
+      - apt update && apt -y install gcc-4.9 g++-4.9 git autotools-dev automake libtool g++-4.9-multilib gcc-4.9-multilib build-essential
+      - export BASE_PREFIX_PATH=$(pwd)
+      - echo $BASE_PREFIX_PATH
+      - mkdir deps
+      - cd deps
+      - git clone https://github.com/protocolbuffers/protobuf.git
+      - cd protobuf
+      - sh autogen.sh
+      - ./configure "CC=gcc-4.9 -m32" "CXX=g++-4.9 -m32"  CPPFLAGS="-fPIC -Ofast" CXXFLAGS="-fPIC -Ofast" --prefix=$BASE_PREFIX_PATH/protobuf/prefix_x86/ --disable-shared --enable-static
+      - make -j8 install
+      - make clean
+      - ./configure "CC=gcc-4.9" "CXX=g++-4.9" "CPPFLAGS=-fPIC -Ofast" "CXXFLAGS=-fPIC -Ofast" --prefix=$BASE_PREFIX_PATH/protobuf/prefix/ --disable-shared --enable-static
+      - make -j8 install
+  cache:
+    key: protobuf-static-steamos-cache
+#    policy: push
+    paths:
+      - protobuf/
+  artifacts:
+    paths:
+      - protobuf/
+    expire_in: 1 day
+
+build_steamos:
+  stage: build
+  image: tianon/steamos
+  dependencies:
+    - protobuf_static_steamos
+
+  before_script:
+      - apt update && apt -y install gcc-4.9 g++-4.9 git libtool g++-4.9-multilib gcc-4.9-multilib
+  script:
+    - ls -lah
+    - uname -a
+    - sed -i 's/^g++ /g++-4.9 /g' build_steamos.sh
+    - sed -i 's/..\/protobuf\/prefix/.\/protobuf\/prefix/g' build_steamos.sh
+    - sh build_steamos.sh
+
+  artifacts:
+    paths:
+      - linux/
+    expire_in: 1 day
+
