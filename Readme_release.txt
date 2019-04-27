@@ -14,7 +14,7 @@ If the game has DRM (other than steamworks) you need to remove/crack it first.
 
 
 Default save location: C:\Users\<Your windows user name>\AppData\Roaming\Goldberg SteamEmu Saves\
-For linux: $HOME/Goldberg SteamEmu Saves/
+For linux: $XDG_DATA_HOME/Goldberg SteamEmu Saves/ or if it's not defined: $HOME/.local/share/Goldberg SteamEmu Saves/
 
 In the settings folder in that save location you will find 3 files (if you have used the emulator at least once):
 account_name.txt (Edit this file to change your name)
