@@ -71,7 +71,7 @@ build_windows:
       - DLL_FILES="$(ls dll/*.cpp | tr "\n" " ")"; sed "s|dll/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls detours/*.cpp | tr "\n" " ")"; sed "s|detours/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls dll/*.proto | tr "\n" " " | sed "s/.proto/.pb.cc/g")"; sed "s|dll/\*.cc|$DLL_FILES|g" -i *.bat
-      - wineconsole build_win_release.bat
+      - wine cmd /c build_win_release.bat
   artifacts:
     paths:
       - release/
