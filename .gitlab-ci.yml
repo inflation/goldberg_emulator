@@ -53,3 +53,45 @@ build_steamos:
       - linux/
     expire_in: 1 day
 
+build_windows:
+  stage: build
+  image: fedora
+
+  script:
+      - dnf -y install wine wget p7zip sed
+      - sed -i 's/C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat/.\\sdk_standalone\\set_vars64.bat/g' build_env_x64.bat
+      - sed -i 's/C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\vcvars32.bat/.\\sdk_standalone\\set_vars32.bat/g' build_env_x86.bat
+      - sed -i 's/..\\vcpkg\\packages\\/.\\/g' build_set_protobuf_directories.bat
+      - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/48db8f434a193aae872279dc4f5dde6a/sdk_standalone.7z'
+      - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/0119304e030098b4821d73170fe52084/protobuf_x64-windows-static.7z'
+      - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/4185a97ab363ddc1859127e59ec68581/protobuf_x86-windows-static.7z'
+      - 7za x protobuf_x86-windows-static.7z -oprotobuf_x86-windows-static
+      - 7za x protobuf_x64-windows-static.7z -oprotobuf_x64-windows-static
+      - 7za x sdk_standalone.7z -osdk_standalone
+      - DLL_FILES="$(ls dll/*.cpp | tr "\n" " ")"; sed "s|dll/\*.cpp|$DLL_FILES|g" -i *.bat
+      - DLL_FILES="$(ls detours/*.cpp | tr "\n" " ")"; sed "s|detours/\*.cpp|$DLL_FILES|g" -i *.bat
+      - DLL_FILES="$(ls dll/*.proto | tr "\n" " " | sed "s/.proto/.pb.cc/g")"; sed "s|dll/\*.cc|$DLL_FILES|g" -i *.bat
+      - wineconsole build_win_release.bat
+  artifacts:
+    paths:
+      - release/
+    expire_in: 1 day
+
+deploy_all:
+  stage: deploy
+  image: fedora
+  dependencies:
+      - build_windows
+      - build_steamos
+
+  script:
+    - ls -lah
+    - mv linux release/
+    - rm -rf !(release)
+    - mv release/* ./
+    - rm -rf release
+  artifacts:
+    paths:
+      - *
+    name: "Goldberg_Lan_Steam_Emu_$CI_COMMIT_REF_NAME-$CI_COMMIT_TAG-$CI_COMMIT_SHORT_SHA"
+
