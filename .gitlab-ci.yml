@@ -2,6 +2,7 @@ stages:
   - dependencies
   - build
   - deploy
+  - page_deploy
 
 protobuf_static_steamos:
   stage: dependencies
@@ -92,8 +93,24 @@ deploy_all:
     - rm -rf !(release)
     - mv release/* ./
     - rm -rf release
+    - echo $CI_JOB_ID > job_id
   artifacts:
     name: "Goldberg_Lan_Steam_Emu_$CI_COMMIT_REF_NAME-$CI_COMMIT_TAG-$CI_COMMIT_SHORT_SHA"
     paths:
       - .
 
+pages:
+  image: fedora
+  stage: page_deploy
+  dependencies:
+    - deploy_all
+  script:
+    - DEPLOY_ALL_JOBID=$(cat job_id)
+    - mkdir public
+    - cat website/template.html | sed 's|X_LATEST_BUILD_URL_X|https://gitlab.com/Mr_Goldberg/goldberg_emulator/-/jobs/'$DEPLOY_ALL_JOBID'/artifacts/download|g' > public/index.html
+
+  artifacts:
+    paths:
+      - public/
+  only:
+    - master
