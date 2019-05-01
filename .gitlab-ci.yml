@@ -87,9 +87,13 @@ deploy_all:
   script:
     - ls -lah
     - mv linux release/
+    - shopt -s extglob
+    - rm -rf .g*
     - rm -rf !(release)
     - mv release/* ./
     - rm -rf release
   artifacts:
     name: "Goldberg_Lan_Steam_Emu_$CI_COMMIT_REF_NAME-$CI_COMMIT_TAG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - .
 
