@@ -20,6 +20,8 @@
 #ifndef NETWORK_INCLUDE
 #define NETWORK_INCLUDE
 
+#define MAX_CUSTOM_BROADCASTS 128
+
 #include "net.pb.h"
 #include <chrono>
 
@@ -106,6 +108,7 @@ class Networking {
     std::vector<CSteamID> ids;
     uint32 appid;
     std::chrono::high_resolution_clock::time_point last_broadcast;
+    uint32_t custom_broadcasts[MAX_CUSTOM_BROADCASTS];
 
     std::vector<struct TCP_Socket> accepted;
     std::recursive_mutex mutex;
@@ -120,7 +123,7 @@ class Networking {
 
     Common_Message create_announce(bool request);
 public:
-    Networking(CSteamID id, uint32 appid, uint16 port);
+    Networking(CSteamID id, uint32 appid, uint16 port, uint32_t *custom_broadcasts);
     void addListenId(CSteamID id);
     void setAppID(uint32 appid);
     void Run();

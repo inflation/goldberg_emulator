@@ -19,6 +19,7 @@
 
 #include <fstream>
 
+
 static void network_thread(Networking *network)
 {
     PRINT_DEBUG("network thread starting\n");
@@ -112,6 +113,7 @@ Steam_Client::Steam_Client()
     local_storage = new Local_Storage(save_path);
     local_storage->setAppId(appid);
 
+    // Listen port
     char array_port[10] = {};
     array_port[0] = '0';
     local_storage->get_data_settings("listen_port.txt", array_port, sizeof(array_port) - 1);
@@ -122,19 +124,68 @@ Steam_Client::Steam_Client()
         local_storage->store_data_settings("listen_port.txt", array_port, strlen(array_port));
     }
 
-    char name[32] = {};
+    // Custom broadcasts
 
+    uint32_t custom_broadcasts[MAX_CUSTOM_BROADCASTS] = {0};
+    int readIP = 0;
+
+    std::string broadcasts_filepath = Local_Storage::get_game_settings_path() + "custom_broadcasts.txt";
+
+    std::ifstream broadcasts_file(broadcasts_filepath);
+    PRINT_DEBUG("Broadcasts file path: %s\n", broadcasts_filepath.c_str());
+    if (broadcasts_file.is_open()) {
+        std::string line;
+        while (std::getline(broadcasts_file, line) && readIP < MAX_CUSTOM_BROADCASTS) {
+            int offset = 0;
+            size_t pos = 0;
+            std::string tok;
+            uint32_t current_ip = 0;
+            while((pos = line.find(".")) != std::string::npos && offset < 32)
+            {
+                tok = line.substr(0, pos);
+                try
+                {
+                    current_ip += (std::stoi(tok) << offset);
+                }
+                catch(std::invalid_argument ex)
+                {
+                    offset = -1;
+                    break;
+                }
+                line.erase(0, pos+1);
+                offset += 8;
+            }
+            if(pos == std::string::npos && offset != -1)
+            {
+                try
+                {
+                    current_ip += (std::stoi(line) << offset);
+                    custom_broadcasts[readIP++] = current_ip;
+                }
+                catch(std::invalid_argument ex)
+                {
+                    
+                }
+            }
+        }
+    }
+    
+
+    // Acount name
+    char name[32] = {};
     if (local_storage->get_data_settings("account_name.txt", name, sizeof(name) - 1) <= 0) {
         strcpy(name, DEFAULT_NAME);
         local_storage->store_data_settings("account_name.txt", name, strlen(name));
     }
 
+    // Language
     char language[32] = {};
     if (local_storage->get_data_settings("language.txt", language, sizeof(language) - 1) <= 0) {
         strcpy(language, DEFAULT_LANGUAGE);
         local_storage->store_data_settings("language.txt", language, strlen(language));
     }
 
+    // Steam ID
     char array_steam_id[32] = {};
     CSteamID user_id;
     uint64 steam_id = 0;
@@ -235,7 +286,7 @@ Steam_Client::Steam_Client()
         }
     }
 
-    network = new Networking(settings_server->get_local_steam_id(), appid, port);
+    network = new Networking(settings_server->get_local_steam_id(), appid, port, custom_broadcasts);
 
     callback_results_client = new SteamCallResults();
     callback_results_server = new SteamCallResults();
@@ -243,7 +294,7 @@ Steam_Client::Steam_Client()
     callbacks_server = new SteamCallBacks(callback_results_server);
     run_every_runcb = new RunEveryRunCB();
 
-    PRINT_DEBUG("steam client init: id: %llu server id: %llu appid: %u port: %u \n", user_id.ConvertToUint64(), settings_server->get_local_steam_id().ConvertToUint64(), appid, port);
+    PRINT_DEBUG("steam client init: id: %llu server id: %llu appid: %u port: %u custom broadcasts: %u\n", user_id.ConvertToUint64(), settings_server->get_local_steam_id().ConvertToUint64(), appid, port, sizeof(custom_broadcasts));
 
     steam_user = new Steam_User(settings_client, local_storage, network, callback_results_client, callbacks_client);
     steam_friends = new Steam_Friends(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
