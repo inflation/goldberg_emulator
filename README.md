@@ -18,7 +18,7 @@ For more information see: [The Release Readme](Readme_release.txt)
 
 ## Download Binaries
 
-You can download the latest binaries for Linux and Windows in the [release section](https://gitlab.com/Mr_Goldberg/goldberg_emulator/releases) of this repo.
+You can download the latest git builds for Linux and Windows on [the Gitlab pages website](https://mr_goldberg.gitlab.io/goldberg_emulator/) and the stable releases in the [release section](https://gitlab.com/Mr_Goldberg/goldberg_emulator/releases) of this repo.
 
 ## Contributions
 

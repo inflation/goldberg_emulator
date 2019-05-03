@@ -108,6 +108,7 @@ pages:
     - DEPLOY_ALL_JOBID=$(cat job_id)
     - mkdir public
     - cat website/template.html | sed 's|X_LATEST_BUILD_URL_X|https://gitlab.com/Mr_Goldberg/goldberg_emulator/-/jobs/'$DEPLOY_ALL_JOBID'/artifacts/download|g' > public/index.html
+    - sed -i 's|X_LATEST_BUILD_COMMIT_HASH_X|'$CI_COMMIT_SHA'|g' public/index.html
 
   artifacts:
     paths:
