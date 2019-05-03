@@ -19,7 +19,6 @@
 
 #include <fstream>
 
-
 static void network_thread(Networking *network)
 {
     PRINT_DEBUG("network thread starting\n");
@@ -125,17 +124,14 @@ Steam_Client::Steam_Client()
     }
 
     // Custom broadcasts
-
-    uint32_t custom_broadcasts[MAX_CUSTOM_BROADCASTS] = {0};
-    int readIP = 0;
-
-    std::string broadcasts_filepath = Local_Storage::get_game_settings_path() + "custom_broadcasts.txt";
+    std::vector<uint32_t> custom_broadcasts;
+    std::string broadcasts_filepath = local_storage->get_global_settings_path() + "custom_broadcasts.txt";
 
     std::ifstream broadcasts_file(broadcasts_filepath);
     PRINT_DEBUG("Broadcasts file path: %s\n", broadcasts_filepath.c_str());
     if (broadcasts_file.is_open()) {
         std::string line;
-        while (std::getline(broadcasts_file, line) && readIP < MAX_CUSTOM_BROADCASTS) {
+        while (std::getline(broadcasts_file, line)) {
             int offset = 0;
             size_t pos = 0;
             std::string tok;
@@ -160,7 +156,7 @@ Steam_Client::Steam_Client()
                 try
                 {
                     current_ip += (std::stoi(line) << offset);
-                    custom_broadcasts[readIP++] = current_ip;
+                    custom_broadcasts.push_back(current_ip);
                 }
                 catch(std::invalid_argument ex)
                 {
@@ -169,7 +165,6 @@ Steam_Client::Steam_Client()
             }
         }
     }
-    
 
     // Acount name
     char name[32] = {};
@@ -286,7 +281,7 @@ Steam_Client::Steam_Client()
         }
     }
 
-    network = new Networking(settings_server->get_local_steam_id(), appid, port, custom_broadcasts);
+    network = new Networking(settings_server->get_local_steam_id(), appid, port, &custom_broadcasts);
 
     callback_results_client = new SteamCallResults();
     callback_results_server = new SteamCallResults();
@@ -294,7 +289,7 @@ Steam_Client::Steam_Client()
     callbacks_server = new SteamCallBacks(callback_results_server);
     run_every_runcb = new RunEveryRunCB();
 
-    PRINT_DEBUG("steam client init: id: %llu server id: %llu appid: %u port: %u custom broadcasts: %u\n", user_id.ConvertToUint64(), settings_server->get_local_steam_id().ConvertToUint64(), appid, port, sizeof(custom_broadcasts));
+    PRINT_DEBUG("steam client init: id: %llu server id: %llu appid: %u port: %u \n", user_id.ConvertToUint64(), settings_server->get_local_steam_id().ConvertToUint64(), appid, port);
 
     steam_user = new Steam_User(settings_client, local_storage, network, callback_results_client, callbacks_client);
     steam_friends = new Steam_Friends(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);

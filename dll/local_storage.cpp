@@ -502,6 +502,11 @@ std::string Local_Storage::get_path(std::string folder)
     return path;
 }
 
+std::string Local_Storage::get_global_settings_path()
+{
+    return save_directory + SETTINGS_STORAGE_FOLDER + PATH_SEPARATOR;
+}
+
 std::vector<std::string> Local_Storage::get_filenames_path(std::string path)
 {
     if (path.back() != *PATH_SEPARATOR) {
@@ -522,7 +527,7 @@ int Local_Storage::store_data(std::string folder, std::string file, char *data, 
 
 int Local_Storage::store_data_settings(std::string file, char *data, unsigned int length)
 {
-    return store_file_data(save_directory + SETTINGS_STORAGE_FOLDER, file, data, length);
+    return store_file_data(get_global_settings_path(), file, data, length);
 }
 
 int Local_Storage::get_file_data(std::string full_path, char *data, unsigned int max_length)
@@ -554,7 +559,7 @@ int Local_Storage::get_data(std::string folder, std::string file, char *data, un
 int Local_Storage::get_data_settings(std::string file, char *data, unsigned int max_length)
 {
     file = sanitize_file_name(file);
-    std::string full_path = save_directory + SETTINGS_STORAGE_FOLDER + PATH_SEPARATOR + file;
+    std::string full_path = get_global_settings_path() + file;
     return get_file_data(full_path, data, max_length);
 }
 

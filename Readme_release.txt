@@ -51,7 +51,12 @@ The steam appid can also be set using the SteamAppId or SteamGameId env variable
 Offline mode:
 Some games that connect to online servers might only work if the steam emu behaves like steam is in offline mode. If you need this create a offline.txt file in the steam_settings folder.
 
+Custom Broadcast ips:
+If you want to set custom ips which the emulator will send broadcast packets to, make a list of them, one on each line in: Goldberg SteamEmu Saves\settings\custom_broadcasts.txt
+
+
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
+
 
 Notes:
 You must all be on the same LAN for it to work. This is an early work so a lot of games will likely not work.

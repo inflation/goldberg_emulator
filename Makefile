@@ -25,8 +25,8 @@ release: CXX_FLAGS += -DNDEBUG -DEMU_RELEASE_BUILD -Ofast
 release: LD_FLAGS += -lpthread
 release32: CXX_FLAGS += -m32
 release32: LD_FLAGS += -m32
-debug: CXX_FLAGS += -g3
-debug: LD_FLAGS += -lpthread
+debug: CXX_FLAGS += -g3 -fsanitize=address
+debug: LD_FLAGS += -lasan
 release: library
 release32: release
 debug: library

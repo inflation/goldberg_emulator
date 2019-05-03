@@ -280,7 +280,7 @@ static int receive_packet(sock_t sock, IP_PORT *ip_port, char *data, unsigned lo
     return -1;
 }
 
-static bool send_broadcasts(sock_t sock, uint16 port, char *data, unsigned long length, uint32_t *custom_broadcasts)
+static bool send_broadcasts(sock_t sock, uint16 port, char *data, unsigned long length, std::vector<uint32_t> *custom_broadcasts)
 {
     static std::chrono::high_resolution_clock::time_point last_get_broadcast_info;
     if (number_broadcasts < 0 || check_timedout(last_get_broadcast_info, 60.0)) {
@@ -311,12 +311,11 @@ static bool send_broadcasts(sock_t sock, uint16 port, char *data, unsigned long 
     PRINT_DEBUG("start custom broadcasts\n");
     IP_PORT custom_targeted_broadcast;
     custom_targeted_broadcast.port = port;
-    for(int i = 0; i < MAX_CUSTOM_BROADCASTS; i++) {
-        if(custom_broadcasts[i] == 0)
-            break;
-        custom_targeted_broadcast.ip = custom_broadcasts[i];
+    for(auto &ip : *custom_broadcasts) {
+        custom_targeted_broadcast.ip = ip;
         send_packet_to(sock, custom_targeted_broadcast, data, length);
     }
+
     PRINT_DEBUG("end custom broadcasts\n");
 
     return true;
@@ -683,7 +682,7 @@ bool Networking::handle_low_level_udp(Common_Message *msg, IP_PORT ip_port)
 
 #define NUM_TCP_WAITING 128
 
-Networking::Networking(CSteamID id, uint32 appid, uint16 port, uint32_t *custom_broadcasts)
+Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::vector<uint32_t> *custom_broadcasts)
 {
     run_at_startup();
     tcp_port = udp_port = port;
@@ -691,8 +690,8 @@ Networking::Networking(CSteamID id, uint32 appid, uint16 port, uint32_t *custom_
     alive = true;
     last_run = std::chrono::high_resolution_clock::now();
     this->appid = appid;
-    for(int i = 0; i < MAX_CUSTOM_BROADCASTS; i++)
-        this->custom_broadcasts[i] = custom_broadcasts[i];
+    if (custom_broadcasts)
+        this->custom_broadcasts = *custom_broadcasts;
 
     sock_t sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     PRINT_DEBUG("UDP socket: %u\n", sock);
@@ -802,9 +801,9 @@ void Networking::send_announce_broadcasts()
     size_t size = msg.ByteSizeLong(); 
     char *buffer = new char[size];
     msg.SerializeToArray(buffer, size);
-    send_broadcasts(udp_socket, htons(DEFAULT_PORT), buffer, size, this->custom_broadcasts);
+    send_broadcasts(udp_socket, htons(DEFAULT_PORT), buffer, size, &this->custom_broadcasts);
     if (udp_port != DEFAULT_PORT) {
-        send_broadcasts(udp_socket, htons(udp_port), buffer, size, this->custom_broadcasts);
+        send_broadcasts(udp_socket, htons(udp_port), buffer, size, &this->custom_broadcasts);
     }
 
     delete[] buffer;
