@@ -41,6 +41,11 @@ std::string Local_Storage::get_path(std::string folder)
     return "";
 }
 
+std::string Local_Storage::get_global_settings_path()
+{
+    return "";
+}
+
 Local_Storage::Local_Storage(std::string save_directory)
 {
 
