@@ -46,7 +46,7 @@ public ISteamInventory
 
     std::vector<struct Steam_Inventory_Requests> inventory_requests;
 
-SteamInventoryResult_t new_inventory_result(const SteamItemInstanceID_t *pInstanceIDs=NULL, uint32 unCountInstanceIDs=0)
+struct Steam_Inventory_Requests *new_inventory_result(const SteamItemInstanceID_t *pInstanceIDs=NULL, uint32 unCountInstanceIDs=0)
 {
     static SteamInventoryResult_t result;
     ++result;
@@ -60,7 +60,8 @@ SteamInventoryResult_t new_inventory_result(const SteamItemInstanceID_t *pInstan
 
     request.time_created = std::chrono::system_clock::now();
     inventory_requests.push_back(request);
-    return request.inventory_result;
+
+    return &(inventory_requests.back());
 }
 
 struct Steam_Inventory_Requests *get_inventory_result(SteamInventoryResult_t resultHandle)
@@ -122,6 +123,7 @@ bool GetResultItems( SteamInventoryResult_t resultHandle,
     if (!request->result_done()) return false;
 
     if (punOutItemsArraySize) *punOutItemsArraySize = 0;
+    PRINT_DEBUG("GetResultItems good\n");
     return true;
 }
 
@@ -205,24 +207,24 @@ bool GetAllItems( SteamInventoryResult_t *pResultHandle )
     PRINT_DEBUG("GetAllItems\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (pResultHandle) {
-        SteamInventoryResult_t handle = new_inventory_result();
+        struct Steam_Inventory_Requests *request = new_inventory_result();
         {
             // SteamInventoryFullUpdate_t callbacks are triggered when GetAllItems
             // successfully returns a result which is newer / fresher than the last
             // known result.
             //TODO: should this always be returned for each get all item calls?
             struct SteamInventoryFullUpdate_t data;
-            data.m_handle = handle;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            data.m_handle = request->inventory_result;
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
         }
         {
             struct SteamInventoryResultReady_t data;
-            data.m_handle = handle;
+            data.m_handle = request->inventory_result;
             data.m_result = k_EResultOK;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
         }
 
-        *pResultHandle = handle;
+        *pResultHandle = request->inventory_result;
         return true;
     }
 
@@ -244,15 +246,15 @@ bool GetItemsByID( SteamInventoryResult_t *pResultHandle, STEAM_ARRAY_COUNT( unC
     PRINT_DEBUG("GetItemsByID\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (pResultHandle) {
-        SteamInventoryResult_t handle = new_inventory_result(pInstanceIDs, unCountInstanceIDs);
+        struct Steam_Inventory_Requests *request = new_inventory_result(pInstanceIDs, unCountInstanceIDs);
         {
             struct SteamInventoryResultReady_t data;
-            data.m_handle = handle;
+            data.m_handle = request->inventory_result;
             data.m_result = k_EResultOK;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
         }
 
-        *pResultHandle = handle;
+        *pResultHandle = request->inventory_result;
         return true;
     }
 
@@ -328,15 +330,15 @@ bool DeserializeResult( SteamInventoryResult_t *pOutResultHandle, STEAM_BUFFER_C
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     //TODO
     if (pOutResultHandle) {
-        SteamInventoryResult_t handle = new_inventory_result();
+        struct Steam_Inventory_Requests *request = new_inventory_result();
         {
             struct SteamInventoryResultReady_t data;
-            data.m_handle = handle;
+            data.m_handle = request->inventory_result;
             data.m_result = k_EResultOK;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
         }
 
-        *pOutResultHandle = handle;
+        *pOutResultHandle = request->inventory_result;
         return true;
     }
 
