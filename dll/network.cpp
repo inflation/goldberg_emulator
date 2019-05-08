@@ -470,8 +470,9 @@ static void socket_timeouts(struct TCP_Socket &socket, double extra_time)
 
 std::set<uint32> Networking::resolve_ip(std::string dns)
 {
+    run_at_startup();
     std::set<uint32> ips;
-    struct addrinfo* result;
+    struct addrinfo* result = NULL;
 
     if (getaddrinfo(dns.c_str(), NULL, NULL, &result) == 0) {
         for (struct addrinfo *res = result; res != NULL; res = res->ai_next) {
