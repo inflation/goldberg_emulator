@@ -52,8 +52,9 @@ Offline mode:
 Some games that connect to online servers might only work if the steam emu behaves like steam is in offline mode. If you need this create a offline.txt file in the steam_settings folder.
 
 Custom Broadcast ips:
-If you want to set custom ips which the emulator will send broadcast packets to, make a list of them, one on each line in: Goldberg SteamEmu Saves\settings\custom_broadcasts.txt
-
+If you want to set custom ips (or domains) which the emulator will send broadcast packets to, make a list of them, one on each line in: Goldberg SteamEmu Saves\settings\custom_broadcasts.txt
+If the custom ips/domains are specific for one game only you can put the custom_broadcasts.txt in the steam_settings\ folder.
+An example is provided in steam_settings.EXAMPLE\custom_broadcasts.EXAMPLE.txt
 
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
 

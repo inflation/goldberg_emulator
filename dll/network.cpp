@@ -30,6 +30,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <linux/netdevice.h>
+#include <netdb.h>
 #endif
 
 #define MAX_BROADCASTS 16
@@ -467,6 +468,26 @@ static void socket_timeouts(struct TCP_Socket &socket, double extra_time)
     }
 }
 
+std::set<uint32> Networking::resolve_ip(std::string dns)
+{
+    std::set<uint32> ips;
+    struct addrinfo* result;
+
+    if (getaddrinfo(dns.c_str(), NULL, NULL, &result) == 0) {
+        for (struct addrinfo *res = result; res != NULL; res = res->ai_next) {
+            PRINT_DEBUG("%u %u\n", res->ai_addrlen, res->ai_family);
+            if (res->ai_family == AF_INET) {
+                struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+                uint32 ip;
+                memcpy(&ip, &ipv4->sin_addr, sizeof(ip));
+                ips.insert(ntohl(ip));
+            }
+        }
+    }
+
+    return ips;
+}
+
 void Networking::do_callbacks_message(Common_Message *msg)
 {
     if (msg->has_network() || msg->has_network_old()) {
@@ -682,7 +703,7 @@ bool Networking::handle_low_level_udp(Common_Message *msg, IP_PORT ip_port)
 
 #define NUM_TCP_WAITING 128
 
-Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::vector<uint32_t> *custom_broadcasts)
+Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::set<uint32_t> *custom_broadcasts)
 {
     run_at_startup();
     tcp_port = udp_port = port;
@@ -690,8 +711,9 @@ Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::vector<uint3
     alive = true;
     last_run = std::chrono::high_resolution_clock::now();
     this->appid = appid;
-    if (custom_broadcasts)
-        this->custom_broadcasts = *custom_broadcasts;
+    if (custom_broadcasts) {
+        std::transform(custom_broadcasts->begin(), custom_broadcasts->end(), std::back_inserter(this->custom_broadcasts), [](uint32 ip) {return htonl(ip);});
+    }
 
     sock_t sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     PRINT_DEBUG("UDP socket: %u\n", sock);

@@ -121,7 +121,10 @@ class Networking {
 
     Common_Message create_announce(bool request);
 public:
-    Networking(CSteamID id, uint32 appid, uint16 port, std::vector<uint32_t> *custom_broadcasts);
+    //NOTE: for all functions ips/ports are passed/returned in host byte order
+    //ex: 127.0.0.1 should be passed as 0x7F000001
+    static std::set<uint32> resolve_ip(std::string dns);
+    Networking(CSteamID id, uint32 appid, uint16 port, std::set<uint32_t> *custom_broadcasts);
     void addListenId(CSteamID id);
     void setAppID(uint32 appid);
     void Run();

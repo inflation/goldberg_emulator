@@ -38,6 +38,19 @@ static void network_thread(Networking *network)
     }
 }
 
+static void load_custom_broadcasts(std::string broadcasts_filepath, std::set<uint32> &custom_broadcasts)
+{
+    std::ifstream broadcasts_file(broadcasts_filepath);
+    PRINT_DEBUG("Broadcasts file path: %s\n", broadcasts_filepath.c_str());
+    if (broadcasts_file.is_open()) {
+        std::string line;
+        while (std::getline(broadcasts_file, line)) {
+            std::set<uint32> ips = Networking::resolve_ip(line);
+            custom_broadcasts.insert(ips.begin(), ips.end());
+        }
+    }
+}
+
 Steam_Client::Steam_Client()
 {
     std::string program_path = Local_Storage::get_program_path(), save_path = Local_Storage::get_user_appdata_path();;
@@ -124,47 +137,9 @@ Steam_Client::Steam_Client()
     }
 
     // Custom broadcasts
-    std::vector<uint32_t> custom_broadcasts;
-    std::string broadcasts_filepath = local_storage->get_global_settings_path() + "custom_broadcasts.txt";
-
-    std::ifstream broadcasts_file(broadcasts_filepath);
-    PRINT_DEBUG("Broadcasts file path: %s\n", broadcasts_filepath.c_str());
-    if (broadcasts_file.is_open()) {
-        std::string line;
-        while (std::getline(broadcasts_file, line)) {
-            int offset = 0;
-            size_t pos = 0;
-            std::string tok;
-            uint32_t current_ip = 0;
-            while((pos = line.find(".")) != std::string::npos && offset < 32)
-            {
-                tok = line.substr(0, pos);
-                try
-                {
-                    current_ip += (std::stoi(tok) << offset);
-                }
-                catch(std::invalid_argument ex)
-                {
-                    offset = -1;
-                    break;
-                }
-                line.erase(0, pos+1);
-                offset += 8;
-            }
-            if(pos == std::string::npos && offset != -1)
-            {
-                try
-                {
-                    current_ip += (std::stoi(line) << offset);
-                    custom_broadcasts.push_back(current_ip);
-                }
-                catch(std::invalid_argument ex)
-                {
-                    
-                }
-            }
-        }
-    }
+    std::set<uint32> custom_broadcasts;
+    load_custom_broadcasts(local_storage->get_global_settings_path() + "custom_broadcasts.txt", custom_broadcasts);
+    load_custom_broadcasts(Local_Storage::get_game_settings_path() + "custom_broadcasts.txt", custom_broadcasts);
 
     // Acount name
     char name[32] = {};
