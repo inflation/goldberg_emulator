@@ -135,6 +135,8 @@ CSteamID generate_steam_id_server();
 CSteamID generate_steam_id_anonserver();
 CSteamID generate_steam_id_lobby();
 std::string get_full_program_path();
+std::string get_current_path();
+std::string canonical_path(std::string path);
 
 class SteamCallResults {
     std::vector<struct Steam_Call_Result> callresults;

@@ -211,6 +211,7 @@ Steam_Client::Steam_Client()
         std::ifstream input( dlc_config_path );
         if (input.is_open()) {
             settings_client->unlockAllDLC(false);
+            settings_server->unlockAllDLC(false);
             PRINT_DEBUG("Locking all DLC\n");
 
             for( std::string line; getline( input, line ); ) {
@@ -240,6 +241,39 @@ Steam_Client::Steam_Client()
             PRINT_DEBUG("Unlocking all DLC\n");
             settings_client->unlockAllDLC(true);
             settings_server->unlockAllDLC(true);
+        }
+    }
+
+    {
+        std::string dlc_config_path = Local_Storage::get_game_settings_path() + "app_paths.txt";
+        std::ifstream input( dlc_config_path );
+        if (input.is_open()) {
+            for( std::string line; getline( input, line ); ) {
+                if (!line.empty() && line[line.length()-1] == '\n') {
+                    line.erase(line.length()-1);
+                }
+
+                if (!line.empty() && line[line.length()-1] == '\r') {
+                    line.erase(line.length()-1);
+                }
+
+                std::size_t deliminator = line.find("=");
+                if (deliminator != 0 && deliminator != std::string::npos && deliminator != line.size()) {
+                    AppId_t appid = stol(line.substr(0, deliminator));
+                    std::string rel_path = line.substr(deliminator + 1);
+                    std::string path = canonical_path(program_path + rel_path);
+
+                    if (appid) {
+                        if (path.size()) {
+                            PRINT_DEBUG("Adding app path: %u|%s|\n", appid, path.c_str());
+                            settings_client->setAppInstallPath(appid, path);
+                            settings_server->setAppInstallPath(appid, path);
+                        } else {
+                            PRINT_DEBUG("Error adding app path for: %u does this path exist? |%s|\n", appid, rel_path.c_str());
+                        }
+                    }
+                }
+            }
         }
     }
 

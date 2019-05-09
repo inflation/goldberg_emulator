@@ -19,6 +19,7 @@
 
 #ifdef STEAM_WIN32
 #include <windows.h>
+#include <direct.h>
 
 #define SystemFunction036 NTAPI SystemFunction036
 #include <ntsecapi.h>
@@ -39,7 +40,7 @@ std::string get_env_variable(std::string name)
         return std::string();
     }
 
-    env_variable[ret - 1] = 0;
+    env_variable[ret] = 0;
     return std::string(env_variable);
 }
 
@@ -202,6 +203,40 @@ std::string get_full_program_path()
 #endif
     program_path = program_path.substr(0, program_path.rfind(PATH_SEPARATOR)).append(PATH_SEPARATOR);
     return program_path;
+}
+
+std::string get_current_path()
+{
+    std::string path;
+#if defined(STEAM_WIN32)
+    char *buffer = _getcwd( NULL, 0 );
+#else
+    char *buffer = get_current_dir_name();
+#endif
+    if (buffer) {
+        path = buffer;
+        path.append(PATH_SEPARATOR);
+        free(buffer);
+    }
+
+    return path;
+}
+
+std::string canonical_path(std::string path)
+{
+    std::string output;
+#if defined(STEAM_WIN32)
+    char *buffer = _fullpath(NULL, path.c_str(), 0);
+#else
+    char *buffer = canonicalize_file_name(path.c_str());
+#endif
+
+    if (buffer) {
+        output = buffer;
+        free(buffer);
+    }
+
+    return output;
 }
 
 static void steam_auth_ticket_callback(void *object, Common_Message *msg)

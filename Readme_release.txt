@@ -33,10 +33,16 @@ Note that this save directory will be beside where the emu dll (or .so) is which
 DLC:
 By default the emulator will try to unlock all DLCs (by returning true when the game calls the BIsDlcInstalled function). If the game uses the other function you will need to
 provide a list of DLCs to my emulator. To do this first create a steam_settings folder right beside where you put my emulator. 
-In this folder, put a DLC.txt file. (path will be <path where my emu is>\steam_settings\DLC.txt)
+In this folder, put a DLC.txt file. (path will be <path where my emu lib is>\steam_settings\DLC.txt)
 If the DLC file is present, the emulator will only unlock the DLCs in that file. If the file is empty all DLCs will be locked.
 The contents of this file are: appid=DLC name
 See the steam_settings.EXAMPLE folder for an example.
+
+App paths:
+Some rare games might need to be provided one or more paths to app ids. For example the path to where a dlc is installed. This sets the paths returned by the Steam_Apps::GetAppInstallDir function.
+See steam_settings.EXAMPLE\app_paths.EXAMPLE.txt for an example.
+This file should be put here: <path where my emu lib is>\steam_settings\app_paths.txt
+Note that paths are treated as relative paths from where the steam_api dll is located.
 
 Mods:
 Put your mods in the steam_settings\mods\ folder. The steam_settings folder must be placed right beside my emulator dll.

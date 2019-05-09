@@ -188,11 +188,26 @@ uint32 Steam_Apps::GetInstalledDepots( AppId_t appID, DepotId_t *pvecDepots, uin
 // returns current app install folder for AppID, returns folder name length
 uint32 Steam_Apps::GetAppInstallDir( AppId_t appID, char *pchFolder, uint32 cchFolderBufferSize )
 {
-    PRINT_DEBUG("GetAppInstallDir %u\n", cchFolderBufferSize);
+    PRINT_DEBUG("GetAppInstallDir %u %u\n", appID, cchFolderBufferSize);
     //TODO return real path instead of dll path
     if (!pchFolder || !cchFolderBufferSize) return 0;
-    std::string path = get_full_program_path();
-    snprintf(pchFolder, cchFolderBufferSize, "%s", path.c_str());
+    std::string installed_path = settings->getAppInstallPath(appID);
+
+    if (installed_path.size() == 0) {
+        std::string dll_path = get_full_program_path();
+        std::string current_path = get_current_path();
+        PRINT_DEBUG("paths %s %s\n", dll_path.c_str(), current_path.c_str());
+
+        //Just pick the smallest path, it has the most chances of being the good one
+        if (dll_path.size() > current_path.size() && current_path.size()) {
+            installed_path = current_path;
+        } else {
+            installed_path = dll_path;
+        }
+    }
+
+    PRINT_DEBUG("path %s\n", installed_path.c_str());
+    snprintf(pchFolder, cchFolderBufferSize, "%s", installed_path.c_str());
     return strlen(pchFolder);
 }
 

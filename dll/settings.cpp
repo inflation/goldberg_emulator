@@ -184,3 +184,13 @@ bool Settings::getDLC(unsigned int index, AppId_t &appID, bool &available, std::
     name = DLCs[index].name;
     return true;
 }
+
+void Settings::setAppInstallPath(AppId_t appID, std::string path)
+{
+    app_paths[appID] = path;
+}
+
+std::string Settings::getAppInstallPath(AppId_t appID)
+{
+    return app_paths[appID];
+}

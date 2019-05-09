@@ -43,6 +43,8 @@ class Settings {
     bool offline;
     std::vector<struct DLC_entry> DLCs;
     std::vector<struct Mod_entry> mods;
+    std::map<AppId_t, std::string> app_paths;
+
 public:
 #ifdef LOBBY_CONNECT
     static const bool is_lobby_connect = true;
@@ -66,6 +68,10 @@ public:
     unsigned int DLCCount();
     bool hasDLC(AppId_t appID);
     bool getDLC(unsigned int index, AppId_t &appID, bool &available, std::string &name);
+
+    //App Install paths
+    void setAppInstallPath(AppId_t appID, std::string path);
+    std::string getAppInstallPath(AppId_t appID);
 
     //mod stuff
     void addMod(PublishedFileId_t id, std::string title, std::string path);
