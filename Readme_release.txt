@@ -7,7 +7,9 @@ Put a steam_appid.txt file that contains the appid of the game right beside it i
 
 
 If your game has an original steam_api(64).dll older than may 2016 (Properties->Digital Signatures->Timestamp) you might have to add a steam_interfaces.txt beside my emulator library if the game isn't working. 
-This file contains interface versions, an example (for resident evil 5) is provided. To get those you can just get a hex editor and search for them (Search for the string: SteamUser0) in the original steam_api dll (or libsteam_api.so on linux) or look in the ini of a crack that works on that game.
+This file contains interface versions, an example (for resident evil 5) is provided. 
+If you are on linux you can look in the linux/tools folder (or the scripts folder in the repo) for a script to generate the steam_interfaces.txt file. 
+You can also just get a hex editor and search for them (Search for the string: SteamUser0) in the original steam_api dll (or libsteam_api.so on linux) or look in the ini of a crack that works on that game.
 
 
 If the game has DRM (other than steamworks) you need to remove/crack it first.
