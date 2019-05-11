@@ -107,6 +107,7 @@ static void load_old_interface_versions()
 S_API HSteamUser SteamAPI_GetHSteamUser()
 {
     PRINT_DEBUG("SteamAPI_GetHSteamUser\n");
+    if (!get_steam_client()->user_logged_in) return 0;
     return CLIENT_HSTEAMUSER;
 }
 
@@ -379,8 +380,8 @@ S_API void Steam_RegisterInterfaceFuncs( void *hModule )
 S_API HSteamUser Steam_GetHSteamUserCurrent()
 {
     PRINT_DEBUG("Steam_GetHSteamUserCurrent\n");
-    //TODO?
-    return CLIENT_HSTEAMUSER;
+    //TODO
+    return SteamAPI_GetHSteamUser();
 }
 
 // returns the filename path of the current running Steam process, used if you need to load an explicit steam dll by name.
@@ -399,6 +400,7 @@ S_API const char *SteamAPI_GetSteamInstallPath()
 S_API HSteamPipe SteamAPI_GetHSteamPipe()
 {
     PRINT_DEBUG("SteamAPI_GetHSteamPipe\n");
+    if (!get_steam_client()->user_logged_in) return 0;
     return CLIENT_STEAM_PIPE;
 }
 
@@ -412,13 +414,13 @@ S_API void SteamAPI_SetTryCatchCallbacks( bool bTryCatchCallbacks )
 S_API HSteamPipe GetHSteamPipe()
 {
     PRINT_DEBUG("GetHSteamPipe\n");
-    return CLIENT_STEAM_PIPE;
+    return SteamAPI_GetHSteamPipe();
 }
 
 S_API HSteamUser GetHSteamUser()
 {
     PRINT_DEBUG("GetHSteamUser\n");
-    return CLIENT_HSTEAMUSER;
+    return SteamAPI_GetHSteamUser();
 }
 
 
@@ -469,12 +471,14 @@ S_API void * S_CALLTYPE SteamGameServerInternal_CreateInterface( const char *ver
 S_API HSteamPipe S_CALLTYPE SteamGameServer_GetHSteamPipe()
 {
     PRINT_DEBUG("SteamGameServer_GetHSteamPipe\n");
+    if (!get_steam_client()->server_init) return 0;
     return SERVER_STEAM_PIPE;
 }
 
 S_API HSteamUser S_CALLTYPE SteamGameServer_GetHSteamUser()
 {
     PRINT_DEBUG("SteamGameServer_GetHSteamUser\n");
+    if (!get_steam_client()->server_init) return 0;
     return SERVER_HSTEAMUSER;
 }
 
@@ -488,7 +492,7 @@ S_API bool S_CALLTYPE SteamInternal_GameServer_Init( uint32 unIP, uint16 usPort,
     PRINT_DEBUG("SteamInternal_GameServer_Init %u %hu %hu %hu %u %s\n", unIP, usPort, usGamePort, usQueryPort, eServerMode, pchVersionString);
     SteamGameServerClient();
     get_steam_client()->serverInit();
-    return get_steam_client()->GetISteamGameServer(SERVER_HSTEAMUSER, SERVER_STEAM_PIPE, /* TODO: figure out right interface version */old_gameserver)->InitGameServer(unIP, usGamePort, usQueryPort, eServerMode, 0, pchVersionString);
+    return get_steam_client()->steam_gameserver->InitGameServer(unIP, usGamePort, usQueryPort, eServerMode, 0, pchVersionString);
 }
 
 S_API bool SteamGameServer_Init( uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString )
@@ -511,15 +515,13 @@ S_API void SteamGameServer_RunCallbacks()
 S_API bool SteamGameServer_BSecure()
 {
     PRINT_DEBUG("SteamGameServer_BSecure\n");
-    return true;
+    return get_steam_client()->steam_gameserver->BSecure();
 }
 
 S_API uint64 SteamGameServer_GetSteamID()
 {
     PRINT_DEBUG("SteamGameServer_GetSteamID\n");
-    ISteamGameServer *gs = get_steam_client()->GetISteamGameServer(SERVER_HSTEAMUSER, SERVER_STEAM_PIPE, /* TODO: figure out right interface version */old_gameserver);
-    if (!gs) return 0;
-    return gs->GetSteamID().ConvertToUint64();
+    return get_steam_client()->steam_gameserver->GetSteamID().ConvertToUint64();
 }
 
 S_API ISteamClient *SteamGameServerClient() { 

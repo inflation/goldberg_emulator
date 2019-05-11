@@ -162,6 +162,7 @@ bool Steam_GameServer::BSecure()
 {
     PRINT_DEBUG("BSecure\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (!policy_response_called) return false;
     return flags == eServerModeAuthenticationAndSecure;
 }
  
@@ -169,6 +170,7 @@ CSteamID Steam_GameServer::GetSteamID()
 {
     PRINT_DEBUG("Steam_GameServer::GetSteamID\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (!logged_in) return k_steamIDNil;
     return settings->get_local_steam_id();
 }
 
