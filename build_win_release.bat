@@ -16,3 +16,4 @@ copy Readme_release.txt release\Readme.txt
 xcopy /s files_example\* release\
 call build_win_release_experimental.bat
 call build_win_lobby_connect.bat
+call build_win_find_interfaces.bat

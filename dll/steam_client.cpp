@@ -684,7 +684,7 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
         return GetISteamFriends(hSteamUser, hSteamPipe, pchVersion);
     } else if (strstr(pchVersion, "SteamMatchMaking") == pchVersion) {
         return GetISteamMatchmaking(hSteamUser, hSteamPipe, pchVersion);
-    } else if (strstr(pchVersion, "SteamController") == pchVersion) {
+    } else if (strstr(pchVersion, "SteamController") == pchVersion || strstr(pchVersion, "STEAMCONTROLLER_INTERFACE_VERSION") == pchVersion) {
         return GetISteamController(hSteamUser, hSteamPipe, pchVersion);
     } else if (strstr(pchVersion, "STEAMUGC_INTERFACE_VERSION") == pchVersion) {
         return GetISteamUGC(hSteamUser, hSteamPipe, pchVersion);
