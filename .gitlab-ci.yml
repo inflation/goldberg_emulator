@@ -59,7 +59,9 @@ build_windows:
   image: fedora
 
   script:
-      - dnf -y install wine wget p7zip sed
+      - dnf -y install wine wget p7zip sed dos2unix
+      - unix2dos *.txt
+      - unix2dos files_example/*.txt files_example/*/*.txt
       - sed -i 's/C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat/.\\sdk_standalone\\set_vars64.bat/g' build_env_x64.bat
       - sed -i 's/C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\vcvars32.bat/.\\sdk_standalone\\set_vars32.bat/g' build_env_x86.bat
       - sed -i 's/..\\vcpkg\\packages\\/.\\/g' build_set_protobuf_directories.bat
