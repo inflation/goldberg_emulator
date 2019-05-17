@@ -24,7 +24,7 @@
 
 struct Steam_Networking_Connection {
     CSteamID remote;
-    std::vector<int> open_channels;
+    std::set<int> open_channels;
 };
 
 struct steam_listen_socket {
@@ -257,7 +257,7 @@ bool SendP2PPacket( CSteamID steamIDRemote, const void *pubData, uint32 cubData,
     msg.mutable_network()->set_type(Network::DATA);
 
     struct Steam_Networking_Connection *conn = get_or_create_connection(steamIDRemote);
-    PUSH_BACK_IF_NOT_IN(conn->open_channels, nChannel);
+    conn->open_channels.insert(nChannel);
     bool ret = network->sendTo(&msg, reliable);
     PRINT_DEBUG("Sent message with size: %zu %u\n", msg.network().data().size(), ret);
     return ret;
@@ -388,7 +388,8 @@ bool CloseP2PChannelWithUser( CSteamID steamIDRemote, int nChannel )
     }
 
     struct Steam_Networking_Connection *conn = get_or_create_connection(steamIDRemote);
-    conn->open_channels.erase(std::remove(conn->open_channels.begin(), conn->open_channels.end(), nChannel), conn->open_channels.end());
+
+    conn->open_channels.erase(nChannel);
     if (conn->open_channels.size() == 0) {
         remove_connection(steamIDRemote);
     }
@@ -750,7 +751,7 @@ void RunCallbacks()
                 callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), true);
             } else {
                 struct Steam_Networking_Connection *conn = get_or_create_connection(source_id);
-                PUSH_BACK_IF_NOT_IN(conn->open_channels, msg.network().channel());
+                conn->open_channels.insert(msg.network().channel());
             }
 
             msg.mutable_network()->set_processed(true);
