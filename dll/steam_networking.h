@@ -748,7 +748,7 @@ void RunCallbacks()
                 P2PSessionRequest_t data;
                 memset(&data, 0, sizeof(data));
                 data.m_steamIDRemote = CSteamID(source_id);
-                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), true);
+                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.1, true);
             } else {
                 struct Steam_Networking_Connection *conn = get_or_create_connection(source_id);
                 conn->open_channels.insert(msg.network().channel());
