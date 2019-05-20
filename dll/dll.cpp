@@ -482,9 +482,33 @@ S_API HSteamUser S_CALLTYPE SteamGameServer_GetHSteamUser()
     return SERVER_HSTEAMUSER;
 }
 
-S_API bool S_CALLTYPE SteamGameServer_InitSafe(uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString )
+//See: SteamGameServer_Init
+//S_API bool S_CALLTYPE SteamGameServer_InitSafe(uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString )
+S_API bool S_CALLTYPE SteamGameServer_InitSafe( uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 unknown, EServerMode eServerMode, void *unknown1, void *unknown2, void *unknown3 )
 {
-    return SteamInternal_GameServer_Init( unIP, usSteamPort, usGamePort, usQueryPort, eServerMode, pchVersionString );
+    const char *pchVersionString;
+    EServerMode serverMode;
+    uint16 usQueryPort;
+    SteamGameServerClient();
+    bool logon_anon = false;
+    if (strcmp(old_gameserver, "SteamGameServer010") == 0 || strstr(old_gameserver, "SteamGameServer00") == old_gameserver) {
+        PRINT_DEBUG("Old game server init safe\n");
+        pchVersionString = (char *)unknown3;
+        memcpy(&serverMode, &unknown1, sizeof(serverMode));
+        memcpy(&usQueryPort, (char *)&eServerMode, sizeof(usQueryPort));
+        logon_anon = true;
+    } else {
+        pchVersionString = (char *)unknown1;
+        serverMode = eServerMode;
+        usQueryPort = unknown;
+    }
+
+    bool ret = SteamInternal_GameServer_Init( unIP, usSteamPort, usGamePort, usQueryPort, serverMode, pchVersionString );
+    if (logon_anon) {
+        get_steam_client()->steam_gameserver->LogOnAnonymous();
+    }
+
+    return ret;
 }
 
 S_API bool S_CALLTYPE SteamInternal_GameServer_Init( uint32 unIP, uint16 usPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString )
@@ -495,9 +519,37 @@ S_API bool S_CALLTYPE SteamInternal_GameServer_Init( uint32 unIP, uint16 usPort,
     return get_steam_client()->steam_gameserver->InitGameServer(unIP, usGamePort, usQueryPort, eServerMode, 0, pchVersionString);
 }
 
-S_API bool SteamGameServer_Init( uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString )
+//SteamGameServer004 and before:
+//S_API bool SteamGameServer_Init( uint32 unIP, uint16 usPort, uint16 usGamePort, uint16 usSpectatorPort, uint16 usQueryPort, EServerMode eServerMode, int nGameAppId, const char *pchGameDir, const char *pchVersionString );
+//SteamGameServer010 and before:
+//S_API bool SteamGameServer_Init( uint32 unIP, uint16 usPort, uint16 usGamePort, uint16 usSpectatorPort, uint16 usQueryPort, EServerMode eServerMode, const char *pchGameDir, const char *pchVersionString );
+//SteamGameServer011 and later:
+//S_API bool SteamGameServer_Init( uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString );
+S_API bool SteamGameServer_Init( uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 unknown, EServerMode eServerMode, void *unknown1, void *unknown2, void *unknown3 )
 {
-    return SteamInternal_GameServer_Init( unIP, usSteamPort, usGamePort, usQueryPort, eServerMode, pchVersionString );
+    const char *pchVersionString;
+    EServerMode serverMode;
+    uint16 usQueryPort;
+    SteamGameServerClient();
+    bool logon_anon = false;
+    if (strcmp(old_gameserver, "SteamGameServer010") == 0 || strstr(old_gameserver, "SteamGameServer00") == old_gameserver) {
+        PRINT_DEBUG("Old game server init\n");
+        pchVersionString = (char *)unknown3;
+        memcpy(&serverMode, &unknown1, sizeof(serverMode));
+        memcpy(&usQueryPort, (char *)&eServerMode, sizeof(usQueryPort));
+        logon_anon = true;
+    } else {
+        pchVersionString = (char *)unknown1;
+        serverMode = eServerMode;
+        usQueryPort = unknown;
+    }
+
+    bool ret = SteamInternal_GameServer_Init( unIP, usSteamPort, usGamePort, usQueryPort, serverMode, pchVersionString );
+    if (logon_anon) {
+        get_steam_client()->steam_gameserver->LogOnAnonymous();
+    }
+
+    return ret;
 }
 
 S_API void SteamGameServer_Shutdown()

@@ -477,6 +477,26 @@ ISteamGameServer *Steam_Client::GetISteamGameServer( HSteamUser hSteamUser, HSte
     PRINT_DEBUG("GetISteamGameServer %s\n", pchVersion);
     if (!hSteamPipe || !hSteamUser) return NULL;
     if (!server_init) return NULL;
+    if (strcmp(pchVersion, "SteamGameServer005") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer005 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer006") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer008 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer007") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer008 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer008") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer008 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer009") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer009 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer010") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer010 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer011") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer011 *)steam_gameserver;
+    } else if (strcmp(pchVersion, STEAMGAMESERVER_INTERFACE_VERSION) == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer *)steam_gameserver;
+    } else {
+        return (ISteamGameServer *)(void *)(ISteamGameServer *)steam_gameserver;
+    }
+
     return steam_gameserver;
 }
 

@@ -12,6 +12,11 @@
 
 #include "steam_api.h"
 #include "isteamgameserver.h"
+#include "isteamgameserver011.h"
+#include "isteamgameserver010.h"
+#include "isteamgameserver009.h"
+#include "isteamgameserver008.h"
+#include "isteamgameserver005.h"
 #include "isteamgameserverstats.h"
 
 enum EServerMode
@@ -40,9 +45,10 @@ enum EServerMode
 //		UDP packets for the master  server updater. See references to GameSocketShare in isteamgameserver.h.
 // - The version string is usually in the form x.x.x.x, and is used by the master server to detect when the
 //		server is out of date.  (Only servers with the latest version will be listed.)
+#ifndef STEAM_API_EXPORTS
 S_API bool SteamGameServer_Init( uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString );
+#endif
 S_API bool S_CALLTYPE SteamInternal_GameServer_Init( uint32 unIP, uint16 usPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString );
-
 
 // Shutdown SteamGameSeverXxx interfaces, log out, and free resources.
 S_API void SteamGameServer_Shutdown();
