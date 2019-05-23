@@ -19,6 +19,10 @@
 
 #include <fstream>
 
+struct File_Data {
+    std::string name;
+};
+
 #ifdef NO_DISK_WRITES
 std::string Local_Storage::get_program_path()
 {
@@ -159,36 +163,10 @@ static void create_directory(std::string strPath)
 #include <string.h>
 
 
-static int count_files_directory(std::string path)
+static std::vector<struct File_Data> get_filenames(std::string strPath)
 {
-    path = path.append("*");
-    int counter = 0;
-    WIN32_FIND_DATAA ffd;
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-
-    // Start iterating over the files in the path directory.
-    hFind = ::FindFirstFileA (path.c_str(), &ffd);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        do // Managed to locate and create an handle to that folder.
-        { 
-            if (strcmp(".", ffd.cFileName) == 0) continue;
-            if (strcmp("..", ffd.cFileName) == 0) continue;
-            counter++;
-        } while (::FindNextFileA(hFind, &ffd) == TRUE);
-        ::FindClose(hFind);
-    } else {
-        //printf("Failed to find path: %s", path.c_str());
-    }
-
-    return counter;
-}
-
-
-static bool get_filename_at_index(std::string strPath, char *filename, int index)
-{
+    std::vector<struct File_Data> output;
     strPath = strPath.append("\\*");
-    int counter = 0;
     WIN32_FIND_DATAA ffd;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
@@ -200,43 +178,53 @@ static bool get_filename_at_index(std::string strPath, char *filename, int index
         {
             if (strcmp(".", ffd.cFileName) == 0) continue;
             if (strcmp("..", ffd.cFileName) == 0) continue;
+            struct File_Data f_data;
+            f_data.name = ffd.cFileName;
+            output.push_back(f_data);
+        } while (::FindNextFileA(hFind, &ffd) == TRUE);
+        ::FindClose(hFind);
+    } else {
+        //printf("Failed to find path: %s", strPath.c_str());
+    }
 
-            if (counter == index) {
-                memcpy(filename, ffd.cFileName, MAX_PATH);
-                ::FindClose(hFind);
-                return true;
+    return output;
+}
+
+static std::vector<struct File_Data> get_filenames_recursive(std::string base_path)
+{
+    std::vector<struct File_Data> output;
+    std::string strPath = base_path;
+    strPath = strPath.append("\\*");
+    WIN32_FIND_DATAA ffd;
+    HANDLE hFind = INVALID_HANDLE_VALUE;
+
+    // Start iterating over the files in the path directory.
+    hFind = ::FindFirstFileA (strPath.c_str(), &ffd);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        do // Managed to locate and create an handle to that folder.
+        {
+            if (strcmp(".", ffd.cFileName) == 0) continue;
+            if (strcmp("..", ffd.cFileName) == 0) continue;
+            if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                // Construct new path from our base path
+                std::string dir_name = ffd.cFileName;
+
+                std::string path = base_path;
+                path += "\\";
+                path += dir_name;
+
+                std::vector<struct File_Data> lower = get_filenames_recursive(path);
+                std::transform(lower.begin(), lower.end(), std::back_inserter(output), [dir_name](File_Data f) {f.name = dir_name + "\\" + f.name; return f;});
+            } else {
+                File_Data f;
+                f.name = ffd.cFileName;
+                output.push_back(f);
             }
-
-            counter++;
         } while (::FindNextFileA(hFind, &ffd) == TRUE);
         ::FindClose(hFind);
     } else {
-        printf("Failed to find path: %s", strPath.c_str());
-    }
-
-    return false;
-}
-
-static std::vector<std::string> get_filenames(std::string strPath)
-{
-    std::vector<std::string> output;
-    strPath = strPath.append("\\*");
-    WIN32_FIND_DATAA ffd;
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-
-    // Start iterating over the files in the path directory.
-    hFind = ::FindFirstFileA (strPath.c_str(), &ffd);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        do // Managed to locate and create an handle to that folder.
-        {
-            if (strcmp(".", ffd.cFileName) == 0) continue;
-            if (strcmp("..", ffd.cFileName) == 0) continue;
-            output.push_back(ffd.cFileName);
-        } while (::FindNextFileA(hFind, &ffd) == TRUE);
-        ::FindClose(hFind);
-    } else {
-        printf("Failed to find path: %s", strPath.c_str());
+        //printf("Failed to find path: %s", strPath.c_str());
     }
 
     return output;
@@ -313,66 +301,21 @@ static void create_directory(std::string strPath)
     mkdir_p(strPath.c_str(), 0777);
 }
 
-static int count_files_directory(std::string strPath)
-{
-  DIR *dp;
-  int i = 0;
-  struct dirent *ep;     
-  dp = opendir (strPath.c_str());
-
-  if (dp != NULL)
-  {
-    while ((ep = readdir (dp)))
-      i++;
-
-    (void) closedir (dp);
-  }
-
-  if (i < 2) i = 2;
-  return i - 2;
-}
-
-//filename should be 256 big
-static bool get_filename_at_index(std::string strPath, char *filename, int index)
-{
-  DIR *dp;
-  int i = 0;
-  struct dirent *ep;     
-  dp = opendir (strPath.c_str());
-
-  if (dp != NULL)
-  {
-    while ((ep = readdir (dp))) {
-      if (memcmp(ep->d_name, ".", 2) != 0 && memcmp(ep->d_name, "..", 3) != 0) {
-        if (i == (index)) {
-            memcpy(filename, ep->d_name, 256);
-            (void) closedir (dp);
-            return true;
-        }
-
-        i++;
-      }
-    }
-
-    (void) closedir (dp);
-  }
-
-  return false;
-}
-
-static std::vector<std::string> get_filenames(std::string strPath)
+static std::vector<struct File_Data> get_filenames(std::string strPath)
 {
   DIR *dp;
   int i = 0;
   struct dirent *ep;
-  std::vector<std::string> output;
+  std::vector<struct File_Data> output;
   dp = opendir (strPath.c_str());
 
   if (dp != NULL)
   {
     while ((ep = readdir (dp))) {
       if (memcmp(ep->d_name, ".", 2) != 0 && memcmp(ep->d_name, "..", 3) != 0) {
-        output.push_back(ep->d_name);
+        struct File_Data f_data;
+        f_data.name = ep->d_name;
+        output.push_back(f_data);
         i++;
       }
     }
@@ -382,6 +325,45 @@ static std::vector<std::string> get_filenames(std::string strPath)
 
   return output;
 }
+
+static std::vector<struct File_Data> get_filenames_recursive(std::string base_path)
+{
+    std::vector<struct File_Data> output;
+    std::string path;
+    struct dirent *dp;
+    DIR *dir = opendir(base_path.c_str());
+
+    // Unable to open directory stream
+    if (!dir)
+        return output;
+
+    while ((dp = readdir(dir)) != NULL)
+    {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
+        {
+            if (dp->d_type == DT_REG) {
+                File_Data f;
+                f.name = dp->d_name;
+                output.push_back(f);
+            } else if (dp->d_type == DT_DIR) {
+                // Construct new path from our base path
+                std::string dir_name = dp->d_name;
+
+                path = base_path;
+                path += "/";
+                path += dir_name;
+
+                std::vector<struct File_Data> lower = get_filenames_recursive(path);
+                std::transform(lower.begin(), lower.end(), std::back_inserter(output), [dir_name](File_Data f) {f.name = dir_name + "/" + f.name; return f;});
+            }
+        }
+    }
+
+    closedir(dir);
+
+    return output;
+}
+
 
 #endif 
 
@@ -441,9 +423,14 @@ static std::string sanitize_file_name(std::string name)
 {
     //I'm not sure all of these are necessary but just to be sure
     if (name[0] == '.' && name.size() > 2 && (name[1] == '\\' || name[1] == '/')) name.erase(0, 2);
-    name = replace_with(name, PATH_SEPARATOR, ".SLASH.");
-    name = replace_with(name, "\\", ".SLASH.");
-    name = replace_with(name, "/", ".SLASH.");
+
+#if defined(STEAM_WIN32)
+    name = replace_with(name, "/", PATH_SEPARATOR);
+#else
+    //On linux does using "\\" in a remote storage file name create a directory?
+    //I didn't test but I'm going to say yes
+    name = replace_with(name, "\\", PATH_SEPARATOR);
+#endif
     name = replace_with(name, "|", ".V_SLASH.");
     name = replace_with(name, ":", ".COLON.");
     name = replace_with(name, "*", ".ASTERISK.");
@@ -489,15 +476,23 @@ int Local_Storage::store_file_data(std::string folder, std::string file, char *d
     }
 
     file = sanitize_file_name(file);
+    std::string::size_type pos = file.rfind(PATH_SEPARATOR);
 
-    create_directory(folder);
+    std::string file_folder;
+    if (pos == 0 || pos == std::string::npos) {
+        file_folder = "";
+    } else {
+        file_folder = file.substr(0,pos);
+    }
+
+    create_directory(folder + file_folder);
     std::ofstream myfile;
     myfile.open(folder + file, std::ios::binary | std::ios::out);
     if (!myfile.is_open()) return -1;
     myfile.write(data, length);
-    int pos = myfile.tellp();
+    int position = myfile.tellp();
     myfile.close();
-    return pos;
+    return position;
 }
 
 std::string Local_Storage::get_path(std::string folder)
@@ -518,7 +513,10 @@ std::vector<std::string> Local_Storage::get_filenames_path(std::string path)
         path.append(PATH_SEPARATOR);
     }
 
-    return get_filenames(path);
+    std::vector<struct File_Data> filenames = get_filenames(path);
+    std::vector<std::string> output;
+    std::transform(filenames.begin(), filenames.end(), std::back_inserter(output), [](struct File_Data d) { return d.name;});
+    return output;
 }
 
 int Local_Storage::store_data(std::string folder, std::string file, char *data, unsigned int length)
@@ -574,7 +572,7 @@ int Local_Storage::count_files(std::string folder)
         folder.append(PATH_SEPARATOR);
     }
 
-    return count_files_directory(save_directory + appid + folder);
+    return get_filenames_recursive(save_directory + appid + folder).size();
 }
 
 bool Local_Storage::file_exists(std::string folder, std::string file)
@@ -632,32 +630,31 @@ bool Local_Storage::iterate_file(std::string folder, int index, char *output_fil
         folder.append(PATH_SEPARATOR);
     }
 
-    char temp[1024] = {};
-    if (get_filename_at_index(save_directory + appid + folder, temp, index)) {
-        std::string name = desanitize_file_name(temp);
-        if (output_size) *output_size = file_size(folder, name);
-        strcpy(output_filename, name.c_str());
-        return true;
-    }
+    std::vector<struct File_Data> files = get_filenames_recursive(save_directory + appid + folder);
+    if (index < 0 || index >= files.size()) return false;
 
-    return false;
+    std::string name = desanitize_file_name(files[index].name);
+    if (output_size) *output_size = file_size(folder, name);
+#if defined(STEAM_WIN32)
+    name = replace_with(name, PATH_SEPARATOR, "/");
+#endif
+    strcpy(output_filename, name.c_str());
+    return true;
 }
 
 bool Local_Storage::update_save_filenames(std::string folder)
 {
-    int num_files = count_files(folder);
-    std::vector<std::string> files;
-    for (int i = 0; i < num_files; ++i) {
-        char out_folder[1024];
-        if (get_filename_at_index(save_directory + appid + folder, out_folder, i)) {
-            files.push_back(out_folder);
-        }
-    }
+    std::vector<struct File_Data> files = get_filenames_recursive(save_directory + appid + folder);
 
-    for (auto &path : files) {
+    for (auto &f : files) {
+        std::string path = f.name;
         PRINT_DEBUG("Local_Storage:: remote file %s\n", path.c_str());
         std::string to = sanitize_file_name(desanitize_file_name(path));
-        if (path != to) {
+        if (path != to && !file_exists(folder, to)) {
+            //create the folder
+            store_data(folder, to, (char *)"", 0);
+            file_delete(folder, to);
+
             std::string from = (save_directory + appid + folder + PATH_SEPARATOR + path);
             to = (save_directory + appid + folder + PATH_SEPARATOR + to);
             PRINT_DEBUG("Local_Storage::update_save_filenames renaming %s to %s\n", from.c_str(), to.c_str());

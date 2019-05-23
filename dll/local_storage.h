@@ -23,7 +23,7 @@
 #define SETTINGS_STORAGE_FOLDER "settings"
 #define REMOTE_STORAGE_FOLDER "remote"
 #define STATS_STORAGE_FOLDER "stats"
-#define USER_DATA_FOLDER "userdata"
+#define USER_DATA_FOLDER "local"
 
 #define GAME_SETTINGS_FOLDER "steam_settings"
 
