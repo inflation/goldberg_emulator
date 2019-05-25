@@ -75,7 +75,11 @@ build_windows:
       - DLL_FILES="$(ls detours/*.cpp | tr "\n" " ")"; sed "s|detours/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls dll/*.proto | tr "\n" " " | sed "s/.proto/.pb.cc/g")"; sed "s|dll/\*.cc|$DLL_FILES|g" -i *.bat
       - export WINEDEBUG=-all
+      - wine cmd /c build_win_debug_experimental.bat
       - wine cmd /c build_win_release.bat
+      - mkdir release/debug_experimental
+      - mv steam_api.dll steam_api64.dll release/debug_experimental/
+      - cp Readme_debug.txt release/debug_experimental/Readme.txt
   artifacts:
     paths:
       - release/
