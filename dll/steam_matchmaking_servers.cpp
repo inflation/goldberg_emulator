@@ -424,16 +424,18 @@ void Steam_Matchmaking_Servers::RunCallbacks()
         if (r.cancelled || r.completed) continue;
         int i = 0;
 
-        for (auto &g : r.gameservers_filtered) {
-            PRINT_DEBUG("REQUESTS server responded cb %p\n", r.id);
-            r.callbacks->ServerResponded(r.id, i);
-            ++i;
-        }
+        if (r.callbacks) {
+            for (auto &g : r.gameservers_filtered) {
+                PRINT_DEBUG("REQUESTS server responded cb %p\n", r.id);
+                r.callbacks->ServerResponded(r.id, i);
+                ++i;
+            }
 
-        if (i) {
-            r.callbacks->RefreshComplete(r.id, eServerResponded);
-        } else {
-            r.callbacks->RefreshComplete(r.id, eNoServersListedOnMasterServer);
+            if (i) {
+                r.callbacks->RefreshComplete(r.id, eServerResponded);
+            } else {
+                r.callbacks->RefreshComplete(r.id, eNoServersListedOnMasterServer);
+            }
         }
     }
 
