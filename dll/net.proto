@@ -85,7 +85,7 @@ message Network {
 
     enum Types {
         DATA = 0;
-        CLEAR_BEFORE = 1;
+        NEW_CONNECTION = 1;
     }
 
     Types type = 3;

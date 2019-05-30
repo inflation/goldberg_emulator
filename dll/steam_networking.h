@@ -19,6 +19,7 @@
 
 //packet timeout in seconds for non connections
 #define ORPHANED_PACKET_TIMEOUT (20)
+#define NEW_CONNECTION_TIMEOUT (20.0)
 
 #define OLD_CHANNEL_NUMBER 1
 
@@ -71,7 +72,9 @@ public ISteamNetworking
 
     std::vector<struct steam_listen_socket> listen_sockets;
     std::vector<struct steam_connection_socket> connection_sockets;
-    
+
+    std::map<CSteamID, std::chrono::high_resolution_clock::time_point> new_connection_times;
+
 bool connection_exists(CSteamID id)
 {
     return std::find_if(connections.begin(), connections.end(), [&id](struct Steam_Networking_Connection const& conn) { return conn.remote == id;}) != connections.end();
@@ -248,7 +251,7 @@ bool SendP2PPacket( CSteamID steamIDRemote, const void *pubData, uint32 cubData,
     msg.set_allocated_network(new Network);
 
     if (!connection_exists(steamIDRemote)) {
-        msg.mutable_network()->set_type(Network::CLEAR_BEFORE);
+        msg.mutable_network()->set_type(Network::NEW_CONNECTION);
         network->sendTo(&msg, true);
     }
 
@@ -257,6 +260,8 @@ bool SendP2PPacket( CSteamID steamIDRemote, const void *pubData, uint32 cubData,
     msg.mutable_network()->set_type(Network::DATA);
 
     struct Steam_Networking_Connection *conn = get_or_create_connection(steamIDRemote);
+    new_connection_times.erase(steamIDRemote);
+
     conn->open_channels.insert(nChannel);
     bool ret = network->sendTo(&msg, reliable);
     PRINT_DEBUG("Sent message with size: %zu %u\n", msg.network().data().size(), ret);
@@ -289,6 +294,7 @@ bool IsP2PPacketAvailable( uint32 *pcubMsgSize, int nChannel)
     }
 
     PRINT_DEBUG("Not available\n");
+    if (pcubMsgSize) *pcubMsgSize = 0;
     return false;
 }
 
@@ -335,6 +341,8 @@ bool ReadP2PPacket( void *pubDest, uint32 cubDest, uint32 *pcubMsgSize, CSteamID
         ++msg;
     }
 
+    if (pcubMsgSize) *pcubMsgSize = 0;
+    if (psteamIDRemote) *psteamIDRemote = k_steamIDNil;
     return false;
 }
 
@@ -355,6 +363,7 @@ bool AcceptP2PSessionWithUser( CSteamID steamIDRemote )
     PRINT_DEBUG("Steam_Networking::AcceptP2PSessionWithUser %llu\n", steamIDRemote.ConvertToUint64());
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     struct Steam_Networking_Connection *conn = get_or_create_connection(steamIDRemote);
+    if (conn) new_connection_times.erase(steamIDRemote);
     return !!conn;
 }
 
@@ -591,7 +600,11 @@ bool IsDataAvailableOnSocket( SNetSocket_t hSocket, uint32 *pcubMsgSize )
     PRINT_DEBUG("Steam_Networking::IsDataAvailableOnSocket\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     struct steam_connection_socket *socket = get_connection_socket(hSocket);
-    if (!socket) return false;
+    if (!socket) {
+        if (pcubMsgSize) *pcubMsgSize = 0;
+        return false;
+    }
+
     if (socket->data_packets.size() == 0) return false;
     if (pcubMsgSize) *pcubMsgSize = socket->data_packets[0].data().size();
     return true;
@@ -745,10 +758,13 @@ void RunCallbacks()
         CSteamID source_id((uint64)msg.source_id());
         if (!msg.network().processed()) {
             if (!connection_exists(source_id)) {
-                P2PSessionRequest_t data;
-                memset(&data, 0, sizeof(data));
-                data.m_steamIDRemote = CSteamID(source_id);
-                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.1, true);
+                if (new_connection_times.find(source_id) == new_connection_times.end()) {
+                    P2PSessionRequest_t data;
+                    memset(&data, 0, sizeof(data));
+                    data.m_steamIDRemote = CSteamID(source_id);
+                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.1);
+                    new_connection_times[source_id] = std::chrono::high_resolution_clock::now();
+                }
             } else {
                 struct Steam_Networking_Connection *conn = get_or_create_connection(source_id);
                 conn->open_channels.insert(msg.network().channel());
@@ -779,13 +795,22 @@ void RunCallbacks()
 
     //TODO: not sure if sockets should be wiped right away
     remove_killed_connection_sockets();
+
+    for(auto it = new_connection_times.begin(); it != new_connection_times.end(); ) {
+        if (std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - it->second).count() > NEW_CONNECTION_TIMEOUT) {
+            it = new_connection_times.erase(it);
+            //TODO send packet to other side to tell them connection has "failed".
+        } else {
+            ++it;
+        }
+    }
 }
 
 void Callback(Common_Message *msg)
 {
     if (msg->has_network()) {
 #ifndef EMU_RELEASE_BUILD
-        PRINT_DEBUG("Steam_Networking: got msg from: %llu to: %llu size %zu | messages %p: %zu\n", msg->source_id(), msg->dest_id(), msg->network().data().size(), &messages, messages.size());
+        PRINT_DEBUG("Steam_Networking: got msg from: %llu to: %llu size %zu type %u | messages %p: %zu\n", msg->source_id(), msg->dest_id(), msg->network().data().size(), msg->network().type(), &messages, messages.size());
         for (int i = 0; i < msg->network().data().size(); ++i) {
             PRINT_DEBUG("%02hhX", msg->network().data().data()[i]);
         }PRINT_DEBUG("\n");
@@ -795,11 +820,11 @@ void Callback(Common_Message *msg)
             messages.push_back(Common_Message(*msg));
         }
 
-        if (msg->network().type() == Network::CLEAR_BEFORE) {
+        if (msg->network().type() == Network::NEW_CONNECTION) {
             auto msg_temp = std::begin(messages);
             while (msg_temp != std::end(messages)) {
                 //only delete processed to handle unreliable message arriving at the same time.
-                if (msg_temp->source_id() == msg->source_id() && msg->network().processed()) {
+                if (msg_temp->source_id() == msg->source_id() && msg_temp->network().processed()) {
                     msg_temp = messages.erase(msg_temp);
                 } else {
                     ++msg_temp;
