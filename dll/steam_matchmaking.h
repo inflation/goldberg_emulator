@@ -623,7 +623,7 @@ SteamAPICall_t JoinLobby( CSteamID steamIDLobby )
         data.m_EChatRoomEnterResponse = k_EChatRoomEnterResponseSuccess;
         auto api = callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
         callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-        
+
         return api;
     }
 

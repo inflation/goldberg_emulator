@@ -462,6 +462,15 @@ CSteamID GetFriendFromSourceByIndex( CSteamID steamIDSource, int iFriend )
 bool IsUserInSource( CSteamID steamIDUser, CSteamID steamIDSource )
 {
     PRINT_DEBUG("Steam_Friends::IsUserInSource %llu %llu\n", steamIDUser.ConvertToUint64(), steamIDSource.ConvertToUint64());
+    if (steamIDUser == settings->get_local_steam_id()) {
+        if (settings->get_lobby() == steamIDSource) {
+            return true;
+        }
+    } else {
+        Friend *f = find_friend(steamIDUser);
+        if (!f) return false;
+        if (f->lobby_id() == steamIDSource.ConvertToUint64()) return true;
+    }
     //TODO
     return false;
 }
