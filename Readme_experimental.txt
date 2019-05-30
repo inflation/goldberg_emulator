@@ -30,3 +30,6 @@ All ips except these ranges are blocked:
 192.168.0.0 - 192.168.255.255
 224.0.0.0 - 255.255.255.255
 
+
+Luma CEG support:
+If LumaCEG_Plugin_x86.dll (steam_api.dll) or LumaCEG_Plugin_x64.dll (steam_api64.dll) is present it will be loaded automatically.

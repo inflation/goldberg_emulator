@@ -583,6 +583,24 @@ static void load_dll()
     }
 }
 
+#ifdef DETOURS_64BIT
+#define LUMA_CEG_DLL_NAME "LumaCEG_Plugin_x64.dll"
+#else
+#define LUMA_CEG_DLL_NAME "LumaCEG_Plugin_x86.dll"
+#endif
+
+static void load_lumaCEG()
+{
+    std::string path = get_full_program_path();
+    path += LUMA_CEG_DLL_NAME;
+    if (file_exists(path)) {
+        PRINT_DEBUG("loading luma ceg dll %s\n", path.c_str());
+        if (LoadLibraryA(path.c_str())) {
+            PRINT_DEBUG("Loaded luma ceg dll file\n");
+        }
+    }
+}
+
 //For some reason when this function is optimized it breaks the shogun 2 prophet (reloaded) crack.
 #pragma optimize( "", off )
 bool crack_SteamAPI_RestartAppIfNecessary(uint32 unOwnAppID)
@@ -666,6 +684,7 @@ BOOL WINAPI DllMain( HINSTANCE, DWORD dwReason, LPVOID ) {
                 network_functions_attached = true;
             }
             load_dll();
+            load_lumaCEG();
             break;
 
         case DLL_PROCESS_DETACH:
