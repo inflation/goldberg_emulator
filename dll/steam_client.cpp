@@ -19,21 +19,22 @@
 
 #include <fstream>
 
-static void network_thread(Networking *network)
+static void background_thread(Steam_Client *client)
 {
-    PRINT_DEBUG("network thread starting\n");
+    PRINT_DEBUG("background thread starting\n");
     while (1) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         global_mutex.lock();
-        if (!network->isAlive()) {
+        if (!client->network->isAlive()) {
             global_mutex.unlock();
             //delete network;
-            PRINT_DEBUG("network thread exit\n");
+            PRINT_DEBUG("background thread exit\n");
             return;
         }
 
-        PRINT_DEBUG("network thread run\n");
-        network->Run();
+        PRINT_DEBUG("background thread run\n");
+        client->network->Run();
+        client->steam_matchmaking->RunBackground();
         global_mutex.unlock();
     }
 }
@@ -1672,7 +1673,7 @@ void Steam_Client::UnregisterCallResult( class CCallbackBase *pCallback, SteamAP
 void Steam_Client::RunCallbacks(bool runClientCB, bool runGameserverCB)
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    if (!network_keepalive.joinable()) network_keepalive = std::thread(network_thread, network);
+    if (!background_keepalive.joinable()) background_keepalive = std::thread(background_thread, this);
 
     network->Run();
     PRINT_DEBUG("Steam_Client::RunCallbacks steam_matchmaking_servers\n");

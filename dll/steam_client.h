@@ -115,7 +115,7 @@ public:
 
     bool user_logged_in = false;
     bool server_init = false;
-    std::thread network_keepalive;
+    std::thread background_keepalive;
 
     Steam_Client();
     ~Steam_Client();

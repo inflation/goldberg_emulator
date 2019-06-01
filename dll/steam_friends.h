@@ -462,6 +462,7 @@ CSteamID GetFriendFromSourceByIndex( CSteamID steamIDSource, int iFriend )
 bool IsUserInSource( CSteamID steamIDUser, CSteamID steamIDSource )
 {
     PRINT_DEBUG("Steam_Friends::IsUserInSource %llu %llu\n", steamIDUser.ConvertToUint64(), steamIDSource.ConvertToUint64());
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (steamIDUser == settings->get_local_steam_id()) {
         if (settings->get_lobby() == steamIDSource) {
             return true;

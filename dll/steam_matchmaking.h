@@ -1115,8 +1115,7 @@ bool SetLinkedLobby( CSteamID steamIDLobby, CSteamID steamIDLobbyDependent )
     return false;
 }
 
-
-void RunCallbacks()
+void RunBackground()
 {
     remove_lobbies();
     Create_pending_lobbies();
@@ -1125,6 +1124,11 @@ void RunCallbacks()
         send_lobby_data();
         last_sent_lobbies = std::chrono::high_resolution_clock::now();
     }
+}
+
+void RunCallbacks()
+{
+    RunBackground();
 
     if (searching) {
         PRINT_DEBUG("Searching for lobbies %zu\n", lobbies.size());
