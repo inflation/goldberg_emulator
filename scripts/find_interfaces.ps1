@@ -5,9 +5,7 @@ if( ! $fi )
   $fi = "steam_api.dll"
 }
 
-function findinterface
-
-($api)
+function findinterface($api)
 {
   $str = Select-String "$api[0-9][0-9][0-9]" $fi
   if( $str -match "$api[0-9]{3}" )
