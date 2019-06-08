@@ -410,7 +410,7 @@ std::string Local_Storage::get_user_appdata_path()
     return user_appdata_path.append(PATH_SEPARATOR).append(PROGRAM_NAME).append(" Saves");
 }
 
-static std::string replace_with(std::string s, std::string old, char *new_str)
+static std::string replace_with(std::string s, std::string const &old, const char *new_str)
 {
     int pos;
     while ((pos = s.find(old)) != std::string::npos)
