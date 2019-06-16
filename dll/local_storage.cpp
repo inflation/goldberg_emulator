@@ -636,7 +636,7 @@ bool Local_Storage::iterate_file(std::string folder, int index, char *output_fil
     std::string name = desanitize_file_name(files[index].name);
     if (output_size) *output_size = file_size(folder, name);
 #if defined(STEAM_WIN32)
-    name = replace_with(name, PATH_SEPARATOR, "/");
+    name = replace_with(name, "/", PATH_SEPARATOR);
 #endif
     strcpy(output_filename, name.c_str());
     return true;
