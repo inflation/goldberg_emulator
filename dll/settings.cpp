@@ -23,11 +23,10 @@ std::string Settings::sanitize(std::string name)
     name.erase(std::remove(name.begin(), name.end(), '\n'), name.end());
     name.erase(std::remove(name.begin(), name.end(), '\r'), name.end());
 
-    for (int i = 0; i < name.size(); ++i) {
-        if (name[i] >= 'a' && name[i] <= 'z') continue;
-        if (name[i] >= 'A' && name[i] <= 'Z') continue;
-        if (name[i] >= '0' && name[i] <= '9') continue;
-        name[i] = ' ';
+    for (auto& i : name)
+    {
+        if (!isprint(i))
+            i = ' ';
     }
 
     return name;
