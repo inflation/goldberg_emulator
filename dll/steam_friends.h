@@ -545,6 +545,7 @@ void SetPlayedWith( CSteamID steamIDUserPlayedWith )
 void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby )
 {
     PRINT_DEBUG("Steam_Friends::ActivateGameOverlayInviteDialog\n");
+    // TODO: Here open the overlay
 }
 
 // gets the small (32x32) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
@@ -775,8 +776,14 @@ void RequestFriendRichPresence( CSteamID steamIDFriend )
 bool InviteUserToGame( CSteamID steamIDFriend, const char *pchConnectString )
 {
     PRINT_DEBUG("Steam_Friends::InviteUserToGame\n");
-    //TODO
-    return true;
+    Common_Message msg;
+    Friend_Messages *friend_messages = new Friend_Messages();
+    friend_messages->set_type(Friend_Messages::GAME_INVITE);
+    friend_messages->set_connect_str(pchConnectString);
+    msg.set_allocated_friend_messages(friend_messages);
+    msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
+    msg.set_dest_id(steamIDFriend.ConvertToUint64());
+    return network->sendTo(&msg, true);
 }
 
 
@@ -1019,6 +1026,15 @@ void Callback(Common_Message *msg)
             GameLobbyJoinRequested_t data;
             data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
             data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        }
+		
+        if (msg->friend_messages().type() == Friend_Messages::GAME_INVITE) {
+            PRINT_DEBUG("Steam_Friends Got Game Invite\n");
+            std::string const& connect_str = msg->friend_messages().connect_str();
+            GameRichPresenceJoinRequested_t data;
+            data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+            strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength);
             callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
         }
     }

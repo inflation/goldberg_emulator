@@ -176,10 +176,14 @@ message Auth_Ticket {
 message Friend_Messages {
     enum Types {
         LOBBY_INVITE = 0;
+        GAME_INVITE = 1;
     }
 
     Types type = 1;
-    uint64 lobby_id = 2;
+    oneof invite_data {
+        uint64 lobby_id = 2;
+        bytes connect_str = 3;
+    }
 }
 
 message Common_Message {
