@@ -192,6 +192,8 @@ static std::vector<struct File_Data> get_filenames(std::string strPath)
 
 static std::vector<struct File_Data> get_filenames_recursive(std::string base_path)
 {
+    if (base_path.back() == *PATH_SEPARATOR)
+        base_path.pop_back();
     std::vector<struct File_Data> output;
     std::string strPath = base_path;
     strPath = strPath.append("\\*");
@@ -211,10 +213,11 @@ static std::vector<struct File_Data> get_filenames_recursive(std::string base_pa
                 std::string dir_name = ffd.cFileName;
 
                 std::string path = base_path;
-                path += "\\";
+                path += PATH_SEPARATOR;
                 path += dir_name;
 
                 std::vector<struct File_Data> lower = get_filenames_recursive(path);
+                // output.push_back(File_Data{ dir_name }); Is this needed ? Add folder name to the list of files ?
                 std::transform(lower.begin(), lower.end(), std::back_inserter(output), [dir_name](File_Data f) {f.name = dir_name + "\\" + f.name; return f;});
             } else {
                 File_Data f;
@@ -584,6 +587,10 @@ bool Local_Storage::file_exists(std::string folder, std::string file)
 
     std::string full_path = save_directory + appid + folder + file;
     struct stat buffer;   
+        
+    if (GetFileAttributes(full_path.c_str()) & FILE_ATTRIBUTE_DIRECTORY)
+        return false;
+
     return (stat (full_path.c_str(), &buffer) == 0);
 }
 
@@ -636,7 +643,7 @@ bool Local_Storage::iterate_file(std::string folder, int index, char *output_fil
     std::string name = desanitize_file_name(files[index].name);
     if (output_size) *output_size = file_size(folder, name);
 #if defined(STEAM_WIN32)
-    name = replace_with(name, "/", PATH_SEPARATOR);
+    name = replace_with(name, PATH_SEPARATOR, "/");
 #endif
     strcpy(output_filename, name.c_str());
     return true;
