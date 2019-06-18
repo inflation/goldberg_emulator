@@ -217,7 +217,7 @@ static std::vector<struct File_Data> get_filenames_recursive(std::string base_pa
                 path += dir_name;
 
                 std::vector<struct File_Data> lower = get_filenames_recursive(path);
-                // output.push_back(File_Data{ dir_name }); Is this needed ? Add folder name to the list of files ?
+                output.push_back(File_Data{ dir_name });// Is this needed ? Add folder name to the list of files ?
                 std::transform(lower.begin(), lower.end(), std::back_inserter(output), [dir_name](File_Data f) {f.name = dir_name + "\\" + f.name; return f;});
             } else {
                 File_Data f;
@@ -587,11 +587,19 @@ bool Local_Storage::file_exists(std::string folder, std::string file)
 
     std::string full_path = save_directory + appid + folder + file;
     struct stat buffer;   
-        
-    if (GetFileAttributes(full_path.c_str()) & FILE_ATTRIBUTE_DIRECTORY)
+
+    if (stat(full_path.c_str(), &buffer) != 0)
         return false;
 
-    return (stat (full_path.c_str(), &buffer) == 0);
+#if defined(STEAM_WIN32)
+    if ( buffer.st_mode & _S_IFDIR)
+        return false;
+#else
+    if (S_ISDIR(buffer.st_mode))
+        return false;
+#endif
+
+    return true;
 }
 
 unsigned int Local_Storage::file_size(std::string folder, std::string file)
