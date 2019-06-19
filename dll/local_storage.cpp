@@ -357,6 +357,7 @@ static std::vector<struct File_Data> get_filenames_recursive(std::string base_pa
                 path += dir_name;
 
                 std::vector<struct File_Data> lower = get_filenames_recursive(path);
+                output.push_back(File_Data{ dir_name });// Is this needed ? Add folder name to the list of files ?
                 std::transform(lower.begin(), lower.end(), std::back_inserter(output), [&dir_name](File_Data f) {f.name = dir_name + "/" + f.name; return f;});
             }
         }
