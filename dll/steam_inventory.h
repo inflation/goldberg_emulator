@@ -45,7 +45,6 @@ class Steam_Inventory :
 
     std::vector<struct Steam_Inventory_Requests> inventory_requests;
 
-struct Steam_Inventory_Requests *new_inventory_result(const SteamItemInstanceID_t *pInstanceIDs=NULL, uint32 unCountInstanceIDs=0)
     std::map<SteamItemDef_t, std::map<std::string, std::string>> items;
     // Like typedefs
     using item_iterator = std::map<SteamItemDef_t, std::map<std::string, std::string>>::iterator;
@@ -58,6 +57,7 @@ struct Steam_Inventory_Requests *new_inventory_result(const SteamItemInstanceID_
     //   Or find a server somewhere to hold the data for us then cache on local settings.
     bool need_load_definitions = true;
 
+struct Steam_Inventory_Requests* new_inventory_result(const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
 {
     static SteamInventoryResult_t result;
     ++result;
@@ -86,7 +86,7 @@ struct Steam_Inventory_Requests *get_inventory_result(SteamInventoryResult_t res
 
 public:
 
-Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks)
+Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks):
     items(read_items_db(Local_Storage::get_program_path() + PATH_SEPARATOR + "steam_items.json"))
 {
     this->settings = settings;
