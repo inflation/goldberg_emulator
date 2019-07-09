@@ -24,33 +24,39 @@ std::map<SteamItemDef_t, std::map<std::string, std::string>> read_items_db(std::
     std::map<SteamItemDef_t, std::map<std::string, std::string>> items;
    
     std::ifstream items_file(items_db);
-    items_file.seekg(0, std::ios::end);
-    size_t size = items_file.tellg();
-    std::string buffer(size, '\0');
-    items_file.seekg(0);
-    items_file.read(&buffer[0], size);
-    items_file.close();
-
-    try
+    // If there is a file and we opened it
+    if( items_file )
     {
-        std::map<SteamItemDef_t, std::map<std::string, std::string>> tmp;
-        nlohmann::json json = nlohmann::json::parse(buffer);
+        items_file.seekg(0, std::ios::end);
+        size_t size = items_file.tellg();
+        std::string buffer(size, '\0');
+        items_file.seekg(0);
+        // Read it entirely, if the .json file gets too big,
+        // I should look into this and split reads into smaller parts.
+        items_file.read(&buffer[0], size); 
+        items_file.close();
 
-        for (auto& i : json.items())
+        try
         {
-            SteamItemDef_t key = std::stoi((*i).key());
-            nlohmann::json& value = (*i).value();
-            for( auto& j : value.items() )
-            {
-                tmp[key][(*j).key()] = (*j).value();
-            }
-        }
+            std::map<SteamItemDef_t, std::map<std::string, std::string>> tmp;
+            nlohmann::json json = nlohmann::json::parse(buffer);
 
-        items.swap(tmp);
-    }
-    catch (std::exception& e)
-    {
-        PRINT_DEBUG("Error while parsing json: %s", e.what());
+            for (auto& i : json.items())
+            {
+                SteamItemDef_t key = std::stoi((*i).key());
+                nlohmann::json& value = (*i).value();
+                for (auto& j : value.items())
+                {
+                    tmp[key][(*j).key()] = (*j).value();
+                }
+            }
+
+            items.swap(tmp);
+        }
+        catch (std::exception& e)
+        {
+            PRINT_DEBUG("Error while parsing json: %s", e.what());
+        }
     }
 
     return items;

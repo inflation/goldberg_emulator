@@ -87,7 +87,7 @@ struct Steam_Inventory_Requests *get_inventory_result(SteamInventoryResult_t res
 public:
 
 Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks):
-    items(read_items_db(Local_Storage::get_program_path() + PATH_SEPARATOR + "steam_items.json"))
+    items(std::move(read_items_db(Local_Storage::get_program_path() + PATH_SEPARATOR + "steam_items.json")))
 {
     this->settings = settings;
     this->callbacks = callbacks;
