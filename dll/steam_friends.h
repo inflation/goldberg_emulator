@@ -776,6 +776,10 @@ void RequestFriendRichPresence( CSteamID steamIDFriend )
 bool InviteUserToGame( CSteamID steamIDFriend, const char *pchConnectString )
 {
     PRINT_DEBUG("Steam_Friends::InviteUserToGame\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    Friend *f = find_friend(steamIDFriend);
+    if (!f) return false;
+
     Common_Message msg;
     Friend_Messages *friend_messages = new Friend_Messages();
     friend_messages->set_type(Friend_Messages::GAME_INVITE);
@@ -1028,13 +1032,14 @@ void Callback(Common_Message *msg)
             data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
             callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
         }
-		
+
         if (msg->friend_messages().type() == Friend_Messages::GAME_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Game Invite\n");
+            //TODO: I'm pretty sure that the user should accept the invite before this is posted but we do like above
             std::string const& connect_str = msg->friend_messages().connect_str();
-            GameRichPresenceJoinRequested_t data;
+            GameRichPresenceJoinRequested_t data = {};
             data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
-            strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength);
+            strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength - 1);
             callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
         }
     }
