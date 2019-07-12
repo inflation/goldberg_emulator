@@ -560,7 +560,7 @@ bool GetItemDefinitionIDs(
         return false;
 
     for (auto& i : items)
-        * pItemDefIDs++ = i.first;
+        *pItemDefIDs++ = i.first;
 
     return true;
 }
@@ -586,6 +586,7 @@ bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPrope
         attr_iterator attr;
         if (pchPropertyName != nullptr)
         {
+            // Should I check for punValueBufferSizeOut == nullptr ?
             // Try to get the property
             if ((attr = item->second.find(pchPropertyName)) != items[iDefinition].end())
             {
@@ -602,6 +603,32 @@ bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPrope
             {
                 *punValueBufferSizeOut = 0;
                 PRINT_DEBUG("Attr %s not found for item %d", pchPropertyName, iDefinition);
+            }
+        }
+        else // Pass a NULL pointer for pchPropertyName to get a comma - separated list of available property names.
+        {
+            // If pchValueBuffer is NULL, *punValueBufferSize will contain the suggested buffer size
+            if (pchValueBuffer == nullptr)
+            {
+                // Should I check for punValueBufferSizeOut == nullptr ?
+                *punValueBufferSizeOut = 0;
+                for (auto& i : item->second)
+                    *punValueBufferSizeOut += i.first.length() + 1; // Size of key + comma, and the last is not a comma but null char
+            }
+            else
+            {
+                uint32_t len = *punValueBufferSizeOut;
+                memset(pchValueBuffer, 0, len);
+                for( auto i = item->second.begin(); i != item->second.end() && len > 0; ++i )
+                {
+                    strncat(pchValueBuffer, i->first.c_str(), len);
+                    len -= i->first.length();
+                    if (len <= 0) // Check if we reached the end of the buffer
+                        break;
+
+                    if (std::distance(i, item->second.end()) != 1) // If this is not the last item, add a comma
+                        strncat(pchValueBuffer, ",", len--);
+                }
             }
         }
     }
