@@ -699,8 +699,6 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
         return GetISteamGameServerStats(hSteamUser, hSteamPipe, pchVersion);
     } else if (strstr(pchVersion, "SteamMatchMakingServers") == pchVersion) {
         return GetISteamMatchmakingServers(hSteamUser, hSteamPipe, pchVersion);
-    } else if (strstr(pchVersion, "STEAMREMOTESTORAGE_INTERFACE_VERSION") == pchVersion) {
-        return GetISteamRemoteStorage(hSteamUser, hSteamPipe, pchVersion);
     } else if (strstr(pchVersion, "SteamFriends") == pchVersion) {
         return GetISteamFriends(hSteamUser, hSteamPipe, pchVersion);
     } else if (strstr(pchVersion, "SteamMatchMaking") == pchVersion) {
