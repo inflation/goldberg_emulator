@@ -379,7 +379,10 @@ unsigned int receive_buffer_amount(sock_t sock)
 
 static void send_tcp_pending(struct TCP_Socket &socket)
 {
-    int len = send(socket.sock, &(socket.send_buffer[0]), socket.send_buffer.size(), MSG_NOSIGNAL);
+    size_t buf_size = socket.send_buffer.size();
+    if (buf_size == 0) return;
+
+    int len = send(socket.sock, &(socket.send_buffer[0]), buf_size, MSG_NOSIGNAL);
     if (len <= 0) return;
 
     socket.send_buffer.erase(socket.send_buffer.begin(), socket.send_buffer.begin() + len);

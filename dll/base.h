@@ -93,7 +93,8 @@ struct Steam_Call_Result {
     Steam_Call_Result(SteamAPICall_t a, int icb, void *r, unsigned int s, double r_in, bool run_cc_cb) {
         api_call = a;
         result.resize(s);
-        memcpy(&(result[0]), r, s);
+        if (s > 0 && r != NULL)
+            memcpy(&(result[0]), r, s);
         created = std::chrono::high_resolution_clock::now();
         run_in = r_in;
         run_call_completed_cb = run_cc_cb;
