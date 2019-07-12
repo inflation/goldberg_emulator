@@ -192,6 +192,8 @@ static std::vector<struct File_Data> get_filenames(std::string strPath)
 
 static std::vector<struct File_Data> get_filenames_recursive(std::string base_path)
 {
+    if (base_path.back() == *PATH_SEPARATOR)
+        base_path.pop_back();
     std::vector<struct File_Data> output;
     std::string strPath = base_path;
     strPath = strPath.append("\\*");
@@ -211,11 +213,11 @@ static std::vector<struct File_Data> get_filenames_recursive(std::string base_pa
                 std::string dir_name = ffd.cFileName;
 
                 std::string path = base_path;
-                path += "\\";
+                path += PATH_SEPARATOR;
                 path += dir_name;
 
                 std::vector<struct File_Data> lower = get_filenames_recursive(path);
-                std::transform(lower.begin(), lower.end(), std::back_inserter(output), [dir_name](File_Data f) {f.name = dir_name + "\\" + f.name; return f;});
+                std::transform(lower.begin(), lower.end(), std::back_inserter(output), [&dir_name](File_Data f) {f.name = dir_name + "\\" + f.name; return f;});
             } else {
                 File_Data f;
                 f.name = ffd.cFileName;
@@ -354,7 +356,7 @@ static std::vector<struct File_Data> get_filenames_recursive(std::string base_pa
                 path += dir_name;
 
                 std::vector<struct File_Data> lower = get_filenames_recursive(path);
-                std::transform(lower.begin(), lower.end(), std::back_inserter(output), [dir_name](File_Data f) {f.name = dir_name + "/" + f.name; return f;});
+                std::transform(lower.begin(), lower.end(), std::back_inserter(output), [&dir_name](File_Data f) {f.name = dir_name + "/" + f.name; return f;});
             }
         }
     }
@@ -584,7 +586,19 @@ bool Local_Storage::file_exists(std::string folder, std::string file)
 
     std::string full_path = save_directory + appid + folder + file;
     struct stat buffer;   
-    return (stat (full_path.c_str(), &buffer) == 0);
+
+    if (stat(full_path.c_str(), &buffer) != 0)
+        return false;
+
+#if defined(STEAM_WIN32)
+    if ( buffer.st_mode & _S_IFDIR)
+        return false;
+#else
+    if (S_ISDIR(buffer.st_mode))
+        return false;
+#endif
+
+    return true;
 }
 
 unsigned int Local_Storage::file_size(std::string folder, std::string file)
