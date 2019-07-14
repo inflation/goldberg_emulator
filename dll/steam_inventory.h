@@ -144,17 +144,23 @@ bool GetResultItems( SteamInventoryResult_t resultHandle,
 
     if (pOutItemsArray != nullptr)
     {
-        for (auto& i : items)
+        uint32 max_items = *punOutItemsArraySize;
+        // We end if we reached the end of items or the end of buffer
+        for( auto i = items.begin(); i != items.end() && max_items; ++i, --max_items )
         {
-            pOutItemsArray->m_iDefinition = i.first;
-            pOutItemsArray->m_itemId = i.first;
+            pOutItemsArray->m_iDefinition = i->first;
+            pOutItemsArray->m_itemId = i->first;
             pOutItemsArray->m_unQuantity = 1;
             pOutItemsArray->m_unFlags = k_ESteamItemNoTrade;
             ++pOutItemsArray;
         }
+        *punOutItemsArraySize = std::min(*punOutItemsArraySize, static_cast<uint32>(items.size()));
+    }
+    else if (punOutItemsArraySize != nullptr)
+    {
+        *punOutItemsArraySize = items.size();
     }
 
-    if (punOutItemsArraySize)* punOutItemsArraySize = items.size();
     PRINT_DEBUG("GetResultItems good\n");
     return true;
 }
