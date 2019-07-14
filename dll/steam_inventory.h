@@ -16,6 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "item_db_loader.h"
+#include <thread>
 
 struct Steam_Inventory_Requests {
     double timeout = 0.1;
@@ -57,7 +58,7 @@ class Steam_Inventory :
     //   Or find a server somewhere to hold the data for us then cache on local settings.
     bool need_load_definitions = true;
 
-    bool items_loaded = false;
+    std::atomic_bool items_loaded = false;
 
 struct Steam_Inventory_Requests* new_inventory_result(const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
 {
@@ -90,7 +91,7 @@ public:
 
 Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks)
 {
-    std::thread items_load_thread(read_items_db, Local_Storage::get_program_path() + PATH_SEPARATOR + "steam_items.json", &items, &items_loaded);
+    std::thread items_load_thread(read_items_db, Local_Storage::get_game_settings_path() + PATH_SEPARATOR + "items.json", &items, &items_loaded);
     items_load_thread.detach();
 
     this->settings = settings;

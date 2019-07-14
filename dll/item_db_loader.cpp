@@ -17,9 +17,9 @@
 #include "item_db_loader.h"
 
 #include <fstream>
-#include "json.hpp"
+#include "../json/json.hpp"
 
-void read_items_db(std::string items_db, std::map<SteamItemDef_t, std::map<std::string, std::string>> *items, bool *is_loadedb)
+void read_items_db(std::string items_db, std::map<SteamItemDef_t, std::map<std::string, std::string>> *items, std::atomic_bool *is_loadedb)
 {
     std::ifstream items_file(items_db);
     // If there is a file and we opened it
