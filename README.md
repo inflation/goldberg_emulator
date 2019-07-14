@@ -16,6 +16,18 @@ If your game has an original steam_api(64).dll or libsteam_api.so older than may
 
 For more information see: [The Release Readme](Readme_release.txt)
 
+## How to add items to your steam inventory
+
+Create a folder named steam_settings right beside steam_api.dll if there isn't one already. In that folder, create a file named items.json which will contain every item you want to have in your game.
+
+An example can be found in steam_settings.EXAMPLE that works with Killing Floor 2.
+
+The items.json syntax is simple, you SHOULD validate your .json file before trying to run your game or you won't have any item in your inventory. Just look for "online json validator" on your web brower to valide your file.
+
+You can use https://steamdb.info/ to list items and attributes they have and put them into your .json.
+
+Keep in mind that some item are not valid to have in your inventory. For example, in PayDay2 all items below item_id 50000 will make your game crash.
+
 ## Download Binaries
 
 You can download the latest git builds for Linux and Windows on [the Gitlab pages website](https://mr_goldberg.gitlab.io/goldberg_emulator/) and the stable releases in the [release section](https://gitlab.com/Mr_Goldberg/goldberg_emulator/releases) of this repo.
