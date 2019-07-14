@@ -18,6 +18,6 @@
 
 #include "base.h" // For SteamItemDef_t
 
-std::map<SteamItemDef_t, std::map<std::string, std::string>> read_items_db(std::string const& items_db);
+void read_items_db(std::string items_db, std::map<SteamItemDef_t, std::map<std::string, std::string>> *items, bool *is_loaded);
 
 #endif//__ITEM_DB_LOADER_INCLUDED__

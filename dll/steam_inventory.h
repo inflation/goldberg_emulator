@@ -15,7 +15,7 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include "item_db_loader.h" 
+#include "item_db_loader.h"
 
 struct Steam_Inventory_Requests {
     double timeout = 0.1;
@@ -57,6 +57,8 @@ class Steam_Inventory :
     //   Or find a server somewhere to hold the data for us then cache on local settings.
     bool need_load_definitions = true;
 
+    bool items_loaded = false;
+
 struct Steam_Inventory_Requests* new_inventory_result(const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
 {
     static SteamInventoryResult_t result;
@@ -86,9 +88,11 @@ struct Steam_Inventory_Requests *get_inventory_result(SteamInventoryResult_t res
 
 public:
 
-Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks):
-    items(std::move(read_items_db(Local_Storage::get_program_path() + PATH_SEPARATOR + "steam_items.json")))
+Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks)
 {
+    std::thread items_load_thread(read_items_db, Local_Storage::get_program_path() + PATH_SEPARATOR + "steam_items.json", &items, &items_loaded);
+    items_load_thread.detach();
+
     this->settings = settings;
     this->callbacks = callbacks;
     this->callback_results = callback_results;
@@ -230,8 +234,21 @@ bool GetAllItems( SteamInventoryResult_t *pResultHandle )
 {
     PRINT_DEBUG("GetAllItems\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    if (pResultHandle) {
-        struct Steam_Inventory_Requests *request = new_inventory_result();
+    struct Steam_Inventory_Requests* request = new_inventory_result();
+
+    // Can't call LoadItemDefinitions because it sends a SteamInventoryResultReady_t.
+    if( need_load_definitions )
+    {
+        if (items_loaded)
+        {
+            need_load_definitions = false;
+            SteamInventoryDefinitionUpdate_t data = {};
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        }
+    }
+
+    if (!need_load_definitions)
+    {
         {
             // SteamInventoryFullUpdate_t callbacks are triggered when GetAllItems
             // successfully returns a result which is newer / fresher than the last
@@ -248,22 +265,21 @@ bool GetAllItems( SteamInventoryResult_t *pResultHandle )
             callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
         }
 
-        *pResultHandle = request->inventory_result;
-        return true;
+        if (pResultHandle != nullptr)
+            *pResultHandle = request->inventory_result;
     }
     else
     {
-        //Steam_Client::RegisterCallback : SteamInventoryResultReady_t
-        //Steam_Client::RegisterCallback : SteamInventoryDefinitionUpdate_t
-        //Steam_Client::RegisterCallback : DownloadItemResult_t
-        struct Steam_Inventory_Requests* request = new_inventory_result();
         struct SteamInventoryResultReady_t data;
         data.m_handle = request->inventory_result;
-        data.m_result = k_EResultOK;
+        data.m_result = k_EResultPending;
         callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
+
+        if (pResultHandle != nullptr)
+            *pResultHandle = request->inventory_result;
     }
 
-    return false;
+    return true;
 }
 
 
@@ -526,9 +542,27 @@ bool LoadItemDefinitions()
 
     if (need_load_definitions)
     {
-        need_load_definitions = false;
-        SteamInventoryDefinitionUpdate_t data;
-        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        if (!items_loaded)
+        {
+            SteamInventoryResultReady_t data;
+            data.m_result = k_EResultPending;
+            data.m_handle = new_inventory_result()->inventory_result;
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        }
+        else
+        {
+            need_load_definitions = false;
+            {
+                SteamInventoryDefinitionUpdate_t data = {};
+                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            }
+            {
+                SteamInventoryResultReady_t data = {};
+                data.m_result = k_EResultOK;
+                data.m_handle = new_inventory_result()->inventory_result;
+                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            }
+        }
     }
 
     return true;
@@ -592,17 +626,25 @@ bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPrope
             {
                 std::string const& val = attr->second;
                 if (pchValueBuffer != nullptr)
+                {
                     // copy what we can
                     strncpy(pchValueBuffer, val.c_str(), *punValueBufferSizeOut);
+                }
 
                 // Set punValueBufferSizeOut to the property size
-                *punValueBufferSizeOut = val.length() + 1;
+                *punValueBufferSizeOut = std::min(static_cast<uint32>(val.length() + 1), *punValueBufferSizeOut);
+
+                if (pchValueBuffer != nullptr)
+                {
+                    // Make sure we have a null terminator
+                    pchValueBuffer[*punValueBufferSizeOut-1] = '\0';
+                }
             }
             // Property not found
             else
             {
                 *punValueBufferSizeOut = 0;
-                PRINT_DEBUG("Attr %s not found for item %d", pchPropertyName, iDefinition);
+                PRINT_DEBUG("Attr %s not found for item %d\n", pchPropertyName, iDefinition);
             }
         }
         else // Pass a NULL pointer for pchPropertyName to get a comma - separated list of available property names.
@@ -617,17 +659,24 @@ bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPrope
             }
             else
             {
-                uint32_t len = *punValueBufferSizeOut;
+                // strncat always add the null terminator, so remove 1 to the string length
+                uint32_t len = *punValueBufferSizeOut-1;
+                *punValueBufferSizeOut = 0;
                 memset(pchValueBuffer, 0, len);
                 for( auto i = item->second.begin(); i != item->second.end() && len > 0; ++i )
                 {
                     strncat(pchValueBuffer, i->first.c_str(), len);
-                    len -= i->first.length();
-                    if (len <= 0) // Check if we reached the end of the buffer
-                        break;
+                    // Count how many chars we copied
+                    // Either the string length or the buffer size if its too small
+                    uint32 x = std::min(len, static_cast<uint32>(i->first.length()));
+                    *punValueBufferSizeOut += x;
+                    len -= x;
 
-                    if (std::distance(i, item->second.end()) != 1) // If this is not the last item, add a comma
+                    if (len && std::distance(i, item->second.end()) != 1) // If this is not the last item, add a comma
                         strncat(pchValueBuffer, ",", len--);
+
+                    // Always add 1, its a comma or the null terminator
+                    ++*punValueBufferSizeOut;
                 }
             }
         }

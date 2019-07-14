@@ -19,10 +19,8 @@
 #include <fstream>
 #include "json.hpp"
 
-std::map<SteamItemDef_t, std::map<std::string, std::string>> read_items_db(std::string const& items_db)
+void read_items_db(std::string items_db, std::map<SteamItemDef_t, std::map<std::string, std::string>> *items, bool *is_loadedb)
 {
-    std::map<SteamItemDef_t, std::map<std::string, std::string>> items;
-   
     std::ifstream items_file(items_db);
     // If there is a file and we opened it
     if( items_file )
@@ -51,13 +49,12 @@ std::map<SteamItemDef_t, std::map<std::string, std::string>> read_items_db(std::
                 }
             }
 
-            items.swap(tmp);
+            items->swap(tmp);
         }
         catch (std::exception& e)
         {
             PRINT_DEBUG("Error while parsing json: %s", e.what());
         }
     }
-
-    return items;
+    *is_loadedb = true;
 }
