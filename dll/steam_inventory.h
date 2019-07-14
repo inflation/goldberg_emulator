@@ -58,7 +58,7 @@ class Steam_Inventory :
     //   Or find a server somewhere to hold the data for us then cache on local settings.
     bool need_load_definitions = true;
 
-    std::atomic_bool items_loaded = false;
+    std::atomic_bool items_loaded;
 
 struct Steam_Inventory_Requests* new_inventory_result(const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
 {
@@ -91,6 +91,7 @@ public:
 
 Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks)
 {
+    items_loaded = false;
     std::thread items_load_thread(read_items_db, Local_Storage::get_game_settings_path() + "items.json", &items, &items_loaded);
     items_load_thread.detach();
 
