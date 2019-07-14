@@ -91,7 +91,7 @@ public:
 
 Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks)
 {
-    std::thread items_load_thread(read_items_db, Local_Storage::get_game_settings_path() + PATH_SEPARATOR + "items.json", &items, &items_loaded);
+    std::thread items_load_thread(read_items_db, Local_Storage::get_game_settings_path() + "items.json", &items, &items_loaded);
     items_load_thread.detach();
 
     this->settings = settings;
