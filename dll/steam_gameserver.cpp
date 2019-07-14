@@ -649,14 +649,14 @@ void Steam_GameServer::RunCallbacks()
     if (temp_call_servers_connected) {
         PRINT_DEBUG("Steam_GameServer::SteamServersConnected_t\n");
         SteamServersConnected_t data;
-        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.1);
     }
 
     if (logged_in && !policy_response_called) {
         PRINT_DEBUG("Steam_GameServer::GSPolicyResponse_t\n");
         GSPolicyResponse_t data;
         data.m_bSecure = flags == eServerModeAuthenticationAndSecure;
-        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.11);
         policy_response_called = true;
     }
 

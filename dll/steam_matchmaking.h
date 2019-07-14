@@ -521,7 +521,7 @@ static bool leave_lobby(Lobby *lobby, CSteamID id)
 }
 
 
-#define LOBBY_CREATE_DELAY 0.1 //artificial delay for lobby creation
+#define LOBBY_CREATE_DELAY 0.07 //artificial delay for lobby creation
 
 void Create_pending_lobbies()
 {
