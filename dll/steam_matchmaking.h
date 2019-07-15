@@ -760,7 +760,7 @@ const char *GetLobbyData( CSteamID steamIDLobby, const char *pchKey )
 // other users in the lobby will receive notification of the lobby data change via a LobbyDataUpdate_t callback
 bool SetLobbyData( CSteamID steamIDLobby, const char *pchKey, const char *pchValue )
 {
-    PRINT_DEBUG("SetLobbyData %s %s\n", pchKey, pchValue);
+    PRINT_DEBUG("SetLobbyData %llu %s %s\n", steamIDLobby.ConvertToUint64(), pchKey, pchValue);
     if (!pchKey) return false;
     char empty_string[] = "";
     if (!pchValue) pchValue = empty_string;

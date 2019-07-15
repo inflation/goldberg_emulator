@@ -256,13 +256,15 @@ Auth_Ticket_Manager::Auth_Ticket_Manager(class Settings *settings, class Network
     this->network->setCallback(CALLBACK_ID_USER_STATUS, settings->get_local_steam_id(), &steam_auth_ticket_callback, this);
 }
 
-void Auth_Ticket_Manager::launch_callback(CSteamID id, EAuthSessionResponse resp)
+#define STEAM_TICKET_PROCESS_TIME 0.02
+
+void Auth_Ticket_Manager::launch_callback(CSteamID id, EAuthSessionResponse resp, double delay)
 {
     ValidateAuthTicketResponse_t data;
     data.m_SteamID = id;
     data.m_eAuthSessionResponse = resp;
     data.m_OwnerSteamID = id;
-    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), delay);
 }
 
 void Auth_Ticket_Manager::launch_callback_gs(CSteamID id, bool approved)
@@ -383,15 +385,16 @@ EBeginAuthSessionResult Auth_Ticket_Manager::beginAuth(const void *pAuthTicket, 
     memcpy(&number, ((char *)pAuthTicket) + sizeof(uint64), sizeof(number));
     data.id = CSteamID(id);
     data.number = number;
+    data.created = std::chrono::high_resolution_clock::now();
 
     for (auto & t : inbound) {
-        if (t.id == data.id) {
+        if (t.id == data.id && !check_timedout(t.created, STEAM_TICKET_PROCESS_TIME)) {
             return k_EBeginAuthSessionResultDuplicateRequest;
         }
     }
 
     inbound.push_back(data);
-    launch_callback(steamID, k_EAuthSessionResponseOK);
+    launch_callback(steamID, k_EAuthSessionResponseOK, STEAM_TICKET_PROCESS_TIME);
     return k_EBeginAuthSessionResultOK;
 }
 
@@ -402,12 +405,18 @@ uint32 Auth_Ticket_Manager::countInboundAuth()
 
 bool Auth_Ticket_Manager::endAuth(CSteamID id)
 {
-    auto ticket = std::find_if(inbound.begin(), inbound.end(), [&id](Auth_Ticket_Data const& item) { return item.id == id; });
-    if (inbound.end() == ticket)
-        return false;
+    bool erased = false;
+    auto t = std::begin(inbound);
+    while (t != std::end(inbound)) {
+        if (t->id == id) {
+            erased = true;
+            t = inbound.erase(t);
+        } else {
+            ++t;
+        }
+    }
 
-    inbound.erase(ticket);
-    return true;
+    return erased;
 }
 
 void Auth_Ticket_Manager::Callback(Common_Message *msg)
@@ -438,6 +447,7 @@ void Auth_Ticket_Manager::Callback(Common_Message *msg)
             auto t = std::begin(inbound);
             while (t != std::end(inbound)) {
                 if (t->id.ConvertToUint64() == msg->source_id() && t->number == number) {
+                    PRINT_DEBUG("TICKET CANCELED\n");
                     launch_callback(t->id, k_EAuthSessionResponseAuthTicketCanceled);
                     t = inbound.erase(t);
                 } else {

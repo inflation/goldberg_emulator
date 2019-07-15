@@ -413,6 +413,7 @@ public:
 struct Auth_Ticket_Data {
     CSteamID id;
     uint64 number;
+    std::chrono::high_resolution_clock::time_point created;
 };
 
 class Auth_Ticket_Manager {
@@ -420,7 +421,7 @@ class Auth_Ticket_Manager {
     class Networking *network;
     class SteamCallBacks *callbacks;
 
-    void launch_callback(CSteamID id, EAuthSessionResponse resp);
+    void launch_callback(CSteamID id, EAuthSessionResponse resp, double delay=0);
     void launch_callback_gs(CSteamID id, bool approved);
     std::vector<struct Auth_Ticket_Data> inbound, outbound;
 public:
