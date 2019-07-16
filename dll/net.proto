@@ -112,8 +112,7 @@ message Network_Old {
 
 message Networking_Sockets {
     enum Types {
-        CONNECTION_REQUEST_IP = 0;
-        CONNECTION_REQUEST_STEAMID = 1;
+        CONNECTION_REQUEST = 0;
         CONNECTION_ACCEPTED = 2;
         CONNECTION_END = 3;
         DATA = 4;
