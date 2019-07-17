@@ -46,7 +46,9 @@ class Steam_Inventory :
 
     std::vector<struct Steam_Inventory_Requests> inventory_requests;
 
-    std::map<SteamItemDef_t, std::map<std::string, std::string>> items;
+    static std::once_flag   items_loading;
+    static std::atomic_bool items_loaded;
+    static std::map<SteamItemDef_t, std::map<std::string, std::string>> items;
     // Like typedefs
     using item_iterator = std::map<SteamItemDef_t, std::map<std::string, std::string>>::iterator;
     using attr_iterator = std::map<std::string, std::string>::iterator;
@@ -57,8 +59,6 @@ class Steam_Inventory :
     //   Could use FindFirstChangeNotificationA + WaitForSingleObject + FindNextChangeNotification on Windows to monitor the db file
     //   Or find a server somewhere to hold the data for us then cache on local settings.
     bool need_load_definitions = true;
-
-    std::atomic_bool items_loaded;
 
 struct Steam_Inventory_Requests* new_inventory_result(const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
 {
@@ -91,11 +91,13 @@ public:
 
 Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks)
 {
-    std::string items_db_file(Local_Storage::get_game_settings_path() + "items.json");
-    PRINT_DEBUG("Items file path: %s\n", items_db_file.c_str());
-    items_loaded = false;
-    std::thread items_load_thread(read_items_db, items_db_file, &items, &items_loaded);
-    items_load_thread.detach();
+    std::call_once(items_loading, [&]()
+    {
+        std::string items_db_file(Local_Storage::get_game_settings_path() + "items.json");
+        PRINT_DEBUG("Items file path: %s\n", items_db_file.c_str());
+        std::thread items_load_thread(read_items_db, items_db_file, &items, &items_loaded);
+        items_load_thread.detach();
+    });
 
     this->settings = settings;
     this->callbacks = callbacks;
