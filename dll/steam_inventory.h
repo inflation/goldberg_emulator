@@ -529,6 +529,8 @@ STEAM_METHOD_DESC(LoadItemDefinitions triggers the automatic load and refresh of
 bool LoadItemDefinitions()
 {
     PRINT_DEBUG("LoadItemDefinitions\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
     if (!definition_update_called)  {
         call_definition_update = true;
     }
@@ -549,6 +551,7 @@ bool GetItemDefinitionIDs(
             STEAM_DESC(Size of array is passed in and actual size used is returned in this param) uint32 *punItemDefIDsArraySize )
 {
     PRINT_DEBUG("GetItemDefinitionIDs\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (!punItemDefIDsArraySize)
         return false;
 
@@ -582,7 +585,8 @@ bool GetItemDefinitionIDs(
 bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPropertyName,
     STEAM_OUT_STRING_COUNT(punValueBufferSizeOut) char *pchValueBuffer, uint32 *punValueBufferSizeOut )
 {
-    PRINT_DEBUG("GetItemDefinitionProperty\n");
+    PRINT_DEBUG("GetItemDefinitionProperty %i %s\n", iDefinition, pchPropertyName);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     item_iterator item;
     if ((item = items.find(iDefinition)) != items.end())
@@ -786,7 +790,6 @@ void RunCallbacks()
 
     if (items_loaded) {
         if (call_definition_update) {
-            //call this callback even when 0 items?
             SteamInventoryDefinitionUpdate_t data = {};
             callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
             call_definition_update = false;
