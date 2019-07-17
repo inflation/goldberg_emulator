@@ -53,8 +53,10 @@ void read_items_db(std::string items_db, std::map<SteamItemDef_t, std::map<std::
         }
         catch (std::exception& e)
         {
-            PRINT_DEBUG("Error while parsing json: %s", e.what());
+            PRINT_DEBUG("Error while parsing json: %s\n", e.what());
         }
     }
+
+    PRINT_DEBUG("Loaded json. Loaded %u items.\n", items->size());
     *is_loadedb = true;
 }

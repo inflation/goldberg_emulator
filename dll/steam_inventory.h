@@ -20,6 +20,8 @@
 
 struct Steam_Inventory_Requests {
     double timeout = 0.1;
+    bool done = false;
+    bool full_query;
 
     SteamInventoryResult_t inventory_result;
     std::chrono::system_clock::time_point time_created;
@@ -27,7 +29,7 @@ struct Steam_Inventory_Requests {
     std::vector<SteamItemInstanceID_t> instance_ids;
 
     bool result_done() {
-        return std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::system_clock::now() - time_created).count() > timeout;
+        return done;
     }
 
     uint32 timestamp() {
@@ -43,30 +45,30 @@ class Steam_Inventory :
     class Settings *settings;
     class SteamCallResults *callback_results;
     class SteamCallBacks *callbacks;
+    class RunEveryRunCB *run_every_runcb;
 
     std::vector<struct Steam_Inventory_Requests> inventory_requests;
 
-    static std::once_flag   items_loading;
-    static std::atomic_bool items_loaded;
-    static std::map<SteamItemDef_t, std::map<std::string, std::string>> items;
+    std::map<SteamItemDef_t, std::map<std::string, std::string>> items;
     // Like typedefs
     using item_iterator = std::map<SteamItemDef_t, std::map<std::string, std::string>>::iterator;
     using attr_iterator = std::map<std::string, std::string>::iterator;
 
-    // Set this to false when we have cached everything, 
-    // reset to true if something changed in the item db.
-    //   Could use inotify on linux
-    //   Could use FindFirstChangeNotificationA + WaitForSingleObject + FindNextChangeNotification on Windows to monitor the db file
-    //   Or find a server somewhere to hold the data for us then cache on local settings.
-    bool need_load_definitions = true;
+    std::atomic_bool items_loaded;
+    std::string items_db_file;
+    std::once_flag load_items_flag;
+    bool call_definition_update;
+    bool definition_update_called;
+    bool full_update_called;
 
-struct Steam_Inventory_Requests* new_inventory_result(const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
+struct Steam_Inventory_Requests* new_inventory_result(bool full_query=true, const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
 {
     static SteamInventoryResult_t result;
     ++result;
 
     struct Steam_Inventory_Requests request;
     request.inventory_result = result;
+    request.full_query = full_query;
     if (pInstanceIDs && unCountInstanceIDs) {
         for (int i = 0; i < unCountInstanceIDs; ++i)
             request.instance_ids.push_back(pInstanceIDs[i]);
@@ -89,19 +91,34 @@ struct Steam_Inventory_Requests *get_inventory_result(SteamInventoryResult_t res
 
 public:
 
-Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks)
+static void run_every_runcb_cb(void *object)
 {
-    std::call_once(items_loading, [&]()
-    {
-        std::string items_db_file(Local_Storage::get_game_settings_path() + "items.json");
-        PRINT_DEBUG("Items file path: %s\n", items_db_file.c_str());
-        std::thread items_load_thread(read_items_db, items_db_file, &items, &items_loaded);
-        items_load_thread.detach();
-    });
+    PRINT_DEBUG("Steam_Inventory::run_every_runcb\n");
+
+    Steam_Inventory *obj = (Steam_Inventory *)object;
+    obj->RunCallbacks();
+}
+
+Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb, std::string items_db_file_path)
+{
+    items_db_file = items_db_file_path;
+    PRINT_DEBUG("Items file path: %s\n", items_db_file.c_str());
+    items_loaded = false;
 
     this->settings = settings;
     this->callbacks = callbacks;
     this->callback_results = callback_results;
+    this->run_every_runcb = run_every_runcb;
+    this->run_every_runcb->add(&Steam_Inventory::run_every_runcb_cb, this);
+
+    call_definition_update = false;
+    definition_update_called = false;
+    full_update_called = false;
+}
+
+~Steam_Inventory()
+{
+    this->run_every_runcb->remove(&Steam_Inventory::run_every_runcb_cb, this);
 }
 
 // INVENTORY ASYNC RESULT MANAGEMENT
@@ -147,16 +164,29 @@ bool GetResultItems( SteamInventoryResult_t resultHandle,
     if (pOutItemsArray != nullptr)
     {
         uint32 max_items = *punOutItemsArraySize;
-        // We end if we reached the end of items or the end of buffer
-        for( auto i = items.begin(); i != items.end() && max_items; ++i, --max_items )
-        {
-            pOutItemsArray->m_iDefinition = i->first;
-            pOutItemsArray->m_itemId = i->first;
-            pOutItemsArray->m_unQuantity = 1;
-            pOutItemsArray->m_unFlags = k_ESteamItemNoTrade;
-            ++pOutItemsArray;
+
+        if (request->full_query) {
+            // We end if we reached the end of items or the end of buffer
+            for( auto i = items.begin(); i != items.end() && max_items; ++i, --max_items )
+            {
+                pOutItemsArray->m_iDefinition = i->first;
+                pOutItemsArray->m_itemId = i->first;
+                pOutItemsArray->m_unQuantity = 1;
+                pOutItemsArray->m_unFlags = k_ESteamItemNoTrade;
+                ++pOutItemsArray;
+            }
+            *punOutItemsArraySize = std::min(*punOutItemsArraySize, static_cast<uint32>(items.size()));
+        } else {
+            for (auto &itemid : request->instance_ids) {
+                if (!max_items) break;
+                pOutItemsArray->m_iDefinition = itemid;
+                pOutItemsArray->m_itemId = itemid;
+                pOutItemsArray->m_unQuantity = 1;
+                pOutItemsArray->m_unFlags = k_ESteamItemNoTrade;
+                ++pOutItemsArray;
+                --max_items;
+            }
         }
-        *punOutItemsArraySize = std::min(*punOutItemsArraySize, static_cast<uint32>(items.size()));
     }
     else if (punOutItemsArraySize != nullptr)
     {
@@ -248,48 +278,10 @@ bool GetAllItems( SteamInventoryResult_t *pResultHandle )
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     struct Steam_Inventory_Requests* request = new_inventory_result();
 
-    // Can't call LoadItemDefinitions because it sends a SteamInventoryResultReady_t.
-    if( need_load_definitions )
-    {
-        if (items_loaded)
-        {
-            need_load_definitions = false;
-            SteamInventoryDefinitionUpdate_t data = {};
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-        }
-    }
+    if (!definition_update_called) call_definition_update = true;
 
-    if (!need_load_definitions)
-    {
-        {
-            // SteamInventoryFullUpdate_t callbacks are triggered when GetAllItems
-            // successfully returns a result which is newer / fresher than the last
-            // known result.
-            //TODO: should this always be returned for each get all item calls?
-            struct SteamInventoryFullUpdate_t data;
-            data.m_handle = request->inventory_result;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
-        }
-        {
-            struct SteamInventoryResultReady_t data;
-            data.m_handle = request->inventory_result;
-            data.m_result = k_EResultOK;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
-        }
-
-        if (pResultHandle != nullptr)
-            *pResultHandle = request->inventory_result;
-    }
-    else
-    {
-        struct SteamInventoryResultReady_t data;
-        data.m_handle = request->inventory_result;
-        data.m_result = k_EResultPending;
-        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
-
-        if (pResultHandle != nullptr)
-            *pResultHandle = request->inventory_result;
-    }
+    if (pResultHandle != nullptr)
+        *pResultHandle = request->inventory_result;
 
     return true;
 }
@@ -309,14 +301,7 @@ bool GetItemsByID( SteamInventoryResult_t *pResultHandle, STEAM_ARRAY_COUNT( unC
     PRINT_DEBUG("GetItemsByID\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (pResultHandle) {
-        struct Steam_Inventory_Requests *request = new_inventory_result(pInstanceIDs, unCountInstanceIDs);
-        {
-            struct SteamInventoryResultReady_t data;
-            data.m_handle = request->inventory_result;
-            data.m_result = k_EResultOK;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
-        }
-
+        struct Steam_Inventory_Requests *request = new_inventory_result(false, pInstanceIDs, unCountInstanceIDs);
         *pResultHandle = request->inventory_result;
         return true;
     }
@@ -393,14 +378,7 @@ bool DeserializeResult( SteamInventoryResult_t *pOutResultHandle, STEAM_BUFFER_C
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     //TODO
     if (pOutResultHandle) {
-        struct Steam_Inventory_Requests *request = new_inventory_result();
-        {
-            struct SteamInventoryResultReady_t data;
-            data.m_handle = request->inventory_result;
-            data.m_result = k_EResultOK;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), request->timeout);
-        }
-
+        struct Steam_Inventory_Requests *request = new_inventory_result(false);
         *pOutResultHandle = request->inventory_result;
         return true;
     }
@@ -551,32 +529,12 @@ STEAM_METHOD_DESC(LoadItemDefinitions triggers the automatic load and refresh of
 bool LoadItemDefinitions()
 {
     PRINT_DEBUG("LoadItemDefinitions\n");
-
-    if (need_load_definitions)
-    {
-        if (!items_loaded)
-        {
-            SteamInventoryResultReady_t data;
-            data.m_result = k_EResultPending;
-            data.m_handle = new_inventory_result()->inventory_result;
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-        }
-        else
-        {
-            need_load_definitions = false;
-            {
-                SteamInventoryDefinitionUpdate_t data = {};
-                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-            }
-            {
-                SteamInventoryResultReady_t data = {};
-                data.m_result = k_EResultOK;
-                data.m_handle = new_inventory_result()->inventory_result;
-                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-            }
-        }
+    if (!definition_update_called)  {
+        call_definition_update = true;
     }
 
+    //real steam launches a SteamInventoryResultReady_t which is why I create a new inventory result
+    new_inventory_result(false);
     return true;
 }
 
@@ -816,5 +774,53 @@ bool SubmitUpdateProperties( SteamInventoryUpdateHandle_t handle, SteamInventory
 {
     PRINT_DEBUG("SubmitUpdateProperties\n");
 }
-	
+
+void RunCallbacks()
+{
+    if (call_definition_update || inventory_requests.size()) {
+        std::call_once(load_items_flag, [&]() {
+            std::thread items_load_thread(read_items_db, items_db_file, &items, &items_loaded);
+            items_load_thread.detach();
+        });
+    }
+
+    if (items_loaded) {
+        if (call_definition_update) {
+            //call this callback even when 0 items?
+            SteamInventoryDefinitionUpdate_t data = {};
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            call_definition_update = false;
+            definition_update_called = true;
+        }
+
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+        for (auto & r : inventory_requests) {
+            if (!r.done && std::chrono::duration_cast<std::chrono::duration<double>>(now - r.time_created).count() > r.timeout) {
+                if (r.full_query) {
+                    if (!full_update_called) {
+                        // SteamInventoryFullUpdate_t callbacks are triggered when GetAllItems
+                        // successfully returns a result which is newer / fresher than the last
+                        // known result.
+                        //TODO: should this always be returned for each get all item calls?
+                        struct SteamInventoryFullUpdate_t data;
+                        data.m_handle = r.inventory_result;
+                        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                        full_update_called = true;
+                    }
+                }
+
+                {
+                    struct SteamInventoryResultReady_t data;
+                    data.m_handle = r.inventory_result;
+                    data.m_result = k_EResultOK;
+                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                }
+
+                r.done = true;
+            }
+        }
+    }
+}
+
 };
