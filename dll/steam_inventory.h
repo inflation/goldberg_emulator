@@ -70,8 +70,8 @@ struct Steam_Inventory_Requests* new_inventory_result(bool full_query=true, cons
     request.inventory_result = result;
     request.full_query = full_query;
     if (pInstanceIDs && unCountInstanceIDs) {
-        for (int i = 0; i < unCountInstanceIDs; ++i)
-            request.instance_ids.push_back(pInstanceIDs[i]);
+        request.instance_ids.reserve(unCountInstanceIDs);
+        std::copy(pInstanceIDs, pInstanceIDs + unCountInstanceIDs, std::back_inserter(request.instance_ids));
     }
 
     request.time_created = std::chrono::system_clock::now();
