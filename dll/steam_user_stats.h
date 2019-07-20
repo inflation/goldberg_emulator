@@ -81,6 +81,7 @@ bool RequestCurrentStats()
 bool GetStat( const char *pchName, int32 *pData )
 {
     PRINT_DEBUG("GetStat int32 %s\n", pchName);
+    if (!pchName || !pData) return false;
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     int read_data = local_storage->get_data(STATS_STORAGE_FOLDER, pchName, (char* )pData, sizeof(*pData));
@@ -93,6 +94,7 @@ bool GetStat( const char *pchName, int32 *pData )
 bool GetStat( const char *pchName, float *pData )
 {
     PRINT_DEBUG("GetStat float %s\n", pchName);
+    if (!pchName || !pData) return false;
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     int read_data = local_storage->get_data(STATS_STORAGE_FOLDER, pchName, (char* )pData, sizeof(*pData));
