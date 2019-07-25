@@ -23,21 +23,22 @@
 //  2018-06-08: DirectX12: Use draw_data->DisplayPos and draw_data->DisplaySize to setup projection matrix and clipping rectangle (to ease support for future multi-viewport).
 //  2018-02-22: Merged into master with all Win32 code synchronized to other examples.
 
-#include "imgui.h"
+#include "../imgui.h"
 #include "imgui_impl_dx12.h"
 
 // DirectX
 #include <d3d12.h>
 #include <dxgi1_4.h>
-#include <d3dcompiler.h>
-#ifdef _MSC_VER
-#pragma comment(lib, "d3dcompiler") // Automatically link with d3dcompiler.lib as we are using D3DCompile() below.
+
+#include "../../overlay_experimental/ImGui_ShaderBlobs.h"
+
+#ifdef USE_D3DCOMPILE
+static ID3DBlob* g_pVertexShaderBlob = NULL;
+static ID3DBlob* g_pPixelShaderBlob = NULL;
 #endif
 
 // DirectX data
 static ID3D12Device*                g_pd3dDevice = NULL;
-static ID3D10Blob*                  g_pVertexShaderBlob = NULL;
-static ID3D10Blob*                  g_pPixelShaderBlob = NULL;
 static ID3D12RootSignature*         g_pRootSignature = NULL;
 static ID3D12PipelineState*         g_pPipelineState = NULL;
 static DXGI_FORMAT                  g_RTVFormat = DXGI_FORMAT_UNKNOWN;
@@ -441,6 +442,8 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
             D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
         ID3DBlob* blob = NULL;
+
+        static decltype(D3D12SerializeRootSignature)* D3D12SerializeRootSignature = (decltype(D3D12SerializeRootSignature))GetProcAddress(GetModuleHandle("d3d12.dll"), "D3D12SerializeRootSignature");
         if (D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &blob, NULL) != S_OK)
             return false;
 
@@ -467,6 +470,7 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
 
     // Create the vertex shader
     {
+#ifdef USE_D3DCOMPILE
         static const char* vertexShader =
             "cbuffer vertexBuffer : register(b0) \
             {\
@@ -499,7 +503,11 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
         if (g_pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
             return false;
         psoDesc.VS = { g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize() };
+#else
+        psoDesc.VS = { ImGui_vertexShaderDX12, ImGui_vertexShaderDX12_len };
+#endif
 
+        
         // Create the input layout
         static D3D12_INPUT_ELEMENT_DESC local_layout[] = {
             { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, IM_OFFSETOF(ImDrawVert, pos), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -511,6 +519,7 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
 
     // Create the pixel shader
     {
+#ifdef USE_D3DCOMPILE
         static const char* pixelShader =
             "struct PS_INPUT\
             {\
@@ -531,6 +540,10 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
         if (g_pPixelShaderBlob == NULL)  // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
             return false;
         psoDesc.PS = { g_pPixelShaderBlob->GetBufferPointer(), g_pPixelShaderBlob->GetBufferSize() };
+#else
+
+        psoDesc.PS = { ImGui_pixelShaderDX12, ImGui_pixelShaderDX12_len };
+#endif
     }
 
     // Create the blending setup
@@ -589,8 +602,10 @@ void    ImGui_ImplDX12_InvalidateDeviceObjects()
         return;
 
     ImGuiIO& io = ImGui::GetIO();
+#ifdef USE_D3DCOMPILE
     if (g_pVertexShaderBlob) { g_pVertexShaderBlob->Release(); g_pVertexShaderBlob = NULL; }
     if (g_pPixelShaderBlob) { g_pPixelShaderBlob->Release(); g_pPixelShaderBlob = NULL; }
+#endif
     if (g_pRootSignature) { g_pRootSignature->Release(); g_pRootSignature = NULL; }
     if (g_pPipelineState) { g_pPipelineState->Release(); g_pPipelineState = NULL; }
     if (g_pFontTextureResource) { g_pFontTextureResource->Release(); g_pFontTextureResource = NULL; io.Fonts->TexID = NULL; } // We copied g_pFontTextureView to io.Fonts->TexID so let's clear that as well.

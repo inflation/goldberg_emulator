@@ -23,15 +23,18 @@
 //  2018-02-06: Misc: Removed call to ImGui::Shutdown() which is not available from 1.60 WIP, user needs to call CreateContext/DestroyContext themselves.
 //  2016-05-07: DirectX11: Disabling depth-write.
 
-#include "imgui.h"
+#include "../imgui.h"
 #include "imgui_impl_dx11.h"
 
 // DirectX
 #include <stdio.h>
 #include <d3d11.h>
-#include <d3dcompiler.h>
-#ifdef _MSC_VER
-#pragma comment(lib, "d3dcompiler") // Automatically link with d3dcompiler.lib as we are using D3DCompile() below.
+
+#include "../../overlay_experimental/ImGui_ShaderBlobs.h"
+
+#ifdef USE_D3DCOMPILE
+static ID3DBlob* g_pVertexShaderBlob = NULL;
+static ID3DBlob* g_pPixelShaderBlob  = NULL;
 #endif
 
 // DirectX data
@@ -40,11 +43,9 @@ static ID3D11DeviceContext*     g_pd3dDeviceContext = NULL;
 static IDXGIFactory*            g_pFactory = NULL;
 static ID3D11Buffer*            g_pVB = NULL;
 static ID3D11Buffer*            g_pIB = NULL;
-static ID3D10Blob*              g_pVertexShaderBlob = NULL;
 static ID3D11VertexShader*      g_pVertexShader = NULL;
 static ID3D11InputLayout*       g_pInputLayout = NULL;
 static ID3D11Buffer*            g_pVertexConstantBuffer = NULL;
-static ID3D10Blob*              g_pPixelShaderBlob = NULL;
 static ID3D11PixelShader*       g_pPixelShader = NULL;
 static ID3D11SamplerState*      g_pFontSampler = NULL;
 static ID3D11ShaderResourceView*g_pFontTextureView = NULL;
@@ -343,32 +344,33 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 
     // Create the vertex shader
     {
+#ifdef USE_D3DCOMPILE
         static const char* vertexShader =
             "cbuffer vertexBuffer : register(b0) \
             {\
-            float4x4 ProjectionMatrix; \
+              float4x4 ProjectionMatrix; \
             };\
             struct VS_INPUT\
             {\
-            float2 pos : POSITION;\
-            float4 col : COLOR0;\
-            float2 uv  : TEXCOORD0;\
+              float2 pos : POSITION;\
+              float4 col : COLOR0;\
+              float2 uv  : TEXCOORD0;\
             };\
             \
             struct PS_INPUT\
             {\
-            float4 pos : SV_POSITION;\
-            float4 col : COLOR0;\
-            float2 uv  : TEXCOORD0;\
+              float4 pos : SV_POSITION;\
+              float4 col : COLOR0;\
+              float2 uv  : TEXCOORD0;\
             };\
             \
             PS_INPUT main(VS_INPUT input)\
             {\
-            PS_INPUT output;\
-            output.pos = mul( ProjectionMatrix, float4(input.pos.xy, 0.f, 1.f));\
-            output.col = input.col;\
-            output.uv  = input.uv;\
-            return output;\
+              PS_INPUT output;\
+              output.pos = mul( ProjectionMatrix, float4(input.pos.xy, 0.f, 1.f));\
+              output.col = input.col;\
+              output.uv  = input.uv;\
+              return output;\
             }";
 
         D3DCompile(vertexShader, strlen(vertexShader), NULL, NULL, NULL, "main", "vs_4_0", 0, 0, &g_pVertexShaderBlob, NULL);
@@ -376,6 +378,10 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
             return false;
         if (g_pd3dDevice->CreateVertexShader((DWORD*)g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), NULL, &g_pVertexShader) != S_OK)
             return false;
+#else
+        if (g_pd3dDevice->CreateVertexShader(ImGui_vertexShaderDX11, ImGui_vertexShaderDX11_len, NULL, &g_pVertexShader) != S_OK)
+            return false;
+#endif
 
         // Create the input layout
         D3D11_INPUT_ELEMENT_DESC local_layout[] =
@@ -384,8 +390,13 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
             { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (size_t)(&((ImDrawVert*)0)->uv),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
             { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (size_t)(&((ImDrawVert*)0)->col), D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
+#ifdef USE_D3DCOMPILE
         if (g_pd3dDevice->CreateInputLayout(local_layout, 3, g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), &g_pInputLayout) != S_OK)
             return false;
+#else
+        if (g_pd3dDevice->CreateInputLayout(local_layout, 3, ImGui_vertexShaderDX11, ImGui_vertexShaderDX11_len, &g_pInputLayout) != S_OK)
+            return false;
+#endif
 
         // Create the constant buffer
         {
@@ -401,6 +412,7 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
 
     // Create the pixel shader
     {
+#ifdef USE_D3DCOMPILE
         static const char* pixelShader =
             "struct PS_INPUT\
             {\
@@ -422,6 +434,11 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
             return false;
         if (g_pd3dDevice->CreatePixelShader((DWORD*)g_pPixelShaderBlob->GetBufferPointer(), g_pPixelShaderBlob->GetBufferSize(), NULL, &g_pPixelShader) != S_OK)
             return false;
+#else
+
+        if (g_pd3dDevice->CreatePixelShader(ImGui_pixelShaderDX11, ImGui_pixelShaderDX11_len, NULL, &g_pPixelShader) != S_OK)
+            return false;
+#endif
     }
 
     // Create the blending setup
@@ -484,11 +501,13 @@ void    ImGui_ImplDX11_InvalidateDeviceObjects()
     if (g_pDepthStencilState) { g_pDepthStencilState->Release(); g_pDepthStencilState = NULL; }
     if (g_pRasterizerState) { g_pRasterizerState->Release(); g_pRasterizerState = NULL; }
     if (g_pPixelShader) { g_pPixelShader->Release(); g_pPixelShader = NULL; }
-    if (g_pPixelShaderBlob) { g_pPixelShaderBlob->Release(); g_pPixelShaderBlob = NULL; }
     if (g_pVertexConstantBuffer) { g_pVertexConstantBuffer->Release(); g_pVertexConstantBuffer = NULL; }
     if (g_pInputLayout) { g_pInputLayout->Release(); g_pInputLayout = NULL; }
     if (g_pVertexShader) { g_pVertexShader->Release(); g_pVertexShader = NULL; }
+#ifdef USE_D3DCOMPILE
+    if (g_pPixelShaderBlob) { g_pPixelShaderBlob->Release(); g_pPixelShaderBlob = NULL; }
     if (g_pVertexShaderBlob) { g_pVertexShaderBlob->Release(); g_pVertexShaderBlob = NULL; }
+#endif
 }
 
 bool    ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_context)
