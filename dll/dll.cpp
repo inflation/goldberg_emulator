@@ -200,7 +200,11 @@ S_API bool S_CALLTYPE SteamAPI_Init()
     crack_SteamAPI_Init();
 #endif
     load_old_interface_versions();
-    get_steam_client()->userLogIn();
+
+    Steam_Client* client = get_steam_client();
+    client->userLogIn();
+    client->steam_overlay->SetupOverlay();
+
     return true;
 }
 

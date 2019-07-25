@@ -303,9 +303,12 @@ Steam_Client::Steam_Client()
 
     PRINT_DEBUG("steam client init: id: %llu server id: %llu appid: %u port: %u \n", user_id.ConvertToUint64(), settings_server->get_local_steam_id().ConvertToUint64(), appid, port);
 
+    steam_overlay = new Steam_Overlay(settings_client, callback_results_client, callbacks_client, run_every_runcb);
+
     steam_user = new Steam_User(settings_client, local_storage, network, callback_results_client, callbacks_client);
-    steam_friends = new Steam_Friends(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
-    steam_utils = new Steam_Utils(settings_client, callback_results_client);
+    steam_friends = new Steam_Friends(settings_client, network, callback_results_client, callbacks_client, run_every_runcb, steam_overlay);
+    steam_utils = new Steam_Utils(settings_client, callback_results_client, steam_overlay);
+
     steam_matchmaking = new Steam_Matchmaking(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_matchmaking_servers = new Steam_Matchmaking_Servers(settings_client, network);
     steam_user_stats = new Steam_User_Stats(settings_client, local_storage, callback_results_client, callbacks_client);
@@ -333,7 +336,7 @@ Steam_Client::Steam_Client()
 
     PRINT_DEBUG("client init gameserver\n");
     steam_gameserver = new Steam_GameServer(settings_server, network, callbacks_server);
-    steam_gameserver_utils = new Steam_Utils(settings_server, callback_results_server);
+    steam_gameserver_utils = new Steam_Utils(settings_server, callback_results_server, steam_overlay);
     steam_gameserverstats = new Steam_GameServerStats(settings_server, network, callback_results_server, callbacks_server);
     steam_gameserver_networking = new Steam_Networking(settings_server, network, callbacks_server, run_every_runcb);
     steam_gameserver_http = new Steam_HTTP(settings_server, network, callback_results_server, callbacks_server);

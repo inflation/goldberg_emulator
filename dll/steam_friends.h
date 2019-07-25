@@ -40,6 +40,7 @@ public ISteamFriends
     class SteamCallBacks *callbacks;
     class SteamCallResults *callback_results;
     class RunEveryRunCB *run_every_runcb;
+    class Steam_Overlay* overlay;
 
     Friend us;
     bool modified;
@@ -99,13 +100,14 @@ static void steam_friends_run_every_runcb(void *object)
     steam_friends->RunCallbacks();
 }
 
-Steam_Friends(class Settings *settings, class Networking *network, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb)
+Steam_Friends(Settings* settings, Networking* network, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Steam_Overlay* overlay):
+    settings(settings),
+    network(network),
+    callbacks(callbacks),
+    callback_results(callback_results),
+    run_every_runcb(run_every_runcb),
+    overlay(overlay)
 {
-    this->settings = settings;
-    this->network = network;
-    this->callbacks = callbacks;
-    this->callback_results = callback_results;
-    this->run_every_runcb = run_every_runcb;
     this->network->setCallback(CALLBACK_ID_FRIEND, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);
     this->network->setCallback(CALLBACK_ID_FRIEND_MESSAGES, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);
     this->network->setCallback(CALLBACK_ID_USER_STATUS, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);

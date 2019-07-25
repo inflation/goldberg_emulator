@@ -48,6 +48,8 @@
 #include "steam_gameserverstats.h"
 #include "steam_masterserver_updater.h"
 
+#include "../overlay_experimental/steam_overlay.h"
+
 #include <thread>
 
 class Steam_Client :
@@ -112,6 +114,8 @@ public:
     Steam_Networking_Sockets_Serialized *steam_gameserver_networking_sockets_serialized;
     Steam_Game_Coordinator *steam_gameserver_game_coordinator;
     Steam_Masterserver_Updater *steam_masterserver_updater;
+
+    Steam_Overlay* steam_overlay;
 
     bool user_logged_in = false;
     bool server_init = false;
