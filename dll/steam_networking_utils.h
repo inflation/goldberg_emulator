@@ -18,6 +18,7 @@
 #include "base.h"
 
 class Steam_Networking_Utils :
+public ISteamNetworkingUtils001,
 public ISteamNetworkingUtils
 {
     class Settings *settings;
@@ -67,6 +68,20 @@ bool InitializeRelayAccess()
 {
     PRINT_DEBUG("Steam_Networking_Utils::InitializeRelayAccess\n");
     return true;
+}
+
+/// Fetch current status of the relay network.
+///
+/// SteamRelayNetworkStatus_t is also a callback.  It will be triggered on
+/// both the user and gameserver interfaces any time the status changes, or
+/// ping measurement starts or stops.
+///
+/// SteamRelayNetworkStatus_t::m_eAvail is returned.  If you want
+/// more details, you can pass a non-NULL value.
+ESteamNetworkingAvailability GetRelayNetworkStatus( SteamRelayNetworkStatus_t *pDetails )
+{
+    PRINT_DEBUG("Steam_Networking_Utils::GetRelayNetworkStatus\n");
+    return k_ESteamNetworkingAvailability_Current;
 }
 
 float GetLocalPingLocation( SteamNetworkPingLocation_t &result )

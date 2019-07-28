@@ -156,8 +156,11 @@ public:
 	// Steam Parties interface
 	virtual ISteamParties *GetISteamParties( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
+	// Steam Remote Play interface
+	virtual ISteamRemotePlay *GetISteamRemotePlay( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
+
 };
-#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient018"
+#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient019"
 
 #ifndef STEAM_API_EXPORTS
 

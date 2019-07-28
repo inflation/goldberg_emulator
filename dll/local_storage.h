@@ -16,6 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
+#include <vector>
 
 #ifndef LOCAL_STORAGE_INCLUDE
 #define LOCAL_STORAGE_INCLUDE

@@ -330,6 +330,7 @@ Steam_Client::Steam_Client()
     steam_unified_messages = new Steam_Unified_Messages(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_game_search = new Steam_Game_Search(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_parties = new Steam_Parties(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
+    steam_remoteplay = new Steam_RemotePlay(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
 
     PRINT_DEBUG("client init gameserver\n");
     steam_gameserver = new Steam_GameServer(settings_server, network, callbacks_server);
@@ -677,6 +678,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
 
         if (strcmp(pchVersion, "SteamNetworkingSockets001") == 0) {
             return (void *)(ISteamNetworkingSockets001 *) steam_networking_sockets_temp;
+        } else if (strcmp(pchVersion, "SteamNetworkingSockets002") == 0) {
+            return (void *)(ISteamNetworkingSockets002 *) steam_networking_sockets_temp;
         } else {
             return (void *)(ISteamNetworkingSockets *) steam_networking_sockets_temp;
         }
@@ -691,6 +694,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
         return (void *)(ISteamGameCoordinator *)steam_game_coordinator_temp;
     } else if (strstr(pchVersion, "SteamNetworkingUtils") == pchVersion) {
             if (strcmp(pchVersion, "SteamNetworkingUtils001") == 0) {
+                return (void *)(ISteamNetworkingUtils001 *)steam_networking_utils;
+            } else if (strcmp(pchVersion, STEAMNETWORKINGUTILS_INTERFACE_VERSION) == 0) {
                 return (void *)(ISteamNetworkingUtils *)steam_networking_utils;
             } else {
                 return (void *)(ISteamNetworkingUtils *)steam_networking_utils;
@@ -747,6 +752,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
         return GetISteamParties(hSteamUser, hSteamPipe, pchVersion);
     } else if (strstr(pchVersion, "SteamInput") == pchVersion) {
         return GetISteamInput(hSteamUser, hSteamPipe, pchVersion);
+    } else if (strstr(pchVersion, "STEAMREMOTEPLAY_INTERFACE_VERSION") == pchVersion) {
+        return GetISteamRemotePlay(hSteamUser, hSteamPipe, pchVersion);
     } else if (strstr(pchVersion, "STEAMPARENTALSETTINGS_INTERFACE_VERSION") == pchVersion) {
         return GetISteamParentalSettings(hSteamUser, hSteamPipe, pchVersion);
     } else {
@@ -1026,8 +1033,10 @@ ISteamUGC *Steam_Client::GetISteamUGC( HSteamUser hSteamUser, HSteamPipe hSteamP
     } else if (strcmp(pchVersion, "STEAMUGC_INTERFACE_VERSION010") == 0) {
         return (ISteamUGC *)(void *)(ISteamUGC010 *)steam_ugc_temp;
     } else if (strcmp(pchVersion, "STEAMUGC_INTERFACE_VERSION011") == 0) {
-        //TODO
-        return (ISteamUGC *)(void *)(ISteamUGC *)steam_ugc_temp;
+        //TODO ?
+        return (ISteamUGC *)(void *)(ISteamUGC012 *)steam_ugc_temp;
+    } else if (strcmp(pchVersion, "STEAMUGC_INTERFACE_VERSION012") == 0) {
+        return (ISteamUGC *)(void *)(ISteamUGC012 *)steam_ugc_temp;
     } else if (strcmp(pchVersion, STEAMUGC_INTERFACE_VERSION) == 0) {
         return (ISteamUGC *)(void *)(ISteamUGC *)steam_ugc_temp;
     } else {
@@ -1204,6 +1213,15 @@ ISteamParties *Steam_Client::GetISteamParties( HSteamUser hSteamUser, HSteamPipe
     if (!user_logged_in) return NULL;
 
     return steam_parties;
+}
+
+ISteamRemotePlay *Steam_Client::GetISteamRemotePlay( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion )
+{
+    PRINT_DEBUG("GetISteamRemotePlay %s\n", pchVersion);
+    if (!hSteamPipe || !hSteamUser) return NULL;
+    if (!user_logged_in) return NULL;
+
+    return steam_remoteplay;
 }
 
 void Steam_Client::RegisterCallback( class CCallbackBase *pCallback, int iCallback)

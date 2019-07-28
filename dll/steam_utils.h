@@ -342,4 +342,32 @@ void SetVRHeadsetStreamingEnabled( bool bEnabled )
 {
     PRINT_DEBUG("SetVRHeadsetStreamingEnabled\n");
 }
+
+// Returns whether this steam client is a Steam China specific client, vs the global client.
+bool IsSteamChinaLauncher()
+{
+    PRINT_DEBUG("IsSteamChinaLauncher\n");
+    return false;
+}
+
+// Initializes text filtering.
+//   Returns false if filtering is unavailable for the language the user is currently running in.
+bool InitFilterText()
+{
+    PRINT_DEBUG("InitFilterText\n");
+    return false;
+}
+
+// Filters the provided input message and places the filtered result into pchOutFilteredText.
+//   pchOutFilteredText is where the output will be placed, even if no filtering or censoring is performed
+//   nByteSizeOutFilteredText is the size (in bytes) of pchOutFilteredText
+//   pchInputText is the input string that should be filtered, which can be ASCII or UTF-8
+//   bLegalOnly should be false if you want profanity and legally required filtering (where required) and true if you want legally required filtering only
+//   Returns the number of characters (not bytes) filtered.
+int FilterText( char* pchOutFilteredText, uint32 nByteSizeOutFilteredText, const char * pchInputMessage, bool bLegalOnly )
+{
+    PRINT_DEBUG("FilterText\n");
+    return 0;
+}
+
 };

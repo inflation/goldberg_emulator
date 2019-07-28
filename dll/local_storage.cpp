@@ -18,6 +18,8 @@
 #include "local_storage.h"
 
 #include <fstream>
+#include <algorithm>
+#include <iterator>
 
 struct File_Data {
     std::string name;

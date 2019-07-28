@@ -671,7 +671,7 @@ public:
 	/// This function will fail if SteamDatagramServer_Init has not been called.
 	///
 	/// Returns false if the SDR_LISTEN_PORT environment variable is not set.
-	virtual bool GetHostedDedicatedServerAddress( SteamDatagramHostedAddress *pRouting ) = 0;
+	virtual bool GetHostedDedicatedServerAddress001( SteamDatagramHostedAddress *pRouting ) = 0;
 
 	/// Create a listen socket on the specified virtual port.  The physical UDP port to use
 	/// will be determined by the SDR_LISTEN_PORT environment variable.  If a UDP port is not

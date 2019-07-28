@@ -206,6 +206,11 @@ public:
 
 	STEAM_CALL_RESULT( MarketEligibilityResponse_t )
 	virtual SteamAPICall_t GetMarketEligibility() = 0;
+
+	// Retrieves anti indulgence / duration control for current user
+	STEAM_CALL_RESULT( DurationControl_t )
+	virtual SteamAPICall_t GetDurationControl() = 0;
+
 };
 
 #define STEAMUSER_INTERFACE_VERSION "SteamUser020"
@@ -384,6 +389,27 @@ struct MarketEligibilityResponse_t
 	int m_cdayNewDeviceCooldown; // The number of days after initial device authorization a user must wait before using the market on that device
 };
 
+
+//-----------------------------------------------------------------------------
+// Purpose: sent for games with enabled anti indulgence / duration control, for
+// enabled users. Lets the game know whether persistent rewards or XP should be
+// granted at normal rate, half rate, or zero rate.
+//
+// This callback is fired asynchronously in response to timers triggering.
+// It is also fired in response to calls to GetDurationControl().
+//-----------------------------------------------------------------------------
+struct DurationControl_t
+{
+	enum { k_iCallback = k_iSteamUserCallbacks + 67 };
+
+	EResult	m_eResult;								// result of call (always k_EResultOK for asynchronous timer-based notifications)
+	AppId_t m_appid;								// appid generating playtime
+
+	bool	m_bApplicable;							// is duration control applicable to user + game combination
+	int32 m_csecsLast5h;							// playtime in trailing 5 hour window plus current session, in seconds
+	EDurationControlProgress m_progress;			// recommended progress
+	EDurationControlNotification m_notification;	// notification to show, if any (always k_EDurationControlNotification_None for API calls)
+};
 
 
 #pragma pack( pop )

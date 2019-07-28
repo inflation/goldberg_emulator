@@ -301,6 +301,7 @@ enum EAppType
 	k_EAppType_Music				= 0x2000,	// Music files
 	k_EAppType_Series				= 0x4000,	// Container app for video series
 	k_EAppType_Comic				= 0x8000,	// Comic Book
+	k_EAppType_Beta					= 0x10000,	// this is a beta version of a game
 		
 	k_EAppType_Shortcut				= 0x40000000,	// just a shortcut, client side only
 	k_EAppType_DepotOnly			= 0x80000000,	// placeholder since depots and apps share the same namespace
@@ -515,12 +516,14 @@ enum EVRHMDType
 	k_eEVRHMDType_HTC_VivePre = 2,	// htc vive pre
 	k_eEVRHMDType_HTC_Vive = 3,	// htc vive consumer release
 	k_eEVRHMDType_HTC_VivePro = 4,	// htc vive pro release
+	k_eEVRHMDType_HTC_ViveCosmos = 5,	// HTC Vive Cosmos
 
 	k_eEVRHMDType_HTC_Unknown = 20, // unknown htc hmd
 
 	k_eEVRHMDType_Oculus_DK1 = 21, // Oculus DK1 
 	k_eEVRHMDType_Oculus_DK2 = 22, // Oculus DK2
-	k_eEVRHMDType_Oculus_Rift = 23, // Oculus rift
+	k_eEVRHMDType_Oculus_Rift = 23, // Oculus Rift
+	k_eEVRHMDType_Oculus_RiftS = 24, // Oculus Rift S
 
 	k_eEVRHMDType_Oculus_Unknown = 40, // // Oculus unknown HMD
 
@@ -548,6 +551,9 @@ enum EVRHMDType
 	k_eEVRHMDType_Huawei_VR2 = 121, // Huawei VR2 3DOF headset
 	k_eEVRHMDType_Huawei_EndOfRange = 129, // end of Huawei HMD range
 
+	k_eEVRHmdType_Valve_Unknown = 130, // Valve Unknown HMD
+	k_eEVRHmdType_Valve_Index = 131, // Valve Index HMD
+
 };
 
 
@@ -556,7 +562,7 @@ enum EVRHMDType
 //-----------------------------------------------------------------------------
 static inline bool BIsOculusHMD( EVRHMDType eType )
 {
-	return eType == k_eEVRHMDType_Oculus_DK1 || eType == k_eEVRHMDType_Oculus_DK2 || eType == k_eEVRHMDType_Oculus_Rift || eType == k_eEVRHMDType_Oculus_Unknown;
+	return eType == k_eEVRHMDType_Oculus_DK1 || eType == k_eEVRHMDType_Oculus_DK2 || eType == k_eEVRHMDType_Oculus_Rift || eType == k_eEVRHMDType_Oculus_RiftS || eType == k_eEVRHMDType_Oculus_Unknown;
 }
 
 
@@ -644,6 +650,31 @@ enum EMarketNotAllowedReasonFlags
 
 	// User accepted a wallet gift that was recently purchased
 	k_EMarketNotAllowedReason_AcceptedWalletGift = (1 << 15),
+};
+
+
+//
+// describes XP / progress restrictions to apply for games with duration control /
+// anti-indulgence enabled for minor Steam China users.
+//
+enum EDurationControlProgress
+{
+	k_EDurationControlProgress_Full,		// Full progress
+	k_EDurationControlProgress_Half,		// XP or persistent rewards should be halved
+	k_EDurationControlProgress_None,		// XP or persistent rewards should be stopped
+};
+
+
+//
+// describes which notification timer has expired, for steam china duration control feature
+//
+enum EDurationControlNotification
+{
+	k_EDurationControlNotification_None,			// just informing you about progress, no notification to show
+	k_EDurationControlNotification_1Hour,			// "you've been playing for an hour"
+	k_EDurationControlNotification_3Hours,			// "you've been playing for 3 hours; take a break"
+	k_EDurationControlNotification_HalfProgress,	// "your XP / progress is half normal"
+	k_EDurationControlNotification_NoProgress,		// "your XP / progress is zero"
 };
 
 

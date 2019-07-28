@@ -350,5 +350,22 @@ EInputActionOrigin TranslateActionOrigin( ESteamInputType eDestinationInputType,
     return k_EInputActionOrigin_None;
 }
 
+bool GetControllerBindingRevision( ControllerHandle_t controllerHandle, int *pMajor, int *pMinor )
+{
+    PRINT_DEBUG("GetControllerBindingRevision\n");
+    return false;
+}
+
+bool GetDeviceBindingRevision( InputHandle_t inputHandle, int *pMajor, int *pMinor )
+{
+    PRINT_DEBUG("GetDeviceBindingRevision\n");
+    return false;
+}
+
+uint32 GetRemotePlaySessionID( InputHandle_t inputHandle )
+{
+    PRINT_DEBUG("GetRemotePlaySessionID\n");
+    return 0;
+}
 
 };

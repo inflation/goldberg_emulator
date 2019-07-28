@@ -36,6 +36,7 @@ public ISteamUGC007,
 public ISteamUGC008,
 public ISteamUGC009,
 public ISteamUGC010,
+public ISteamUGC012,
 public ISteamUGC
 {
     class Settings *settings;
@@ -245,6 +246,11 @@ bool GetQueryUGCKeyValueTag( UGCQueryHandle_t handle, uint32 index, uint32 keyVa
     return false;
 }
 
+bool GetQueryUGCKeyValueTag( UGCQueryHandle_t handle, uint32 index, const char *pchKey, STEAM_OUT_STRING_COUNT(cchValueSize) char *pchValue, uint32 cchValueSize )
+{
+    PRINT_DEBUG("Steam_UGC::GetQueryUGCKeyValueTag2\n");
+    return false;
+}
 
 
 // Release the request to free up memory, after retrieving results
@@ -486,6 +492,13 @@ bool SetAllowLegacyUpload( UGCUpdateHandle_t handle, bool bAllowLegacyUpload )
     PRINT_DEBUG("Steam_UGC::SetAllowLegacyUpload\n");
     return false;
 }
+
+bool RemoveAllItemKeyValueTags( UGCUpdateHandle_t handle )
+{
+    PRINT_DEBUG("Steam_UGC::RemoveAllItemKeyValueTags\n");
+    return false;
+}
+ // remove all existing key-value tags (you can add new ones via the AddItemKeyValueTag function)
 
 bool RemoveItemKeyValueTags( UGCUpdateHandle_t handle, const char *pchKey )
 {

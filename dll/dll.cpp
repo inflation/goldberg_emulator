@@ -161,6 +161,8 @@ S_API void * S_CALLTYPE SteamInternal_CreateInterface( const char *ver )
             steam_client = (ISteamClient016 *)get_steam_client();
         } else if (strcmp(ver, "SteamClient017") == 0) {
             steam_client = (ISteamClient017 *)get_steam_client();
+        } else if (strcmp(ver, "SteamClient018") == 0) {
+            steam_client = (ISteamClient018 *)get_steam_client();
         } else if (strcmp(ver, STEAMCLIENT_INTERFACE_VERSION) == 0) {
             steam_client = (ISteamClient *)get_steam_client();
         } else {
