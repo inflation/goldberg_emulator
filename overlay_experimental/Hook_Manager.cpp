@@ -7,6 +7,7 @@
 #include "DX11_Hook.h"
 #include "DX10_Hook.h"
 #include "DX9_Hook.h"
+#include "OpenGL_Hook.h"
 
 #include <algorithm>
 
@@ -17,26 +18,30 @@ decltype(LoadLibraryExW  )* _LoadLibraryExW   = LoadLibraryExW;
 
 void create_hookA(const char* libname)
 {
-    if (!strcmp(libname, "d3d9.dll"))
+    if (!_stricmp(libname, "d3d9.dll"))
         DX9_Hook::Create();
-    else if (!strcmp(libname, "d3d10.dll"))
+    else if (!_stricmp(libname, "d3d10.dll"))
         DX10_Hook::Create();
-    else if (!strcmp(libname, "d3d11.dll"))
+    else if (!_stricmp(libname, "d3d11.dll"))
         DX11_Hook::Create();
-    else if (!strcmp(libname, "d3d12.dll"))
+    else if (!_stricmp(libname, "d3d12.dll"))
         DX12_Hook::Create();
+    else if (!_stricmp(libname, "opengl32.dll"))
+        OpenGL_Hook::Create();
 }
 
 void create_hookW(const wchar_t *libname)
 {
-    if (!wcscmp(libname, L"d3d9.dll"))
+    if (!_wcsicmp(libname, L"d3d9.dll"))
         DX9_Hook::Create();
-    else if (!wcscmp(libname, L"d3d10.dll"))
+    else if (!_wcsicmp(libname, L"d3d10.dll"))
         DX10_Hook::Create();
-    else if (!wcscmp(libname, L"d3d11.dll"))
+    else if (!_wcsicmp(libname, L"d3d11.dll"))
         DX11_Hook::Create();
-    else if (!wcscmp(libname, L"d3d12.dll"))
+    else if (!_wcsicmp(libname, L"d3d12.dll"))
         DX12_Hook::Create();
+    else if (!_wcsicmp(libname, L"opengl32.dll"))
+        OpenGL_Hook::Create();
 }
 
 HMODULE WINAPI mLoadLibraryA(LPCTSTR lpLibFileName)
@@ -88,7 +93,7 @@ void Hook_Manager::HookRenderer(Steam_Overlay *ovlay)
 {
     overlay = ovlay;
     HookLoadLibrary();
-    std::vector<std::string> const libraries = { "d3d12.dll", "d3d11.dll", "d3d10.dll", "d3d9.dll" };
+    std::vector<std::string> const libraries = { "opengl32.dll", "d3d12.dll", "d3d11.dll", "d3d10.dll", "d3d9.dll" };
     std::vector<std::string>::const_iterator it = libraries.begin();
     while (it != libraries.end())
     {
@@ -102,15 +107,7 @@ void Hook_Manager::HookRenderer(Steam_Overlay *ovlay)
         if (it == libraries.end())
             break;
 
-        if (*it == "d3d9.dll")
-            DX9_Hook::Create();
-        else if (*it == "d3d10.dll")
-            DX10_Hook::Create();
-        else if (*it == "d3d11.dll")
-            DX11_Hook::Create();
-        else if (*it == "d3d12.dll")
-            DX12_Hook::Create();
-
+        create_hookA(it->c_str());
         ++it;
     }
 }
