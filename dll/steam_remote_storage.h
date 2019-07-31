@@ -31,6 +31,10 @@ struct Stream_Write {
     std::vector<char> file_data;
 };
 
+struct Downloaded_File {
+    std::string file;
+    uint64 total_size;
+};
 
 class Steam_Remote_Storage :
 public ISteamRemoteStorage001,
@@ -49,15 +53,19 @@ public ISteamRemoteStorage013,
 public ISteamRemoteStorage
 {
 private:
+    class Settings *settings;
     Local_Storage *local_storage;
     class SteamCallResults *callback_results;
     bool steam_cloud_enabled;
     std::vector<struct Async_Read> async_reads;
     std::vector<struct Stream_Write> stream_writes;
+    std::map<UGCHandle_t, std::string> shared_files;
+    std::map<UGCHandle_t, struct Downloaded_File> downloaded_files;
 
     public:
-Steam_Remote_Storage(Local_Storage *local_storage, class SteamCallResults *callback_results)
+Steam_Remote_Storage(class Settings *settings, Local_Storage *local_storage, class SteamCallResults *callback_results)
 {
+    this->settings = settings;
     this->local_storage = local_storage;
     this->callback_results = callback_results;
     steam_cloud_enabled = true;
@@ -176,9 +184,14 @@ SteamAPICall_t FileShare( const char *pchFile )
     PRINT_DEBUG("Steam_Remote_Storage::FileShare\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     RemoteStorageFileShareResult_t data = {};
-    data.m_eResult = k_EResultOK;
-    data.m_hFile = generate_steam_api_call_id();
-    strncpy(data.m_rgchFilename, pchFile, sizeof(data.m_rgchFilename) - 1);
+    if (local_storage->file_exists(REMOTE_STORAGE_FOLDER, pchFile)) {
+        data.m_eResult = k_EResultOK;
+        data.m_hFile = generate_steam_api_call_id();
+        strncpy(data.m_rgchFilename, pchFile, sizeof(data.m_rgchFilename) - 1);
+        shared_files[data.m_hFile] = pchFile;
+    } else {
+        data.m_eResult = k_EResultFileNotFound;
+    }
 
     return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
 }
@@ -354,12 +367,28 @@ STEAM_CALL_RESULT( RemoteStorageDownloadUGCResult_t )
 SteamAPICall_t UGCDownload( UGCHandle_t hContent, uint32 unPriority )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UGCDownload\n");
+    RemoteStorageDownloadUGCResult_t data = {};
+    if (shared_files.count(hContent)) {
+        data.m_eResult = k_EResultOK;
+        data.m_hFile = hContent;
+        data.m_nAppID = settings->get_local_game_id().AppID();
+        data.m_nSizeInBytes = local_storage->file_size(REMOTE_STORAGE_FOLDER, shared_files[hContent]);
+        shared_files[hContent].copy(data.m_pchFileName, sizeof(data.m_pchFileName) - 1);
+        data.m_ulSteamIDOwner = settings->get_local_steam_id().ConvertToUint64();
+        downloaded_files[hContent].file = shared_files[hContent];
+        downloaded_files[hContent].total_size = data.m_nSizeInBytes;
+    } else {
+        data.m_eResult = k_EResultFileNotFound; //TODO: not sure if this is the right result
+    }
+
+    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
 }
 
 STEAM_CALL_RESULT( RemoteStorageDownloadUGCResult_t )
 SteamAPICall_t UGCDownload( UGCHandle_t hContent )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UGCDownload old\n");
+    return UGCDownload(hContent, 1);
 }
 
 
@@ -392,16 +421,31 @@ bool	GetUGCDetails( UGCHandle_t hContent, AppId_t *pnAppID, STEAM_OUT_STRING() c
 int32	UGCRead( UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UGCRead\n");
+    if (!downloaded_files.count(hContent) || cubDataToRead < 0) {
+        return -1; //TODO: is this the right return value?
+    }
+
+    Downloaded_File f = downloaded_files[hContent];
+    int read_data = local_storage->get_data(REMOTE_STORAGE_FOLDER, f.file, (char* )pvData, cubDataToRead, cOffset);
+
+    if (eAction == k_EUGCRead_Close || (eAction == k_EUGCRead_ContinueReadingUntilFinished && (read_data < cubDataToRead || (cOffset + cubDataToRead) >= f.total_size))) {
+        downloaded_files.erase(hContent);
+    }
+
+    PRINT_DEBUG("Read %i\n", read_data);
+    return read_data;
 }
 
 int32	UGCRead( UGCHandle_t hContent, void *pvData, int32 cubDataToRead )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UGCRead old\n");
+    return UGCRead( hContent, pvData, cubDataToRead, 0);
 }
 
 int32	UGCRead( UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 cOffset)
 {
-    PRINT_DEBUG("Steam_Remote_Storage::UGCRead old\n");
+    PRINT_DEBUG("Steam_Remote_Storage::UGCRead old2\n");
+    return UGCRead(hContent, pvData, cubDataToRead, cOffset, k_EUGCRead_ContinueReadingUntilFinished);
 }
 
 // Functions to iterate through UGC that has finished downloading but has not yet been read via UGCRead()
