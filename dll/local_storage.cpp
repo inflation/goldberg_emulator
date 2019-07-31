@@ -77,12 +77,12 @@ int Local_Storage::store_data_settings(std::string file, char *data, unsigned in
     return -1;
 }
 
-int Local_Storage::get_file_data(std::string full_path, char *data, unsigned int max_length)
+int Local_Storage::get_file_data(std::string full_path, char *data, unsigned int max_length, unsigned int offset)
 {
     return -1;
 }
 
-int Local_Storage::get_data(std::string folder, std::string file, char *data, unsigned int max_length)
+int Local_Storage::get_data(std::string folder, std::string file, char *data, unsigned int max_length, unsigned int offset)
 {
     return -1;
 }
