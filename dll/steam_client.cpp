@@ -303,7 +303,7 @@ Steam_Client::Steam_Client()
 
     PRINT_DEBUG("steam client init: id: %llu server id: %llu appid: %u port: %u \n", user_id.ConvertToUint64(), settings_server->get_local_steam_id().ConvertToUint64(), appid, port);
 
-    steam_overlay = new Steam_Overlay(settings_client, callback_results_client, callbacks_client, run_every_runcb);
+    steam_overlay = new Steam_Overlay(settings_client, callback_results_client, callbacks_client, run_every_runcb, network);
 
     steam_user = new Steam_User(settings_client, local_storage, network, callback_results_client, callbacks_client);
     steam_friends = new Steam_Friends(settings_client, network, callback_results_client, callbacks_client, run_every_runcb, steam_overlay);

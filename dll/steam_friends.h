@@ -15,7 +15,11 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef __INCLUDED_STEAM_FRIENDS_H__
+#define __INCLUDED_STEAM_FRIENDS_H__
+
 #include "base.h"
+#include "../overlay_experimental/steam_overlay.h"
 
 #define SEND_FRIEND_RATE 4.0
 
@@ -113,6 +117,8 @@ Steam_Friends(Settings* settings, Networking* network, SteamCallResults* callbac
     this->network->setCallback(CALLBACK_ID_USER_STATUS, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);
     this->run_every_runcb->add(&Steam_Friends::steam_friends_run_every_runcb, this);
     modified = false;
+
+    overlay->SetupFriends(&friends);
 }
 
 ~Steam_Friends()
@@ -491,6 +497,7 @@ void SetInGameVoiceSpeaking( CSteamID steamIDUser, bool bSpeaking )
 void ActivateGameOverlay( const char *pchDialog )
 {
     PRINT_DEBUG("Steam_Friends::ActivateGameOverlay %s\n", pchDialog);
+    overlay->OpenOverlay(pchDialog);
 }
 
 
@@ -547,7 +554,7 @@ void SetPlayedWith( CSteamID steamIDUserPlayedWith )
 void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby )
 {
     PRINT_DEBUG("Steam_Friends::ActivateGameOverlayInviteDialog\n");
-    // TODO: Here open the overlay
+    overlay->OpenOverlayInvite(steamIDLobby);
 }
 
 // gets the small (32x32) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
@@ -1048,3 +1055,5 @@ void Callback(Common_Message *msg)
 }
 
 };
+
+#endif//__INCLUDED_STEAM_FRIENDS_H__
