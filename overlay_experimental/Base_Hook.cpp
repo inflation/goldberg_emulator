@@ -36,5 +36,6 @@ void Base_Hook::UnhookAll()
 
 void Base_Hook::HookFuncs(std::pair<void**, void*> hook)
 {
-    DetourAttach(hook.first, hook.second);
+    if( DetourAttach(hook.first, hook.second) == 0 )
+        _hooked_funcs.emplace_back(hook);
 }

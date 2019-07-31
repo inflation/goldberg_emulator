@@ -26,6 +26,8 @@ void DX12_Hook::resetRenderState()
         pDescriptorHeap->Release();
 
         ImGui_ImplDX12_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
 
         initialized = false;
     }
@@ -35,7 +37,7 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 {
     DXGI_SWAP_CHAIN_DESC desc;
     pSwapChain->GetDesc(&desc);
-    
+
     if (!initialized)
     {
         D3D12_DESCRIPTOR_HEAP_DESC d3d12_desc = {};
@@ -149,11 +151,7 @@ DX12_Hook::~DX12_Hook()
     PRINT_DEBUG("DX11 Hook removed\n");
 
     if (_hooked)
-    {
-        ImGui_ImplDX12_Shutdown();
-        ImGui_ImplWin32_Shutdown();
-        ImGui::DestroyContext();
-    }
+        resetRenderState();
 
     hook = nullptr;
 }

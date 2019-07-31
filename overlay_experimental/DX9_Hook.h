@@ -44,7 +44,7 @@ private:
 public:
     static void Create(); // Initialize DX9 Hook.
     
-    void loadFunctions(IDirect3DDevice9Ex *obj);
+    void loadFunctions(IDirect3DDevice9Ex *pDeviceEx);
 };
 
 #endif//__INCLUDED_DX9_HOOK_H__

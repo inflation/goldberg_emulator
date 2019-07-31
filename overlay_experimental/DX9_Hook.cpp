@@ -6,6 +6,8 @@
 #include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx9.h>
 
+#include "steam_overlay.h"
+
 static DX9_Hook* hook;
 
 //////////////////////////////////////////////////////////////////
@@ -23,7 +25,7 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
         Hook_Manager::Inst().FoundHook(this);
 
         IDirect3D9Ex* pD3D;
-        IDirect3DDevice9Ex* pDevice;
+        IDirect3DDevice9Ex* pDeviceEx;
 
         Direct3DCreate9Ex(SDKVersion, &pD3D);
 
@@ -32,21 +34,21 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
         params.BackBufferHeight = 1;
         params.hDeviceWindow = GetForegroundWindow();
 
-        pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, &pDevice);
+        pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, &pDeviceEx);
 
-        loadFunctions(pDevice);
+        loadFunctions(pDeviceEx);
 
-        UnhookAll();
+        //UnhookAll();
         BeginHook();
         HookFuncs(
-            //std::make_pair<void**, void*>(&(PVOID&)Reset, &DX9_Hook::MyReset),
+            std::make_pair<void**, void*>(&(PVOID&)Reset, &DX9_Hook::MyReset),
             std::make_pair<void**, void*>(&(PVOID&)Present, &DX9_Hook::MyPresent),
             std::make_pair<void**, void*>(&(PVOID&)PresentEx, &DX9_Hook::MyPresentEx)
             //std::make_pair<void**, void*>(&(PVOID&)EndScene, &DX9_Hook::MyEndScene)
         );
         EndHook();
 
-        pDevice->Release();
+        pDeviceEx->Release();
         pD3D->Release();
     }
 }
@@ -56,8 +58,9 @@ void DX9_Hook::resetRenderState()
     if (initialized)
     {
         initialized = false;
-
         ImGui_ImplDX9_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
     }
 }
 
@@ -67,17 +70,19 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
     pDevice->GetSwapChain(0, &pSwapChain);
     D3DPRESENT_PARAMETERS PresentParameters;
     pSwapChain->GetPresentParameters(&PresentParameters);
-
     pSwapChain->Release();
+
+    D3DDEVICE_CREATION_PARAMETERS param;
+    pDevice->GetCreationParameters(&param);
+
+    if (param.hFocusWindow != Hook_Manager::Inst().GetOverlay()->GetGameHwnd())
+        resetRenderState();
 
     if (!initialized)
     {
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = NULL;
-
-        D3DDEVICE_CREATION_PARAMETERS param;
-        pDevice->GetCreationParameters(&param);
 
         Hook_Manager::Inst().ChangeGameWindow(param.hFocusWindow);
         ImGui_ImplWin32_Init(param.hFocusWindow);
@@ -130,27 +135,32 @@ HRESULT STDMETHODCALLTYPE DX9_Hook::MyReset(IDirect3DDevice9* _this, D3DPRESENT_
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyEndScene(IDirect3DDevice9* _this)
 {   
-    //if( !hook->uses_present )
+    if( !hook->uses_present )
         hook->prepareForOverlay(_this);
     return (_this->*hook->EndScene)();
 }
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyPresent(IDirect3DDevice9* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
+    hook->uses_present = true;
     hook->prepareForOverlay(_this);
     return (_this->*hook->Present)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyPresentEx(IDirect3DDevice9Ex* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion, DWORD dwFlags)
 {
+    hook->uses_present = true;
     hook->prepareForOverlay(_this);
     return (_this->*hook->PresentEx)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
 }
 
-
 DX9_Hook::DX9_Hook():
     initialized(false),
-    uses_present(false)
+    uses_present(false),
+    EndScene(nullptr),
+    Present(nullptr),
+    PresentEx(nullptr),
+    Reset(nullptr)
 {
     _dll = GetModuleHandle(DLL_NAME);
     _hooked = false;
@@ -172,11 +182,7 @@ DX9_Hook::~DX9_Hook()
     PRINT_DEBUG("DX9 Hook removed\n");
 
     if (_hooked)
-    {
-        ImGui_ImplDX9_Shutdown();
-        ImGui_ImplWin32_Shutdown();
-        ImGui::DestroyContext();
-    }
+        resetRenderState();
 
     hook = nullptr;
 }
@@ -191,9 +197,9 @@ void DX9_Hook::Create()
     }
 }
 
-void DX9_Hook::loadFunctions(IDirect3DDevice9Ex* obj)
+void DX9_Hook::loadFunctions(IDirect3DDevice9Ex* pDeviceEx)
 {
-    void** vTable = *reinterpret_cast<void***>(obj);
+    void** vTable = *reinterpret_cast<void***>(pDeviceEx);
 
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)IDirect3DDevice9VTable::X]
     LOAD_FUNC(Reset);

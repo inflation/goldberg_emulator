@@ -68,6 +68,8 @@ void DX11_Hook::resetRenderState()
         pContext->Release();
 
         ImGui_ImplDX11_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
 
         initialized = false;
     }
@@ -188,11 +190,7 @@ DX11_Hook::~DX11_Hook()
     PRINT_DEBUG("DX11 Hook removed\n");
 
     if (_hooked)
-    {
-        ImGui_ImplDX11_Shutdown();
-        ImGui_ImplWin32_Shutdown();
-        ImGui::DestroyContext();
-    }
+        resetRenderState();
 
     hook = nullptr;
 }

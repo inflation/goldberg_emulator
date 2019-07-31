@@ -2,8 +2,6 @@
 #include "DX10_Hook.h"
 #include "Hook_Manager.h"
 
-#include "../detours/detours.h"
-
 #include <imgui.h>
 #include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx10.h>
@@ -59,6 +57,8 @@ void DX10_Hook::resetRenderState()
         mainRenderTargetView->Release();
 
         ImGui_ImplDX10_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
 
         initialized = false;
     }
@@ -172,11 +172,7 @@ DX10_Hook::~DX10_Hook()
     PRINT_DEBUG("DX10 Hook removed\n");
 
     if (_hooked)
-    {
-        ImGui_ImplDX10_Shutdown();
-        ImGui_ImplWin32_Shutdown();
-        ImGui::DestroyContext();
-    }
+        resetRenderState();
 
     hook = nullptr;
 }
