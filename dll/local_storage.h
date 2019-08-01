@@ -16,6 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
+#include <vector>
 
 #ifndef LOCAL_STORAGE_INCLUDE
 #define LOCAL_STORAGE_INCLUDE
@@ -39,14 +40,14 @@ public:
     static std::string get_game_settings_path();
     static std::string get_user_appdata_path();
     Local_Storage(std::string save_directory);
-    static int get_file_data(std::string full_path, char *data, unsigned int max_length);
+    static int get_file_data(std::string full_path, char *data, unsigned int max_length, unsigned int offset=0);
     void setAppId(uint32 appid);
     static int store_file_data(std::string folder, std::string file, char *data, unsigned int length);
     static std::vector<std::string> get_filenames_path(std::string path);
 
     int store_data(std::string folder, std::string file, char *data, unsigned int length);
     int store_data_settings(std::string file, char *data, unsigned int length);
-    int get_data(std::string folder, std::string file, char *data, unsigned int max_length);
+    int get_data(std::string folder, std::string file, char *data, unsigned int max_length, unsigned int offset=0);
     int get_data_settings(std::string file, char *data, unsigned int max_length);
     int count_files(std::string folder);
     bool iterate_file(std::string folder, int index, char *output_filename, int32 *output_size);

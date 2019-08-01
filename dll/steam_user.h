@@ -448,4 +448,13 @@ SteamAPICall_t GetMarketEligibility()
     PRINT_DEBUG("GetMarketEligibility\n");
     return 0;
 }
+
+// Retrieves anti indulgence / duration control for current user
+STEAM_CALL_RESULT( DurationControl_t )
+SteamAPICall_t GetDurationControl()
+{
+    PRINT_DEBUG("GetDurationControl\n");
+    return 0;
+}
+
 };

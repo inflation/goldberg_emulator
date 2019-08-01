@@ -18,6 +18,8 @@
 #include "local_storage.h"
 
 #include <fstream>
+#include <algorithm>
+#include <iterator>
 
 struct File_Data {
     std::string name;
@@ -75,12 +77,12 @@ int Local_Storage::store_data_settings(std::string file, char *data, unsigned in
     return -1;
 }
 
-int Local_Storage::get_file_data(std::string full_path, char *data, unsigned int max_length)
+int Local_Storage::get_file_data(std::string full_path, char *data, unsigned int max_length, unsigned int offset)
 {
     return -1;
 }
 
-int Local_Storage::get_data(std::string folder, std::string file, char *data, unsigned int max_length)
+int Local_Storage::get_data(std::string folder, std::string file, char *data, unsigned int max_length, unsigned int offset)
 {
     return -1;
 }
@@ -535,22 +537,19 @@ int Local_Storage::store_data_settings(std::string file, char *data, unsigned in
     return store_file_data(get_global_settings_path(), file, data, length);
 }
 
-int Local_Storage::get_file_data(std::string full_path, char *data, unsigned int max_length)
+int Local_Storage::get_file_data(std::string full_path, char *data, unsigned int max_length, unsigned int offset)
 {
     std::ifstream myfile;
     myfile.open(full_path, std::ios::binary | std::ios::in);
     if (!myfile.is_open()) return -1;
 
-    std::streampos size = myfile.tellg();
-    myfile.seekg (0, std::ios::beg);
-    if (size > max_length) max_length = size;
-
+    myfile.seekg (offset, std::ios::beg);
     myfile.read (data, max_length);
     myfile.close();
     return myfile.gcount();
 }
 
-int Local_Storage::get_data(std::string folder, std::string file, char *data, unsigned int max_length)
+int Local_Storage::get_data(std::string folder, std::string file, char *data, unsigned int max_length, unsigned int offset)
 {
     file = sanitize_file_name(file);
     if (folder.back() != *PATH_SEPARATOR) {
@@ -558,7 +557,7 @@ int Local_Storage::get_data(std::string folder, std::string file, char *data, un
     }
 
     std::string full_path = save_directory + appid + folder + file;
-    return get_file_data(full_path, data, max_length);
+    return get_file_data(full_path, data, max_length, offset);
 }
 
 int Local_Storage::get_data_settings(std::string file, char *data, unsigned int max_length)

@@ -19,8 +19,10 @@
 #ifdef STEAMNETWORKINGSOCKETS_STATIC_LINK
 	#define STEAMNETWORKINGSOCKETS_INTERFACE extern
 #endif
+#define STEAMNETWORKINGSOCKETS_STEAMCLIENT
 #define STEAMNETWORKINGSOCKETS_ENABLE_SDR
-//#include <steam/steam_api_common.h>
+#define STEAMNETWORKINGSOCKETS_ENABLE_P2P
+#include "steam_api_common.h"
 // 
 //----------------------------------------
 
@@ -35,7 +37,10 @@
 
 struct SteamDatagramRelayAuthTicket;
 struct SteamDatagramHostedAddress;
+struct SteamDatagramGameCoordinatorServerLogin;
 struct SteamNetConnectionStatusChangedCallback_t;
+struct SteamNetAuthenticationStatus_t;
+struct SteamRelayNetworkStatus_t;
 
 /// Handle used to identify a connection to a remote host.
 typedef uint32 HSteamNetConnection;
@@ -63,6 +68,33 @@ typedef uint32 SteamNetworkingPOPID;
 /// microsecond *resolution*.
 typedef int64 SteamNetworkingMicroseconds;
 
+/// Describe the status of a particular network resource
+enum ESteamNetworkingAvailability
+{
+	// Negative values indicate a problem.
+	//
+	// In general, we will not automatically retry unless you take some action that
+	// depends on of requests this resource, such as querying the status, attempting
+	// to initiate a connection, receive a connection, etc.  If you do not take any
+	// action at all, we do not automatically retry in the background.
+	k_ESteamNetworkingAvailability_CannotTry = -102,		// A dependent resource is missing, so this service is unavailable.  (E.g. we cannot talk to routers because Internet is down or we don't have the network config.)
+	k_ESteamNetworkingAvailability_Failed = -101,			// We have tried for enough time that we would expect to have been successful by now.  We have never been successful
+	k_ESteamNetworkingAvailability_Previously = -100,		// We tried and were successful at one time, but now it looks like we have a problem
+
+	k_ESteamNetworkingAvailability_Retrying = -10,		// We previously failed and are currently retrying
+
+	// Not a problem, but not ready either
+	k_ESteamNetworkingAvailability_NeverTried = 1,		// We don't know because we haven't ever checked/tried
+	k_ESteamNetworkingAvailability_Waiting = 2,			// We're waiting on a dependent resource to be acquired.  (E.g. we cannot obtain a cert until we are logged into Steam.  We cannot measure latency to relays until we have the network config.)
+	k_ESteamNetworkingAvailability_Attempting = 3,		// We're actively trying now, but are not yet successful.
+
+	k_ESteamNetworkingAvailability_Current = 100,			// Resource is online/available
+
+
+	k_ESteamNetworkingAvailability_Unknown = 0,			// Internal dummy/sentinel, or value is not applicable in this context
+	k_ESteamNetworkingAvailability__Force32bit = 0x7fffffff,
+};
+
 //
 // Describing network hosts
 //
@@ -70,15 +102,16 @@ typedef int64 SteamNetworkingMicroseconds;
 /// Different methods of describing the identity of a network host
 enum ESteamNetworkingIdentityType
 {
-	// Dummy/unknown/invalid
+	// Dummy/empty/invalid.
+	// Plese note that if we parse a string that we don't recognize
+	// but that appears reasonable, we will NOT use this type.  Instead
+	// we'll use k_ESteamNetworkingIdentityType_UnknownType.
 	k_ESteamNetworkingIdentityType_Invalid = 0,
 
 	//
 	// Basic platform-specific identifiers.
 	//
 	k_ESteamNetworkingIdentityType_SteamID = 16, // 64-bit CSteamID
-	k_ESteamNetworkingIdentityType_XboxPairwiseID = 17, // Publisher-specific user identity, as string
-	//k_ESteamNetworkingIdentityType_PlaystationSomething = 18,
 
 	//
 	// Special identifiers.
@@ -102,6 +135,13 @@ enum ESteamNetworkingIdentityType
 	// It's up to you to ultimately decide what this identity means.
 	k_ESteamNetworkingIdentityType_GenericString = 2,
 	k_ESteamNetworkingIdentityType_GenericBytes = 3,
+
+	// This identity type is used when we parse a string that looks like is a
+	// valid identity, just of a kind that we don't recognize.  In this case, we
+	// can often still communicate with the peer!  Allowing such identities
+	// for types we do not recognize useful is very useful for forward
+	// compatibility.
+	k_ESteamNetworkingIdentityType_UnknownType = 4,
 
 	// Make sure this enum is stored in an int.
 	k_ESteamNetworkingIdentityType__Force32bit = 0x7fffffff,
@@ -173,9 +213,6 @@ struct SteamNetworkingIdentity
 	void SetSteamID64( uint64 steamID ); // Takes SteamID as raw 64-bit number
 	uint64 GetSteamID64() const; // Returns 0 if identity is not SteamID
 
-	bool SetXboxPairwiseID( const char *pszString ); // Returns false if invalid length
-	const char *GetXboxPairwiseID() const; // Returns nullptr if not Xbox ID
-
 	void SetIPAddr( const SteamNetworkingIPAddr &addr ); // Set to specified IP:port
 	const SteamNetworkingIPAddr *GetIPAddr() const; // returns null if we are not an IP address.
 
@@ -206,7 +243,6 @@ struct SteamNetworkingIdentity
 	enum {
 		k_cchMaxString = 128, // Max length of the buffer needed to hold any identity, formatted in string format by ToString
 		k_cchMaxGenericString = 32, // Max length of the string for generic string identities.  Including terminating '\0'
-		k_cchMaxXboxPairwiseID = 32, // Including terminating '\0'
 		k_cbMaxGenericBytes = 32,
 	};
 
@@ -220,8 +256,8 @@ struct SteamNetworkingIdentity
 	union {
 		uint64 m_steamID64;
 		char m_szGenericString[ k_cchMaxGenericString ];
-		char m_szXboxPairwiseID[ k_cchMaxXboxPairwiseID ];
 		uint8 m_genericBytes[ k_cbMaxGenericBytes ];
+		char m_szUnknownRawString[ k_cchMaxString ];
 		SteamNetworkingIPAddr m_ip;
 		uint32 m_reserved[ 32 ]; // Pad structure to leave easy room for future expansion
 	};
@@ -926,6 +962,15 @@ enum ESteamNetworkingConfigValue
 	/// (You can examine the incoming connection and decide whether to accept it.)
 	k_ESteamNetworkingConfig_IP_AllowWithoutAuth = 23,
 
+	/// [connection int32] Do not send UDP packets with a payload of
+	/// larger than N bytes.  If you set this, k_ESteamNetworkingConfig_MTU_DataSize
+	/// is automatically adjusted
+	k_ESteamNetworkingConfig_MTU_PacketSize = 32,
+
+	/// [connection int32] (read only) Maximum message size you can send that
+	/// will not fragment, based on k_ESteamNetworkingConfig_MTU_PacketSize
+	k_ESteamNetworkingConfig_MTU_DataSize = 33,
+
 	//
 	// Settings for SDR relayed connections
 	//
@@ -1059,6 +1104,9 @@ inline void GetSteamNetworkingLocationPOPStringFromID( SteamNetworkingPOPID id, 
 	szCode[4] = 0;
 }
 
+/// The POPID "dev" is used in non-production environments for testing.
+const SteamNetworkingPOPID k_SteamDatagramPOPID_dev = ( (uint32)'d' << 16U ) | ( (uint32)'e' << 8U ) | (uint32)'v';
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Internal stuff
@@ -1083,24 +1131,21 @@ inline void SteamNetworkingIdentity::SetSteamID( CSteamID steamID ) { SetSteamID
 inline CSteamID SteamNetworkingIdentity::GetSteamID() const { return CSteamID( GetSteamID64() ); }
 inline void SteamNetworkingIdentity::SetSteamID64( uint64 steamID ) { m_eType = k_ESteamNetworkingIdentityType_SteamID; m_cbSize = sizeof( m_steamID64 ); m_steamID64 = steamID; }
 inline uint64 SteamNetworkingIdentity::GetSteamID64() const { return m_eType == k_ESteamNetworkingIdentityType_SteamID ? m_steamID64 : 0; }
-inline bool SteamNetworkingIdentity::SetXboxPairwiseID( const char *pszString ) { size_t l = strlen( pszString ); if ( l < 1 || l >= sizeof(m_szXboxPairwiseID) ) return false;
-	m_eType = k_ESteamNetworkingIdentityType_XboxPairwiseID; m_cbSize = int(l+1); memcpy( m_szXboxPairwiseID, pszString, m_cbSize ); return true; }
-inline const char *SteamNetworkingIdentity::GetXboxPairwiseID() const { return m_eType == k_ESteamNetworkingIdentityType_XboxPairwiseID ? m_szXboxPairwiseID : nullptr; }
 inline void SteamNetworkingIdentity::SetIPAddr( const SteamNetworkingIPAddr &addr ) { m_eType = k_ESteamNetworkingIdentityType_IPAddress; m_cbSize = (int)sizeof(m_ip); m_ip = addr; }
-inline const SteamNetworkingIPAddr *SteamNetworkingIdentity::GetIPAddr() const { return m_eType == k_ESteamNetworkingIdentityType_IPAddress ? &m_ip : nullptr; }
+inline const SteamNetworkingIPAddr *SteamNetworkingIdentity::GetIPAddr() const { return m_eType == k_ESteamNetworkingIdentityType_IPAddress ? &m_ip : NULL; }
 inline void SteamNetworkingIdentity::SetLocalHost() { m_eType = k_ESteamNetworkingIdentityType_IPAddress; m_cbSize = (int)sizeof(m_ip); m_ip.SetIPv6LocalHost(); }
 inline bool SteamNetworkingIdentity::IsLocalHost() const { return m_eType == k_ESteamNetworkingIdentityType_IPAddress && m_ip.IsLocalHost(); }
 inline bool SteamNetworkingIdentity::SetGenericString( const char *pszString ) { size_t l = strlen( pszString ); if ( l >= sizeof(m_szGenericString) ) return false;
 	m_eType = k_ESteamNetworkingIdentityType_GenericString; m_cbSize = int(l+1); memcpy( m_szGenericString, pszString, m_cbSize ); return true; }
-inline const char *SteamNetworkingIdentity::GetGenericString() const { return m_eType == k_ESteamNetworkingIdentityType_GenericString ? m_szGenericString : nullptr; }
+inline const char *SteamNetworkingIdentity::GetGenericString() const { return m_eType == k_ESteamNetworkingIdentityType_GenericString ? m_szGenericString : NULL; }
 inline bool SteamNetworkingIdentity::SetGenericBytes( const void *data, size_t cbLen ) { if ( cbLen > sizeof(m_genericBytes) ) return false;
 	m_eType = k_ESteamNetworkingIdentityType_GenericBytes; m_cbSize = int(cbLen); memcpy( m_genericBytes, data, m_cbSize ); return true; }
-inline const uint8 *SteamNetworkingIdentity::GetGenericBytes( int &cbLen ) const { if ( m_eType != k_ESteamNetworkingIdentityType_GenericBytes ) return nullptr;
+inline const uint8 *SteamNetworkingIdentity::GetGenericBytes( int &cbLen ) const { if ( m_eType != k_ESteamNetworkingIdentityType_GenericBytes ) return NULL;
 	cbLen = m_cbSize; return m_genericBytes; }
 inline bool SteamNetworkingIdentity::operator==(const SteamNetworkingIdentity &x ) const { return m_eType == x.m_eType && m_cbSize == x.m_cbSize && memcmp( m_genericBytes, x.m_genericBytes, m_cbSize ) == 0; }
 inline void SteamNetworkingMessage_t::Release() { (*m_pfnRelease)( this ); }
 
-#if defined( STEAMNETWORKINGSOCKETS_STATIC_LINK ) || !defined( STEAMNETWORKINGSOCKETS_STEAM )
+#if defined( STEAMNETWORKINGSOCKETS_STATIC_LINK ) || !defined( STEAMNETWORKINGSOCKETS_STEAMCLIENT )
 STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIPAddr_ToString( const SteamNetworkingIPAddr *pAddr, char *buf, size_t cbBuf, bool bWithPort );
 STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr *pAddr, const char *pszStr );
 STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity &identity, char *buf, size_t cbBuf );

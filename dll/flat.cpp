@@ -197,6 +197,11 @@ S_API class ISteamParties * SteamAPI_ISteamClient_GetISteamParties(intptr_t inst
     return get_steam_client()->GetISteamParties(hSteamUser, hSteamPipe, pchVersion);
 }
 
+S_API class ISteamRemotePlay * SteamAPI_ISteamClient_GetISteamRemotePlay(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+{
+    return get_steam_client()->GetISteamRemotePlay(hSteamUser, hSteamPipe, pchVersion);
+}
+
 S_API HSteamUser SteamAPI_ISteamUser_GetHSteamUser(intptr_t instancePtr)
 {
     return (get_steam_client()->steam_user)->GetHSteamUser();
@@ -345,6 +350,11 @@ S_API bool SteamAPI_ISteamUser_BIsPhoneRequiringVerification(intptr_t instancePt
 S_API SteamAPICall_t SteamAPI_ISteamUser_GetMarketEligibility(intptr_t instancePtr)
 {
     return (get_steam_client()->steam_user)->GetMarketEligibility();
+}
+
+S_API SteamAPICall_t SteamAPI_ISteamUser_GetDurationControl(intptr_t instancePtr)
+{
+    return (get_steam_client()->steam_user)->GetDurationControl();
 }
 
 S_API const char * SteamAPI_ISteamFriends_GetPersonaName(intptr_t instancePtr)
@@ -714,147 +724,386 @@ S_API int SteamAPI_ISteamFriends_GetNumChatsWithUnreadPriorityMessages(intptr_t 
 
 S_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceAppActive(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetSecondsSinceAppActive();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetSecondsSinceAppActive();
 }
 
 S_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceComputerActive(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetSecondsSinceComputerActive();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetSecondsSinceComputerActive();
 }
 
 S_API EUniverse SteamAPI_ISteamUtils_GetConnectedUniverse(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetConnectedUniverse();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetConnectedUniverse();
 }
 
 S_API uint32 SteamAPI_ISteamUtils_GetServerRealTime(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetServerRealTime();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetServerRealTime();
 }
 
 S_API const char * SteamAPI_ISteamUtils_GetIPCountry(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetIPCountry();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetIPCountry();
 }
 
 S_API bool SteamAPI_ISteamUtils_GetImageSize(intptr_t instancePtr, int iImage, uint32 * pnWidth, uint32 * pnHeight)
 {
-    return ((ISteamUtils *)instancePtr)->GetImageSize(iImage, pnWidth, pnHeight);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetImageSize(iImage, pnWidth, pnHeight);
 }
 
 S_API bool SteamAPI_ISteamUtils_GetImageRGBA(intptr_t instancePtr, int iImage, uint8 * pubDest, int nDestBufferSize)
 {
-    return ((ISteamUtils *)instancePtr)->GetImageRGBA(iImage, pubDest, nDestBufferSize);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetImageRGBA(iImage, pubDest, nDestBufferSize);
 }
 
 S_API bool SteamAPI_ISteamUtils_GetCSERIPPort(intptr_t instancePtr, uint32 * unIP, uint16 * usPort)
 {
-    return ((ISteamUtils *)instancePtr)->GetCSERIPPort(unIP, usPort);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetCSERIPPort(unIP, usPort);
 }
 
 S_API uint8 SteamAPI_ISteamUtils_GetCurrentBatteryPower(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetCurrentBatteryPower();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetCurrentBatteryPower();
 }
 
 S_API uint32 SteamAPI_ISteamUtils_GetAppID(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetAppID();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetAppID();
 }
 
 S_API void SteamAPI_ISteamUtils_SetOverlayNotificationPosition(intptr_t instancePtr, ENotificationPosition eNotificationPosition)
 {
-    return ((ISteamUtils *)instancePtr)->SetOverlayNotificationPosition(eNotificationPosition);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->SetOverlayNotificationPosition(eNotificationPosition);
 }
 
 S_API bool SteamAPI_ISteamUtils_IsAPICallCompleted(intptr_t instancePtr, SteamAPICall_t hSteamAPICall, bool * pbFailed)
 {
-    return ((ISteamUtils *)instancePtr)->IsAPICallCompleted(hSteamAPICall, pbFailed);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->IsAPICallCompleted(hSteamAPICall, pbFailed);
 }
 
 S_API ESteamAPICallFailure SteamAPI_ISteamUtils_GetAPICallFailureReason(intptr_t instancePtr, SteamAPICall_t hSteamAPICall)
 {
-    return ((ISteamUtils *)instancePtr)->GetAPICallFailureReason(hSteamAPICall);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetAPICallFailureReason(hSteamAPICall);
 }
 
 S_API bool SteamAPI_ISteamUtils_GetAPICallResult(intptr_t instancePtr, SteamAPICall_t hSteamAPICall, void * pCallback, int cubCallback, int iCallbackExpected, bool * pbFailed)
 {
-    return ((ISteamUtils *)instancePtr)->GetAPICallResult(hSteamAPICall, pCallback, cubCallback, iCallbackExpected, pbFailed);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetAPICallResult(hSteamAPICall, pCallback, cubCallback, iCallbackExpected, pbFailed);
 }
 
 S_API uint32 SteamAPI_ISteamUtils_GetIPCCallCount(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetIPCCallCount();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetIPCCallCount();
 }
 
 S_API void SteamAPI_ISteamUtils_SetWarningMessageHook(intptr_t instancePtr, SteamAPIWarningMessageHook_t pFunction)
 {
-    return ((ISteamUtils *)instancePtr)->SetWarningMessageHook(pFunction);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->SetWarningMessageHook(pFunction);
 }
 
 S_API bool SteamAPI_ISteamUtils_IsOverlayEnabled(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->IsOverlayEnabled();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->IsOverlayEnabled();
 }
 
 S_API bool SteamAPI_ISteamUtils_BOverlayNeedsPresent(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->BOverlayNeedsPresent();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->BOverlayNeedsPresent();
 }
 
 S_API SteamAPICall_t SteamAPI_ISteamUtils_CheckFileSignature(intptr_t instancePtr, const char * szFileName)
 {
-    return ((ISteamUtils *)instancePtr)->CheckFileSignature(szFileName);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->CheckFileSignature(szFileName);
 }
 
 S_API bool SteamAPI_ISteamUtils_ShowGamepadTextInput(intptr_t instancePtr, EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char * pchDescription, uint32 unCharMax, const char * pchExistingText)
 {
-    return ((ISteamUtils *)instancePtr)->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax, pchExistingText);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax, pchExistingText);
 }
 
 S_API uint32 SteamAPI_ISteamUtils_GetEnteredGamepadTextLength(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetEnteredGamepadTextLength();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetEnteredGamepadTextLength();
 }
 
 S_API bool SteamAPI_ISteamUtils_GetEnteredGamepadTextInput(intptr_t instancePtr, char * pchText, uint32 cchText)
 {
-    return ((ISteamUtils *)instancePtr)->GetEnteredGamepadTextInput(pchText, cchText);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetEnteredGamepadTextInput(pchText, cchText);
 }
 
 S_API const char * SteamAPI_ISteamUtils_GetSteamUILanguage(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->GetSteamUILanguage();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetSteamUILanguage();
 }
 
 S_API bool SteamAPI_ISteamUtils_IsSteamRunningInVR(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->IsSteamRunningInVR();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->IsSteamRunningInVR();
 }
 
 S_API void SteamAPI_ISteamUtils_SetOverlayNotificationInset(intptr_t instancePtr, int nHorizontalInset, int nVerticalInset)
 {
-    return ((ISteamUtils *)instancePtr)->SetOverlayNotificationInset(nHorizontalInset, nVerticalInset);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->SetOverlayNotificationInset(nHorizontalInset, nVerticalInset);
 }
 
 S_API bool SteamAPI_ISteamUtils_IsSteamInBigPictureMode(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->IsSteamInBigPictureMode();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->IsSteamInBigPictureMode();
 }
 
 S_API void SteamAPI_ISteamUtils_StartVRDashboard(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->StartVRDashboard();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->StartVRDashboard();
 }
 
 S_API bool SteamAPI_ISteamUtils_IsVRHeadsetStreamingEnabled(intptr_t instancePtr)
 {
-    return ((ISteamUtils *)instancePtr)->IsVRHeadsetStreamingEnabled();
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->IsVRHeadsetStreamingEnabled();
 }
 
 S_API void SteamAPI_ISteamUtils_SetVRHeadsetStreamingEnabled(intptr_t instancePtr, bool bEnabled)
 {
-    return ((ISteamUtils *)instancePtr)->SetVRHeadsetStreamingEnabled(bEnabled);
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->SetVRHeadsetStreamingEnabled(bEnabled);
+}
+
+S_API bool SteamAPI_ISteamUtils_IsSteamChinaLauncher(intptr_t instancePtr)
+{
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->IsSteamChinaLauncher();
+}
+
+S_API bool SteamAPI_ISteamUtils_InitFilterText(intptr_t instancePtr)
+{
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->InitFilterText();
+}
+
+S_API int SteamAPI_ISteamUtils_FilterText(intptr_t instancePtr, char * pchOutFilteredText, uint32 nByteSizeOutFilteredText, const char * pchInputMessage, bool bLegalOnly)
+{
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->FilterText(pchOutFilteredText, nByteSizeOutFilteredText, pchInputMessage, bLegalOnly);
 }
 
 S_API int SteamAPI_ISteamMatchmaking_GetFavoriteGameCount(intptr_t instancePtr)
@@ -2597,6 +2846,16 @@ S_API EInputActionOrigin SteamAPI_ISteamInput_TranslateActionOrigin(intptr_t ins
     return (get_steam_client()->steam_controller)->TranslateActionOrigin(eDestinationInputType, eSourceOrigin);
 }
 
+S_API bool SteamAPI_ISteamInput_GetDeviceBindingRevision(intptr_t instancePtr, InputHandle_t inputHandle, int * pMajor, int * pMinor)
+{
+    return (get_steam_client()->steam_controller)->GetDeviceBindingRevision(inputHandle, pMajor, pMinor);
+}
+
+S_API uint32 SteamAPI_ISteamInput_GetRemotePlaySessionID(intptr_t instancePtr, InputHandle_t inputHandle)
+{
+    return (get_steam_client()->steam_controller)->GetRemotePlaySessionID(inputHandle);
+}
+
 S_API bool SteamAPI_ISteamController_Init(intptr_t instancePtr)
 {
     return (get_steam_client()->steam_controller)->Init();
@@ -2760,6 +3019,11 @@ S_API EControllerActionOrigin SteamAPI_ISteamController_GetActionOriginFromXboxO
 S_API EControllerActionOrigin SteamAPI_ISteamController_TranslateActionOrigin(intptr_t instancePtr, ESteamInputType eDestinationInputType, EControllerActionOrigin eSourceOrigin)
 {
     return (get_steam_client()->steam_controller)->TranslateActionOrigin(eDestinationInputType, eSourceOrigin);
+}
+
+S_API bool SteamAPI_ISteamController_GetControllerBindingRevision(intptr_t instancePtr, ControllerHandle_t controllerHandle, int * pMajor, int * pMinor)
+{
+    return (get_steam_client()->steam_controller)->GetControllerBindingRevision(controllerHandle, pMajor, pMinor);
 }
 
 S_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryUserUGCRequest(intptr_t instancePtr, AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage)
@@ -2928,6 +3192,18 @@ S_API bool SteamAPI_ISteamUGC_GetQueryUGCKeyValueTag(intptr_t instancePtr, UGCQu
     }
 
     return (ptr)->GetQueryUGCKeyValueTag(handle, index, keyValueTagIndex, pchKey, cchKeySize, pchValue, cchValueSize);
+}
+
+S_API bool SteamAPI_ISteamUGC_GetQueryUGCKeyValueTag0(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, const char * pchKey, char * pchValue, uint32 cchValueSize)
+{
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    auto ptr = get_steam_client()->steam_gameserver_ugc;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_ugc;
+    }
+
+    return (ptr)->GetQueryUGCKeyValueTag(handle, index, pchKey, pchValue, cchValueSize);
 }
 
 S_API bool SteamAPI_ISteamUGC_ReleaseQueryUGCRequest(intptr_t instancePtr, UGCQueryHandle_t handle)
@@ -3288,6 +3564,18 @@ S_API bool SteamAPI_ISteamUGC_SetAllowLegacyUpload(intptr_t instancePtr, UGCUpda
     }
 
     return (ptr)->SetAllowLegacyUpload(handle, bAllowLegacyUpload);
+}
+
+S_API bool SteamAPI_ISteamUGC_RemoveAllItemKeyValueTags(intptr_t instancePtr, UGCUpdateHandle_t handle)
+{
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    auto ptr = get_steam_client()->steam_gameserver_ugc;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_ugc;
+    }
+
+    return (ptr)->RemoveAllItemKeyValueTags(handle);
 }
 
 S_API bool SteamAPI_ISteamUGC_RemoveItemKeyValueTags(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchKey)
@@ -4376,6 +4664,36 @@ S_API bool SteamAPI_ISteamParentalSettings_BIsFeatureBlocked(intptr_t instancePt
 S_API bool SteamAPI_ISteamParentalSettings_BIsFeatureInBlockList(intptr_t instancePtr, EParentalFeature eFeature)
 {
     return ((ISteamParentalSettings *)instancePtr)->BIsFeatureInBlockList(eFeature);
+}
+
+S_API uint32 SteamAPI_ISteamRemotePlay_GetSessionCount(intptr_t instancePtr)
+{
+    return ((ISteamRemotePlay *)instancePtr)->GetSessionCount();
+}
+
+S_API uint32 SteamAPI_ISteamRemotePlay_GetSessionID(intptr_t instancePtr, int iSessionIndex)
+{
+    return ((ISteamRemotePlay *)instancePtr)->GetSessionID(iSessionIndex);
+}
+
+S_API uint64 SteamAPI_ISteamRemotePlay_GetSessionSteamID(intptr_t instancePtr, uint32 unSessionID)
+{
+    return ((ISteamRemotePlay *)instancePtr)->GetSessionSteamID(unSessionID).ConvertToUint64();
+}
+
+S_API const char * SteamAPI_ISteamRemotePlay_GetSessionClientName(intptr_t instancePtr, uint32 unSessionID)
+{
+    return ((ISteamRemotePlay *)instancePtr)->GetSessionClientName(unSessionID);
+}
+
+S_API ESteamDeviceFormFactor SteamAPI_ISteamRemotePlay_GetSessionClientFormFactor(intptr_t instancePtr, uint32 unSessionID)
+{
+    return ((ISteamRemotePlay *)instancePtr)->GetSessionClientFormFactor(unSessionID);
+}
+
+S_API bool SteamAPI_ISteamRemotePlay_BGetSessionClientResolution(intptr_t instancePtr, uint32 unSessionID, int * pnResolutionX, int * pnResolutionY)
+{
+    return ((ISteamRemotePlay *)instancePtr)->BGetSessionClientResolution(unSessionID, pnResolutionX, pnResolutionY);
 }
 
 S_API bool SteamAPI_ISteamGameServer_InitGameServer(intptr_t instancePtr, uint32 unIP, uint16 usGamePort, uint16 usQueryPort, uint32 unFlags, AppId_t nGameAppId, const char * pchVersionString)

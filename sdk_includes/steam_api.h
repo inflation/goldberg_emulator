@@ -33,6 +33,7 @@
 #include "isteamclient015.h"
 #include "isteamclient016.h"
 #include "isteamclient017.h"
+#include "isteamclient018.h"
 #include "isteamuser.h"
 #include "isteamuser009.h"
 #include "isteamuser010.h"
@@ -89,7 +90,9 @@
 #include "isteamnetworkingsocketsserialized.h"
 #include "isteamnetworkingsockets.h"
 #include "isteamnetworkingutils.h"
+#include "isteamnetworkingutils001.h"
 #include "isteamnetworkingsockets001.h"
+#include "isteamnetworkingsockets002.h"
 #include "isteamremotestorage.h"
 #include "isteamremotestorage001.h"
 #include "isteamremotestorage002.h"
@@ -125,6 +128,7 @@
 #include "isteamugc008.h"
 #include "isteamugc009.h"
 #include "isteamugc010.h"
+#include "isteamugc012.h"
 #include "isteamapplist.h"
 #include "isteamhtmlsurface.h"
 #include "isteamhtmlsurface001.h"
@@ -140,6 +144,7 @@
 #include "isteammasterserverupdater.h"
 #include "isteamunifiedmessages.h"
 #include "isteaminput.h"
+#include "isteamremoteplay.h"
 
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------//
