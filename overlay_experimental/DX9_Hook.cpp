@@ -183,6 +183,8 @@ DX9_Hook::~DX9_Hook()
 
     if (_hooked)
     {
+        //ImGui_ImplDX9_Shutdown(); This makes some games hang when Releasing the D3D9 device (pDevice->Release())
+        // maybe because D3D is already shut down when we try to free the device?
         ImGui_ImplDX9_InvalidateDeviceObjects();
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext();
