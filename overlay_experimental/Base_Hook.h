@@ -29,13 +29,18 @@ public:
     void EndHook();
     void UnhookAll();
 
-    void HookFuncs(std::pair<void**, void*> hook);
+    void HookFunc(std::pair<void**, void*> hook);
+
+    template<typename T>
+    void HookFuncs(std::pair<T*, T> funcs)
+    {
+        HookFunc(funcs);
+    }
 
     template<typename T, typename ...Args>
     void HookFuncs(std::pair<T*, T> funcs, Args... args)
     {
-        _hooked_funcs.emplace_back(std::move(funcs));
-        HookFuncs(funcs);
+        HookFunc(funcs);
         HookFuncs(args...);
     }
 };
