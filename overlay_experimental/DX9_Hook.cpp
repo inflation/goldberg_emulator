@@ -182,7 +182,11 @@ DX9_Hook::~DX9_Hook()
     PRINT_DEBUG("DX9 Hook removed\n");
 
     if (_hooked)
-        resetRenderState();
+    {
+        ImGui_ImplDX9_InvalidateDeviceObjects();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
+    }
 
     hook = nullptr;
 }
