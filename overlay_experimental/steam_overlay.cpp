@@ -6,7 +6,7 @@
 #include <imgui.h>
 #include <impls/imgui_impl_win32.h>
 
-#include <numeric> // iota
+#include "../dll/dll.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -300,8 +300,6 @@ void Steam_Overlay::OverlayProc( int width, int height )
 
     //ImGui::ShowDemoWindow();
 }
-
-#include "../dll/dll.h"
 
 void Steam_Overlay::RunCallbacks()
 {
