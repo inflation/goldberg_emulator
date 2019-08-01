@@ -314,215 +314,38 @@ void Steam_Overlay::RunCallbacks()
         overlay_state_changed = false;
     }
 
+    Steam_Friends* steamFriends = get_steam_client()->steam_friends;
+    Steam_Matchmaking* steamMatchmaking = get_steam_client()->steam_matchmaking;
+
     if (friend_action & friend_action_invite)
     {
-        Common_Message msg;
-        Friend_Messages* friend_messages = new Friend_Messages();
-        friend_messages->set_type(Friend_Messages::LOBBY_INVITE);
-        friend_messages->set_lobby_id(settings->get_lobby().ConvertToUint64());
-        msg.set_allocated_friend_messages(friend_messages);
-        msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
-        msg.set_dest_id(friend_to_action);
-        network->sendTo(&msg, true);
+        std::string connect = steamFriends->GetFriendRichPresence(settings->get_local_steam_id(), "connect");
+        if (connect.length() > 0)
+            steamFriends->InviteUserToGame(friend_to_action, connect.c_str());
+        else if(settings->get_lobby().IsValid())
+            steamMatchmaking->InviteUserToLobby(settings->get_lobby(), friend_to_action);
 
         friend_action &= ~friend_action_invite;
     }
 
     if (friend_action & friend_action_join)
     {
-        FriendGameInfo_t friend_info = {};
-        Steam_Friends* steamFriends = get_steam_client()->steam_friends;
-        steamFriends->GetFriendGamePlayed(friend_to_action, &friend_info);
-        //get_steam_client()->steam_matchmaking->JoinLobby(friend_info.m_steamIDLobby);
+        std::string connect = steamFriends->GetFriendRichPresence(friend_to_action, "connect");
+        if (connect.length() > 0)
+        {
+            GameRichPresenceJoinRequested_t data = {};
+            data.m_steamIDFriend.SetFromUint64(friend_to_action);
+            strncpy(data.m_rgchConnect, connect.c_str(), k_cchMaxRichPresenceValueLength - 1);
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        }
+        else
+        {
+            FriendGameInfo_t friend_info = {};
+            steamFriends->GetFriendGamePlayed(friend_to_action, &friend_info);
+            if(friend_info.m_steamIDLobby.IsValid())
+                steamMatchmaking->JoinLobby(friend_info.m_steamIDLobby);
+        }
 
-        const char* connect = steamFriends->GetFriendRichPresence(friend_to_action, "connect");
-        GameRichPresenceJoinRequested_t data = {};
-        data.m_steamIDFriend.SetFromUint64(friend_to_action);
-        strncpy(data.m_rgchConnect, connect, k_cchMaxRichPresenceValueLength - 1);
-        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-
-        
         friend_action &= ~friend_action_join;
     }
 }
-
-    /*
-                        switchstr(args[0])
-                        {
-                            casestr("get"):
-                                sstr << "Steam ID: " << _this->_client->settings_client->get_local_steam_id().ConvertToUint64() << std::endl;
-                                sstr << "Steam Server ID: " << _this->_client->settings_server->get_local_steam_id().ConvertToUint64() << std::endl;
-                                sstr << "Your lobby: " << _this->_client->settings_client->get_lobby().ConvertToUint64() << std::endl;
-                                ovlay.write(sstr.str());
-                                sstr.str("");
-                            break;
-
-                            casestr("get_id") :
-                                sstr << _this->_client->settings_client->get_local_steam_id().ConvertToUint64() << std::endl;
-                            ovlay.write(sstr.str());
-                            sstr.str("");
-                            break;
-
-                            casestr("get_server_id") :
-                                sstr << _this->_client->settings_server->get_local_steam_id().ConvertToUint64() << std::endl;
-                            ovlay.write(sstr.str());
-                            sstr.str("");
-                            break;
-
-                            casestr("get_lobby") :
-                                sstr << "Your lobby: " << _this->_client->settings_client->get_lobby().ConvertToUint64() << std::endl;
-                            ovlay.write(sstr.str());
-                            sstr.str("");
-                            break;
-
-                            casestr("list_friends") :
-                            {
-                                ovlay.write(str + "\n");
-
-                                int cnt = steamFriends->GetFriendCount(0);
-                                for (int i = 0; i < cnt; ++i)
-                                {
-                                    CSteamID id = steamFriends->GetFriendByIndex(i, 0);
-                                    const char* name = steamFriends->GetFriendPersonaName(id);
-
-                                    FriendGameInfo_t friend_info = {};
-                                    steamFriends->GetFriendGamePlayed(id, &friend_info);
-                                    sstr << id.ConvertToUint64() << '(' << name << ") is playing: " << friend_info.m_gameID.AppID() << std::endl;
-                                    ovlay.write(sstr.str());
-                                }
-                            }
-                            break;
-                            casestr("list_games") :
-                            {
-                                ovlay.write(str + "\n");
-
-                                int cnt = steamFriends->GetFriendCount(0);
-                                for (int i = 0; i < cnt; ++i)
-                                {
-                                    CSteamID id = steamFriends->GetFriendByIndex(i, 0);
-                                    const char* name = steamFriends->GetFriendPersonaName(id);
-
-                                    std::string connect = steamFriends->GetFriendRichPresence(id, "connect");
-                                    FriendGameInfo_t friend_info = {};
-                                    steamFriends->GetFriendGamePlayed(id, &friend_info);
-
-                                    if (connect.length() > 0)
-                                    {
-                                        sstr << friend_info.m_gameID.AppID() << "\t" << name << "\t" << connect << std::endl;
-                                    }
-                                    else if (friend_info.m_steamIDLobby != k_steamIDNil)
-                                    {
-                                        connect = "+connect_lobby " + std::to_string(friend_info.m_steamIDLobby.ConvertToUint64());
-                                        sstr << friend_info.m_gameID.AppID() << "\t" << name << "\t" << connect << std::endl;
-                                    }
-                                    ovlay.write(sstr.str());
-                                    sstr.str("");
-                                }
-                            }
-                            break;
-
-                            casestr("invite_user") :
-                            {
-                                ovlay.write(str + "\n");
-
-                                if (_this->lobbyID.IsValid())
-                                {
-                                    if (args.size() == 2)
-                                    {
-                                        std::string& friendName = args[1];
-                                        int cnt = steamFriends->GetFriendCount(0);
-                                        for (int i = 0; i < cnt; ++i)
-                                        {
-                                            CSteamID id = steamFriends->GetFriendByIndex(i, 0);
-                                            const char* name = steamFriends->GetFriendPersonaName(id);
-
-                                            if (friendName == name)
-                                            {
-                                                Common_Message msg;
-                                                Friend_Messages* friend_messages = new Friend_Messages();
-                                                friend_messages->set_type(Friend_Messages::LOBBY_INVITE);
-                                                friend_messages->set_lobby_id(_this->lobbyID.ConvertToUint64());
-                                                msg.set_allocated_friend_messages(friend_messages);
-                                                msg.set_source_id(_this->_client->settings_client->get_local_steam_id().ConvertToUint64());
-                                                msg.set_dest_id(id.ConvertToUint64());
-                                                _this->_client->network->sendTo(&msg, true);
-
-                                                sstr << "Invite sent" << std::endl;
-                                                ovlay.write(sstr.str());
-                                                break;
-                                            }
-                                        }
-
-                                    }
-                                    else
-                                    {
-                                        sstr << "'invite_user' needs only 1 parameter: friendname" << std::endl;
-                                        ovlay.write(sstr.str());
-                                    }
-                                }
-                            }
-                            break;
-
-                            casestr("join_game") :
-                                if (args.size() == 2)
-                                {
-                                    ovlay.write(str + "\n");
-                                    int cnt = steamFriends->GetFriendCount(0);
-                                    for (int i = 0; i < cnt; ++i)
-                                    {
-                                        CSteamID id = steamFriends->GetFriendByIndex(i, 0);
-                                        const char* name = steamFriends->GetFriendPersonaName(id);
-
-                                        std::string connect = steamFriends->GetFriendRichPresence(id, "connect");
-                                        FriendGameInfo_t friend_info = {};
-                                        steamFriends->GetFriendGamePlayed(id, &friend_info);
-
-                                        if (connect.length() > 0)
-                                        {
-                                            sstr << "1: " << friend_info.m_gameID.AppID() << "\t" << name << "\t" << connect << std::endl;
-                                        }
-                                        else if (std::to_string(friend_info.m_steamIDLobby.ConvertToUint64()) == args[1])
-                                        {
-                                            connect = "connect " + std::to_string(friend_info.m_steamIDLobby.ConvertToUint64());
-                                            sstr << "2: " << friend_info.m_gameID.AppID() << "\t" << name << "\t" << connect << std::endl;
-                                            matchMaking->JoinLobby(friend_info.m_steamIDLobby);
-                                        }
-                                        ovlay.write(sstr.str());
-                                        sstr.str("");
-                                    }
-                                }
-                            break;
-
-                            casestr("join_user") :
-                                if (args.size() == 2)
-                                {
-                                    ovlay.write(str + "\n");
-                                    int cnt = steamFriends->GetFriendCount(0);
-                                    for (int i = 0; i < cnt; ++i)
-                                    {
-                                        CSteamID id = steamFriends->GetFriendByIndex(i, 0);
-                                        const char* name = steamFriends->GetFriendPersonaName(id);
-
-                                        std::string connect = steamFriends->GetFriendRichPresence(id, "connect");
-                                        FriendGameInfo_t friend_info = {};
-                                        steamFriends->GetFriendGamePlayed(id, &friend_info);
-
-                                        if (connect.length() > 0)
-                                        {
-                                            sstr << "1: " << friend_info.m_gameID.AppID() << "\t" << name << "\t" << connect << std::endl;
-                                        }
-                                        else if (args[1] == name )
-                                        {
-                                            connect = "connect " + std::to_string(friend_info.m_steamIDLobby.ConvertToUint64());
-                                            sstr << "2: " << friend_info.m_gameID.AppID() << "\t" << name << "\t" << connect << std::endl;
-                                            matchMaking->JoinLobby(friend_info.m_steamIDLobby);
-                                        }
-                                        ovlay.write(sstr.str());
-                                        sstr.str("");
-                                    }
-                                }
-                            break;
-                        }
-                    }
-                }
-                */
