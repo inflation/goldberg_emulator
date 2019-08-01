@@ -8,7 +8,7 @@
 class DX12_Hook : public Base_Hook
 {
 public:
-    static constexpr const char DLL_NAME[] = "d3d12.dll";
+    static constexpr const char *DLL_NAME = "d3d12.dll";
 
 private:
     // Variables

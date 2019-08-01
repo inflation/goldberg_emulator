@@ -7,10 +7,10 @@
 class OpenGL_Hook : public Base_Hook
 {
 public:
-    static constexpr const char DLL_NAME[] = "opengl32.dll";
+    static constexpr const char *DLL_NAME = "opengl32.dll";
     
-    using wglSwapBuffers_t = BOOL(WINAPI)(HDC);
-    using wglMakeCurrent_t = BOOL(WINAPI)(HDC, HGLRC);
+    using wglSwapBuffers_t = BOOL(WINAPI*)(HDC);
+    using wglMakeCurrent_t = BOOL(WINAPI*)(HDC, HGLRC);
 
 private:
     // Variables
@@ -27,12 +27,12 @@ private:
     // Hook to render functions
     static BOOL WINAPI MywglSwapBuffers(HDC hDC);
 
-    wglSwapBuffers_t* wglSwapBuffers;
+    wglSwapBuffers_t wglSwapBuffers;
     
     // Hook functions so we know we use OGL
     static BOOL WINAPI MywglMakeCurrent(HDC hDC, HGLRC hGLRC);
 
-    wglMakeCurrent_t* wglMakeCurrent;
+    wglMakeCurrent_t wglMakeCurrent;
 
 public:
     static void Create(); // Initialize OGL Hook.
