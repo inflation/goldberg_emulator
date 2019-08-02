@@ -72,6 +72,11 @@ class Steam_Overlay
     static void steam_overlay_run_every_runcb(void* object);
     void RunCallbacks();
 
+    // Right click on friend
+    void BuildContextMenu(Friend const& frd, friend_window_state &state);
+    // Double click on friend
+    void BuildFriendWindow(Friend const& frd, friend_window_state &state);
+
 public:
     Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network);
 

@@ -268,6 +268,55 @@ void Steam_Overlay::FriendDisconnect(Friend _friend)
         friends.erase(it);
 }
 
+void Steam_Overlay::BuildContextMenu(Friend const& frd, friend_window_state& state)
+{
+    if (ImGui::BeginPopupContextItem("Friends", 1))
+    {
+        if (ImGui::Button("Invite"))
+        {
+            state.window_state |= window_state_invite;
+            has_friend_action.push(frd);
+        }
+        if (ImGui::Button("Join"))
+        {
+            state.window_state |= window_state_join;
+            has_friend_action.push(frd);
+        }
+        ImGui::EndPopup();
+    }
+}
+
+void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& state)
+{
+    if (!(state.window_state & window_state_show))
+        return;
+
+    bool show = true;
+    ImGui::SetNextWindowSizeConstraints({ 160.0,90.0 }, { 9999.0, 9999.0 });
+    if (ImGui::Begin(frd.name().c_str(), &show))
+    {
+        // Fill this with the chat box and maybe the invitation
+        if (state.window_state & (window_state_lobby_invite | window_state_rich_invite))
+        {
+            ImGui::LabelText("", "%s invited you to join the game.", frd.name().c_str());
+            ImGui::SameLine();
+            if (ImGui::Button("Accept"))
+            {
+                this->has_friend_action.push(frd);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Refuse"))
+            {
+                state.window_state &= ~(window_state_lobby_invite | window_state_rich_invite);
+            }
+        }
+    }
+    // User closed the friend window
+    if (!show)
+        state.window_state &= ~window_state_show;
+    ImGui::End();
+}
+
 void Steam_Overlay::OverlayProc( int width, int height )
 {
     if (!show_overlay)
@@ -292,57 +341,22 @@ void Steam_Overlay::OverlayProc( int width, int height )
 
         ImGui::Spacing();
 
-        ImGui::ListBoxHeader("Friends", friend_size);
+        ImGui::LabelText("", "Friends");
+        ImGui::ListBoxHeader("", friend_size);
         std::for_each(friends.begin(), friends.end(), [this]( auto& i)
         {
             ImGui::PushID(i.first.id());
+
             ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
-            if (ImGui::BeginPopupContextItem("Friends", 1))
-            {
-                if (ImGui::Button("Invite"))
-                {
-                    i.second.window_state |= window_state_invite;
-                    this->has_friend_action.push(i.first);
-                }
-                if (ImGui::Button("Join"))
-                {
-                    i.second.window_state |= window_state_join;
-                    this->has_friend_action.push(i.first);
-                }
-                ImGui::EndPopup();
-            }
-            else if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+            BuildContextMenu(i.first, i.second);
+            if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
             {
                 i.second.window_state |= window_state_show;
             }
+
             ImGui::PopID();
 
-            if (i.second.window_state & window_state_show)
-            {
-                bool show = true;
-                if (ImGui::Begin(i.first.name().c_str(), &show))
-                {
-                    // Fill this with the chat box and maybe the invitation
-                    if (i.second.window_state & (window_state_lobby_invite | window_state_rich_invite))
-                    {
-                        ImGui::LabelText("", "%s invited you to join the game.", i.first.name().c_str());
-                        ImGui::SameLine();
-                        if (ImGui::Button("Accept"))
-                        {
-                            this->has_friend_action.push(i.first);
-                        }
-                        ImGui::SameLine();
-                        if (ImGui::Button("Refuse"))
-                        {
-                            i.second.window_state &= ~(window_state_lobby_invite | window_state_rich_invite);
-                        }
-                    }
-                }
-                // User closed the friend window
-                if( !show )
-                    i.second.window_state &= ~window_state_show;
-                ImGui::End();
-            }
+            BuildFriendWindow(i.first, i.second);
         });
         ImGui::ListBoxFooter();
 
