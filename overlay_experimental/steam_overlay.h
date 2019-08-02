@@ -3,6 +3,7 @@
 
 #include "../dll/base.h"
 #include "Hook_Manager.h"
+#include <map>
 #include <vector>
 
 enum friend_action
@@ -10,6 +11,31 @@ enum friend_action
     friend_action_none   = 0,
     friend_action_invite = 1<<0,
     friend_action_join   = 1<<1
+};
+
+enum invitation_type
+{
+    invitation_type_lobby,
+    invitation_type_rich
+};
+
+struct invitation
+{
+    uint8 type;
+    uint64 friendId;
+    union
+    {
+        uint64 lobbyId;
+        char connect[k_cchMaxRichPresenceValueLength];
+    };
+};
+
+struct Friend_Less
+{
+    bool operator()(const Friend& lhs, const Friend& rhs) const
+    {
+        return lhs.id() < rhs.id();
+    }
 };
 
 class Steam_Overlay
@@ -20,7 +46,8 @@ class Steam_Overlay
     RunEveryRunCB* run_every_runcb;
     Networking* network;
 
-    const std::vector<Friend>* friends;
+    // friend id, show client window (to chat and accept invite maybe)
+    std::map<Friend, bool, Friend_Less> friends;
 
     HWND game_hwnd;
     WNDPROC game_hwnd_proc;
@@ -29,6 +56,8 @@ class Steam_Overlay
     Base_Hook window_hooks;
     ENotificationPosition notif_position;
     int h_inset, v_inset;
+
+    std::vector<invitation> invitations;
 
     // Callback infos
     uint64 friend_to_action;
@@ -70,12 +99,16 @@ public:
 
     void OverlayProc(int width, int height);
 
-    void SetupFriends(const std::vector<Friend>* friends);
-
     void OpenOverlayInvite(CSteamID lobbyId);
     void OpenOverlay(const char* pchDialog);
 
     void ShowOverlay(bool state);
+
+    void AddLobbyInvite(uint64 friendId, uint64 lobbyId);
+    void AddRichInvite(uint64 friendId, const char* connect_str);
+
+    void FriendConnect(Friend _friend);
+    void FriendDisconnect(Friend _friend);
 };
 
 #endif//__INCLUDED_STEAM_OVERLAY_H__

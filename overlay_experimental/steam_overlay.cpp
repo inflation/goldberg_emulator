@@ -173,21 +173,16 @@ void Steam_Overlay::HookReady(void* hWnd)
 // https://github.com/spazzarama/Direct3DHook/blob/master/Capture/Hook
 // https://github.com/unknownv2/LinuxDetours
 
-void Steam_Overlay::SetupFriends(const std::vector<Friend>* friends)
-{
-    this->friends = friends;
-}
-
 void Steam_Overlay::OpenOverlayInvite(CSteamID lobbyId)
 {
     //this->lobbyId = lobbyId;
-    show_overlay = true;
+    ShowOverlay(true);
 }
 
 void Steam_Overlay::OpenOverlay(const char* pchDialog)
 {
     // TODO: Show pages depending on pchDialog
-    show_overlay = true;
+    ShowOverlay(true);
 }
 
 void Steam_Overlay::ShowOverlay(bool state)
@@ -236,6 +231,38 @@ void Steam_Overlay::ShowOverlay(bool state)
     overlay_state_changed = true;
 }
 
+void Steam_Overlay::AddLobbyInvite(uint64 friendId, uint64 lobbyId)
+{
+    invitation invite;
+    invite.type = invitation_type_lobby;
+    invite.friendId = friendId;
+    invite.lobbyId = lobbyId;
+    invitations.push_back(invite);
+}
+
+void Steam_Overlay::AddRichInvite(uint64 friendId, const char* connect_str)
+{
+    invitation invite;
+    invite.type = invitation_type_rich;
+    invite.friendId = friendId;
+    strncpy(invite.connect, connect_str, k_cchMaxRichPresenceValueLength - 1);
+    invitations.push_back(invite);
+}
+
+void Steam_Overlay::FriendConnect(Friend _friend)
+{
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    friends[_friend] = false;
+}
+
+void Steam_Overlay::FriendDisconnect(Friend _friend)
+{
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto it = friends.find(_friend);
+    if (it != friends.end())
+        friends.erase(it);
+}
+
 void Steam_Overlay::OverlayProc( int width, int height )
 {
     if (!show_overlay)
@@ -243,15 +270,15 @@ void Steam_Overlay::OverlayProc( int width, int height )
 
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    int friend_size = friends->size();
+    int friend_size = friends.size();
 
     // Set the overlay windows to the size of the game window
     ImGui::SetNextWindowPos({ 0,0 });
     ImGui::SetNextWindowSize({ static_cast<float>(width),
                                static_cast<float>(height) });
 
-    bool close = false;
-    if (ImGui::Begin("SteamOverlay", &close, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse))
+    bool open_overlay = show_overlay;
+    if (ImGui::Begin("SteamOverlay", &open_overlay, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
         ImGui::LabelText("", "Username: %s(%llu) playing %u",
             settings->get_local_name(),
@@ -261,33 +288,40 @@ void Steam_Overlay::OverlayProc( int width, int height )
         ImGui::Spacing();
 
         ImGui::ListBoxHeader("Friends", friend_size);
-        if (friend_size)
+        std::for_each(friends.begin(), friends.end(), [this]( auto& i)
         {
-            for (int i = 0; i < friend_size; ++i)
+            ImGui::PushID(i.first.id());
+            ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
+            if (ImGui::BeginPopupContextItem("Friends", 1))
             {
-                ImGui::PushID(i);
-                ImGui::Selectable(friends->at(i).name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
-                if (ImGui::BeginPopupContextItem("Friends", 1))
+                if (ImGui::Button("Invite"))
                 {
-                    if (ImGui::Button("Invite"))
-                    {
-                        friend_action |= friend_action_invite;
-                        friend_to_action = friends->at(i).id();
-                    }
-                    if (ImGui::Button("Join"))
-                    {
-                        friend_action |= friend_action_join;
-                        friend_to_action = friends->at(i).id();
-                    }
-                    ImGui::EndPopup();
+                    this->friend_action |= friend_action_invite;
+                    this->friend_to_action = i.first.id();
                 }
-                else if (ImGui::IsMouseDoubleClicked(0))
+                if (ImGui::Button("Join"))
                 {
-                    // Here handle the chat with the user friends->at(i).id()
+                    this->friend_action |= friend_action_join;
+                    this->friend_to_action = i.first.id();
                 }
-                ImGui::PopID();
+                ImGui::EndPopup();
             }
-        }
+            //else if (ImGui::IsMouseDoubleClicked(0))
+            else if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+            {
+                i.second = true;
+            }
+            ImGui::PopID();
+
+            if (i.second)
+            {
+                if (ImGui::Begin(i.first.name().c_str(), &i.second))
+                {
+                    // Fill this with the chat box and maybe the invitation
+                }
+                ImGui::End();
+            }
+        });
         ImGui::ListBoxFooter();
 
         //RECT rect;
@@ -295,10 +329,10 @@ void Steam_Overlay::OverlayProc( int width, int height )
         //auto pos = ImGui::GetMousePos();
         //ImGui::LabelText("", "Window pos: %dx%d %dx%d", rect.left, rect.top, rect.right, rect.bottom);
         //ImGui::LabelText("", "Mouse pos: %dx%d", (int)pos.x, (int)pos.y);
-
-
-        ImGui::End();
     }
+    ImGui::End();
+
+    ShowOverlay(open_overlay);
 
     //ImGui::ShowDemoWindow();
 }

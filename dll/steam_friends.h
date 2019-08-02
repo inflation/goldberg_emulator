@@ -117,8 +117,6 @@ Steam_Friends(Settings* settings, Networking* network, SteamCallResults* callbac
     this->network->setCallback(CALLBACK_ID_USER_STATUS, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);
     this->run_every_runcb->add(&Steam_Friends::steam_friends_run_every_runcb, this);
     modified = false;
-
-    overlay->SetupFriends(&friends);
 }
 
 ~Steam_Friends()
@@ -990,6 +988,7 @@ void Callback(Common_Message *msg)
             auto f = std::find_if(friends.begin(), friends.end(), [&id](Friend const& item) { return item.id() == id; });
             if (friends.end() != f) {
                 persona_change((uint64)f->id(), k_EPersonaChangeStatus);
+                overlay->FriendDisconnect(*f);
                 friends.erase(f);
             }
         }
@@ -1015,6 +1014,7 @@ void Callback(Common_Message *msg)
         if (!f) {
             if (msg->friend_().id() != settings->get_local_steam_id().ConvertToUint64()) {
                 friends.push_back(msg->friend_());
+                overlay->FriendConnect(msg->friend_());
                 persona_change((uint64)msg->friend_().id(), k_EPersonaChangeName);
             }
         } else {
@@ -1036,20 +1036,26 @@ void Callback(Common_Message *msg)
         if (msg->friend_messages().type() == Friend_Messages::LOBBY_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Lobby Invite\n");
             //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
-            GameLobbyJoinRequested_t data;
-            data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
-            data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            // Then we will handle it !
+            overlay->AddLobbyInvite(msg->source_id(), msg->friend_messages().lobby_id());
+
+            //GameLobbyJoinRequested_t data;
+            //data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
+            //data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+            //callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
         }
 
         if (msg->friend_messages().type() == Friend_Messages::GAME_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Game Invite\n");
             //TODO: I'm pretty sure that the user should accept the invite before this is posted but we do like above
-            std::string const& connect_str = msg->friend_messages().connect_str();
-            GameRichPresenceJoinRequested_t data = {};
-            data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
-            strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength - 1);
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            // Then we will handle it !
+            overlay->AddRichInvite(msg->source_id(), msg->friend_messages().connect_str().c_str());
+
+            //std::string const& connect_str = msg->friend_messages().connect_str();
+            //GameRichPresenceJoinRequested_t data = {};
+            //data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+            //strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength - 1);
+            //callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
         }
     }
 }
