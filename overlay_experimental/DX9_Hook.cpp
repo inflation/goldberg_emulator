@@ -20,7 +20,6 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
 {
     if (!_hooked)
     {
-        PRINT_DEBUG("Hooked DirectX 9\n");
         _hooked = true;
         Hook_Manager::Inst().FoundHook(this);
 
@@ -36,20 +35,29 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
 
         pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, &pDeviceEx);
 
-        loadFunctions(pDeviceEx);
+        if (pDeviceEx != nullptr)
+        {
+            PRINT_DEBUG("Hooked DirectX 9\n");
+            loadFunctions(pDeviceEx);
 
-        //UnhookAll();
-        BeginHook();
-        HookFuncs(
-            std::make_pair<void**, void*>(&(PVOID&)Reset, &DX9_Hook::MyReset),
-            std::make_pair<void**, void*>(&(PVOID&)Present, &DX9_Hook::MyPresent),
-            std::make_pair<void**, void*>(&(PVOID&)PresentEx, &DX9_Hook::MyPresentEx)
-            //std::make_pair<void**, void*>(&(PVOID&)EndScene, &DX9_Hook::MyEndScene)
-        );
-        EndHook();
+            UnhookAll();
+            BeginHook();
+            HookFuncs(
+                std::make_pair<void**, void*>(&(PVOID&)Reset, &DX9_Hook::MyReset),
+                std::make_pair<void**, void*>(&(PVOID&)Present, &DX9_Hook::MyPresent),
+                std::make_pair<void**, void*>(&(PVOID&)PresentEx, &DX9_Hook::MyPresentEx)
+                //std::make_pair<void**, void*>(&(PVOID&)EndScene, &DX9_Hook::MyEndScene)
+            );
+            EndHook();
+        }
+        else
+        {
+            PRINT_DEBUG("Failed to DirectX 9\n");
+            _hooked = false;
+        }
 
-        pDeviceEx->Release();
-        pD3D->Release();
+        if(pDeviceEx)pDeviceEx->Release();
+        if(pD3D)pD3D->Release();
     }
 }
 

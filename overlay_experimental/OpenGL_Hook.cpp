@@ -19,23 +19,28 @@ void OpenGL_Hook::hook_ogl()
 {
     if (!_hooked)
     {
-        PRINT_DEBUG("Hooked OpenGL\n");
         _hooked = true;
         Hook_Manager::Inst().FoundHook(this);
 
         GLenum err = glewInit();
-        if (GLEW_OK != err)
+
+        if (err == GLEW_OK)
         {
+            PRINT_DEBUG("Hooked OpenGL\n");
+            UnhookAll();
+            BeginHook();
+            HookFuncs(
+                std::make_pair<void**, void*>(&(PVOID&)wglSwapBuffers, &OpenGL_Hook::MywglSwapBuffers)
+            );
+            EndHook();
+        }
+        else
+        {
+            PRINT_DEBUG("Failed to hook OpenGL\n");
             /* Problem: glewInit failed, something is seriously wrong. */
             PRINT_DEBUG("Error: %s\n", glewGetErrorString(err));
+            _hooked = false;
         }
-
-        UnhookAll();
-        BeginHook();
-        HookFuncs(
-            std::make_pair<void**, void*>(&(PVOID&)wglSwapBuffers, &OpenGL_Hook::MywglSwapBuffers)
-        );
-        EndHook();
     }
 }
 

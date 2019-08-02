@@ -13,19 +13,18 @@ void DX10_Hook::hook_dx10(UINT SDKVersion)
 {
     if (!_hooked)
     {
-        PRINT_DEBUG("Hooked DirectX 10\n");
         _hooked = true;
         Hook_Manager::Inst().FoundHook(this);
 
         IDXGISwapChain* pSwapChain;
         ID3D10Device* pDevice;
         DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
-        SwapChainDesc.BufferCount = 2;
-        SwapChainDesc.BufferDesc.Width = 800;
-        SwapChainDesc.BufferDesc.Height = 600;
+        SwapChainDesc.BufferCount = 1;
+        SwapChainDesc.BufferDesc.Width = 1;
+        SwapChainDesc.BufferDesc.Height = 1;
         SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-        SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+        SwapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+        SwapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
         SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         SwapChainDesc.OutputWindow = GetForegroundWindow();
         SwapChainDesc.SampleDesc.Count = 1;
@@ -34,19 +33,27 @@ void DX10_Hook::hook_dx10(UINT SDKVersion)
 
         D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0, SDKVersion, &SwapChainDesc, &pSwapChain, &pDevice);
 
-        loadFunctions(pDevice, pSwapChain);
+        if (pDevice != nullptr && pSwapChain != nullptr)
+        {
+            PRINT_DEBUG("Hooked DirectX 10\n");
+            loadFunctions(pDevice, pSwapChain);
 
-        UnhookAll();
-        BeginHook();
-        HookFuncs(
-            std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::Present      , &DX10_Hook::MyPresent),
-            std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeTarget , &DX10_Hook::MyResizeTarget),
-            std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeBuffers, &DX10_Hook::MyResizeBuffers)
-        );
-        EndHook();
-
-        pDevice->Release();
-        pSwapChain->Release();
+            UnhookAll();
+            BeginHook();
+            HookFuncs(
+                std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::Present, &DX10_Hook::MyPresent),
+                std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeTarget, &DX10_Hook::MyResizeTarget),
+                std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeBuffers, &DX10_Hook::MyResizeBuffers)
+            );
+            EndHook();
+        }
+        else
+        {
+            PRINT_DEBUG("Failed to hook DirectX 10\n");
+            _hooked = false;
+        }
+        if(pDevice)pDevice->Release();
+        if(pSwapChain)pSwapChain->Release();
     }
 }
 
