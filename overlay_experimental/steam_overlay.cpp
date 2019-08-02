@@ -230,7 +230,7 @@ void Steam_Overlay::ShowOverlay(bool state)
     overlay_state_changed = true;
 }
 
-void Steam_Overlay::AddLobbyInvite(Friend friendId, uint64 lobbyId)
+void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     auto i = friends.find(friendId);
@@ -239,10 +239,12 @@ void Steam_Overlay::AddLobbyInvite(Friend friendId, uint64 lobbyId)
         auto& frd = i->second;
         frd.lobbyId = lobbyId;
         frd.window_state |= window_state_lobby_invite;
+        // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
+        frd.window_state &= ~window_state_rich_invite;
     }
 }
 
-void Steam_Overlay::AddRichInvite(Friend friendId, const char* connect_str)
+void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     auto i = friends.find(friendId);
@@ -251,6 +253,8 @@ void Steam_Overlay::AddRichInvite(Friend friendId, const char* connect_str)
         auto& frd = i->second;
         strncpy(frd.connect, connect_str, k_cchMaxRichPresenceValueLength - 1);
         frd.window_state |= window_state_rich_invite;
+        // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
+        frd.window_state &= ~window_state_lobby_invite;
     }
 }
 

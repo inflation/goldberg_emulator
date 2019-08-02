@@ -102,8 +102,8 @@ public:
 
     void ShowOverlay(bool state);
 
-    void AddLobbyInvite(Friend friendId, uint64 lobbyId);
-    void AddRichInvite(Friend friendId, const char* connect_str);
+    void SetLobbyInvite(Friend friendId, uint64 lobbyId);
+    void SetRichInvite(Friend friendId, const char* connect_str);
 
     void FriendConnect(Friend _friend);
     void FriendDisconnect(Friend _friend);
