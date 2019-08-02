@@ -335,6 +335,12 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
     //  2) use code to detect any version of the DLL and grab a pointer to D3DCompile from the DLL.
     // See https://github.com/ocornut/imgui/pull/638 for sources and details.
 
+#ifdef USE_D3DCOMPILE
+    decltype(D3DCompile)* D3DCompile = load_d3dcompile();
+    if (D3DCompile == nullptr)
+        return false;
+#endif
+
     // Create the vertex shader
     {
 #ifdef USE_D3DCOMPILE
@@ -367,6 +373,7 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
             }";
 
         D3DCompile(vertexShader, strlen(vertexShader), NULL, NULL, NULL, "main", "vs_4_0", 0, 0, &g_pVertexShaderBlob, NULL);
+
         if (g_pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
             return false;
 
@@ -424,6 +431,7 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
             }";
 
         D3DCompile(pixelShader, strlen(pixelShader), NULL, NULL, NULL, "main", "ps_4_0", 0, 0, &g_pPixelShaderBlob, NULL);
+
         if (g_pPixelShaderBlob == NULL)  // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
             return false;
         if (g_pd3dDevice->CreatePixelShader((DWORD*)g_pPixelShaderBlob->GetBufferPointer(), g_pPixelShaderBlob->GetBufferSize(), &g_pPixelShader) != S_OK)
@@ -433,6 +441,10 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
             return false;
 #endif
     }
+
+#ifdef USE_D3DCOMPILE
+    unload_d3dcompile();
+#endif
 
     // Create the blending setup
     {

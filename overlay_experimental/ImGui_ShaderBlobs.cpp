@@ -1,5 +1,36 @@
 #include "ImGui_ShaderBlobs.h"
 
+#ifdef USE_D3DCOMPILE
+
+#include <stdio.h>
+
+static HMODULE d3dcompile_dll = nullptr;
+
+decltype(D3DCompile)* load_d3dcompile()
+{
+    decltype(D3DCompile)* func = nullptr;
+    for (int i = 47; i > 30; i--)
+    {
+        char dll_name[20];
+        sprintf_s(dll_name, "d3dcompiler_%02d.dll", i);
+        if (d3dcompile_dll = LoadLibraryA(dll_name))
+        {
+            func = (decltype(D3DCompile)*)GetProcAddress(d3dcompile_dll, "D3DCompile");
+            break;
+        }
+    }
+
+    return func;
+}
+
+void unload_d3dcompile()
+{
+    if (d3dcompile_dll)
+        FreeLibrary(d3dcompile_dll);
+}
+
+#else
+
 extern unsigned char ImGui_vertexShaderDX10[] = {
   0x44, 0x58, 0x42, 0x43, 0x7a, 0x54, 0x84, 0x96, 0xdf, 0xd1, 0x9e, 0x21,
   0xfd, 0x85, 0x86, 0x3d, 0x28, 0xd1, 0x03, 0xae, 0x01, 0x00, 0x00, 0x00,
@@ -284,3 +315,5 @@ extern unsigned char ImGui_pixelShaderDX12[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00
 };
+
+#endif

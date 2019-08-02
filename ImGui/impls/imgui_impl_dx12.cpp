@@ -468,6 +468,12 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
     psoDesc.SampleDesc.Count = 1;
     psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
+#ifdef USE_D3DCOMPILE
+    decltype(D3DCompile)* D3DCompile = load_d3dcompile();
+    if (D3DCompile == nullptr)
+        return false;
+#endif
+
     // Create the vertex shader
     {
 #ifdef USE_D3DCOMPILE
@@ -545,6 +551,10 @@ bool    ImGui_ImplDX12_CreateDeviceObjects()
         psoDesc.PS = { ImGui_pixelShaderDX12, ImGui_pixelShaderDX12_len };
 #endif
     }
+
+#ifdef USE_D3DCOMPILE
+    unload_d3dcompile();
+#endif
 
     // Create the blending setup
     {

@@ -6,9 +6,12 @@
 
 #ifdef USE_D3DCOMPILE
     #include <d3dcompiler.h>
-  #ifdef _MSC_VER
-    #pragma comment(lib, "d3dcompiler") // Automatically link with d3dcompiler.lib as we are using D3DCompile() below.
-  #endif
+  //#ifdef _MSC_VER
+  //  #pragma comment(lib, "d3dcompiler") // Automatically link with d3dcompiler.lib as we are using D3DCompile() below.
+  //#endif
+
+    decltype(D3DCompile)* load_d3dcompile();
+    void unload_d3dcompile();
 #else
 
 #define ImGui_vertexShaderDX10_len 876

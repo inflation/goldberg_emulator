@@ -342,6 +342,12 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
     //  2) use code to detect any version of the DLL and grab a pointer to D3DCompile from the DLL.
     // See https://github.com/ocornut/imgui/pull/638 for sources and details.
 
+#ifdef USE_D3DCOMPILE
+    decltype(D3DCompile)* D3DCompile = load_d3dcompile();
+    if (D3DCompile == nullptr)
+        return false;
+#endif
+
     // Create the vertex shader
     {
 #ifdef USE_D3DCOMPILE
@@ -440,6 +446,10 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
             return false;
 #endif
     }
+
+#ifdef USE_D3DCOMPILE
+    unload_d3dcompile();
+#endif
 
     // Create the blending setup
     {
