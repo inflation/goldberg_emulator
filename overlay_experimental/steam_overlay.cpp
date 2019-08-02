@@ -241,6 +241,8 @@ void Steam_Overlay::OverlayProc( int width, int height )
     if (!show_overlay)
         return;
 
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
     int friend_size = friends->size();
 
     // Set the overlay windows to the size of the game window
