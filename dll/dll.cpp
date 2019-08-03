@@ -588,7 +588,7 @@ S_API uint64 SteamGameServer_GetSteamID()
 S_API ISteamClient *SteamGameServerClient() { 
     PRINT_DEBUG("SteamGameServerClient()\n");
     load_old_interface_versions();
-    get_steam_clientserver_old();
+    if (!get_steam_clientserver_old()->IsServerInit()) return NULL;
     return (ISteamClient *)SteamInternal_CreateInterface(old_client); 
 }
 
