@@ -325,7 +325,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
         }
 
         ImGui::PushItemWidth(-1.0f);
-        ImGui::InputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, 0 }, ImGuiInputTextFlags_ReadOnly);
+        ImGui::ColoredInputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, 0 }, ImGuiInputTextFlags_ReadOnly);
         ImGui::PopItemWidth();
 
         if (ImGui::InputText("##chat_line", state.chat_input, max_chat_len, ImGuiInputTextFlags_EnterReturnsTrue))
