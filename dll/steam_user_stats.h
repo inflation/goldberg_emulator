@@ -109,6 +109,7 @@ bool GetStat( const char *pchName, float *pData )
 bool SetStat( const char *pchName, int32 nData )
 {
     PRINT_DEBUG("SetStat int32 %s\n", pchName);
+    if (!pchName) return false;
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     return local_storage->store_data(STATS_STORAGE_FOLDER, pchName, (char* )&nData, sizeof(nData)) == sizeof(nData);
@@ -117,6 +118,7 @@ bool SetStat( const char *pchName, int32 nData )
 bool SetStat( const char *pchName, float fData )
 {
     PRINT_DEBUG("SetStat float %s\n", pchName);
+    if (!pchName) return false;
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     return local_storage->store_data(STATS_STORAGE_FOLDER, pchName, (char* )&fData, sizeof(fData)) == sizeof(fData);
@@ -368,14 +370,19 @@ SteamAPICall_t FindLeaderboard( const char *pchLeaderboardName )
 {
     PRINT_DEBUG("FindLeaderboard %s\n", pchLeaderboardName);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    //TODO: figure out a way to get real leaderboard info
-    /*
-    LeaderboardFindResult_t data;
-    data.m_hSteamLeaderboard = find_leaderboard(pchLeaderboardName);;
-    data.m_bLeaderboardFound = !!data.m_hSteamLeaderboard;
-    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
-    */
-    return FindOrCreateLeaderboard(pchLeaderboardName, k_ELeaderboardSortMethodDescending, k_ELeaderboardDisplayTypeNumeric);
+
+    auto settings_Leaderboards = settings->getLeaderboards();
+    if (settings_Leaderboards.count(pchLeaderboardName)) {
+        auto config = settings_Leaderboards[pchLeaderboardName];
+        return FindOrCreateLeaderboard(pchLeaderboardName, config.sort_method, config.display_type);
+    } else if (settings->createUnknownLeaderboards()) {
+        return FindOrCreateLeaderboard(pchLeaderboardName, k_ELeaderboardSortMethodDescending, k_ELeaderboardDisplayTypeNumeric);
+    } else {
+        LeaderboardFindResult_t data;
+        data.m_hSteamLeaderboard = find_leaderboard(pchLeaderboardName);;
+        data.m_bLeaderboardFound = !!data.m_hSteamLeaderboard;
+        return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
+    }
 }
 
 
@@ -446,7 +453,7 @@ STEAM_METHOD_DESC(Downloads leaderboard entries for an arbitrary set of users - 
 SteamAPICall_t DownloadLeaderboardEntriesForUsers( SteamLeaderboard_t hSteamLeaderboard,
                                                             STEAM_ARRAY_COUNT_D(cUsers, Array of users to retrieve) CSteamID *prgUsers, int cUsers )
 {
-    PRINT_DEBUG("DownloadLeaderboardEntriesForUsers\n");
+    PRINT_DEBUG("DownloadLeaderboardEntriesForUsers %i %llu\n", cUsers, cUsers > 0 ? prgUsers[0].ConvertToUint64() : 0);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     LeaderboardScoresDownloaded_t data;
     data.m_hSteamLeaderboard = hSteamLeaderboard;

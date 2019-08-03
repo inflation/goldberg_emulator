@@ -33,6 +33,11 @@ struct Mod_entry {
     std::string path;
 };
 
+struct Leaderboard_config {
+    enum ELeaderboardSortMethod sort_method;
+    enum ELeaderboardDisplayType display_type;
+};
+
 class Settings {
     CSteamID steam_id;
     CGameID game_id;
@@ -44,6 +49,8 @@ class Settings {
     std::vector<struct DLC_entry> DLCs;
     std::vector<struct Mod_entry> mods;
     std::map<AppId_t, std::string> app_paths;
+    std::map<std::string, Leaderboard_config> leaderboards;
+    bool create_unknown_leaderboards;
 
 public:
 #ifdef LOBBY_CONNECT
@@ -78,6 +85,12 @@ public:
     Mod_entry getMod(PublishedFileId_t id);
     bool isModInstalled(PublishedFileId_t id);
     std::set<PublishedFileId_t> modSet();
+
+    //leaderboards
+    void setLeaderboard(std::string leaderboard, enum ELeaderboardSortMethod sort_method, enum ELeaderboardDisplayType display_type);
+    std::map<std::string, Leaderboard_config> getLeaderboards() { return leaderboards; }
+    void setCreateUnknownLeaderboards(bool enable) {create_unknown_leaderboards = enable;}
+    bool createUnknownLeaderboards() { return create_unknown_leaderboards; }
 };
 
 #endif

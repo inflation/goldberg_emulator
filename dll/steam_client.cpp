@@ -279,6 +279,47 @@ Steam_Client::Steam_Client()
     }
 
     {
+        std::string dlc_config_path = Local_Storage::get_game_settings_path() + "leaderboards.txt";
+        std::ifstream input( dlc_config_path );
+        if (input.is_open()) {
+            settings_client->setCreateUnknownLeaderboards(false);
+            settings_server->setCreateUnknownLeaderboards(false);
+
+            for( std::string line; getline( input, line ); ) {
+                if (!line.empty() && line[line.length()-1] == '\n') {
+                    line.erase(line.length()-1);
+                }
+
+                if (!line.empty() && line[line.length()-1] == '\r') {
+                    line.erase(line.length()-1);
+                }
+
+                std::string leaderboard;
+                unsigned int sort_method = 0;
+                unsigned int display_type = 0;
+
+                std::size_t deliminator = line.find("=");
+                if (deliminator != 0 && deliminator != std::string::npos && deliminator != line.size()) {
+                    leaderboard = line.substr(0, deliminator);
+                    std::size_t deliminator2 = line.find("=", deliminator + 1);
+                    if (deliminator2 != std::string::npos && deliminator2 != line.size()) {
+                        sort_method = stol(line.substr(deliminator + 1, deliminator2));
+                        display_type = stol(line.substr(deliminator2 + 1));
+                    }
+                }
+
+                if (leaderboard.size() && sort_method <= k_ELeaderboardSortMethodDescending && display_type <= k_ELeaderboardDisplayTypeTimeMilliSeconds) {
+                    PRINT_DEBUG("Adding leaderboard: %s|%u|%u\n", leaderboard.c_str(), sort_method, display_type);
+                    settings_client->setLeaderboard(leaderboard, (ELeaderboardSortMethod)sort_method, (ELeaderboardDisplayType)display_type);
+                    settings_server->setLeaderboard(leaderboard, (ELeaderboardSortMethod)sort_method, (ELeaderboardDisplayType)display_type);
+                } else {
+                    PRINT_DEBUG("Error adding leaderboard for: %s, are sort method %u or display type %u valid?\n", leaderboard.c_str(), sort_method, display_type);
+                }
+            }
+        }
+    }
+
+    {
         std::string mod_path = Local_Storage::get_game_settings_path() + "mods";
         std::vector<std::string> paths = Local_Storage::get_filenames_path(mod_path);
         for (auto & p: paths) {
