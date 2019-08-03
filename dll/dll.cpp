@@ -135,6 +135,7 @@ Steam_Client *get_steam_clientserver_old()
 S_API void * S_CALLTYPE SteamInternal_CreateInterface( const char *ver )
 {
     PRINT_DEBUG("SteamInternal_CreateInterface %s\n", ver);
+    if (!get_steam_client()->user_logged_in) return NULL;
 
     if (strstr(ver, "SteamClient") == ver) {
         void *steam_client;
@@ -217,6 +218,7 @@ S_API bool S_CALLTYPE SteamAPI_InitAnonymousUser()
 S_API void S_CALLTYPE SteamAPI_Shutdown()
 {
     PRINT_DEBUG("SteamAPI_Shutdown\n");
+    get_steam_client()->clientShutdown();
 }
 
 // SteamAPI_RestartAppIfNecessary ensures that your executable was launched through Steam.

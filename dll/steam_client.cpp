@@ -421,6 +421,11 @@ void Steam_Client::serverShutdown()
     server_init = false;
 }
 
+void Steam_Client::clientShutdown()
+{
+    user_logged_in = false;
+}
+
 void Steam_Client::setAppID(uint32 appid)
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);

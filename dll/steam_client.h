@@ -274,6 +274,7 @@ public:
     void userLogIn();
     void serverInit();
     void serverShutdown();
+    void clientShutdown();
     bool IsServerInit();
     bool IsUserLogIn();
 };
