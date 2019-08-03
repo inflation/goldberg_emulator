@@ -3097,6 +3097,12 @@ static ImVec2 InputTextCalcTextSizeW(const ImWchar* text_begin, const ImWchar* t
         if (c == '\r')
             continue;
 
+        if (*s == 1)
+        {
+            s += 9;
+            continue;
+        }
+
         const float char_width = font->GetCharAdvance((ImWchar)c) * scale;
         line_width += char_width;
     }
