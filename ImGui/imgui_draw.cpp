@@ -2816,6 +2816,8 @@ void ImFont::RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 
 void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width, bool cpu_fine_clip) const
 {
+    ImU32 color_bkp = col;
+
     if (!text_end)
         text_end = text_begin + strlen(text_begin); // ImGui:: functions generally already provides a valid text_end, so this is merely to handle direct calls.
 
@@ -2871,6 +2873,34 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 
     while (s < text_end)
     {
+        if (*s == 1)
+        {
+            ++s;
+            
+            unsigned char color[4];
+
+            for (int i = 0; i < 4; ++i, s+=2)
+            {
+                if (s[0] >= '0' && s[0] <= '9')
+                    color[i] = (s[0] - '0') * 16;
+                else if (s[0] >= 'a' && s[0] <= 'f')
+                    color[i] = (s[0] - 'a' + 10) * 16;
+                else if (s[0] >= 'A' && s[0] <= 'F')
+                    color[i] = (s[0] - 'A' + 10) * 16;
+
+                if (s[1] >= '0' && s[1] <= '9')
+                    color[i] += (s[1] - '0');
+                else if (s[1] >= 'a' && s[1] <= 'f')
+                    color[i] += (s[1] - 'a' + 10);
+                else if (s[1] >= 'A' && s[1] <= 'F')
+                    color[i] += (s[1] - 'A' + 10);
+            }
+
+            col = ImColor(color[0], color[1], color[2], color[3]);
+
+            continue;
+        }
+
         if (word_wrap_enabled)
         {
             // Calculate how far we can render. Requires two passes on the string data but keeps the code simple and not intrusive for what's essentially an uncommon feature.

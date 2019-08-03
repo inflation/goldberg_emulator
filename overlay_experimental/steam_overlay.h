@@ -6,6 +6,8 @@
 #include <map>
 #include <queue>
 
+static constexpr size_t max_chat_len = 768;
+
 enum window_state
 {
     window_state_none         = 0,
@@ -13,17 +15,20 @@ enum window_state
     window_state_invite       = 1<<1,
     window_state_join         = 1<<2,
     window_state_lobby_invite = 1<<3,
-    window_state_rich_invite  = 1<<4
+    window_state_rich_invite  = 1<<4,
+    window_state_send_message = 1<<5,
 };
 
 struct friend_window_state
 {
     uint8 window_state;
-    union
+    union // The invitation (if any)
     {
         uint64 lobbyId;
         char connect[k_cchMaxRichPresenceValueLength];
     };
+    std::string chat_history;
+    char chat_input[max_chat_len];
 };
 
 struct Friend_Less
@@ -70,6 +75,9 @@ class Steam_Overlay
     static LRESULT WINAPI MyDispatchMessageW(const MSG* lpMsg);
 
     static void steam_overlay_run_every_runcb(void* object);
+    static void steam_overlay_callback(void* object, Common_Message* msg);
+
+    void Callback(Common_Message* msg);
     void RunCallbacks();
 
     // Right click on friend

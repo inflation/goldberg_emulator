@@ -3,6 +3,7 @@
 #include <thread>
 #include <string>
 #include <sstream>
+#include <cctype>
 #include <imgui.h>
 #include <impls/imgui_impl_win32.h>
 
@@ -98,11 +99,18 @@ Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_resu
     overlay_state_changed(false)
 {
     run_every_runcb->add(&Steam_Overlay::steam_overlay_run_every_runcb, this);
+    this->network->setCallback(CALLBACK_ID_STEAM_MESSAGES, settings->get_local_steam_id(), &Steam_Overlay::steam_overlay_callback, this);
 }
 
 Steam_Overlay::~Steam_Overlay()
 {
     run_every_runcb->remove(&Steam_Overlay::steam_overlay_run_every_runcb, this);
+}
+
+void Steam_Overlay::steam_overlay_callback(void* object, Common_Message* msg)
+{
+    Steam_Overlay* _this = reinterpret_cast<Steam_Overlay*>(object);
+    _this->Callback(msg);
 }
 
 void Steam_Overlay::steam_overlay_run_every_runcb(void* object)
@@ -262,6 +270,7 @@ void Steam_Overlay::FriendConnect(Friend _friend)
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     friends[_friend].window_state = window_state_none;
+    memset(friends[_friend].chat_input, 0, max_chat_len);
 }
 
 void Steam_Overlay::FriendDisconnect(Friend _friend)
@@ -296,13 +305,13 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
         return;
 
     bool show = true;
-    ImGui::SetNextWindowSizeConstraints({ 160.0,90.0 }, { 9999.0, 9999.0 });
+
     if (ImGui::Begin(frd.name().c_str(), &show))
     {
         // Fill this with the chat box and maybe the invitation
         if (state.window_state & (window_state_lobby_invite | window_state_rich_invite))
         {
-            ImGui::LabelText("", "%s invited you to join the game.", frd.name().c_str());
+            ImGui::LabelText("##label", "%s invited you to join the game.", frd.name().c_str());
             ImGui::SameLine();
             if (ImGui::Button("Accept"))
             {
@@ -312,6 +321,30 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
             if (ImGui::Button("Refuse"))
             {
                 state.window_state &= ~(window_state_lobby_invite | window_state_rich_invite);
+            }
+        }
+
+        ImGui::PushItemWidth(-1.0f);
+        ImGui::InputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, 0 }, ImGuiInputTextFlags_ReadOnly);
+        ImGui::PopItemWidth();
+
+        if (ImGui::InputText("##chat_line", state.chat_input, max_chat_len, ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            if (!(state.window_state & window_state_send_message))
+            {
+                has_friend_action.push(frd);
+                state.window_state |= window_state_send_message;
+            }
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Send"))
+        {
+            if (!(state.window_state & window_state_send_message))
+            {
+                has_friend_action.push(frd);
+                state.window_state |= window_state_send_message;
             }
         }
     }
@@ -335,18 +368,17 @@ void Steam_Overlay::OverlayProc( int width, int height )
     ImGui::SetNextWindowSize({ static_cast<float>(width),
                                static_cast<float>(height) });
 
-    bool open_overlay = show_overlay;
-    if (ImGui::Begin("SteamOverlay", &open_overlay, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
+    if (ImGui::Begin("SteamOverlay", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
-        ImGui::LabelText("", "Username: %s(%llu) playing %u",
+        ImGui::LabelText("##label", "Username: %s(%llu) playing %u",
             settings->get_local_name(),
             settings->get_local_steam_id().ConvertToUint64(),
             settings->get_local_game_id().AppID());
 
         ImGui::Spacing();
 
-        ImGui::LabelText("", "Friends");
-        ImGui::ListBoxHeader("", friend_size);
+        ImGui::LabelText("##label", "Friends");
+        ImGui::ListBoxHeader("##label", friend_size);
         std::for_each(friends.begin(), friends.end(), [this]( auto& i)
         {
             ImGui::PushID(i.first.id());
@@ -372,9 +404,23 @@ void Steam_Overlay::OverlayProc( int width, int height )
     }
     ImGui::End();
 
-    ShowOverlay(open_overlay);
-
     //ImGui::ShowDemoWindow();
+}
+
+void Steam_Overlay::Callback(Common_Message *msg)
+{
+    if (msg->has_steam_messages())
+    {
+        Friend frd;
+        frd.set_id(msg->source_id());
+        auto friend_info = friends.find(frd);
+        if (friend_info != friends.end())
+        {
+            Steam_Messages const& steam_message = msg->steam_messages();
+            // Change color to cyan for friend
+            friend_info->second.chat_history.append("\x1", 1).append("00FFFFFF", 8).append(steam_message.message()).append("\n", 1);
+        }
+    }
 }
 
 void Steam_Overlay::RunCallbacks()
@@ -397,6 +443,31 @@ void Steam_Overlay::RunCallbacks()
         if (friend_info != friends.end())
         {
             uint64 friend_id = friend_info->first.id();
+            // The user clicken on "Send"
+            if (friend_info->second.window_state & window_state_send_message)
+            {
+                char* input = friend_info->second.chat_input;
+                char* end_input = input + strlen(input);
+                char* printable_char = std::find_if(input, end_input, [](char c) {
+                    return std::isgraph(c);
+                });
+                if (printable_char != end_input)
+                {
+                    // Handle chat send
+                    Common_Message msg;
+                    Steam_Messages* steam_messages = new Steam_Messages;
+                    steam_messages->set_type(Steam_Messages::FRIEND_CHAT);
+                    steam_messages->set_message(friend_info->second.chat_input);
+                    msg.set_allocated_steam_messages(steam_messages);
+                    msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
+                    msg.set_dest_id(friend_id);
+                    network->sendTo(&msg, true);
+
+                    friend_info->second.chat_history.append("\x1", 1).append("00FF00FF", 8).append(input).append("\n", 1);
+                }
+                *input = 0; // Reset the input field
+                friend_info->second.window_state &= ~window_state_send_message;
+            }
             // The user clicked on "Invite"
             if (friend_info->second.window_state & window_state_invite)
             {
