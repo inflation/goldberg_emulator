@@ -72,6 +72,15 @@ The items.json syntax is simple, you SHOULD validate your .json file before tryi
 You can use https://steamdb.info/ to list items and attributes they have and put them into your .json.
 Keep in mind that some item are not valid to have in your inventory. For example, in PayDay2 all items below item_id 50000 will make your game crash.
 
+Leaderboards:
+By default the emulator assumes all leaderboards queried by the game (FindLeaderboard()) exist and creates them with the most common options (sort method descending, display type numeric)
+In some games this default behavior doesn't work and so you may need to tweak which leaderboards the game sees.
+To do that, you can put a leaderboards.txt file in the steam_settings folder. 
+An empty leaderboards.txt makes the emu behave as if any leaderboard queried by the game using FindLeaderboard does not exist.
+The format is: LEADERBOARD_NAME=sort method=display type
+For the sort methods: 0 = none, 1 = ascending, 2 = descending
+For the display type: 0 = none, 1 = numeric, 2 = time seconds, 3 = milliseconds
+An example can be found in steam_settings.EXAMPLE
 
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
 

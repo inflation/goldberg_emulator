@@ -53,6 +53,7 @@ Settings::Settings(CSteamID steam_id, CGameID game_id, std::string name, std::st
     this->unlockAllDLCs = true;
 
     this->offline = offline;
+    this->create_unknown_leaderboards = true;
 }
 
 CSteamID Settings::get_local_steam_id()
@@ -192,4 +193,13 @@ void Settings::setAppInstallPath(AppId_t appID, std::string path)
 std::string Settings::getAppInstallPath(AppId_t appID)
 {
     return app_paths[appID];
+}
+
+void Settings::setLeaderboard(std::string leaderboard, enum ELeaderboardSortMethod sort_method, enum ELeaderboardDisplayType display_type)
+{
+    Leaderboard_config leader;
+    leader.sort_method = sort_method;
+    leader.display_type = display_type;
+
+    leaderboards[leaderboard] = leader;
 }
