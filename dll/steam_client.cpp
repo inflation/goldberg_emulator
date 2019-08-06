@@ -215,13 +215,16 @@ Steam_Client::Steam_Client()
             settings_server->unlockAllDLC(false);
             PRINT_DEBUG("Locking all DLC\n");
 
-            for( std::string line; getline( input, line ); ) {
-                if (!line.empty() && line[line.length()-1] == '\n') {
-                    line.erase(line.length()-1);
+            for( std::string line; std::getline( input, line ); ) {
+                if (!line.empty() && line.front() == '#') {
+                    continue;
+                }
+                if (!line.empty() && line.back() == '\n') {
+                    line.pop_back();
                 }
 
-                if (!line.empty() && line[line.length()-1] == '\r') {
-                    line.erase(line.length()-1);
+                if (!line.empty() && line.back() == '\r') {
+                    line.pop_back();
                 }
 
                 std::size_t deliminator = line.find("=");
