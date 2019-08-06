@@ -14,9 +14,27 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 static decltype(DispatchMessageA)* _DispatchMessageA = DispatchMessageA;
 static decltype(DispatchMessageW)* _DispatchMessageW = DispatchMessageW;
 
-LRESULT CALLBACK Steam_Overlay::sHookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+bool Steam_Overlay::IgnoreMsg(const MSG* lpMsg)
 {
-    return Hook_Manager::Inst().GetOverlay()->HookWndProc(hWnd, uMsg, wParam, lParam);
+    if (lpMsg->hwnd == game_hwnd && show_overlay)
+    {
+        switch (lpMsg->message)
+        {
+        case WM_MOUSEMOVE:
+        case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
+        case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
+        case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
+        case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
+        case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
+        case WM_KEYDOWN: case WM_KEYUP:
+        case WM_SYSKEYDOWN: case WM_SYSKEYUP:
+        case WM_CHAR:
+            // We ignore theses message in the game windows, but our overlay needs them.
+            HookWndProc(lpMsg->hwnd, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
+            return true;
+        }
+    }
+    return false;
 }
 
 LRESULT Steam_Overlay::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -44,27 +62,9 @@ LRESULT Steam_Overlay::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
     return CallWindowProc(game_hwnd_proc, hWnd, uMsg, wParam, lParam);
 }
 
-bool Steam_Overlay::IgnoreMsg(const MSG* lpMsg)
+LRESULT CALLBACK Steam_Overlay::sHookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (lpMsg->hwnd == game_hwnd && show_overlay)
-    {
-        switch (lpMsg->message)
-        {
-        case WM_MOUSEMOVE:
-        case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
-        case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
-        case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
-        case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
-        case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
-        case WM_KEYDOWN: case WM_KEYUP:
-        case WM_SYSKEYDOWN: case WM_SYSKEYUP:
-        case WM_CHAR:
-            // We ignore theses message in the game windows, but our overlay needs them.
-            HookWndProc(lpMsg->hwnd, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
-            return true;
-        }
-    }
-    return false;
+    return Hook_Manager::Inst().GetOverlay()->HookWndProc(hWnd, uMsg, wParam, lParam);
 }
 
 LRESULT WINAPI Steam_Overlay::MyDispatchMessageA(const MSG* lpMsg)
@@ -81,6 +81,18 @@ LRESULT WINAPI Steam_Overlay::MyDispatchMessageW(const MSG* lpMsg)
     if (_this->IgnoreMsg(lpMsg))
         return 0;
     return _DispatchMessageW(lpMsg);
+}
+
+void Steam_Overlay::steam_overlay_run_every_runcb(void* object)
+{
+    Steam_Overlay* _this = reinterpret_cast<Steam_Overlay*>(object);
+    _this->RunCallbacks();
+}
+
+void Steam_Overlay::steam_overlay_callback(void* object, Common_Message* msg)
+{
+    Steam_Overlay* _this = reinterpret_cast<Steam_Overlay*>(object);
+    _this->Callback(msg);
 }
 
 Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network) :
@@ -105,18 +117,6 @@ Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_resu
 Steam_Overlay::~Steam_Overlay()
 {
     run_every_runcb->remove(&Steam_Overlay::steam_overlay_run_every_runcb, this);
-}
-
-void Steam_Overlay::steam_overlay_callback(void* object, Common_Message* msg)
-{
-    Steam_Overlay* _this = reinterpret_cast<Steam_Overlay*>(object);
-    _this->Callback(msg);
-}
-
-void Steam_Overlay::steam_overlay_run_every_runcb(void* object)
-{
-    Steam_Overlay* _this = reinterpret_cast<Steam_Overlay*>(object);
-    _this->RunCallbacks();
 }
 
 HWND Steam_Overlay::GetGameHwnd() const
@@ -182,7 +182,6 @@ void Steam_Overlay::HookReady(void* hWnd)
 
 void Steam_Overlay::OpenOverlayInvite(CSteamID lobbyId)
 {
-    //this->lobbyId = lobbyId;
     ShowOverlay(true);
 }
 
@@ -227,7 +226,6 @@ void Steam_Overlay::ShowOverlay(bool state)
         clipRect.bottom -= borderWidth;
 
         ClipCursor(&clipRect);
-
         ImGui::GetIO().MouseDrawCursor = true;
     }
     else
@@ -281,20 +279,62 @@ void Steam_Overlay::FriendDisconnect(Friend _friend)
         friends.erase(it);
 }
 
+bool Steam_Overlay::FriendHasLobby(uint64 friend_id)
+{
+    Steam_Friends* steamFriends = get_steam_client()->steam_friends;
+
+    if( std::string(steamFriends->GetFriendRichPresence(friend_id, "connect")).length() > 0 )
+        return true;
+
+    FriendGameInfo_t friend_game_info = {};
+    steamFriends->GetFriendGamePlayed(friend_id, &friend_game_info);
+    if (friend_game_info.m_steamIDLobby.IsValid())
+        return true;
+
+    return false;
+}
+
+bool Steam_Overlay::IHaveLobby()
+{
+    Steam_Friends* steamFriends = get_steam_client()->steam_friends;
+    if (std::string(steamFriends->GetFriendRichPresence(settings->get_local_steam_id(), "connect")).length() > 0)
+        return true;
+    
+    if (settings->get_lobby().IsValid())
+        return true;
+
+    return false;
+}
+
 void Steam_Overlay::BuildContextMenu(Friend const& frd, friend_window_state& state)
 {
     if (ImGui::BeginPopupContextItem("Friends", 1))
     {
-        if (ImGui::Button("Invite"))
+        bool close_popup = false;
+
+        if (ImGui::Button("Chat"))
+        {
+            state.window_state |= window_state_show;
+            close_popup = true;
+        }
+        if (IHaveLobby() && ImGui::Button("Invite"))
         {
             state.window_state |= window_state_invite;
             has_friend_action.push(frd);
+            close_popup = true;
         }
-        if (ImGui::Button("Join"))
+        if (FriendHasLobby(frd.id()) && ImGui::Button("Join"))
         {
             state.window_state |= window_state_join;
             has_friend_action.push(frd);
+            close_popup = true;
         }
+
+        if( close_popup)
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
         ImGui::EndPopup();
     }
 }
@@ -305,6 +345,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
         return;
 
     bool show = true;
+    bool send_chat_msg = false;
 
     if (ImGui::Begin(frd.name().c_str(), &show))
     {
@@ -330,16 +371,17 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
 
         if (ImGui::InputText("##chat_line", state.chat_input, max_chat_len, ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            if (!(state.window_state & window_state_send_message))
-            {
-                has_friend_action.push(frd);
-                state.window_state |= window_state_send_message;
-            }
+            send_chat_msg = true;
         }
 
         ImGui::SameLine();
 
         if (ImGui::Button("Send"))
+        {
+            send_chat_msg = true;
+        }
+
+        if (send_chat_msg)
         {
             if (!(state.window_state & window_state_send_message))
             {
@@ -351,6 +393,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     // User closed the friend window
     if (!show)
         state.window_state &= ~window_state_show;
+
     ImGui::End();
 }
 
@@ -443,7 +486,7 @@ void Steam_Overlay::RunCallbacks()
         if (friend_info != friends.end())
         {
             uint64 friend_id = friend_info->first.id();
-            // The user clicken on "Send"
+            // The user clicked on "Send"
             if (friend_info->second.window_state & window_state_send_message)
             {
                 char* input = friend_info->second.chat_input;
@@ -451,6 +494,7 @@ void Steam_Overlay::RunCallbacks()
                 char* printable_char = std::find_if(input, end_input, [](char c) {
                     return std::isgraph(c);
                 });
+                // Check if the message contains something else than blanks
                 if (printable_char != end_input)
                 {
                     // Handle chat send
@@ -500,7 +544,7 @@ void Steam_Overlay::RunCallbacks()
 
                 friend_info->second.window_state &= ~window_state_join;
             }
-            // The user got a lobby invite and accepeted it
+            // The user got a lobby invite and accepted it
             if (friend_info->second.window_state & window_state_lobby_invite)
             {
                 GameLobbyJoinRequested_t data;
@@ -510,7 +554,7 @@ void Steam_Overlay::RunCallbacks()
 
                 friend_info->second.window_state &= ~window_state_lobby_invite;
             }
-            // The user got a rich presence invite and accepeted it
+            // The user got a rich presence invite and accepted it
             if (friend_info->second.window_state & window_state_rich_invite)
             {
                 GameRichPresenceJoinRequested_t data = {};

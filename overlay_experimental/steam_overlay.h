@@ -80,6 +80,9 @@ class Steam_Overlay
     void Callback(Common_Message* msg);
     void RunCallbacks();
 
+    bool FriendHasLobby(uint64 friend_id);
+    bool IHaveLobby();
+
     // Right click on friend
     void BuildContextMenu(Friend const& frd, friend_window_state &state);
     // Double click on friend
