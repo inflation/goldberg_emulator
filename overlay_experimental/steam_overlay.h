@@ -67,12 +67,9 @@ class Steam_Overlay
     Steam_Overlay& operator=(Steam_Overlay const&) = delete;
     Steam_Overlay& operator=(Steam_Overlay&&) = delete;
 
-    bool IgnoreMsg(const MSG* lpMsg);
-    LRESULT HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    bool IgnoreMsg(UINT uMsg);
 
-    static LRESULT CALLBACK sHookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static LRESULT WINAPI MyDispatchMessageA(const MSG* lpMsg);
-    static LRESULT WINAPI MyDispatchMessageW(const MSG* lpMsg);
+    static LRESULT CALLBACK HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     static void steam_overlay_run_every_runcb(void* object);
     static void steam_overlay_callback(void* object, Common_Message* msg);

@@ -11,34 +11,27 @@
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-static decltype(DispatchMessageA)* _DispatchMessageA = DispatchMessageA;
-static decltype(DispatchMessageW)* _DispatchMessageW = DispatchMessageW;
-
-bool Steam_Overlay::IgnoreMsg(const MSG* lpMsg)
+bool Steam_Overlay::IgnoreMsg(UINT uMsg)
 {
-    if (lpMsg->hwnd == game_hwnd && show_overlay)
+    switch (uMsg)
     {
-        switch (lpMsg->message)
-        {
-        case WM_MOUSEMOVE:
-        case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
-        case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
-        case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
-        case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
-        case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
-        case WM_KEYDOWN: case WM_KEYUP:
-        case WM_SYSKEYDOWN: case WM_SYSKEYUP:
-        case WM_CHAR:
-            // We ignore theses message in the game windows, but our overlay needs them.
-            HookWndProc(lpMsg->hwnd, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
-            return true;
-        }
+    case WM_MOUSEMOVE:
+    case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
+    case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
+    case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
+    case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
+    case WM_KEYDOWN: case WM_KEYUP:
+    case WM_SYSKEYDOWN: case WM_SYSKEYUP:
+    case WM_CHAR:
+        return true;
     }
     return false;
 }
 
-LRESULT Steam_Overlay::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Steam_Overlay::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
     // Is the event is a key press
     if (uMsg == WM_KEYDOWN)
     {
@@ -47,40 +40,19 @@ LRESULT Steam_Overlay::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
         {
             // If Left Shift is pressed
             if (GetAsyncKeyState(VK_LSHIFT) & (1 << 15))
-                ShowOverlay(!show_overlay);
+                _this->ShowOverlay(!_this->show_overlay);
         }
-
     }
-    // If we should show the overlay
-    if (show_overlay)
+
+    if (_this->show_overlay)
     {
-        // Call the overlay window procedure
         ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-        return true;
+        if (_this->IgnoreMsg(uMsg))
+            return 0;
     }
-    // Else call the game window procedure
-    return CallWindowProc(game_hwnd_proc, hWnd, uMsg, wParam, lParam);
-}
 
-LRESULT CALLBACK Steam_Overlay::sHookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    return Hook_Manager::Inst().GetOverlay()->HookWndProc(hWnd, uMsg, wParam, lParam);
-}
-
-LRESULT WINAPI Steam_Overlay::MyDispatchMessageA(const MSG* lpMsg)
-{
-    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
-    if (_this->IgnoreMsg(lpMsg))
-        return 0;
-    return _DispatchMessageA(lpMsg);
-}
-
-LRESULT WINAPI Steam_Overlay::MyDispatchMessageW(const MSG* lpMsg)
-{
-    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
-    if (_this->IgnoreMsg(lpMsg))
-        return 0;
-    return _DispatchMessageW(lpMsg);
+    // Call the overlay window procedure
+    return CallWindowProc(_this->game_hwnd_proc, hWnd, uMsg, wParam, lParam);
 }
 
 void Steam_Overlay::steam_overlay_run_every_runcb(void* object)
@@ -154,16 +126,16 @@ void Steam_Overlay::HookReady(void* hWnd)
 {
     if (game_hwnd != hWnd)
     {
-        if (!is_ready) // If this is the first time we are ready, hook the window dispatch message, so we can intercept em and disable mouse.
+        if (!is_ready) // If this is the first time we are ready, hook directinput and xinput, so we can intercept em and disable mouse.
         {
-            window_hooks.BeginHook();
-                
-            window_hooks.HookFuncs(std::make_pair<void**, void*>(&(PVOID&)_DispatchMessageA, &Steam_Overlay::MyDispatchMessageA),
-                                   std::make_pair<void**, void*>(&(PVOID&)_DispatchMessageW, &Steam_Overlay::MyDispatchMessageW)
-                                // Add XInput and DirectInput hooks to catch all mouse & controllers input when overlay is on
-                                    );
-
-            window_hooks.EndHook();
+            //window_hooks.BeginHook();
+            //    
+            //window_hooks.HookFuncs(std::make_pair<void**, void*>(&(PVOID&)_DispatchMessageA, &Steam_Overlay::MyDispatchMessageA),
+            //                       std::make_pair<void**, void*>(&(PVOID&)_DispatchMessageW, &Steam_Overlay::MyDispatchMessageW)
+            //                    // Add XInput and DirectInput hooks to catch all mouse & controllers input when overlay is on
+            //                        );
+            //
+            //window_hooks.EndHook();
 
             is_ready = true;
         }
@@ -172,7 +144,7 @@ void Steam_Overlay::HookReady(void* hWnd)
             SetWindowLongPtr(game_hwnd, GWLP_WNDPROC, (LONG_PTR)game_hwnd_proc);
 
         game_hwnd = (HWND)hWnd;
-        game_hwnd_proc = (WNDPROC)SetWindowLongPtr(game_hwnd, GWLP_WNDPROC, (LONG_PTR)&Steam_Overlay::sHookWndProc);
+        game_hwnd_proc = (WNDPROC)SetWindowLongPtr(game_hwnd, GWLP_WNDPROC, (LONG_PTR)&Steam_Overlay::HookWndProc);
     }
 }
 
@@ -410,6 +382,10 @@ void Steam_Overlay::OverlayProc( int width, int height )
     ImGui::SetNextWindowPos({ 0,0 });
     ImGui::SetNextWindowSize({ static_cast<float>(width),
                                static_cast<float>(height) });
+    
+    ImGui::SetNextWindowBgAlpha(0.50);
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 0.0;
 
     if (ImGui::Begin("SteamOverlay", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
