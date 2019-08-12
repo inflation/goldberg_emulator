@@ -87,6 +87,237 @@ Run the command:
 git pull
 ```
 
+## Building using CMake
+
+The following targets are included withing the CMake configuration for this project:
+- Shared Libraries:
+  - steam_api
+  - steamclient
+  - steamnetworkingsockets
+- Executables:
+  - lobby_connect
+  - generate_interfaces
+
+While all targets are included for all platforms/build variants, there are a couple of points to note:
+- All targets are supported for All Windows (x64 and x86) platform/build variant combinations
+- Build all inclusion of 'steamclient' and 'steamnetworkingsockets' is disabled for All Linux/WSL platforms (the targets code does currently not support these platforms)
+- Experimental build variants will fail on Linux/WSL platforms (this is due to the code of the target experimental 'steam_api' variant not supporting these platforms)
+
+The CMake configuration for this project also includes install support. Installing the project will result in a cleaner set of output files (than the raw build files) and will copy over the appropriate readmes, tools and other support files from the projects directory.
+This install is structured as followed:
+```
++ install-folder
+|- (lib)steam_api(64).[dll|so]
+|- (lib)steamclient(64).[dll|so]
+|- (lib)steamnetworkingsockets(64).[dll|so]
+|- Readme_release.txt
+|- Readme_debug.txt // Only for debug build's
+|- Readme_experimental.txt // Only for experimental build's
+|- steam_appid.EDIT_AND_RENAME.txt
+|- steam_interfaces.EXAMPLE.txt
+|+ lobby_connect
+ |- lobby_connect(64)(.exe)
+ |- Readme_lobby_connect.txt
+|+ tools
+ |- generate_interfaces(64)(.exe)
+ |- find_interfaces.ps1
+ |- find_interfaces.sh
+ |- Readme_generate_interfaces.txt
+|+ steam_settings.EXAMPLE
+ |- ... // steam_settings example files
+```
+Note that if no `CMAKE_INSTALL_PREFIX` define is set for CMake generation (or another method of setting a custom installation directory is used) the default OS specific install directories will be used, these are:
+- On Windows `c:/Program Files/${PROJECT_NAME}`
+- On Linux `/usr/local`
+
+Please see the ['Change the installation directory'](#change-the-installation-directory) section of this readme for more information.
+
+### Windows
+
+#### Prerequisistes
+- Visual Studio 2019 Installed or Build Tools for Visual Studio 2019
+  - Can both be obtained here: https://visualstudio.microsoft.com/downloads/
+  - (Optional) If you are planning to use Visual Studio make sure you include the following workloads during installation:
+    - 'Desktop Development with C++'
+    - 'C++ CMake tools for Windows' (Optional of the 'Desktop Development with C++' workload)
+    - (Optional) If you want build for Linux from Visual studio also include the 'Linux development with C++' workload.
+- CMake ^3.6
+  - Can be obtained here: https://cmake.org/download/
+- VCPKG
+  - Can be downloaded here: https://github.com/microsoft/vcpkg/archive/master.zip
+  - (Optional) For ease of use I advise you to extract the contents of this zip (the vcpkg-master folder) along side your goldberg_emulator folder and rename the vcpkg-master folder to just vcpkg, resulting in the following folder structure:
+  ```
+  + some-top-level-folder
+  |- vcpkg
+  |- goldberg_emulator
+  ```
+  - Can be installed by running the `bootstrap-vcpkg.bat` from the installation folder
+- protobuf ^3.1 && protobuf compiler
+  - Can be installed (via VCPKG) by running `vcpkg install protobuf --triplet x64-windows-static && vcpkg install protobuf --triplet x86-windows-static`
+  - Alternatively you can try to compile them from the source, for instructions see: https://github.com/protocolbuffers/protobuf )
+
+#### Generate and Build using Visual Studio 2019
+This repo includes a CMakeSettings.json file which contains the configurations for the following target platforms and build variants:
+- Windows-x64-Release
+- Windows-x64-Debug
+- Windows-x86-Release
+- Windows-x86-Debug
+- Windows-x64-ExperimentalRelease
+- Windows-x64-ExperimentalDebug
+- Windows-x86-ExperimentalRelease
+- Windows-x86-ExperimentalDebug
+- Linux-x64-Release
+- Linux-x64-Debug
+- Linux-x86-Release
+- Linux-x86-Debug
+- Linux-x64-ExperimentalRelease
+- Linux-x64-ExperimentalDebug
+- Linux-x86-ExperimentalRelease
+- Linux-x86-ExperimentalDebug
+- WSL-x64-Release
+- WSL-x64-Debug
+- WSL-x86-Release
+- WSL-x86-Debug
+- WSL-x64-ExperimentalRelease
+- WSL-x64-ExperimentalDebug
+- WSL-x86-ExperimentalRelease
+- WSL-x86-ExperimentalDebug
+
+These configurations should be automatically loaded when opening the goldberg_emulator folder in Visual Studio.
+For more information on how to use these configurations (and CMake project in Visual Studio in general) please see:
+https://docs.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=vs-2019
+
+Visual Studio builds for Windows and WSL configurations from will be outputted to the following folder:
+`${projectDir}\out\${workspaceHash}\build\<configuration name>`
+
+You can also opt to install directly from Visual Studio. Visual Studio installs for Windows configurations from will be outputted to the following folder:
+`${projectDir}\out\install\<configuration name>`
+
+While using these configurations are a couple of points to note:
+- If you installed VCPKG into a different folder you might need to update the 'cmakeToolchain' field for each Windows configuration in the CMakeSettings.json to reflect the new VCPKG folder location
+- Linux build configurations require a connection to a target Linux system in order to work, more information on how to set this up can be found here:
+  https://docs.microsoft.com/en-us/cpp/linux/connect-to-your-remote-linux-computer?view=vs-2019
+- WSL build configurations require a Windows Subsystem Linux to be installed:
+  https://docs.microsoft.com/en-us/cpp/linux/connect-to-your-remote-linux-computer?view=vs-2019#connect-to-wsl
+- Both the Linux build system and the WSL instance require the same prerequisites as a found in the 'Building using CMake - Linux' section below
+- Direct installation of the project from Visual Studio is currently only supported for Windows build configuration due to limited support for remote install in Visual Studio.
+
+#### Generate x64
+```
+call "<Path to Microsoft Visual Studio Installation Folder>\2019\VC\Auxiliary\Build\vcvars64.bat"
+cd "<build folder>"
+cmake "<goldberg_emulator src folder>" -DVCPKG_TARGET_TRIPLET:STRING="x64-windows-static" -DCMAKE_TOOLCHAIN_FILE:STRING="<vcpkg installation folder>\scripts\buildsystems\vcpkg.cmake"
+```
+
+Note that if you are using  the Build Tools for Visual Studio 2019 the path to the vcvars64.bat is slightly diffrent:
+```
+call "<Path to Build Tools for Visual Studio 2019 Installation Folder>\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+```
+
+#### Build x64
+```
+call "<Path to Microsoft Visual Studio Installation Folder>\2019\VC\Auxiliary\Build\vcvars64.bat"
+cd "<build folder>"
+nmake
+```
+
+#### Install x64
+```
+call "<Path to Microsoft Visual Studio Installation Folder>\2019\VC\Auxiliary\Build\vcvars64.bat"
+cd "<build folder>"
+nmake install
+```
+
+#### Generate x86
+```
+call "<Path to Microsoft Visual Studio Installation Folder>\2019\VC\Auxiliary\Build\vcvars86.bat"
+cd "<build folder>"
+cmake "<goldberg_emulator src folder>" -DVCPKG_TARGET_TRIPLET:STRING="x86-windows-static" -DCMAKE_TOOLCHAIN_FILE:STRING="<vcpkg installation folder>\scripts\buildsystems\vcpkg.cmake"
+```
+
+Note that if you are using  the Build Tools for Visual Studio 2019 the path to the vcvars86.bat is slightly different:
+```
+call "<Path to Build Tools for Visual Studio 2019 Installation Folder>\2019\BuildTools\VC\Auxiliary\Build\vcvars86.bat"
+```
+
+#### Build x86
+```
+call "<Path to Microsoft Visual Studio Installation Folder>\2019\VC\Auxiliary\Build\vcvars86.bat"
+cd "<build folder>"
+nmake
+```
+
+#### Install x86
+```
+call "<Path to Microsoft Visual Studio Installation Folder>\2019\VC\Auxiliary\Build\vcvars86.bat"
+cd "<build folder>"
+nmake install
+```
+
+### Linux
+
+#### Prerequisistes
+- Compile tools
+  - Can usually be obtained via your distro's package manager (e.g. on ubuntu: `sudo apt install build-essential`)
+- Cmake ^3.6
+  - Can usually be obtained via your distro's package manager (e.g. on ubuntu: `sudo apt install cmake`)
+- protobuf ^3.1 && protobuf compiler 
+  - Can usually be obtained via your distro's package manager (e.g. on ubuntu(^disco): `sudo apt install libprotobuf-dev protobuf-compiler`)
+  - Alternatively you can try to compile them from the source, for instructions see: https://github.com/protocolbuffers/protobuf )
+
+#### Generate x64/x86
+```
+cd "<build folder>"
+cmake "<goldberg_emulator src folder>"
+```
+
+#### Build
+```
+cd "<build folder>"
+make
+```
+
+#### Install
+```
+cd "<build folder>"
+make install
+```
+
+### Additional CMake Related Options
+
+#### Change the target build system
+To set the generator, append `-G "<Generator Name>"` e.g.
+```
+cmake .. -G "Ninja" -DVCPKG_TARGET_TRIPLET:STRING="x64-windows-static" -DCMAKE_TOOLCHAIN_FILE:STRING="..\vcpkg\scripts\buildsystems\vcpkg.cmake"
+```
+#### Change the target build type
+To set the build type, append `-DCMAKE_BUILD_TYPE:STRING="<Build Type>"` e.g.
+```
+cmake .. -DVCPKG_TARGET_TRIPLET:STRING="x64-windows-static" -DCMAKE_TOOLCHAIN_FILE:STRING="..\vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo"
+```
+
+#### Enable the experimental build
+To set the experimental build, append `-DEMU_EXPERIMENTAL_BUILD:BOOL=ON` e.g.
+```
+cmake .. -DVCPKG_TARGET_TRIPLET:STRING="x64-windows-static" -DCMAKE_TOOLCHAIN_FILE:STRING="..\vcpkg\scripts\buildsystems\vcpkg.cmake" -DEMU_EXPERIMENTAL_BUILD:BOOL=ON
+```
+
+#### Build with the ninja build system
+To build a cmake config generated with Ninja:
+```
+cd "<build folder>"
+ninja
+```
+
+#### Change the installation directory
+To use a custom installation direction, append `-DCMAKE_INSTALL_PREFIX:STRING="<Custom Installation Directory>"` e.g.
+```
+cmake .. -DCMAKE_INSTALL_PREFIX:STRING="./install/" -DVCPKG_TARGET_TRIPLET:STRING="x64-windows-static" -DCMAKE_TOOLCHAIN_FILE:STRING="..\vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo"
+```
+
+If you do not want to preset the installation directory during the generation step you can also use a build tool or OS specific overwrite, some examples of this are:
+- On Windows `nmake install prefix="<Custom Installation Directory>"`
+- On Linux `make DESTDIR="<Custom Installation Directory>" install`
 
 ## Design Choices / FAQ
 
