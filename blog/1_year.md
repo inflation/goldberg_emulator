@@ -1,7 +1,8 @@
 # Goldberg Emulator v0.2.5 : 1 Year of Steam Emulator Development
 
-If you just want the download link go to [the Gitlab pages website](https://mr_goldberg.gitlab.io/goldberg_emulator/)
+If you just want the download link or more info go to [the Gitlab pages website](https://mr_goldberg.gitlab.io/goldberg_emulator/)
 
+For those that don't know what this is, this is a steam api replacement that lets you play games that use the steam multiplayer apis on LAN without needing steam installed.
 
 It has been a bit more than 1 year since I started working on this steam emulator. I started working on this project on August 3, 2018 and released a first version on August 12, 2018. It has been a much more challenging project than I originally expected. I made it open source on April 13, 2019.
 
