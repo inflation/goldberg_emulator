@@ -2,7 +2,7 @@
 #define __INCLUDED_DX10_HOOK_H__
 
 #include "Base_Hook.h"
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 #include <d3d10.h>
 #include "DirectX_VTables.h"
@@ -48,6 +48,6 @@ public:
     void loadFunctions(ID3D10Device *pDevice, IDXGISwapChain *pSwapChain);
 };
 
-#endif//STEAM_WIN32
+#endif//NO_OVERLAY
 
 #endif//__INCLUDED_DX10_HOOK_H__

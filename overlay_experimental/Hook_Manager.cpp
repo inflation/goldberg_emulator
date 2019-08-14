@@ -1,6 +1,8 @@
 #include "../dll/dll.h"
 #include "Hook_Manager.h"
 
+#ifndef NO_OVERLAY
+
 #include "../detours/detours.h"
 
 #include "DX12_Hook.h"
@@ -173,3 +175,5 @@ void Hook_Manager::CallOverlayProc(int width, int height) const
 {
     overlay->OverlayProc(width, height);
 }
+
+#endif//NO_OVERLAY

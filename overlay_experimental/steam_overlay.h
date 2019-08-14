@@ -39,7 +39,7 @@ struct Friend_Less
     }
 };
 
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 class Steam_Overlay
 {

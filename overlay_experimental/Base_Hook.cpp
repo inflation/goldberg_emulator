@@ -1,5 +1,7 @@
 #include "Base_Hook.h"
 
+#ifndef NO_OVERLAY
+
 #include <algorithm>
 #include "Hook_Manager.h"
 
@@ -39,3 +41,5 @@ void Base_Hook::HookFunc(std::pair<void**, void*> hook)
     if( DetourAttach(hook.first, hook.second) == 0 )
         _hooked_funcs.emplace_back(hook);
 }
+
+#endif//NO_OVERLAY

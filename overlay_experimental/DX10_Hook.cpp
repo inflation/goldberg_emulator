@@ -1,6 +1,6 @@
 #include "../dll/base.h"
 
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 #include "DX10_Hook.h"
 #include "Hook_Manager.h"
@@ -214,4 +214,4 @@ void DX10_Hook::loadFunctions(ID3D10Device *pDevice, IDXGISwapChain *pSwapChain)
 #undef LOAD_FUNC
 }
 
-#endif
+#endif//NO_OVERLAY

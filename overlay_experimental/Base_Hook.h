@@ -3,7 +3,7 @@
 
 #include "../dll/base.h"
 
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
@@ -49,6 +49,6 @@ public:
     }
 };
 
-#endif
+#endif//NO_OVERLAY
 
 #endif//__INCLUDED_BASE_HOOK_H__

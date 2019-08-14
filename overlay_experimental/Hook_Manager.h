@@ -3,7 +3,7 @@
 
 #include "Base_Hook.h"
 
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 #include <Windows.h>
 #include <vector>
@@ -45,6 +45,6 @@ public:
     Steam_Overlay* GetOverlay() const { return overlay; }
 };
 
-#endif//STEAM_WIN32
+#endif//NO_OVERLAY
 
 #endif//__INCLUDED_HOOK_BASE_H__

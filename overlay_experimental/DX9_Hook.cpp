@@ -1,6 +1,6 @@
 #include "DX9_Hook.h"
 
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 #include "Hook_Manager.h"
 
@@ -227,4 +227,4 @@ void DX9_Hook::loadFunctions(IDirect3DDevice9Ex* pDeviceEx)
 #undef LOAD_FUNC
 }
 
-#endif
+#endif//NO_OVERLAY

@@ -1,6 +1,6 @@
 #include "../dll/base.h"
 
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 #include "OpenGL_Hook.h"
 #include "Hook_Manager.h"
@@ -152,4 +152,4 @@ void OpenGL_Hook::Create()
     }
 }
 
-#endif
+#endif//NO_OVERLAY

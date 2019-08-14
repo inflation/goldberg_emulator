@@ -2,7 +2,7 @@
 #define __INCLUDED_DX9_HOOK_H__
 
 #include "Base_Hook.h"
-#ifdef STEAM_WIN32
+#ifndef NO_OVERLAY
 
 #include <d3d9.h>
 #include "DirectX_VTables.h"
@@ -49,6 +49,6 @@ public:
     void loadFunctions(IDirect3DDevice9Ex *pDeviceEx);
 };
 
-#endif//STEAM_WIN32
+#endif//NO_OVERLAY
 
 #endif//__INCLUDED_DX9_HOOK_H__
