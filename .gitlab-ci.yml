@@ -59,7 +59,8 @@ build_windows:
   image: fedora
 
   script:
-      - dnf -y install wine wget p7zip sed dos2unix
+      - dnf -y install wine wget p7zip sed dos2unix unzip
+      - ./download_glew.sh
       - unix2dos *.txt
       - unix2dos files_example/*.txt files_example/*/*.txt
       - sed -i 's/C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat/.\\sdk_standalone\\set_vars64.bat/g' build_env_x64.bat
@@ -96,7 +97,7 @@ build_cmake_linux:
   script:
     - mkdir cmake-builds && cd cmake-builds
     - mkdir x64-release && cd x64-release
-    - cmake ../../ -G "Ninja" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo" && ninja
+    - cmake ../../ -G "Ninja" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo" -DNO_OVERLAY=ON && ninja
     - cd ..
 #    - mkdir x64-experimental-release && cd x64-experimental-release
 #    - cmake ../../ -G "Ninja" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo" -DEMU_EXPERIMENTAL_BUILD:BOOL=ON && ninja
@@ -129,7 +130,7 @@ build_cmake_windows:
     - mkdir cmake-builds && cd cmake-builds
     - mkdir x64-release && cd x64-release
     - echo call .\\..\\..\\sdk_standalone\\set_vars64.bat >> cmake-build.bat
-    - echo .\\..\\..\\cmake-3.15.0-rc1-win64-x64\\bin\\cmake.exe ..\\.. -G \"NMake Makefiles\" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo" -DCMAKE_PREFIX_PATH="protobuf_x64-windows-static" -DProtobuf_PROTOC_EXECUTABLE:STRING="./../../protobuf_x64-windows-static/tools/protobuf/protoc.exe" >> cmake-build.bat
+    - echo .\\..\\..\\cmake-3.15.0-rc1-win64-x64\\bin\\cmake.exe ..\\.. -G \"NMake Makefiles\" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo" -DNO_OVERLAY=ON -DCMAKE_PREFIX_PATH="protobuf_x64-windows-static" -DProtobuf_PROTOC_EXECUTABLE:STRING="./../../protobuf_x64-windows-static/tools/protobuf/protoc.exe" >> cmake-build.bat
     - echo nmake.exe >> cmake-build.bat
     - wine cmd /c cmake-build.bat
     - cd ..

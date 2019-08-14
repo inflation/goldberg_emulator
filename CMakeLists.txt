@@ -77,6 +77,12 @@ file(GLOB DETOURS_SRC_SHARED
 	detours/*.cpp
 )
 
+file(GLOB OVERLAY_EXPERIMENTAL_SRC_SHARED
+	overlay_experimental/*.cpp
+	ImGui/*.cpp
+	ImGui/impls/*.cpp
+)
+
 ###################################################
 # Setup for the steam_api(64).dll / libsteam_api.so
 ###################################################
@@ -85,6 +91,7 @@ file(GLOB DETOURS_SRC_SHARED
 add_library(${LIB_STEAM_API}
   SHARED
 	$<$<BOOL:${EMU_EXPERIMENTAL_BUILD}>:${DETOURS_SRC_SHARED}>
+	$<$<AND:$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:${OVERLAY_EXPERIMENTAL_SRC_SHARED}>
   ${DLL_SRC_SHARED}
   ${PROTO_SRCS}
   ${PROTO_HDRS}
@@ -113,6 +120,7 @@ target_compile_definitions(${LIB_STEAM_API}
 	$<$<CONFIG:RelWithDebInfo>:EMU_RELEASE_BUILD>
 	$<$<CONFIG:MinSizeRel>:EMU_RELEASE_BUILD>
 	$<$<BOOL:${EMU_EXPERIMENTAL_BUILD}>:EMU_EXPERIMENTAL_BUILD>
+	$<$<BOOL:${NO_OVERLAY}>:NO_OVERLAY>
 )
 
 # Install the target
@@ -237,6 +245,7 @@ target_link_libraries(${BIN_LOBBY_CONNECT}
 target_compile_definitions(${BIN_LOBBY_CONNECT}
 	PRIVATE
 	NO_DISK_WRITES
+	NO_OVERLAY
 	LOBBY_CONNECT
 	$<$<CONFIG:>:EMU_RELEASE_BUILD>
   $<$<CONFIG:Release>:EMU_RELEASE_BUILD>
