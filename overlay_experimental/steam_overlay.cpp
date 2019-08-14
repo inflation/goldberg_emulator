@@ -339,10 +339,30 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
             }
         }
 
-        ImGui::PushItemWidth(-1.0f);
+        ImGui::PushItemWidth(-1.0f); // Make the chat history widget fill the window
         ImGui::ColoredInputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, 0 }, ImGuiInputTextFlags_ReadOnly);
         ImGui::PopItemWidth();
-
+        
+        // TODO: Fix the layout of the chat line + send button.
+        // It should be like this: chat input should fill the window size minus send button size (button size is fixed)
+        // |------------------------------|
+        // | /--------------------------\ |
+        // | |                          | |
+        // | |       chat history       | |
+        // | |                          | |
+        // | \--------------------------/ |
+        // | [____chat line______] [send] |
+        // |------------------------------|
+        //
+        // And it is like this
+        // |------------------------------|
+        // | /--------------------------\ |
+        // | |                          | |
+        // | |       chat history       | |
+        // | |                          | |
+        // | \--------------------------/ |
+        // | [__chat line__] [send]       |
+        // |------------------------------|
         if (ImGui::InputText("##chat_line", state.chat_input, max_chat_len, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             send_chat_msg = true;
@@ -371,61 +391,55 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     ImGui::End();
 }
 
+// Try to make this function as short as possible or it might affect game's fps.
 void Steam_Overlay::OverlayProc( int width, int height )
 {
-    if (!show_overlay)
-        return;
-
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    int friend_size = friends.size();
-
-    // Set the overlay windows to the size of the game window
-    ImGui::SetNextWindowPos({ 0,0 });
-    ImGui::SetNextWindowSize({ static_cast<float>(width),
-                               static_cast<float>(height) });
-    
-    ImGui::SetNextWindowBgAlpha(0.50);
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding = 0.0;
-
-    if (ImGui::Begin("SteamOverlay", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
+    if (show_overlay)
     {
-        ImGui::LabelText("##label", "Username: %s(%llu) playing %u",
-            settings->get_local_name(),
-            settings->get_local_steam_id().ConvertToUint64(),
-            settings->get_local_game_id().AppID());
+        int friend_size = friends.size();
 
-        ImGui::Spacing();
+        // Set the overlay windows to the size of the game window
+        ImGui::SetNextWindowPos({ 0,0 });
+        ImGui::SetNextWindowSize({ static_cast<float>(width),
+                                   static_cast<float>(height) });
 
-        ImGui::LabelText("##label", "Friends");
-        ImGui::ListBoxHeader("##label", friend_size);
-        std::for_each(friends.begin(), friends.end(), [this]( auto& i)
+        ImGui::SetNextWindowBgAlpha(0.50);
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowRounding = 0.0; // Disable round window
+
+        if (ImGui::Begin("SteamOverlay", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
         {
-            ImGui::PushID(i.first.id());
+            ImGui::LabelText("##label", "Username: %s(%llu) playing %u",
+                settings->get_local_name(),
+                settings->get_local_steam_id().ConvertToUint64(),
+                settings->get_local_game_id().AppID());
 
-            ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
-            BuildContextMenu(i.first, i.second);
-            if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+            ImGui::Spacing();
+
+            ImGui::LabelText("##label", "Friends");
+            ImGui::ListBoxHeader("##label", friend_size);
+            std::for_each(friends.begin(), friends.end(), [this](auto& i)
             {
-                i.second.window_state |= window_state_show;
-            }
+                ImGui::PushID(i.first.id());
 
-            ImGui::PopID();
+                ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
+                BuildContextMenu(i.first, i.second);
+                if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+                {
+                    i.second.window_state |= window_state_show;
+                }
 
-            BuildFriendWindow(i.first, i.second);
-        });
-        ImGui::ListBoxFooter();
+                ImGui::PopID();
 
-        //RECT rect;
-        //GetWindowRect(game_hwnd, &rect);
-        //auto pos = ImGui::GetMousePos();
-        //ImGui::LabelText("", "Window pos: %dx%d %dx%d", rect.left, rect.top, rect.right, rect.bottom);
-        //ImGui::LabelText("", "Mouse pos: %dx%d", (int)pos.x, (int)pos.y);
-    }
-    ImGui::End();
+                BuildFriendWindow(i.first, i.second);
+            });
+            ImGui::ListBoxFooter();
+        }
+        ImGui::End();
+    }// if(show_overlay)
 
-    //ImGui::ShowDemoWindow();
 }
 
 void Steam_Overlay::Callback(Common_Message *msg)
@@ -439,7 +453,7 @@ void Steam_Overlay::Callback(Common_Message *msg)
         {
             Steam_Messages const& steam_message = msg->steam_messages();
             // Change color to cyan for friend
-            friend_info->second.chat_history.append("\x1", 1).append("00FFFFFF", 8).append(steam_message.message()).append("\n", 1);
+            friend_info->second.chat_history.append("\x1""00FFFFFF", 9).append(steam_message.message()).append("\n", 1);
         }
     }
 }
@@ -485,7 +499,7 @@ void Steam_Overlay::RunCallbacks()
                     msg.set_dest_id(friend_id);
                     network->sendTo(&msg, true);
 
-                    friend_info->second.chat_history.append("\x1", 1).append("00FF00FF", 8).append(input).append("\n", 1);
+                    friend_info->second.chat_history.append("\x1""00FF00FF", 9).append(input).append("\n", 1);
                 }
                 *input = 0; // Reset the input field
                 friend_info->second.window_state &= ~window_state_send_message;
