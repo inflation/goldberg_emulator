@@ -124,10 +124,10 @@ public:
 class Steam_Overlay
 {
 public:
-    Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network);
-    ~Steam_Overlay();
+    Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network) {}
+    ~Steam_Overlay() {}
 
-    bool Ready() const { return false: }
+    bool Ready() const { return false; }
 
     bool NeedPresent() const { return false; }
 

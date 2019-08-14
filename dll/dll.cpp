@@ -204,7 +204,9 @@ S_API bool S_CALLTYPE SteamAPI_Init()
 
     Steam_Client* client = get_steam_client();
     client->userLogIn();
+#ifndef NO_OVERLAY
     client->steam_overlay->SetupOverlay();
+#endif
 
     return true;
 }
