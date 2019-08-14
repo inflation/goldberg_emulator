@@ -11,48 +11,6 @@
 
 #include "../dll/dll.h"
 
-// Get all steam appid with their name: http://api.steampowered.com/ISteamApps/GetAppList/v2/
-// Steam storefront webapi: https://wiki.teamfortress.com/wiki/User:RJackson/StorefrontAPI
-// http://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key=27FB0BB1A97A95244C5E08B170A54F96&appid=218620
-/*
-{
-  "game" : {
-    "gameName" : "<name>",
-    "availableGameStats" : {
-      "achievements" : {
-        ("<id>" : {
-          "name" : "achievement_name",
-          "displayName" : "achievement name on screen",
-          "hidden" : (0|1),
-          "description" : "<desc>",
-          "icon" : "<url to icon when achievement is earned>",
-          "icongray" : "<url to icon when achievement is not earned>"
-        },
-        ...)
-      }
-    }
-  }
-}
-*/
-// Get appid infos: http://store.steampowered.com/api/appdetails/?appids=218620
-/*
-"appid" : {
-  "success" : (true|false),
-  (success == true "data" : {
-    ...
-    "name" : "<name>",
-    "steam_appid" : <appid>,
-    (OPT "dlc" : [<dlc id>, <dlc id>]),
-    "header_image" : "<miniature url>" <-- Use this in the overlay ?
-    (OPT "achievements" : {
-      "total" : <num of achievements>
-    }),
-    "background" : "<background url>" <-- Use this as the overlay background ?
-    (OPT "packages" : [<package id>, <package id>])
-  })
-}
-*/
-
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 bool Steam_Overlay::IgnoreMsg(UINT uMsg)
