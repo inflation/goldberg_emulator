@@ -1037,7 +1037,7 @@ void Callback(Common_Message *msg)
             PRINT_DEBUG("Steam_Friends Got Lobby Invite\n");
             //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
             // Then we will handle it !
-            overlay->SetLobbyInvite(*find_friend(msg->source_id()), msg->friend_messages().lobby_id());
+            overlay->SetLobbyInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().lobby_id());
 
             //GameLobbyJoinRequested_t data;
             //data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
@@ -1049,7 +1049,7 @@ void Callback(Common_Message *msg)
             PRINT_DEBUG("Steam_Friends Got Game Invite\n");
             //TODO: I'm pretty sure that the user should accept the invite before this is posted but we do like above
             // Then we will handle it !
-            overlay->SetRichInvite(*find_friend(msg->source_id()), msg->friend_messages().connect_str().c_str());
+            overlay->SetRichInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().connect_str().c_str());
 
             //std::string const& connect_str = msg->friend_messages().connect_str();
             //GameRichPresenceJoinRequested_t data = {};
