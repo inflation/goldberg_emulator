@@ -1,5 +1,7 @@
 #include "steam_overlay.h"
 
+#ifdef STEAM_WIN32
+
 #include <thread>
 #include <string>
 #include <sstream>
@@ -586,3 +588,11 @@ void Steam_Overlay::RunCallbacks()
         has_friend_action.pop();
     }
 }
+
+#else
+
+/* TODO:
+ * Add here the code for Linux overlay 
+ */
+
+#endif

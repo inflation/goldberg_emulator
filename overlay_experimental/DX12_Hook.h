@@ -1,9 +1,11 @@
 #ifndef __INCLUDED_DX12_HOOK_H__
 #define __INCLUDED_DX12_HOOK_H__
 
+#include "Base_Hook.h"
+#ifdef STEAM_WIN32
+
 #include <d3d12.h>
 #include "DirectX_VTables.h"
-#include "Base_Hook.h"
 
 class DX12_Hook : public Base_Hook
 {
@@ -46,4 +48,5 @@ public:
     void loadFunctions(ID3D12Device *pDevice, IDXGISwapChain *pSwapChain);
 };
 
+#endif//STEAM_WIN32
 #endif//__INCLUDED_DX12_HOOK_H__

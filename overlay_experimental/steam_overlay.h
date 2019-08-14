@@ -39,6 +39,8 @@ struct Friend_Less
     }
 };
 
+#ifdef STEAM_WIN32
+
 class Steam_Overlay
 {
     Settings* settings;
@@ -116,5 +118,40 @@ public:
     void FriendConnect(Friend _friend);
     void FriendDisconnect(Friend _friend);
 };
+
+#else
+
+class Steam_Overlay
+{
+public:
+    Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network);
+    ~Steam_Overlay();
+
+    bool Ready() const { return false: }
+
+    bool NeedPresent() const { return false; }
+
+    void SetNotificationPosition(ENotificationPosition eNotificationPosition) {}
+
+    void SetNotificationInset(int nHorizontalInset, int nVerticalInset) {}
+    void SetupOverlay() {}
+
+    void HookReady(void* hWnd) {}
+
+    void OverlayProc(int width, int height) {}
+
+    void OpenOverlayInvite(CSteamID lobbyId) {}
+    void OpenOverlay(const char* pchDialog) {}
+
+    void ShowOverlay(bool state) {}
+
+    void SetLobbyInvite(Friend friendId, uint64 lobbyId) {}
+    void SetRichInvite(Friend friendId, const char* connect_str) {}
+
+    void FriendConnect(Friend _friend) {}
+    void FriendDisconnect(Friend _friend) {}
+};
+
+#endif
 
 #endif//__INCLUDED_STEAM_OVERLAY_H__

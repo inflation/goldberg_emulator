@@ -1,4 +1,7 @@
 #include "../dll/base.h"
+
+#ifdef STEAM_WIN32
+
 #include "DX12_Hook.h"
 #include "Hook_Manager.h"
 
@@ -33,6 +36,7 @@ void DX12_Hook::resetRenderState()
     }
 }
 
+// Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 {
     DXGI_SWAP_CHAIN_DESC desc;
@@ -134,21 +138,23 @@ DX12_Hook::DX12_Hook():
 {
     _dll = GetModuleHandle(DLL_NAME);
     _hooked = false;
-    // Hook to D3D11CreateDevice and D3D11CreateDeviceAndSwapChain so we know when it gets called.
-    // If its called, then DX11 will be used to render the overlay.
-    D3D12CreateDevice = (decltype(D3D12CreateDevice))GetProcAddress(_dll, "D3D12CreateDevice");
 
-    BeginHook();
-    HookFuncs(
-        std::make_pair<void**, void*>(&(PVOID&)D3D12CreateDevice, &DX12_Hook::MyD3D12CreateDevice)
-    );
-    EndHook();
+    PRINT_DEBUG("Trying to hook DX12 but DX12_Hook is not implemented yet, please report to DEV with the game name.");
 
+    // Hook to D3D12CreateDevice and D3D12CreateDeviceAndSwapChain so we know when it gets called.
+    // If its called, then DX12 will be used to render the overlay.
+    //D3D12CreateDevice = (decltype(D3D12CreateDevice))GetProcAddress(_dll, "D3D12CreateDevice");
+    //
+    //BeginHook();
+    //HookFuncs(
+    //    std::make_pair<void**, void*>(&(PVOID&)D3D12CreateDevice, &DX12_Hook::MyD3D12CreateDevice)
+    //);
+    //EndHook();
 }
 
 DX12_Hook::~DX12_Hook()
 {
-    PRINT_DEBUG("DX11 Hook removed\n");
+    PRINT_DEBUG("DX12 Hook removed\n");
 
     if (_hooked)
         resetRenderState();
@@ -182,3 +188,5 @@ void DX12_Hook::loadFunctions(ID3D12Device *pDevice, IDXGISwapChain *pSwapChain)
     LOAD_FUNC(ResizeTarget);
 #undef LOAD_FUNC
 }
+
+#endif

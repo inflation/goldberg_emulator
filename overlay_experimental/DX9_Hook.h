@@ -1,9 +1,11 @@
 #ifndef __INCLUDED_DX9_HOOK_H__
 #define __INCLUDED_DX9_HOOK_H__
 
+#include "Base_Hook.h"
+#ifdef STEAM_WIN32
+
 #include <d3d9.h>
 #include "DirectX_VTables.h"
-#include "Base_Hook.h"
 
 class DX9_Hook : public Base_Hook
 {
@@ -46,5 +48,7 @@ public:
     
     void loadFunctions(IDirect3DDevice9Ex *pDeviceEx);
 };
+
+#endif//STEAM_WIN32
 
 #endif//__INCLUDED_DX9_HOOK_H__

@@ -1,9 +1,12 @@
 #ifndef __INCLUDED_HOOK_BASE_H__
 #define __INCLUDED_HOOK_BASE_H__
 
+#include "Base_Hook.h"
+
+#ifdef STEAM_WIN32
+
 #include <Windows.h>
 #include <vector>
-#include "Base_Hook.h"
 
 class Hook_Manager
 {
@@ -42,5 +45,6 @@ public:
     Steam_Overlay* GetOverlay() const { return overlay; }
 };
 
+#endif//STEAM_WIN32
 
 #endif//__INCLUDED_HOOK_BASE_H__

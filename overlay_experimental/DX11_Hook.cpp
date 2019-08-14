@@ -1,4 +1,7 @@
 #include "../dll/base.h"
+
+#ifdef STEAM_WIN32
+
 #include "DX11_Hook.h"
 #include "Hook_Manager.h"
 
@@ -83,6 +86,7 @@ void DX11_Hook::resetRenderState()
     }
 }
 
+// Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 {
     DXGI_SWAP_CHAIN_DESC desc;
@@ -228,3 +232,5 @@ void DX11_Hook::loadFunctions(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain)
     LOAD_FUNC(ResizeTarget);
 #undef LOAD_FUNC
 }
+
+#endif

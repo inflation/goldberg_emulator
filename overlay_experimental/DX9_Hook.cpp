@@ -1,5 +1,7 @@
-#include "../dll/base.h"
 #include "DX9_Hook.h"
+
+#ifdef STEAM_WIN32
+
 #include "Hook_Manager.h"
 
 #include <imgui.h>
@@ -72,6 +74,7 @@ void DX9_Hook::resetRenderState()
     }
 }
 
+// Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
 {
     IDirect3DSwapChain9* pSwapChain;
@@ -83,6 +86,7 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
     D3DDEVICE_CREATION_PARAMETERS param;
     pDevice->GetCreationParameters(&param);
 
+    // Workaround to detect if we changed window.
     if (param.hFocusWindow != Hook_Manager::Inst().GetOverlay()->GetGameHwnd())
         resetRenderState();
 
@@ -222,3 +226,5 @@ void DX9_Hook::loadFunctions(IDirect3DDevice9Ex* pDeviceEx)
     LOAD_FUNC(PresentEx);
 #undef LOAD_FUNC
 }
+
+#endif

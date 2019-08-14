@@ -1,6 +1,10 @@
 #ifndef __INCLUDED_BASE_HOOK_H__
 #define __INCLUDED_BASE_HOOK_H__
 
+#include "../dll/base.h"
+
+#ifdef STEAM_WIN32
+
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <Windows.h>
@@ -44,5 +48,7 @@ public:
         HookFuncs(args...);
     }
 };
+
+#endif
 
 #endif//__INCLUDED_BASE_HOOK_H__

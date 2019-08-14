@@ -1,4 +1,7 @@
 #include "../dll/base.h"
+
+#ifdef STEAM_WIN32
+
 #include "OpenGL_Hook.h"
 #include "Hook_Manager.h"
 
@@ -56,6 +59,7 @@ void OpenGL_Hook::resetRenderState()
     }
 }
 
+// Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void OpenGL_Hook::prepareForOverlay(HDC hDC)
 {
     HWND hWnd = WindowFromDC(hDC);
@@ -147,3 +151,5 @@ void OpenGL_Hook::Create()
         Hook_Manager::Inst().AddHook(hook);
     }
 }
+
+#endif

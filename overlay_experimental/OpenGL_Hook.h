@@ -1,8 +1,8 @@
 #ifndef __INCLUDED_OPENGL_HOOK_H__
 #define __INCLUDED_OPENGL_HOOK_H__
 
-#include "DirectX_VTables.h"
 #include "Base_Hook.h"
+#ifdef STEAM_WIN32
 
 class OpenGL_Hook : public Base_Hook
 {
@@ -38,4 +38,5 @@ public:
     static void Create(); // Initialize OGL Hook.
 };
 
+#endif//STEAM_WIN32
 #endif//__INCLUDED_OPENGL_HOOK_H__
