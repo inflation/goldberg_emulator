@@ -135,7 +135,7 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 //    __in_ecount_opt(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, __out_opt ID3D11Device** ppDevice,
 //    __out_opt D3D_FEATURE_LEVEL* pFeatureLevel, __out_opt ID3D11DeviceContext** ppImmediateContext)
 //{
-//    auto res = _D3D11CreateDevice(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
+//    auto res = D3D11CreateDevice(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
 //
 //    if (SUCCEEDED(res))
 //        hook->hook_dx11(SDKVersion);
@@ -185,12 +185,12 @@ DX11_Hook::DX11_Hook():
     _hooked = false;
     // Hook to D3D11CreateDevice and D3D11CreateDeviceAndSwapChain so we know when it gets called.
     // If its called, then DX11 will be used to render the overlay.
-    //_D3D11CreateDevice = (decltype(_D3D11CreateDevice))GetProcAddress(_dll, "D3D11CreateDevice");
+    //D3D11CreateDevice = (decltype(D3D11CreateDevice))GetProcAddress(_dll, "D3D11CreateDevice");
     D3D11CreateDeviceAndSwapChain = (decltype(D3D11CreateDeviceAndSwapChain))GetProcAddress(_dll, "D3D11CreateDeviceAndSwapChain");
 
     BeginHook();
     HookFuncs(
-        //std::make_pair<void**, void*>(&(PVOID&)_D3D11CreateDevice, &DX11_Hook::MyD3D11CreateDevice),
+        //std::make_pair<void**, void*>(&(PVOID&)D3D11CreateDevice, &DX11_Hook::MyD3D11CreateDevice),
         std::make_pair<void**, void*>(&(PVOID&)D3D11CreateDeviceAndSwapChain, &DX11_Hook::MyD3D11CreateDeviceAndSwapChain)
     );
     EndHook();

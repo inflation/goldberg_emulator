@@ -1035,27 +1035,37 @@ void Callback(Common_Message *msg)
     if (msg->has_friend_messages()) {
         if (msg->friend_messages().type() == Friend_Messages::LOBBY_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Lobby Invite\n");
-            //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
-            // Then we will handle it !
-            overlay->SetLobbyInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().lobby_id());
-
-            //GameLobbyJoinRequested_t data;
-            //data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
-            //data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
-            //callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            if (overlay->Ready())
+            {
+                //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
+                // Then we will handle it !
+                overlay->SetLobbyInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().lobby_id());
+            }
+            else
+            {
+                GameLobbyJoinRequested_t data;
+                data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
+                data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            }
         }
 
         if (msg->friend_messages().type() == Friend_Messages::GAME_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Game Invite\n");
             //TODO: I'm pretty sure that the user should accept the invite before this is posted but we do like above
-            // Then we will handle it !
-            overlay->SetRichInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().connect_str().c_str());
-
-            //std::string const& connect_str = msg->friend_messages().connect_str();
-            //GameRichPresenceJoinRequested_t data = {};
-            //data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
-            //strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength - 1);
-            //callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            if (overlay->Ready())
+            {
+                // Then we will handle it !
+                overlay->SetRichInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().connect_str().c_str());
+            }
+            else
+            {
+                std::string const& connect_str = msg->friend_messages().connect_str();
+                GameRichPresenceJoinRequested_t data = {};
+                data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+                strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength - 1);
+                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            }
         }
     }
 }
