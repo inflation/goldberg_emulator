@@ -116,7 +116,7 @@ build_cmake_windows:
     - dnf update -y
     - dnf install 'dnf-command(config-manager)' -y
     - dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/30/winehq.repo
-    - dnf install wget p7zip winehq-devel samba-winbind-clients -y
+    - dnf install wget unzip p7zip winehq-devel samba-winbind-clients -y
     - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/48db8f434a193aae872279dc4f5dde6a/sdk_standalone.7z'
     - 7za x sdk_standalone.7z -osdk_standalone
     - wget 'https://github.com/Kitware/CMake/releases/download/v3.15.0-rc1/cmake-3.15.0-rc1-win64-x64.zip'
@@ -129,6 +129,7 @@ build_cmake_windows:
     - wine cmd /c
     - mkdir cmake-builds && cd cmake-builds
     - mkdir x64-release && cd x64-release
+    - ../download_glew.sh
     - echo call .\\..\\..\\sdk_standalone\\set_vars64.bat >> cmake-build.bat
     - echo .\\..\\..\\cmake-3.15.0-rc1-win64-x64\\bin\\cmake.exe ..\\.. -G \"NMake Makefiles\" -DCMAKE_BUILD_TYPE:STRING="RelWithDebInfo" -DNO_OVERLAY=ON -DCMAKE_PREFIX_PATH="protobuf_x64-windows-static" -DProtobuf_PROTOC_EXECUTABLE:STRING="./../../protobuf_x64-windows-static/tools/protobuf/protoc.exe" >> cmake-build.bat
     - echo nmake.exe >> cmake-build.bat
