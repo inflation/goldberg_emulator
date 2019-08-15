@@ -74,6 +74,7 @@ build_windows:
       - 7za x sdk_standalone.7z -osdk_standalone
       - DLL_FILES="$(ls dll/*.cpp | tr "\n" " ")"; sed "s|dll/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls detours/*.cpp | tr "\n" " ")"; sed "s|detours/\*.cpp|$DLL_FILES|g" -i *.bat
+      - DLL_FILES="$(ls overlay_experimental/*.cpp | tr "\n" " ")"; sed "s|overlay_experimental/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls dll/*.proto | tr "\n" " " | sed "s/.proto/.pb.cc/g")"; sed "s|dll/\*.cc|$DLL_FILES|g" -i *.bat
       - export WINEDEBUG=-all
       - wine cmd /c build_win_debug_experimental.bat

@@ -11,6 +11,9 @@
 
 #include "../dll/dll.h"
 
+// Look here for info on how to hook on linux
+// https://github.com/AimTuxOfficial/AimTux/
+
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 bool Steam_Overlay::IgnoreMsg(UINT uMsg)
