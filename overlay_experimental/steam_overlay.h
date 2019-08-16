@@ -10,13 +10,14 @@ static constexpr size_t max_chat_len = 768;
 
 enum window_state
 {
-    window_state_none         = 0,
-    window_state_show         = 1<<0,
-    window_state_invite       = 1<<1,
-    window_state_join         = 1<<2,
-    window_state_lobby_invite = 1<<3,
-    window_state_rich_invite  = 1<<4,
-    window_state_send_message = 1<<5,
+    window_state_none           = 0,
+    window_state_show           = 1<<0,
+    window_state_invite         = 1<<1,
+    window_state_join           = 1<<2,
+    window_state_lobby_invite   = 1<<3,
+    window_state_rich_invite    = 1<<4,
+    window_state_send_message   = 1<<5,
+    window_state_need_attention = 1<<6,
 };
 
 struct friend_window_state

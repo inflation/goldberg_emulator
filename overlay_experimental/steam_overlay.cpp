@@ -14,21 +14,28 @@
 // Look here for info on how to hook on linux
 // https://github.com/AimTuxOfficial/AimTux/
 
+#include "notification.h"
+
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 bool Steam_Overlay::IgnoreMsg(UINT uMsg)
 {
     switch (uMsg)
     {
+    // Mouse Events
     case WM_MOUSEMOVE:
     case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
     case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
     case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
     case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
     case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
+    case WM_MOUSEACTIVATE: case WM_MOUSEHOVER: case WM_MOUSELEAVE:
+    // Keyboard Events
     case WM_KEYDOWN: case WM_KEYUP:
-    case WM_SYSKEYDOWN: case WM_SYSKEYUP:
-    case WM_CHAR:
+    case WM_SYSKEYDOWN: case WM_SYSKEYUP: case WM_SYSDEADCHAR:
+    case WM_CHAR: case WM_UNICHAR: case WM_DEADCHAR:
+    // Raw Input Events
+    case WM_INPUT:
         return true;
     }
     return false;
@@ -227,6 +234,12 @@ void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
         frd.window_state |= window_state_lobby_invite;
         // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
         frd.window_state &= ~window_state_rich_invite;
+
+        if (!(frd.window_state & window_state_show))
+        {
+            frd.window_state |= window_state_need_attention;
+            PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
+        }
     }
 }
 
@@ -244,14 +257,21 @@ void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
         frd.window_state |= window_state_rich_invite;
         // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
         frd.window_state &= ~window_state_lobby_invite;
+
+        if (!(frd.window_state & window_state_show))
+        {
+            frd.window_state |= window_state_need_attention;
+            PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
+        }
     }
 }
 
 void Steam_Overlay::FriendConnect(Friend _friend)
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    friends[_friend].window_state = window_state_none;
-    memset(friends[_friend].chat_input, 0, max_chat_len);
+    auto& item = friends[_friend];
+    item.window_state = window_state_none;
+    memset(item.chat_input, 0, max_chat_len);
 }
 
 void Steam_Overlay::FriendDisconnect(Friend _friend)
@@ -332,6 +352,11 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
 
     if (ImGui::Begin(frd.name().c_str(), &show))
     {
+        if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
+        {
+            state.window_state &= ~window_state_need_attention;
+        }
+
         // Fill this with the chat box and maybe the invitation
         if (state.window_state & (window_state_lobby_invite | window_state_rich_invite))
         {
@@ -431,23 +456,29 @@ void Steam_Overlay::OverlayProc( int width, int height )
             ImGui::Spacing();
 
             ImGui::LabelText("##label", "Friends");
-            ImGui::ListBoxHeader("##label", friend_size);
-            std::for_each(friends.begin(), friends.end(), [this](auto& i)
+            if (!friends.empty())
             {
-                ImGui::PushID(i.first.id());
-
-                ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
-                BuildContextMenu(i.first, i.second);
-                if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+                ImGui::ListBoxHeader("##label", friend_size);
+                std::for_each(friends.begin(), friends.end(), [this](auto& i)
                 {
-                    i.second.window_state |= window_state_show;
-                }
+                    ImGui::PushID(i.first.id());
 
-                ImGui::PopID();
+                    /* TODO: Do something with this to notify the user something happened with this friend (invite or chat)
+                     * i.second.window_state & window_state_need_attention
+                     */
 
-                BuildFriendWindow(i.first, i.second);
-            });
-            ImGui::ListBoxFooter();
+                    ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
+                    BuildContextMenu(i.first, i.second);
+                    if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+                    {
+                        i.second.window_state |= window_state_show;
+                    }
+                    ImGui::PopID();
+
+                    BuildFriendWindow(i.first, i.second);
+                });
+                ImGui::ListBoxFooter();
+            }
         }
         ImGui::End();
     }// if(show_overlay)
@@ -466,6 +497,11 @@ void Steam_Overlay::Callback(Common_Message *msg)
             Steam_Messages const& steam_message = msg->steam_messages();
             // Change color to cyan for friend
             friend_info->second.chat_history.append("\x1""00FFFFFF", 9).append(steam_message.message()).append("\n", 1);
+            if (!(friend_info->second.window_state & window_state_show))
+            {
+                friend_info->second.window_state |= window_state_need_attention;
+                PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
+            }
         }
     }
 }
