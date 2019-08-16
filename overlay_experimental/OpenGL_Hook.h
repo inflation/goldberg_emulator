@@ -20,7 +20,7 @@ private:
     OpenGL_Hook();
     virtual ~OpenGL_Hook();
 
-    void hook_ogl();
+    void start_hook();
     void resetRenderState();
     void prepareForOverlay(HDC hDC);
 

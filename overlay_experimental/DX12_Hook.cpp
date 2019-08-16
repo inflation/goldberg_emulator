@@ -12,7 +12,7 @@
 // This is created by DX12_Hook::Create, and deleted by the Hook_Manager if not used
 static DX12_Hook* hook;
 
-void DX12_Hook::hook_dx12(D3D_FEATURE_LEVEL MinimumFeatureLevel)
+void DX12_Hook::start_hook()
 {
     if (!_hooked)
     {

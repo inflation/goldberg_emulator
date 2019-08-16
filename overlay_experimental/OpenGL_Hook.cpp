@@ -16,7 +16,7 @@
 // This is created by OpenGL_Hook::Create, and deleted by the Hook_Manager if not used
 static OpenGL_Hook* hook;
 
-void OpenGL_Hook::hook_ogl()
+void OpenGL_Hook::start_hook()
 {
     if (!_hooked)
     {

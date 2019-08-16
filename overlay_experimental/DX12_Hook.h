@@ -24,7 +24,7 @@ private:
     DX12_Hook();
     virtual ~DX12_Hook();
 
-    void hook_dx12(D3D_FEATURE_LEVEL MinimumFeatureLevel);
+    void start_hook();
     void resetRenderState();
     void prepareForOverlay(IDXGISwapChain* pSwapChain);
 

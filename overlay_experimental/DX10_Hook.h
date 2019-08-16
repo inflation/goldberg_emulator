@@ -22,7 +22,7 @@ private:
     DX10_Hook();
     virtual ~DX10_Hook();
 
-    void hook_dx10(UINT SDKVersion);
+    void start_hook();
     void resetRenderState();
     void prepareForOverlay(IDXGISwapChain *pSwapChain);
 

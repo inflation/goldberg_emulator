@@ -21,7 +21,7 @@ private:
     DX9_Hook();
     virtual ~DX9_Hook();
 
-    void hook_dx9(UINT SDKVersion);
+    void start_hook();
     void resetRenderState();
     void prepareForOverlay(IDirect3DDevice9* pDevice);
 

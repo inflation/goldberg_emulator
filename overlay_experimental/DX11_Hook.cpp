@@ -22,7 +22,7 @@ HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** 
     return ret;
 }
 
-void DX11_Hook::hook_dx11(UINT SDKVersion)
+void DX11_Hook::start_hook()
 {
     if (!_hooked)
     {
@@ -44,7 +44,7 @@ void DX11_Hook::hook_dx11(UINT SDKVersion)
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
 
-        D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, NULL, NULL, SDKVersion, &SwapChainDesc, &pSwapChain, &pDevice, NULL, NULL);
+        D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, NULL, NULL, D3D11_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice, NULL, NULL);
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {

@@ -12,7 +12,7 @@
 // This is created by DX10_Hook::Create, and deleted by the Hook_Manager if not used
 static DX10_Hook* hook;
 
-void DX10_Hook::hook_dx10(UINT SDKVersion)
+void DX10_Hook::start_hook()
 {
     if (!_hooked)
     {
@@ -34,7 +34,7 @@ void DX10_Hook::hook_dx10(UINT SDKVersion)
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
 
-        D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0, SDKVersion, &SwapChainDesc, &pSwapChain, &pDevice);
+        D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0, D3D10_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice);
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {

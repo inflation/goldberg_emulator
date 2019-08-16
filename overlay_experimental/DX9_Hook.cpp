@@ -18,7 +18,7 @@ static DX9_Hook* hook;
 /////////                                                /////////
 //////////////////////////////////////////////////////////////////
 
-void DX9_Hook::hook_dx9(UINT SDKVersion)
+void DX9_Hook::start_hook()
 {
     if (!_hooked)
     {
@@ -28,7 +28,7 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
         IDirect3D9Ex* pD3D;
         IDirect3DDevice9Ex* pDeviceEx;
 
-        Direct3DCreate9Ex(SDKVersion, &pD3D);
+        Direct3DCreate9Ex(D3D_SDK_VERSION, &pD3D);
 
         D3DPRESENT_PARAMETERS params = {};
         params.BackBufferWidth = 1;
