@@ -22,7 +22,7 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
 {
     if (!_hooked)
     {
-        _hooked = true;
+        Hook_Manager::Inst().FoundRenderer(this);
         Hook_Manager::Inst().FoundHook(this);
 
         IDirect3D9Ex* pD3D;
@@ -39,6 +39,7 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
 
         if (pDeviceEx != nullptr)
         {
+            _hooked = true;
             PRINT_DEBUG("Hooked DirectX 9\n");
             loadFunctions(pDeviceEx);
 
@@ -55,7 +56,6 @@ void DX9_Hook::hook_dx9(UINT SDKVersion)
         else
         {
             PRINT_DEBUG("Failed to DirectX 9\n");
-            _hooked = false;
         }
 
         if(pDeviceEx)pDeviceEx->Release();
@@ -175,7 +175,6 @@ DX9_Hook::DX9_Hook():
     Reset(nullptr)
 {
     _dll = GetModuleHandle(DLL_NAME);
-    _hooked = false;
     // Hook to Direct3DCreate9 and Direct3DCreate9Ex so we know when it gets called.
     // If its called, then DX9 will be used to render the overlay.
     Direct3DCreate9 = (decltype(Direct3DCreate9))GetProcAddress(_dll, "Direct3DCreate9");

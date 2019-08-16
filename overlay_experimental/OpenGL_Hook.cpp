@@ -11,9 +11,7 @@
 
 #include <GL/glew.h>
 
-#pragma comment(lib, "opengl32")
-#pragma comment(lib, "glew32s")
-
+#include "steam_overlay.h"
 
 // This is created by OpenGL_Hook::Create, and deleted by the Hook_Manager if not used
 static OpenGL_Hook* hook;
@@ -22,13 +20,14 @@ void OpenGL_Hook::hook_ogl()
 {
     if (!_hooked)
     {
-        _hooked = true;
+        Hook_Manager::Inst().FoundRenderer(this);
         Hook_Manager::Inst().FoundHook(this);
 
         GLenum err = glewInit();
 
         if (err == GLEW_OK)
         {
+            _hooked = true;
             PRINT_DEBUG("Hooked OpenGL\n");
             UnhookAll();
             BeginHook();
@@ -42,7 +41,6 @@ void OpenGL_Hook::hook_ogl()
             PRINT_DEBUG("Failed to hook OpenGL\n");
             /* Problem: glewInit failed, something is seriously wrong. */
             PRINT_DEBUG("Error: %s\n", glewGetErrorString(err));
-            _hooked = false;
         }
     }
 }
@@ -115,7 +113,6 @@ OpenGL_Hook::OpenGL_Hook():
     wglSwapBuffers(nullptr)
 {
     _dll = GetModuleHandle(DLL_NAME);
-    _hooked = false;
     // Hook to wglMakeCurrent so we know when it gets called.
     // If its called, then OpenGL will be used to render the overlay.
     wglMakeCurrent = (decltype(wglMakeCurrent))GetProcAddress(_dll, "wglMakeCurrent");

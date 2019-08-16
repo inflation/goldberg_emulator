@@ -7,6 +7,10 @@
 
 #include "../detours/detours.h"
 
+Base_Hook::Base_Hook():
+    _hooked(false)
+{}
+
 Base_Hook::~Base_Hook()
 {
     UnhookAll();

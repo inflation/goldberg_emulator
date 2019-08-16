@@ -26,7 +26,7 @@ protected:
     Base_Hook& operator =(Base_Hook&&) = delete;
 
 public:
-    Base_Hook() {}
+    Base_Hook();
     virtual ~Base_Hook();
 
     void BeginHook();

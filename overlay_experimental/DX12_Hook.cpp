@@ -137,7 +137,6 @@ DX12_Hook::DX12_Hook():
     pDescriptorHeap(nullptr)
 {
     _dll = GetModuleHandle(DLL_NAME);
-    _hooked = false;
 
     PRINT_DEBUG("Trying to hook DX12 but DX12_Hook is not implemented yet, please report to DEV with the game name.");
 

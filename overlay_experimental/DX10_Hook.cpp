@@ -16,7 +16,7 @@ void DX10_Hook::hook_dx10(UINT SDKVersion)
 {
     if (!_hooked)
     {
-        _hooked = true;
+        Hook_Manager::Inst().FoundRenderer(this);
         Hook_Manager::Inst().FoundHook(this);
 
         IDXGISwapChain* pSwapChain;
@@ -38,6 +38,7 @@ void DX10_Hook::hook_dx10(UINT SDKVersion)
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
+            _hooked = true;
             PRINT_DEBUG("Hooked DirectX 10\n");
             loadFunctions(pDevice, pSwapChain);
 
@@ -53,7 +54,6 @@ void DX10_Hook::hook_dx10(UINT SDKVersion)
         else
         {
             PRINT_DEBUG("Failed to hook DirectX 10\n");
-            _hooked = false;
         }
         if(pDevice)pDevice->Release();
         if(pSwapChain)pSwapChain->Release();
@@ -164,7 +164,7 @@ DX10_Hook::DX10_Hook():
     mainRenderTargetView(nullptr)
 {
     _dll = GetModuleHandle(DLL_NAME);
-    _hooked = false;
+
     // Hook to D3D10CreateDevice and D3D10CreateDeviceAndSwapChain so we know when it gets called.
     // If its called, then DX10 will be used to render the overlay.
     //_D3D10CreateDevice = (decltype(_D3D10CreateDevice))GetProcAddress(_dll, "D3D10CreateDevice");

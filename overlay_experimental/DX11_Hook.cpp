@@ -26,7 +26,7 @@ void DX11_Hook::hook_dx11(UINT SDKVersion)
 {
     if (!_hooked)
     {
-        _hooked = true;
+        Hook_Manager::Inst().FoundRenderer(this);
         Hook_Manager::Inst().FoundHook(this);
 
         IDXGISwapChain* pSwapChain;
@@ -48,6 +48,7 @@ void DX11_Hook::hook_dx11(UINT SDKVersion)
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
+            _hooked = true;
             PRINT_DEBUG("Hooked DirectX 11\n");
             loadFunctions(pDevice, pSwapChain);
 
@@ -63,7 +64,6 @@ void DX11_Hook::hook_dx11(UINT SDKVersion)
         else
         {
             PRINT_DEBUG("Failed to hook DirectX 11\n");
-            _hooked = false;
         }
 
         if(pDevice) pDevice->Release();
@@ -182,7 +182,7 @@ DX11_Hook::DX11_Hook():
     mainRenderTargetView(nullptr)
 {
     _dll = GetModuleHandle(DLL_NAME);
-    _hooked = false;
+    
     // Hook to D3D11CreateDevice and D3D11CreateDeviceAndSwapChain so we know when it gets called.
     // If its called, then DX11 will be used to render the overlay.
     //D3D11CreateDevice = (decltype(D3D11CreateDevice))GetProcAddress(_dll, "D3D11CreateDevice");
