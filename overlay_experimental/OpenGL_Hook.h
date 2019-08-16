@@ -37,7 +37,7 @@ private:
 
 public:
     bool start_hook();
-    inline static OpenGL_Hook* Inst();
+    static OpenGL_Hook* Inst();
 };
 
 #endif//NO_OVERLAY
