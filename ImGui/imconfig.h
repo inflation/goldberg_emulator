@@ -94,5 +94,4 @@ namespace ImGui
 
 #define IMGUI_INCLUDE_IMGUI_USER_H
 
-#define GLEW_STATIC
 #define IMGUI_IMPL_OPENGL_LOADER_GLEW

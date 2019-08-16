@@ -115,6 +115,7 @@ target_link_libraries(${LIB_STEAM_API}
 	$<$<BOOL:${WIN32}>:ws2_32>
 	$<$<BOOL:${WIN32}>:iphlpapi>
 	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:glew32s.lib>
+	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:opengl32.lib>
 )
 
 # Add target compile definitions
@@ -126,6 +127,7 @@ target_compile_definitions(${LIB_STEAM_API}
 	$<$<CONFIG:MinSizeRel>:EMU_RELEASE_BUILD>
 	$<$<BOOL:${EMU_EXPERIMENTAL_BUILD}>:EMU_EXPERIMENTAL_BUILD>
 	$<$<BOOL:${NO_OVERLAY}>:NO_OVERLAY>
+	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:GLEW_STATIC>
 )
 
 # Install the target
