@@ -35,7 +35,7 @@ void DX10_Hook::start_hook()
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
 
-        D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0, D3D10_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice);
+        D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_NULL, NULL, 0, D3D10_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice);
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
