@@ -23,10 +23,10 @@ void DX9_Hook::start_hook()
     if (!_hooked)
     {
         Hook_Manager::Inst().FoundRenderer(this);
-        Hook_Manager::Inst().FoundHook(this);
 
         IDirect3D9Ex* pD3D;
         IDirect3DDevice9Ex* pDeviceEx;
+        decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(_dll, "Direct3DCreate9Ex");
 
         Direct3DCreate9Ex(D3D_SDK_VERSION, &pD3D);
 
@@ -118,25 +118,25 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
 
 /////////////////////////////////////////////////////////////////////////////////////
 // DirectX 9 Initialization functions
-IDirect3D9* DX9_Hook::MyDirect3DCreate9(UINT SDKVersion)
-{
-    auto res = hook->Direct3DCreate9(SDKVersion);
-
-    if( res != nullptr )
-        hook->hook_dx9(SDKVersion);
-
-    return res;
-}
-
-HRESULT DX9_Hook::MyDirect3DCreate9Ex(UINT SDKVersion, IDirect3D9Ex** ppDevice)
-{
-    auto res = hook->Direct3DCreate9Ex(SDKVersion, ppDevice);
-
-    if (SUCCEEDED(res))
-        hook->hook_dx9(SDKVersion);
-
-    return res;
-}
+//IDirect3D9* DX9_Hook::MyDirect3DCreate9(UINT SDKVersion)
+//{
+//    auto res = hook->Direct3DCreate9(SDKVersion);
+//
+//    if( res != nullptr )
+//        hook->hook_dx9(SDKVersion);
+//
+//    return res;
+//}
+//
+//HRESULT DX9_Hook::MyDirect3DCreate9Ex(UINT SDKVersion, IDirect3D9Ex** ppDevice)
+//{
+//    auto res = hook->Direct3DCreate9Ex(SDKVersion, ppDevice);
+//
+//    if (SUCCEEDED(res))
+//        hook->hook_dx9(SDKVersion);
+//
+//    return res;
+//}
 /////////////////////////////////////////////////////////////////////////////////////
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyReset(IDirect3DDevice9* _this, D3DPRESENT_PARAMETERS* pPresentationParameters)
@@ -177,15 +177,15 @@ DX9_Hook::DX9_Hook():
     _dll = GetModuleHandle(DLL_NAME);
     // Hook to Direct3DCreate9 and Direct3DCreate9Ex so we know when it gets called.
     // If its called, then DX9 will be used to render the overlay.
-    Direct3DCreate9 = (decltype(Direct3DCreate9))GetProcAddress(_dll, "Direct3DCreate9");
-    Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(_dll, "Direct3DCreate9Ex");
-
-    BeginHook();
-    HookFuncs(
-        std::make_pair<void**, void*>(&(PVOID&)Direct3DCreate9, &DX9_Hook::MyDirect3DCreate9),
-        std::make_pair<void**, void*>(&(PVOID&)Direct3DCreate9Ex, &DX9_Hook::MyDirect3DCreate9Ex)
-    );
-    EndHook();
+    //Direct3DCreate9 = (decltype(Direct3DCreate9))GetProcAddress(_dll, "Direct3DCreate9");
+    //Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(_dll, "Direct3DCreate9Ex");
+    //
+    //BeginHook();
+    //HookFuncs(
+    //    std::make_pair<void**, void*>(&(PVOID&)Direct3DCreate9, &DX9_Hook::MyDirect3DCreate9),
+    //    std::make_pair<void**, void*>(&(PVOID&)Direct3DCreate9Ex, &DX9_Hook::MyDirect3DCreate9Ex)
+    //);
+    //EndHook();
 }
 
 DX9_Hook::~DX9_Hook()
@@ -209,6 +209,7 @@ void DX9_Hook::Create()
     if( hook == nullptr )
     {
         hook = new DX9_Hook;
+        hook->start_hook();
         // Register the hook to the Hook Manager
         Hook_Manager::Inst().AddHook(hook);
     }

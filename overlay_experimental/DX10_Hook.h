@@ -37,10 +37,10 @@ private:
 
     // Hook functions so we know we use DX10
     //static decltype(D3D10CreateDevice) MyD3D10CreateDevice;
-    static decltype(D3D10CreateDeviceAndSwapChain) MyD3D10CreateDeviceAndSwapChain;
+    //static decltype(D3D10CreateDeviceAndSwapChain) MyD3D10CreateDeviceAndSwapChain;
 
     //decltype(D3D10CreateDevice)* _D3D10CreateDevice;
-    decltype(D3D10CreateDeviceAndSwapChain)* D3D10CreateDeviceAndSwapChain;
+    //decltype(D3D10CreateDeviceAndSwapChain)* D3D10CreateDeviceAndSwapChain;
 
 public:
     static void Create(); // Initialize DX10 Hook.

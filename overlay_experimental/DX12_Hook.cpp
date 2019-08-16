@@ -96,19 +96,19 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
 /////////////////////////////////////////////////////////////////////////////////////
 // DirectX 12 Initialization functions
-HRESULT WINAPI DX12_Hook::MyD3D12CreateDevice(
-        _In_opt_ IUnknown* pAdapter,
-        D3D_FEATURE_LEVEL MinimumFeatureLevel,
-        _In_ REFIID riid, // Expected: ID3D12Device
-        _COM_Outptr_opt_ void** ppDevice)
-{
-    auto res = hook->D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
-
-    if (SUCCEEDED(res))
-        hook->hook_dx12(MinimumFeatureLevel);
-
-    return res;
-}
+//HRESULT WINAPI DX12_Hook::MyD3D12CreateDevice(
+//        _In_opt_ IUnknown* pAdapter,
+//        D3D_FEATURE_LEVEL MinimumFeatureLevel,
+//        _In_ REFIID riid, // Expected: ID3D12Device
+//        _COM_Outptr_opt_ void** ppDevice)
+//{
+//    auto res = hook->D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
+//
+//    if (SUCCEEDED(res))
+//        hook->hook_dx12(MinimumFeatureLevel);
+//
+//    return res;
+//}
 /////////////////////////////////////////////////////////////////////////////////////
 
 HRESULT STDMETHODCALLTYPE DX12_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)
@@ -166,6 +166,7 @@ void DX12_Hook::Create()
     if (hook == nullptr)
     {
         hook = new DX12_Hook;
+        hook->start_hook();
         // Register the hook to the Hook Manager
         Hook_Manager::Inst().AddHook(hook);
     }

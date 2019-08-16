@@ -21,7 +21,6 @@ void OpenGL_Hook::start_hook()
     if (!_hooked)
     {
         Hook_Manager::Inst().FoundRenderer(this);
-        Hook_Manager::Inst().FoundHook(this);
 
         GLenum err = glewInit();
 
@@ -65,6 +64,9 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
 
     GetClientRect(hWnd, &rect);
 
+    if (hWnd != Hook_Manager::Inst().GetOverlay()->GetGameHwnd())
+        resetRenderState();
+
     if (!initialized)
     {
         ImGui::CreateContext();
@@ -94,12 +96,12 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
 
 /////////////////////////////////////////////////////////////////////////////////////
 // OpenGL Initialization functions
-BOOL WINAPI OpenGL_Hook::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
-{
-    auto res = hook->wglMakeCurrent(hDC, hGLRC);
-    hook->hook_ogl();
-    return res;
-}
+//BOOL WINAPI OpenGL_Hook::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
+//{
+//    auto res = hook->wglMakeCurrent(hDC, hGLRC);
+//    hook->hook_ogl();
+//    return res;
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////
 BOOL WINAPI OpenGL_Hook::MywglSwapBuffers(HDC hDC)
@@ -115,14 +117,14 @@ OpenGL_Hook::OpenGL_Hook():
     _dll = GetModuleHandle(DLL_NAME);
     // Hook to wglMakeCurrent so we know when it gets called.
     // If its called, then OpenGL will be used to render the overlay.
-    wglMakeCurrent = (decltype(wglMakeCurrent))GetProcAddress(_dll, "wglMakeCurrent");
-    wglSwapBuffers = (decltype(wglSwapBuffers))GetProcAddress(_dll, "wglSwapBuffers");
-
-    BeginHook();
-    HookFuncs(
-        std::make_pair<void**, void*>(&(PVOID&)wglMakeCurrent, &OpenGL_Hook::MywglMakeCurrent)
-    );
-    EndHook();
+    //wglMakeCurrent = (decltype(wglMakeCurrent))GetProcAddress(_dll, "wglMakeCurrent");
+    //wglSwapBuffers = (decltype(wglSwapBuffers))GetProcAddress(_dll, "wglSwapBuffers");
+    //
+    //BeginHook();
+    //HookFuncs(
+    //    std::make_pair<void**, void*>(&(PVOID&)wglMakeCurrent, &OpenGL_Hook::MywglMakeCurrent)
+    //);
+    //EndHook();
 }
 
 OpenGL_Hook::~OpenGL_Hook()
@@ -144,6 +146,7 @@ void OpenGL_Hook::Create()
     if (hook == nullptr)
     {
         hook = new OpenGL_Hook;
+        hook->start_hook();
         // Register the hook to the Hook Manager
         Hook_Manager::Inst().AddHook(hook);
     }

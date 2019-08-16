@@ -10,7 +10,7 @@ public:
     static constexpr const char *DLL_NAME = "opengl32.dll";
     
     using wglSwapBuffers_t = BOOL(WINAPI*)(HDC);
-    using wglMakeCurrent_t = BOOL(WINAPI*)(HDC, HGLRC);
+    //using wglMakeCurrent_t = BOOL(WINAPI*)(HDC, HGLRC);
 
 private:
     // Variables
@@ -30,9 +30,9 @@ private:
     wglSwapBuffers_t wglSwapBuffers;
     
     // Hook functions so we know we use OGL
-    static BOOL WINAPI MywglMakeCurrent(HDC hDC, HGLRC hGLRC);
+    //static BOOL WINAPI MywglMakeCurrent(HDC hDC, HGLRC hGLRC);
 
-    wglMakeCurrent_t wglMakeCurrent;
+    //wglMakeCurrent_t wglMakeCurrent;
 
 public:
     static void Create(); // Initialize OGL Hook.

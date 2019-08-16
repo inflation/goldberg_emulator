@@ -37,11 +37,11 @@ private:
     static HRESULT STDMETHODCALLTYPE MyPresentEx(IDirect3DDevice9Ex* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion, DWORD dwFlags);
 
     // Hook functions so we know we use DX9
-    static decltype(Direct3DCreate9) MyDirect3DCreate9;
-    static decltype(Direct3DCreate9Ex) MyDirect3DCreate9Ex;
+    //static decltype(Direct3DCreate9) MyDirect3DCreate9;
+    //static decltype(Direct3DCreate9Ex) MyDirect3DCreate9Ex;
 
-    decltype(Direct3DCreate9)* Direct3DCreate9;
-    decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex;
+    //decltype(Direct3DCreate9)* Direct3DCreate9;
+    //decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex;
 
 public:
     static void Create(); // Initialize DX9 Hook.
