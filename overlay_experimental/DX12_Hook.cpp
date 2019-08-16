@@ -9,15 +9,14 @@
 #include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx12.h>
 
-// This is created by DX12_Hook::Create, and deleted by the Hook_Manager if not used
-static DX12_Hook* hook;
-
-void DX12_Hook::start_hook()
+bool DX12_Hook::start_hook()
 {
     if (!_hooked)
     {
         PRINT_DEBUG("Hooked DirectX 12\n");
+        return false;
     }
+    return true;
 }
 
 void DX12_Hook::resetRenderState()

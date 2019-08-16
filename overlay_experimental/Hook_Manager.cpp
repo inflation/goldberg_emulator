@@ -34,7 +34,17 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain*
     if (pDevice)
     {
         Hook_Manager::Inst().UnHookAllRendererDetector();
-        DX10_Hook::Create();
+        DX10_Hook* hook = DX10_Hook::Inst();
+        if (!hook->start_hook())
+        {
+            // Hook failed, start over
+            delete static_cast<Base_Hook*>(hook);
+            Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+        }
+        else
+        {
+            Hook_Manager::Inst().AddHook(hook);
+        }
     }
     else
     {
@@ -42,15 +52,31 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain*
         if (pDevice)
         {
             Hook_Manager::Inst().UnHookAllRendererDetector();
-            DX11_Hook::Create();
+            DX11_Hook* hook = DX11_Hook::Inst();
+            if (!hook->start_hook())
+            {
+                // Hook failed, start over
+                delete static_cast<Base_Hook*>(hook);
+                Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+            }
+            else
+            {
+                Hook_Manager::Inst().AddHook(hook);
+            }
         }
         else
         {
             _this->GetDevice(__uuidof(ID3D12Device), (void**)& pDevice);
-            if (pDevice)
+            DX12_Hook* hook = DX12_Hook::Inst();
+            if (!hook->start_hook())
             {
-                Hook_Manager::Inst().UnHookAllRendererDetector();
-                DX12_Hook::Create();
+                // Hook failed, start over
+                delete static_cast<Base_Hook*>(hook);
+                Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+            }
+            else
+            {
+                Hook_Manager::Inst().AddHook(hook);
             }
         }
     }
@@ -62,28 +88,60 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain*
 HRESULT STDMETHODCALLTYPE Hook_Manager::MyPresent(IDirect3DDevice9* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
     Hook_Manager::Inst().UnHookAllRendererDetector();
-    DX9_Hook::Create();
+    DX9_Hook* hook = DX9_Hook::Inst();
+    if (!hook->start_hook())
+    {
+        // Hook failed, start over
+        delete static_cast<Base_Hook*>(hook);
+        Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+    }
+    else
+    {
+        Hook_Manager::Inst().AddHook(hook);
+    }
     return (_this->*_IDirect3DDevice9_Present)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT STDMETHODCALLTYPE Hook_Manager::MyPresentEx(IDirect3DDevice9Ex* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion, DWORD dwFlags)
 {
     Hook_Manager::Inst().UnHookAllRendererDetector();
-    DX9_Hook::Create();
+    DX9_Hook* hook = DX9_Hook::Inst();
+    if (!hook->start_hook())
+    {
+        // Hook failed, start over
+        delete static_cast<Base_Hook*>(hook);
+        Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+    }
+    else
+    {
+        Hook_Manager::Inst().AddHook(hook);
+    }
     return (_this->*_IDirect3DDevice9Ex_PresentEx)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
 }
 
 BOOL WINAPI Hook_Manager::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
 {
     Hook_Manager::Inst().UnHookAllRendererDetector();
-    OpenGL_Hook::Create();
-    return _wglMakeCurrent(hDC, hGLRC);;
+    OpenGL_Hook* hook = OpenGL_Hook::Inst();
+    if (!hook->start_hook())
+    {
+        // Hook failed, start over
+        delete static_cast<Base_Hook*>(hook);
+        Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+    }
+    else
+    {
+        Hook_Manager::Inst().AddHook(hook);
+    }
+
+    return _wglMakeCurrent(hDC, hGLRC);
 }
 
 void Hook_Manager::HookDXGIPresent()
 {
     if (!_dxgi_hooked)
     {
+        _dxgi_hooked = true;
         rendererdetect_hook->BeginHook();
 
         rendererdetect_hook->HookFuncs(
@@ -98,6 +156,7 @@ void Hook_Manager::HookDX9Present()
 {
     if (!_dx9_hooked)
     {
+        _dx9_hooked = true;
         rendererdetect_hook->BeginHook();
 
         rendererdetect_hook->HookFuncs(
@@ -113,6 +172,7 @@ void Hook_Manager::HookwglMakeCurrent()
 {
     if (!_ogl_hooked)
     {
+        _ogl_hooked = true;
         rendererdetect_hook->BeginHook();
 
         rendererdetect_hook->HookFuncs(
@@ -238,7 +298,9 @@ void Hook_Manager::hook_dx12()
 {
     if (!_dxgi_hooked && !_renderer_found)
     {
-        DX12_Hook::Create();
+        DX12_Hook* hook = DX12_Hook::Inst();
+        hook->start_hook(); // TODO: Prints to error log about DX12 Implementation status
+        delete static_cast<Base_Hook*>(hook);
     }
 }
 
@@ -350,6 +412,7 @@ void Hook_Manager::UnHookAllRendererDetector()
         delete rendererdetect_hook;
         rendererdetect_hook = nullptr;
     }
+    _loadlibrary_hooked = false;
     _ogl_hooked = false;
 
 #ifdef STEAM_WIN32

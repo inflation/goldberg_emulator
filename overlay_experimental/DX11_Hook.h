@@ -22,7 +22,6 @@ private:
     DX11_Hook();
     virtual ~DX11_Hook();
 
-    void start_hook();
     void resetRenderState();
     void prepareForOverlay(IDXGISwapChain* pSwapChain);
 
@@ -43,7 +42,8 @@ private:
     //decltype(D3D11CreateDeviceAndSwapChain)* D3D11CreateDeviceAndSwapChain;
 
 public:
-    static void Create(); // Initialize DX11 Hook.
+    bool start_hook();
+    static DX11_Hook* Inst();
     
     void loadFunctions(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain);
 };

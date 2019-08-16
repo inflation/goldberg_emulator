@@ -12,7 +12,7 @@
 // This is created by DX10_Hook::Create, and deleted by the Hook_Manager if not used
 static DX10_Hook* hook;
 
-void DX10_Hook::start_hook()
+bool DX10_Hook::start_hook()
 {
     if (!_hooked)
     {
@@ -55,10 +55,12 @@ void DX10_Hook::start_hook()
         else
         {
             PRINT_DEBUG("Failed to hook DirectX 10\n");
+            return false;
         }
         if(pDevice)pDevice->Release();
         if(pSwapChain)pSwapChain->Release();
     }
+    return true;
 }
 
 void DX10_Hook::resetRenderState()

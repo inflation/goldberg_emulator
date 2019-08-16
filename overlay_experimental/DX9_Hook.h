@@ -21,7 +21,6 @@ private:
     DX9_Hook();
     virtual ~DX9_Hook();
 
-    void start_hook();
     void resetRenderState();
     void prepareForOverlay(IDirect3DDevice9* pDevice);
 
@@ -44,7 +43,8 @@ private:
     //decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex;
 
 public:
-    static void Create(); // Initialize DX9 Hook.
+    bool start_hook();
+    static DX9_Hook* Inst();
     
     void loadFunctions(IDirect3DDevice9Ex *pDeviceEx);
 };

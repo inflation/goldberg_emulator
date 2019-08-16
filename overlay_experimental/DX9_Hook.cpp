@@ -18,7 +18,7 @@ static DX9_Hook* hook;
 /////////                                                /////////
 //////////////////////////////////////////////////////////////////
 
-void DX9_Hook::start_hook()
+bool DX9_Hook::start_hook()
 {
     if (!_hooked)
     {
@@ -56,11 +56,13 @@ void DX9_Hook::start_hook()
         else
         {
             PRINT_DEBUG("Failed to DirectX 9\n");
+            return false;
         }
 
         if(pDeviceEx)pDeviceEx->Release();
         if(pD3D)pD3D->Release();
     }
+    return true;
 }
 
 void DX9_Hook::resetRenderState()

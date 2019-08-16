@@ -13,10 +13,9 @@
 
 #include "steam_overlay.h"
 
-// This is created by OpenGL_Hook::Create, and deleted by the Hook_Manager if not used
-static OpenGL_Hook* hook;
+OpenGL_Hook* OpenGL_Hook::_inst = nullptr;
 
-void OpenGL_Hook::start_hook()
+bool OpenGL_Hook::start_hook()
 {
     if (!_hooked)
     {
@@ -40,8 +39,10 @@ void OpenGL_Hook::start_hook()
             PRINT_DEBUG("Failed to hook OpenGL\n");
             /* Problem: glewInit failed, something is seriously wrong. */
             PRINT_DEBUG("Error: %s\n", glewGetErrorString(err));
+            return false;
         }
     }
+    return true;
 }
 
 void OpenGL_Hook::resetRenderState()
@@ -106,8 +107,8 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
 /////////////////////////////////////////////////////////////////////////////////////
 BOOL WINAPI OpenGL_Hook::MywglSwapBuffers(HDC hDC)
 {
-    hook->prepareForOverlay(hDC);
-    return hook->wglSwapBuffers(hDC);
+    OpenGL_Hook::Inst()->prepareForOverlay(hDC);
+    return OpenGL_Hook::Inst()->wglSwapBuffers(hDC);
 }
 
 OpenGL_Hook::OpenGL_Hook():
@@ -138,18 +139,15 @@ OpenGL_Hook::~OpenGL_Hook()
         ImGui::DestroyContext();
     }
 
-    hook = nullptr;
+    _inst = nullptr;
 }
 
-void OpenGL_Hook::Create()
+OpenGL_Hook* OpenGL_Hook::Inst()
 {
-    if (hook == nullptr)
-    {
-        hook = new OpenGL_Hook;
-        hook->start_hook();
-        // Register the hook to the Hook Manager
-        Hook_Manager::Inst().AddHook(hook);
-    }
+    if (_inst == nullptr)
+        _inst = new OpenGL_Hook;
+
+    return _inst;
 }
 
 #endif//NO_OVERLAY

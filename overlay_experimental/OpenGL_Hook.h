@@ -13,6 +13,8 @@ public:
     //using wglMakeCurrent_t = BOOL(WINAPI*)(HDC, HGLRC);
 
 private:
+    static OpenGL_Hook* _inst;
+
     // Variables
     bool initialized;
 
@@ -20,7 +22,6 @@ private:
     OpenGL_Hook();
     virtual ~OpenGL_Hook();
 
-    void start_hook();
     void resetRenderState();
     void prepareForOverlay(HDC hDC);
 
@@ -35,7 +36,8 @@ private:
     //wglMakeCurrent_t wglMakeCurrent;
 
 public:
-    static void Create(); // Initialize OGL Hook.
+    bool start_hook();
+    inline static OpenGL_Hook* Inst();
 };
 
 #endif//NO_OVERLAY
