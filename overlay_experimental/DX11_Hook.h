@@ -13,6 +13,8 @@ public:
     static constexpr const char *DLL_NAME = "d3d11.dll";
 
 private:
+    static DX11_Hook* _inst;
+
     // Variables
     bool initialized;
     ID3D11DeviceContext* pContext;

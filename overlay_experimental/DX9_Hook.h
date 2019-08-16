@@ -13,6 +13,8 @@ public:
     static constexpr const char *DLL_NAME = "d3d9.dll";
 
 private:
+    static DX9_Hook* _inst;
+
     // Variables
     bool initialized;
     bool uses_present;

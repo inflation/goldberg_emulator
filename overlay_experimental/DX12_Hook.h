@@ -13,6 +13,8 @@ public:
     static constexpr const char *DLL_NAME = "d3d12.dll";
 
 private:
+    static DX12_Hook* _inst;
+
     // Variables
     bool initialized;
     ID3D12CommandAllocator* pCmdAlloc;

@@ -10,13 +10,7 @@
 
 #include "steam_overlay.h"
 
-static DX9_Hook* hook;
-
-//////////////////////////////////////////////////////////////////
-/////////                                                /////////
-/////////  This hook doesn't support game resize for now /////////
-/////////                                                /////////
-//////////////////////////////////////////////////////////////////
+DX9_Hook* DX9_Hook::_inst = nullptr;
 
 bool DX9_Hook::start_hook()
 {
@@ -144,29 +138,29 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyReset(IDirect3DDevice9* _this, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-    hook->resetRenderState();
-    return (_this->*hook->Reset)(pPresentationParameters);
+    DX9_Hook::Inst()->resetRenderState();
+    return (_this->*DX9_Hook::Inst()->Reset)(pPresentationParameters);
 }
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyEndScene(IDirect3DDevice9* _this)
 {   
-    if( !hook->uses_present )
-        hook->prepareForOverlay(_this);
-    return (_this->*hook->EndScene)();
+    if( !DX9_Hook::Inst()->uses_present )
+        DX9_Hook::Inst()->prepareForOverlay(_this);
+    return (_this->*DX9_Hook::Inst()->EndScene)();
 }
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyPresent(IDirect3DDevice9* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
-    hook->uses_present = true;
-    hook->prepareForOverlay(_this);
-    return (_this->*hook->Present)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+    DX9_Hook::Inst()->uses_present = true;
+    DX9_Hook::Inst()->prepareForOverlay(_this);
+    return (_this->*DX9_Hook::Inst()->Present)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyPresentEx(IDirect3DDevice9Ex* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion, DWORD dwFlags)
 {
-    hook->uses_present = true;
-    hook->prepareForOverlay(_this);
-    return (_this->*hook->PresentEx)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
+    DX9_Hook::Inst()->uses_present = true;
+    DX9_Hook::Inst()->prepareForOverlay(_this);
+    return (_this->*DX9_Hook::Inst()->PresentEx)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
 }
 
 DX9_Hook::DX9_Hook():
@@ -204,18 +198,15 @@ DX9_Hook::~DX9_Hook()
         ImGui::DestroyContext();
     }
 
-    hook = nullptr;
+    _inst = nullptr;
 }
 
-void DX9_Hook::Create()
+DX9_Hook* DX9_Hook::Inst()
 {
-    if( hook == nullptr )
-    {
-        hook = new DX9_Hook;
-        hook->start_hook();
-        // Register the hook to the Hook Manager
-        Hook_Manager::Inst().AddHook(hook);
-    }
+    if( _inst == nullptr )
+        _inst = new DX9_Hook;
+
+    return _inst;
 }
 
 void DX9_Hook::loadFunctions(IDirect3DDevice9Ex* pDeviceEx)

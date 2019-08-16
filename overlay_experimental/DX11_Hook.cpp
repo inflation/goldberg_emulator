@@ -9,8 +9,7 @@
 #include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx11.h>
 
-// This is created by DX11_Hook::Create, and deleted by the Hook_Manager if not used
-static DX11_Hook* hook;
+DX11_Hook* DX11_Hook::_inst = nullptr;
 
 HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** ppDevice, ID3D11DeviceContext** ppContext)
 {
@@ -163,21 +162,21 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
 HRESULT STDMETHODCALLTYPE DX11_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)
 {
-    hook->prepareForOverlay(_this);
+    DX11_Hook::Inst()->prepareForOverlay(_this);
 
-    return (_this->*hook->Present)(SyncInterval, Flags);
+    return (_this->*DX11_Hook::Inst()->Present)(SyncInterval, Flags);
 }
 
 HRESULT STDMETHODCALLTYPE DX11_Hook::MyResizeTarget(IDXGISwapChain* _this, const DXGI_MODE_DESC* pNewTargetParameters)
 {
-    hook->resetRenderState();
-    return (_this->*hook->ResizeTarget)(pNewTargetParameters);
+    DX11_Hook::Inst()->resetRenderState();
+    return (_this->*DX11_Hook::Inst()->ResizeTarget)(pNewTargetParameters);
 }
 
 HRESULT STDMETHODCALLTYPE DX11_Hook::MyResizeBuffers(IDXGISwapChain* _this, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
-    hook->resetRenderState();
-    return (_this->*hook->ResizeBuffers)(BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    DX11_Hook::Inst()->resetRenderState();
+    return (_this->*DX11_Hook::Inst()->ResizeBuffers)(BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
 DX11_Hook::DX11_Hook():
@@ -207,18 +206,15 @@ DX11_Hook::~DX11_Hook()
     if (_hooked)
         resetRenderState();
 
-    hook = nullptr;
+    _inst = nullptr;
 }
 
-void DX11_Hook::Create()
+DX11_Hook* DX11_Hook::Inst()
 {
-    if (hook == nullptr)
-    {
-        hook = new DX11_Hook;
-        hook->start_hook();
-        // Register the hook to the Hook Manager
-        Hook_Manager::Inst().AddHook(hook);
-    }
+    if (_inst == nullptr)
+        _inst = new DX11_Hook;
+
+    return _inst;
 }
 
 void DX11_Hook::loadFunctions(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain)

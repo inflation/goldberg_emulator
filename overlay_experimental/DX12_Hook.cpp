@@ -9,6 +9,8 @@
 #include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx12.h>
 
+DX12_Hook* DX12_Hook::_inst = nullptr;
+
 bool DX12_Hook::start_hook()
 {
     if (!_hooked)
@@ -112,21 +114,21 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
 HRESULT STDMETHODCALLTYPE DX12_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)
 {
-    hook->prepareForOverlay(_this);
+    DX12_Hook::Inst()->prepareForOverlay(_this);
 
-    return (_this->*hook->Present)(SyncInterval, Flags);
+    return (_this->*DX12_Hook::Inst()->Present)(SyncInterval, Flags);
 }
 
 HRESULT STDMETHODCALLTYPE DX12_Hook::MyResizeTarget(IDXGISwapChain* _this, const DXGI_MODE_DESC* pNewTargetParameters)
 {
-    hook->resetRenderState();
-    return (_this->*hook->ResizeTarget)(pNewTargetParameters);
+    DX12_Hook::Inst()->resetRenderState();
+    return (_this->*DX12_Hook::Inst()->ResizeTarget)(pNewTargetParameters);
 }
 
 HRESULT STDMETHODCALLTYPE DX12_Hook::MyResizeBuffers(IDXGISwapChain* _this, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
-    hook->resetRenderState();
-    return (_this->*hook->ResizeBuffers)(BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    DX12_Hook::Inst()->resetRenderState();
+    return (_this->*DX12_Hook::Inst()->ResizeBuffers)(BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
 DX12_Hook::DX12_Hook():
@@ -157,18 +159,15 @@ DX12_Hook::~DX12_Hook()
     if (_hooked)
         resetRenderState();
 
-    hook = nullptr;
+    _inst = nullptr;
 }
 
-void DX12_Hook::Create()
+DX12_Hook* DX12_Hook::Inst()
 {
-    if (hook == nullptr)
-    {
-        hook = new DX12_Hook;
-        hook->start_hook();
-        // Register the hook to the Hook Manager
-        Hook_Manager::Inst().AddHook(hook);
-    }
+    if (_inst == nullptr)
+        _inst = new DX12_Hook();
+
+    return _inst;
 }
 
 void DX12_Hook::loadFunctions(ID3D12Device *pDevice, IDXGISwapChain *pSwapChain)

@@ -9,8 +9,7 @@
 #include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx10.h>
 
-// This is created by DX10_Hook::Create, and deleted by the Hook_Manager if not used
-static DX10_Hook* hook;
+DX10_Hook* DX10_Hook::_inst = nullptr;
 
 bool DX10_Hook::start_hook()
 {
@@ -146,20 +145,20 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
 HRESULT STDMETHODCALLTYPE DX10_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)
 {
-    hook->prepareForOverlay(_this);
-    return (_this->*hook->Present)(SyncInterval, Flags);
+    DX10_Hook::Inst()->prepareForOverlay(_this);
+    return (_this->*DX10_Hook::Inst()->Present)(SyncInterval, Flags);
 }
 
 HRESULT STDMETHODCALLTYPE DX10_Hook::MyResizeTarget(IDXGISwapChain* _this, const DXGI_MODE_DESC* pNewTargetParameters)
 {
-    hook->resetRenderState();
-    return (_this->*hook->ResizeTarget)(pNewTargetParameters);
+    DX10_Hook::Inst()->resetRenderState();
+    return (_this->*DX10_Hook::Inst()->ResizeTarget)(pNewTargetParameters);
 }
 
 HRESULT STDMETHODCALLTYPE DX10_Hook::MyResizeBuffers(IDXGISwapChain* _this, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
-    hook->resetRenderState();
-    return (_this->*hook->ResizeBuffers)(BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    DX10_Hook::Inst()->resetRenderState();
+    return (_this->*DX10_Hook::Inst()->ResizeBuffers)(BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
 DX10_Hook::DX10_Hook():
@@ -189,18 +188,15 @@ DX10_Hook::~DX10_Hook()
     if (_hooked)
         resetRenderState();
 
-    hook = nullptr;
+    _inst = nullptr;
 }
 
-void DX10_Hook::Create()
+DX10_Hook* DX10_Hook::Inst()
 {
-    if (hook == nullptr)
-    {
-        hook = new DX10_Hook;
-        hook->start_hook();
-        // Register the hook to the Hook Manager
-        Hook_Manager::Inst().AddHook(hook);
-    }
+    if (_inst == nullptr)   
+        _inst = new DX10_Hook;
+
+    return _inst;
 }
 
 void DX10_Hook::loadFunctions(ID3D10Device *pDevice, IDXGISwapChain *pSwapChain)
