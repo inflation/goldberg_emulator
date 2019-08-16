@@ -172,7 +172,7 @@ void Steam_Overlay::ShowOverlay(bool state)
 {
     static RECT old_clip;
 
-    if (show_overlay == state)
+    if (!Ready() || show_overlay == state)
         return;
 
     show_overlay = state;
@@ -215,6 +215,9 @@ void Steam_Overlay::ShowOverlay(bool state)
 
 void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
 {
+    if (!Ready())
+        return;
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     auto i = friends.find(friendId);
     if (i != friends.end())
@@ -229,6 +232,9 @@ void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
 
 void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
 {
+    if (!Ready())
+        return;
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     auto i = friends.find(friendId);
     if (i != friends.end())
@@ -398,6 +404,9 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
 void Steam_Overlay::OverlayProc( int width, int height )
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
+    if (!Ready())
+        return;
 
     if (show_overlay)
     {
