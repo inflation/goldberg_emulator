@@ -109,9 +109,10 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
         pBackBuffer->Release();
 
-        Hook_Manager::Inst().ChangeGameWindow(desc.OutputWindow);
         ImGui_ImplWin32_Init(desc.OutputWindow);
         ImGui_ImplDX11_Init(pDevice, pContext);
+        Hook_Manager::Inst().ChangeGameWindow(desc.OutputWindow);
+
         initialized = true;
     }
 

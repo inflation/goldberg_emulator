@@ -73,10 +73,10 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = NULL;
 
-        Hook_Manager::Inst().ChangeGameWindow(hWnd);
 
         ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplOpenGL3_Init();
+        Hook_Manager::Inst().ChangeGameWindow(hWnd);
 
         initialized = true;
     }

@@ -96,9 +96,10 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = NULL;
 
-        Hook_Manager::Inst().ChangeGameWindow(param.hFocusWindow);
         ImGui_ImplWin32_Init(param.hFocusWindow);
         ImGui_ImplDX9_Init(pDevice);
+        Hook_Manager::Inst().ChangeGameWindow(param.hFocusWindow);
+
         initialized = true;
     }
     
