@@ -116,6 +116,7 @@ target_link_libraries(${LIB_STEAM_API}
 	$<$<BOOL:${WIN32}>:iphlpapi>
 	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:glew32s.lib>
 	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:opengl32.lib>
+	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:Winmm.lib>
 )
 
 # Add target compile definitions
