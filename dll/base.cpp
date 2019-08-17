@@ -256,7 +256,7 @@ Auth_Ticket_Manager::Auth_Ticket_Manager(class Settings *settings, class Network
     this->network->setCallback(CALLBACK_ID_USER_STATUS, settings->get_local_steam_id(), &steam_auth_ticket_callback, this);
 }
 
-#define STEAM_TICKET_PROCESS_TIME 0.02
+#define STEAM_TICKET_PROCESS_TIME 0.03
 
 void Auth_Ticket_Manager::launch_callback(CSteamID id, EAuthSessionResponse resp, double delay)
 {
@@ -316,7 +316,7 @@ uint32 Auth_Ticket_Manager::getTicket( void *pTicket, int cbMaxTicket, uint32 *p
     GetAuthSessionTicketResponse_t data;
     data.m_hAuthTicket = ttt;
     data.m_eResult = k_EResultOK;
-    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), STEAM_TICKET_PROCESS_TIME);
 
     outbound.push_back(ticket_data);
 
