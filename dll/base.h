@@ -142,6 +142,7 @@ std::string canonical_path(std::string path);
 class SteamCallResults {
     std::vector<struct Steam_Call_Result> callresults;
     std::vector<class CCallbackBase *> completed_callbacks;
+    void (*cb_all)(std::vector<char> result, int callback) = nullptr;
 
 public:
     void addCallCompleted(class CCallbackBase *cb) {
@@ -241,6 +242,10 @@ public:
         return addCallResult(generate_steam_api_call_id(), iCallback, result, size, timeout, run_call_completed_cb);
     }
 
+    void setCbAll(void (*cb_all)(std::vector<char> result, int callback)) {
+        this->cb_all = cb_all;
+    }
+
     void runCallResults() {
         unsigned long current_size = callresults.size();
         for (unsigned i = 0; i < current_size; ++i) {
@@ -256,9 +261,9 @@ public:
                         callresults[index].run_call_completed_cb = false;
                     }
 
+                    callresults[index].to_delete = true;
                     if (callresults[index].has_cb()) {
                         std::vector<class CCallbackBase *> temp_cbs = callresults[index].callbacks;
-                        callresults[index].to_delete = true;
                         for (auto & cb : temp_cbs) {
                             PRINT_DEBUG("Calling callresult %p %i\n", cb, cb->GetICallback());
                             global_mutex.unlock();
@@ -277,17 +282,29 @@ public:
                     if (run_call_completed_cb) {
                         //can it happen that one is removed during the callback?
                         std::vector<class CCallbackBase *> callbacks = completed_callbacks;
-                        for (auto & cb: callbacks) {
-                            SteamAPICallCompleted_t data;
-                            data.m_hAsyncCall = api_call;
-                            data.m_iCallback = iCallback;
-                            data.m_cubParam = result.size();
+                        SteamAPICallCompleted_t data;
+                        data.m_hAsyncCall = api_call;
+                        data.m_iCallback = iCallback;
+                        data.m_cubParam = result.size();
 
+                        for (auto & cb: callbacks) {
                             PRINT_DEBUG("Call complete cb %i %p %llu\n", iCallback, cb, api_call);
                             //TODO: check if this is a problem or not.
+                            SteamAPICallCompleted_t temp = data;
                             global_mutex.unlock();
-                            cb->Run(&data);
+                            cb->Run(&temp);
                             global_mutex.lock();
+                        }
+
+                        if (cb_all) {
+                            std::vector<char> res;
+                            res.resize(sizeof(data));
+                            memcpy(&(res[0]), &data, sizeof(data));
+                            cb_all(res, data.k_iCallback);
+                        }
+                    } else {
+                        if (cb_all) {
+                            cb_all(result, iCallback);
                         }
                     }
                 } else {
@@ -366,6 +383,10 @@ public:
         for (auto cb: callbacks[iCallback].callbacks) {
             SteamAPICall_t api_id = results->addCallResult(iCallback, result, size, timeout, false);
             results->addCallBack(api_id, cb);
+        }
+
+        if (callbacks[iCallback].callbacks.empty()) {
+            results->addCallResult(iCallback, result, size, timeout, false);
         }
     }
 
