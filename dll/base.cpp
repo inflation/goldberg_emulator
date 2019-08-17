@@ -673,6 +673,35 @@ HINTERNET WINAPI Mine_WinHttpConnect(
     }
 }
 
+HINTERNET (WINAPI *Real_WinHttpOpenRequest)(
+  IN HINTERNET hConnect,
+  IN LPCWSTR   pwszVerb,
+  IN LPCWSTR   pwszObjectName,
+  IN LPCWSTR   pwszVersion,
+  IN LPCWSTR   pwszReferrer,
+  IN LPCWSTR   *ppwszAcceptTypes,
+  IN DWORD     dwFlags
+);
+
+HINTERNET WINAPI Mine_WinHttpOpenRequest(
+  IN HINTERNET hConnect,
+  IN LPCWSTR   pwszVerb,
+  IN LPCWSTR   pwszObjectName,
+  IN LPCWSTR   pwszVersion,
+  IN LPCWSTR   pwszReferrer,
+  IN LPCWSTR   *ppwszAcceptTypes,
+  IN DWORD     dwFlags
+) {
+    PRINT_DEBUG("Mine_WinHttpOpenRequest %ls %ls %ls %ls %i\n", pwszVerb, pwszObjectName, pwszVersion, pwszReferrer, dwFlags);
+    if (dwFlags & WINHTTP_FLAG_SECURE) {
+        dwFlags ^= WINHTTP_FLAG_SECURE;
+    }
+
+    return Real_WinHttpOpenRequest(hConnect, pwszVerb, pwszObjectName, pwszVersion, pwszReferrer, ppwszAcceptTypes, dwFlags);
+}
+
+
+
 static bool network_functions_attached = false;
 BOOL WINAPI DllMain( HINSTANCE, DWORD dwReason, LPVOID ) {
     switch ( dwReason ) {
@@ -689,7 +718,10 @@ BOOL WINAPI DllMain( HINSTANCE, DWORD dwReason, LPVOID ) {
                 if (winhttp) {
                     Real_WinHttpConnect = (decltype(Real_WinHttpConnect))GetProcAddress(winhttp, "WinHttpConnect");
                     DetourAttach( &(PVOID &)Real_WinHttpConnect, Mine_WinHttpConnect );
+                    // Real_WinHttpOpenRequest = (decltype(Real_WinHttpOpenRequest))GetProcAddress(winhttp, "WinHttpOpenRequest");
+                    // DetourAttach( &(PVOID &)Real_WinHttpOpenRequest, Mine_WinHttpOpenRequest );
                 }
+    
                 DetourTransactionCommit();
                 network_functions_attached = true;
             }
@@ -706,6 +738,7 @@ BOOL WINAPI DllMain( HINSTANCE, DWORD dwReason, LPVOID ) {
                 DetourDetach( &(PVOID &)Real_WSAConnect, Mine_WSAConnect );
                 if (Real_WinHttpConnect) {
                     DetourDetach( &(PVOID &)Real_WinHttpConnect, Mine_WinHttpConnect );
+                    // DetourDetach( &(PVOID &)Real_WinHttpOpenRequest, Mine_WinHttpOpenRequest );
                 }
                 DetourTransactionCommit();
             }
