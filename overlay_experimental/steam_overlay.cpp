@@ -16,6 +16,9 @@
 
 #include "notification.h"
 
+static decltype(GetRawInputBuffer)* _GetRawInputBuffer = GetRawInputBuffer;
+static decltype(GetRawInputData)* _GetRawInputData = GetRawInputData;
+
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 bool Steam_Overlay::IgnoreMsg(UINT uMsg)
@@ -134,20 +137,43 @@ void Steam_Overlay::SetupOverlay()
     Hook_Manager::Inst().HookRenderer(this);
 }
 
+UINT WINAPI Steam_Overlay::MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader)
+{
+    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
+    if( !_this->show_overlay )
+        return _GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
+
+    return -1;
+}
+
+UINT WINAPI Steam_Overlay::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader)
+{
+    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
+    if (!_this->show_overlay)
+        return _GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
+
+    return -1;
+}
+
 void Steam_Overlay::HookReady(void* hWnd)
 {
     if (game_hwnd != hWnd)
     {
         if (!is_ready) // If this is the first time we are ready, hook directinput and xinput, so we can intercept em and disable mouse.
         {
-            //window_hooks.BeginHook();
-            //    
-            //window_hooks.HookFuncs(std::make_pair<void**, void*>(&(PVOID&)_DispatchMessageA, &Steam_Overlay::MyDispatchMessageA),
-            //                       std::make_pair<void**, void*>(&(PVOID&)_DispatchMessageW, &Steam_Overlay::MyDispatchMessageW)
-            //                    // Add XInput and DirectInput hooks to catch all mouse & controllers input when overlay is on
-            //                        );
-            //
-            //window_hooks.EndHook();
+            window_hooks.BeginHook();
+                
+            window_hooks.HookFuncs(std::make_pair<void**, void*>(&(PVOID&)_GetRawInputBuffer, &MyGetRawInputBuffer),
+                                   std::make_pair<void**, void*>(&(PVOID&)_GetRawInputData, &MyGetRawInputData)
+                                    );
+            
+            window_hooks.EndHook();
+
+            // TODO: Uncomment this and draw our own cursor (cosmetics)
+            //ImGuiIO &io = ImGui::GetIO();
+            //io.WantSetMousePos = false;
+            //io.MouseDrawCursor = false;
+            //io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
             is_ready = true;
         }
@@ -181,7 +207,7 @@ void Steam_Overlay::ShowOverlay(bool state)
 
     if (!Ready() || show_overlay == state)
         return;
-
+    
     show_overlay = state;
     if (show_overlay)
     {

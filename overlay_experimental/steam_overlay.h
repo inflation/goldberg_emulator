@@ -73,6 +73,8 @@ class Steam_Overlay
     bool IgnoreMsg(UINT uMsg);
 
     static LRESULT CALLBACK HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static UINT WINAPI MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader);
+    static UINT WINAPI MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader);
 
     static void steam_overlay_run_every_runcb(void* object);
     static void steam_overlay_callback(void* object, Common_Message* msg);
