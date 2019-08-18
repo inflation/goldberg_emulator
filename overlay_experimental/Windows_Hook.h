@@ -11,7 +11,7 @@
 class Windows_Hook : public Base_Hook
 {
 public:
-    //static constexpr const char* DLL_NAME = "user32.dll";
+    static constexpr const char* DLL_NAME = "user32.dll";
 
 private:
     // Variables

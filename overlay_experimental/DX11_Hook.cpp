@@ -24,7 +24,8 @@ bool DX11_Hook::start_hook()
 {
     if (!_hooked)
     {
-        Hook_Manager::Inst().FoundRenderer(this);
+        if (!Windows_Hook::Inst().start_hook())
+            return false;
 
         IDXGISwapChain* pSwapChain;
         ID3D11Device* pDevice;
@@ -47,8 +48,11 @@ bool DX11_Hook::start_hook()
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
-            _hooked = true;
             PRINT_DEBUG("Hooked DirectX 11\n");
+
+            _hooked = true;
+            Hook_Manager::Inst().FoundRenderer(this);
+
             loadFunctions(pDevice, pSwapChain);
 
             UnhookAll();
@@ -60,8 +64,7 @@ bool DX11_Hook::start_hook()
             );
             EndHook();
 
-            if (Windows_Hook::Inst().start_hook())
-                get_steam_client()->steam_overlay->HookReady();
+            get_steam_client()->steam_overlay->HookReady();
         }
         else
         {

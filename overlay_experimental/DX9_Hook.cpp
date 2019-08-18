@@ -16,7 +16,8 @@ bool DX9_Hook::start_hook()
 {
     if (!_hooked)
     {
-        Hook_Manager::Inst().FoundRenderer(this);
+        if (!Windows_Hook::Inst().start_hook())
+            return false;
 
         IDirect3D9Ex* pD3D;
         IDirect3DDevice9Ex* pDeviceEx;
@@ -33,8 +34,11 @@ bool DX9_Hook::start_hook()
 
         if (pDeviceEx != nullptr)
         {
-            _hooked = true;
             PRINT_DEBUG("Hooked DirectX 9\n");
+
+            _hooked = true;
+            Hook_Manager::Inst().FoundRenderer(this);
+            
             loadFunctions(pDeviceEx);
 
             UnhookAll();
@@ -47,8 +51,7 @@ bool DX9_Hook::start_hook()
             );
             EndHook();
 
-            if (Windows_Hook::Inst().start_hook())
-                get_steam_client()->steam_overlay->HookReady();
+            get_steam_client()->steam_overlay->HookReady();
         }
         else
         {

@@ -18,14 +18,20 @@ bool OpenGL_Hook::start_hook()
 {
     if (!_hooked)
     {
-        Hook_Manager::Inst().FoundRenderer(this);
+        if (!Windows_Hook::Inst().start_hook())
+            return false;
 
         GLenum err = glewInit();
 
         if (err == GLEW_OK)
         {
-            _hooked = true;
             PRINT_DEBUG("Hooked OpenGL\n");
+
+            _hooked = true;
+            Hook_Manager::Inst().FoundRenderer(this);
+
+            wglSwapBuffers = (decltype(wglSwapBuffers))GetProcAddress(reinterpret_cast<HMODULE>(_library), "wglSwapBuffers");
+
             UnhookAll();
             BeginHook();
             HookFuncs(
@@ -33,8 +39,7 @@ bool OpenGL_Hook::start_hook()
             );
             EndHook();
 
-            if (Windows_Hook::Inst().start_hook())
-                get_steam_client()->steam_overlay->HookReady();
+            get_steam_client()->steam_overlay->HookReady();
         }
         else
         {
@@ -62,7 +67,6 @@ void OpenGL_Hook::resetRenderState()
 // Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void OpenGL_Hook::prepareForOverlay(HDC hDC)
 {
-
     HWND hWnd = WindowFromDC(hDC);
     RECT rect;
 

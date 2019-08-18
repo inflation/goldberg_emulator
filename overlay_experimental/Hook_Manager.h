@@ -31,6 +31,7 @@ protected:
     // If you do that, you should consider moving the renderer hooks to its own class and keep this one generic ?
     std::vector<Base_Hook*> _hooks; 
 
+    unsigned int _hook_retries;
     bool _renderer_found;       // Is the renderer hooked ?
     bool _ogl_hooked;           // wglMakeCurrent is hooked ? (opengl)
     Base_Hook* rendererdetect_hook;
@@ -39,10 +40,10 @@ protected:
     Hook_Manager();
     virtual ~Hook_Manager();
     
-    void UnHookAllRendererDetector();
     // Setup opengl device
     void hook_opengl();
 
+    bool stop_retry();
     void HookLoadLibrary();
 
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)

@@ -14,6 +14,9 @@ bool DX12_Hook::start_hook()
 {
     if (!_hooked)
     {
+        //if (!Windows_Hook::Inst().start_hook())
+        //    return false;
+
         PRINT_DEBUG("Hooked DirectX 12\n");
         return false;
     }

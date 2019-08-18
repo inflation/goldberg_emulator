@@ -29,111 +29,73 @@ decltype(wglMakeCurrent)* _wglMakeCurrent;
 
 HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain* _this, UINT SyncInterval, UINT Flags)
 {
-    IUnknown *pDevice;
-    _this->GetDevice(__uuidof(ID3D10Device), (void**)&pDevice);
-    if (pDevice)
+    Hook_Manager& inst = Hook_Manager::Inst();
+    if (!inst.stop_retry())
     {
-        Hook_Manager::Inst().UnHookAllRendererDetector();
-        DX10_Hook* hook = DX10_Hook::Inst();
-        if (!hook->start_hook())
-        {
-            // Hook failed, start over
-            delete static_cast<Base_Hook*>(hook);
-            Hook_Manager::Inst().HookRenderer();
-        }
-        else
-        {
-            Hook_Manager::Inst().AddHook(hook);
-        }
-    }
-    else
-    {
-        _this->GetDevice(__uuidof(ID3D11Device), (void**)& pDevice);
+        IUnknown* pDevice;
+        _this->GetDevice(__uuidof(ID3D10Device), (void**)& pDevice);
         if (pDevice)
         {
-            Hook_Manager::Inst().UnHookAllRendererDetector();
-            DX11_Hook* hook = DX11_Hook::Inst();
-            if (!hook->start_hook())
-            {
-                // Hook failed, start over
-                delete static_cast<Base_Hook*>(hook);
-                Hook_Manager::Inst().HookRenderer();
-            }
-            else
-            {
-                Hook_Manager::Inst().AddHook(hook);
-            }
+            DX10_Hook* hook = DX10_Hook::Inst();
+            if (hook->start_hook())
+                inst.AddHook(hook);
         }
         else
         {
-            _this->GetDevice(__uuidof(ID3D12Device), (void**)& pDevice);
-            DX12_Hook* hook = DX12_Hook::Inst();
-            if (!hook->start_hook())
+            _this->GetDevice(__uuidof(ID3D11Device), (void**)& pDevice);
+            if (pDevice)
             {
-                // Hook failed, start over
-                delete static_cast<Base_Hook*>(hook);
-                Hook_Manager::Inst().HookRenderer();
+                DX11_Hook* hook = DX11_Hook::Inst();
+                if (hook->start_hook())
+                    inst.AddHook(hook);
             }
             else
             {
-                Hook_Manager::Inst().AddHook(hook);
+                _this->GetDevice(__uuidof(ID3D12Device), (void**)& pDevice);
+                DX12_Hook* hook = DX12_Hook::Inst();
+                if (hook->start_hook())
+                    inst.AddHook(hook);
             }
         }
+        if (pDevice) pDevice->Release();
     }
-    if (pDevice) pDevice->Release();
 
     return (_this->*_IDXGISwapChain_Present)(SyncInterval, Flags);
 }
 
 HRESULT STDMETHODCALLTYPE Hook_Manager::MyPresent(IDirect3DDevice9* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
-    Hook_Manager::Inst().UnHookAllRendererDetector();
-    DX9_Hook* hook = DX9_Hook::Inst();
-    if (!hook->start_hook())
+    Hook_Manager& inst = Hook_Manager::Inst();
+    if (!inst.stop_retry())
     {
-        // Hook failed, start over
-        delete static_cast<Base_Hook*>(hook);
-        Hook_Manager::Inst().HookRenderer();
-    }
-    else
-    {
-        Hook_Manager::Inst().AddHook(hook);
+        DX9_Hook* hook = DX9_Hook::Inst();
+        if (hook->start_hook())
+            inst.AddHook(hook);
     }
     return (_this->*_IDirect3DDevice9_Present)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT STDMETHODCALLTYPE Hook_Manager::MyPresentEx(IDirect3DDevice9Ex* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion, DWORD dwFlags)
 {
-    Hook_Manager::Inst().UnHookAllRendererDetector();
-    DX9_Hook* hook = DX9_Hook::Inst();
-    if (!hook->start_hook())
+    Hook_Manager& inst = Hook_Manager::Inst();
+    if (!inst.stop_retry())
     {
-        // Hook failed, start over
-        delete static_cast<Base_Hook*>(hook);
-        Hook_Manager::Inst().HookRenderer();
-    }
-    else
-    {
-        Hook_Manager::Inst().AddHook(hook);
+        DX9_Hook* hook = DX9_Hook::Inst();
+        if (hook->start_hook())
+            inst.AddHook(hook);
     }
     return (_this->*_IDirect3DDevice9Ex_PresentEx)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
 }
 
 BOOL WINAPI Hook_Manager::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
 {
-    Hook_Manager::Inst().UnHookAllRendererDetector();
-    OpenGL_Hook* hook = OpenGL_Hook::Inst();
-    if (!hook->start_hook())
+    Hook_Manager& inst = Hook_Manager::Inst();
+    if (!inst.stop_retry())
     {
-        // Hook failed, start over
-        delete static_cast<Base_Hook*>(hook);
-        Hook_Manager::Inst().HookRenderer();
+        OpenGL_Hook* hook = OpenGL_Hook::Inst();
+        if (hook->start_hook())
+            inst.AddHook(hook);
     }
-    else
-    {
-        Hook_Manager::Inst().AddHook(hook);
-    }
-
     return _wglMakeCurrent(hDC, hGLRC);
 }
 
@@ -369,6 +331,20 @@ HMODULE WINAPI Hook_Manager::MyLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFil
     return res;
 }
 
+bool Hook_Manager::stop_retry()
+{
+    // Retry 200 times, we look for rendering functions so its actually: "retry for 200 frames"
+    bool stop = ++_hook_retries >= 200;
+
+    if (stop)
+    {
+        PRINT_DEBUG("We found a renderer but couldn't hook it, aborting overlay hook.\n");
+        FoundRenderer(nullptr);
+    }
+
+    return stop;
+}
+
 void Hook_Manager::HookLoadLibrary()
 {
     if (!_renderer_found && !_loadlibrary_hooked)
@@ -393,24 +369,8 @@ void Hook_Manager::HookLoadLibrary()
 
 #endif
 
-void Hook_Manager::UnHookAllRendererDetector()
-{
-    auto it = std::find(_hooks.begin(), _hooks.end(), rendererdetect_hook);
-    if (it != _hooks.end())
-    {
-        _hooks.erase(it);
-        delete rendererdetect_hook;
-        rendererdetect_hook = nullptr;
-    }
-    _loadlibrary_hooked = false;
-    _ogl_hooked = false;
-
-#ifdef STEAM_WIN32
-    _dxgi_hooked = _dx9_hooked = false;
-#endif
-}
-
 Hook_Manager::Hook_Manager():
+    _hook_retries(0),
 #ifdef STEAM_WIN32
     _loadlibrary_hooked(false),
     _dxgi_hooked(false),
