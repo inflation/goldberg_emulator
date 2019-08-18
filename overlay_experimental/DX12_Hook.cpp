@@ -1,12 +1,11 @@
-#include "../dll/base.h"
+#include "DX12_Hook.h"
+#include "Windows_Hook.h"
+#include "Hook_Manager.h"
+#include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
 
-#include "DX12_Hook.h"
-#include "Hook_Manager.h"
-
 #include <imgui.h>
-#include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx12.h>
 
 DX12_Hook* DX12_Hook::_inst = nullptr;
@@ -30,7 +29,7 @@ void DX12_Hook::resetRenderState()
         pDescriptorHeap->Release();
 
         ImGui_ImplDX12_Shutdown();
-        ImGui_ImplWin32_Shutdown();
+        Windows_Hook::Inst().resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -40,6 +39,7 @@ void DX12_Hook::resetRenderState()
 // Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 {
+    /*
     DXGI_SWAP_CHAIN_DESC desc;
     pSwapChain->GetDesc(&desc);
 
@@ -93,6 +93,7 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     pCmdList->OMSetRenderTargets(1, &mainRenderTargetDescriptor, FALSE, NULL);
     pCmdList->SetDescriptorHeaps(1, &pDescriptorHeap);
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pCmdList);
+    */
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -39,7 +39,7 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain*
         {
             // Hook failed, start over
             delete static_cast<Base_Hook*>(hook);
-            Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+            Hook_Manager::Inst().HookRenderer();
         }
         else
         {
@@ -57,7 +57,7 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain*
             {
                 // Hook failed, start over
                 delete static_cast<Base_Hook*>(hook);
-                Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+                Hook_Manager::Inst().HookRenderer();
             }
             else
             {
@@ -72,7 +72,7 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain*
             {
                 // Hook failed, start over
                 delete static_cast<Base_Hook*>(hook);
-                Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+                Hook_Manager::Inst().HookRenderer();
             }
             else
             {
@@ -93,7 +93,7 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyPresent(IDirect3DDevice9* _this, CONST
     {
         // Hook failed, start over
         delete static_cast<Base_Hook*>(hook);
-        Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+        Hook_Manager::Inst().HookRenderer();
     }
     else
     {
@@ -110,7 +110,7 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyPresentEx(IDirect3DDevice9Ex* _this, C
     {
         // Hook failed, start over
         delete static_cast<Base_Hook*>(hook);
-        Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+        Hook_Manager::Inst().HookRenderer();
     }
     else
     {
@@ -127,7 +127,7 @@ BOOL WINAPI Hook_Manager::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
     {
         // Hook failed, start over
         delete static_cast<Base_Hook*>(hook);
-        Hook_Manager::Inst().HookRenderer(Hook_Manager::Inst().GetOverlay());
+        Hook_Manager::Inst().HookRenderer();
     }
     else
     {
@@ -391,16 +391,6 @@ void Hook_Manager::HookLoadLibrary()
     }
 }
 
-void Hook_Manager::ChangeGameWindow(HWND hWnd) const
-{
-    overlay->HookReady(hWnd);
-}
-
-void Hook_Manager::CallOverlayProc(int width, int height) const
-{
-    overlay->OverlayProc(width, height);
-}
-
 #endif
 
 void Hook_Manager::UnHookAllRendererDetector()
@@ -422,8 +412,6 @@ void Hook_Manager::UnHookAllRendererDetector()
 
 Hook_Manager::Hook_Manager():
 #ifdef STEAM_WIN32
-    _game_hwnd(nullptr),
-    _game_wndproc(nullptr),
     _loadlibrary_hooked(false),
     _dxgi_hooked(false),
     _dx9_hooked(false),
@@ -444,9 +432,8 @@ Hook_Manager& Hook_Manager::Inst()
     return hook;
 }
 
-void Hook_Manager::HookRenderer(Steam_Overlay *ovlay)
+void Hook_Manager::HookRenderer()
 {
-    overlay = ovlay;
 #ifdef STEAM_WIN32
     HookLoadLibrary();
     std::vector<std::string> const libraries = { "opengl32.dll", "d3d12.dll", "d3d11.dll", "d3d10.dll", "d3d9.dll" };

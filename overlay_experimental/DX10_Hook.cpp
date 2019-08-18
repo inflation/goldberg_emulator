@@ -1,12 +1,11 @@
-#include "../dll/base.h"
+#include "DX10_Hook.h"
+#include "Windows_Hook.h"
+#include "Hook_Manager.h"
+#include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
 
-#include "DX10_Hook.h"
-#include "Hook_Manager.h"
-
 #include <imgui.h>
-#include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_dx10.h>
 
 DX10_Hook* DX10_Hook::_inst = nullptr;
@@ -21,7 +20,7 @@ bool DX10_Hook::start_hook()
         ID3D10Device* pDevice;
         DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
         decltype(D3D10CreateDeviceAndSwapChain)* D3D10CreateDeviceAndSwapChain =
-            (decltype(D3D10CreateDeviceAndSwapChain))GetProcAddress(_dll, "D3D10CreateDeviceAndSwapChain");
+            (decltype(D3D10CreateDeviceAndSwapChain))GetProcAddress(reinterpret_cast<HMODULE>(_library), "D3D10CreateDeviceAndSwapChain");
         SwapChainDesc.BufferCount = 1;
         SwapChainDesc.BufferDesc.Width = 1;
         SwapChainDesc.BufferDesc.Height = 1;
@@ -50,6 +49,9 @@ bool DX10_Hook::start_hook()
                 std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeBuffers, &DX10_Hook::MyResizeBuffers)
             );
             EndHook();
+
+            if (Windows_Hook::Inst().start_hook())
+                get_steam_client()->steam_overlay->HookReady();
         }
         else
         {
@@ -69,7 +71,7 @@ void DX10_Hook::resetRenderState()
         mainRenderTargetView->Release();
 
         ImGui_ImplDX10_Shutdown();
-        ImGui_ImplWin32_Shutdown();
+        Windows_Hook::Inst().resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -97,19 +99,17 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
         pBackBuffer->Release();
 
-        ImGui_ImplWin32_Init(desc.OutputWindow);
         ImGui_ImplDX10_Init(pDevice);
-        Hook_Manager::Inst().ChangeGameWindow(desc.OutputWindow);
 
         initialized = true;
     }
 
     ImGui_ImplDX10_NewFrame();
-    ImGui_ImplWin32_NewFrame();
+    Windows_Hook::Inst().prepareForOverlay(desc.OutputWindow);
 
     ImGui::NewFrame();
 
-    Hook_Manager::Inst().CallOverlayProc(desc.BufferDesc.Width, desc.BufferDesc.Height);
+    get_steam_client()->steam_overlay->OverlayProc(desc.BufferDesc.Width, desc.BufferDesc.Height);
 
     ImGui::EndFrame();
 

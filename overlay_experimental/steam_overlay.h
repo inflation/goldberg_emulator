@@ -2,7 +2,6 @@
 #define __INCLUDED_STEAM_OVERLAY_H__
 
 #include "../dll/base.h"
-#include "Hook_Manager.h"
 #include <map>
 #include <queue>
 
@@ -53,11 +52,8 @@ class Steam_Overlay
     // friend id, show client window (to chat and accept invite maybe)
     std::map<Friend, friend_window_state, Friend_Less> friends;
 
-    HWND game_hwnd;
-    WNDPROC game_hwnd_proc;
     bool is_ready;
     bool show_overlay;
-    Base_Hook window_hooks;
     ENotificationPosition notif_position;
     int h_inset, v_inset;
 
@@ -69,12 +65,6 @@ class Steam_Overlay
     Steam_Overlay(Steam_Overlay&&) = delete;
     Steam_Overlay& operator=(Steam_Overlay const&) = delete;
     Steam_Overlay& operator=(Steam_Overlay&&) = delete;
-
-    bool IgnoreMsg(UINT uMsg);
-
-    static LRESULT CALLBACK HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    static UINT WINAPI MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader);
-    static UINT WINAPI MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader);
 
     static void steam_overlay_run_every_runcb(void* object);
     static void steam_overlay_callback(void* object, Common_Message* msg);
@@ -95,8 +85,6 @@ public:
 
     ~Steam_Overlay();
 
-    HWND GetGameHwnd() const;
-
     bool Ready() const;
 
     bool NeedPresent() const;
@@ -106,13 +94,14 @@ public:
     void SetNotificationInset(int nHorizontalInset, int nVerticalInset);
     void SetupOverlay();
 
-    void HookReady(void* hWnd);
+    void HookReady();
 
     void OverlayProc(int width, int height);
 
     void OpenOverlayInvite(CSteamID lobbyId);
     void OpenOverlay(const char* pchDialog);
 
+    bool ShowOverlay() const;
     void ShowOverlay(bool state);
 
     void SetLobbyInvite(Friend friendId, uint64 lobbyId);

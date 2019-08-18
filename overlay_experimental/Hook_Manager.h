@@ -46,8 +46,6 @@ protected:
     void HookLoadLibrary();
 
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
-    WNDPROC _game_wndproc;      // The game main window proc
-    HWND _game_hwnd;            // The game main window
     bool _loadlibrary_hooked;   // Are the LoadLibrary functions hooked ?
     bool _dx9_hooked;           // DX9 Present and PresentEx Hooked ?
     bool _dxgi_hooked;          // DXGI Present is hooked ? (DX10, DX11, DX12)
@@ -82,11 +80,6 @@ protected:
     // If this is called, then OpenGL 3 will be used to render overlay
     static BOOL WINAPI MywglMakeCurrent(HDC hDC, HGLRC hGLRC);
 
-public:
-    void ChangeGameWindow(HWND hWnd) const;
-
-protected:
-
 #elif defined(__linux__)
 
 #endif
@@ -94,15 +87,12 @@ protected:
 public:
     static Hook_Manager& Inst();
 
-    void HookRenderer(Steam_Overlay *overlay);
+    void HookRenderer();
 
     // Set the found hook and free all other hooks
     void FoundRenderer(Base_Hook *hook);
 
     inline void AddHook(Base_Hook* hook) { _hooks.push_back(hook); }
-
-    void CallOverlayProc(int width, int height) const;
-    Steam_Overlay* GetOverlay() const { return overlay; }
 };
 
 #endif//NO_OVERLAY

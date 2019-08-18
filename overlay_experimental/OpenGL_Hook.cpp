@@ -1,12 +1,11 @@
-#include "../dll/base.h"
+#include "OpenGL_Hook.h"
+#include "Windows_Hook.h"
+#include "Hook_Manager.h"
+#include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
 
-#include "OpenGL_Hook.h"
-#include "Hook_Manager.h"
-
 #include <imgui.h>
-#include <impls/imgui_impl_win32.h>
 #include <impls/imgui_impl_opengl3.h>
 
 #include <GL/glew.h>
@@ -33,6 +32,9 @@ bool OpenGL_Hook::start_hook()
                 std::make_pair<void**, void*>(&(PVOID&)wglSwapBuffers, &OpenGL_Hook::MywglSwapBuffers)
             );
             EndHook();
+
+            if (Windows_Hook::Inst().start_hook())
+                get_steam_client()->steam_overlay->HookReady();
         }
         else
         {
@@ -50,7 +52,7 @@ void OpenGL_Hook::resetRenderState()
     if (initialized)
     {
         ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplWin32_Shutdown();
+        Windows_Hook::Inst().resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -60,12 +62,13 @@ void OpenGL_Hook::resetRenderState()
 // Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void OpenGL_Hook::prepareForOverlay(HDC hDC)
 {
+
     HWND hWnd = WindowFromDC(hDC);
     RECT rect;
 
     GetClientRect(hWnd, &rect);
 
-    if (hWnd != Hook_Manager::Inst().GetOverlay()->GetGameHwnd())
+    if (hWnd != Windows_Hook::Inst().GetGameHwnd())
         resetRenderState();
 
     if (!initialized)
@@ -74,19 +77,16 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = NULL;
 
-
-        ImGui_ImplWin32_Init(hWnd);
         ImGui_ImplOpenGL3_Init();
-        Hook_Manager::Inst().ChangeGameWindow(hWnd);
 
         initialized = true;
     }
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplWin32_NewFrame();
+    Windows_Hook::Inst().prepareForOverlay(hWnd);
 
     ImGui::NewFrame();
 
-    Hook_Manager::Inst().CallOverlayProc(rect.right, rect.bottom);
+    get_steam_client()->steam_overlay->OverlayProc(rect.right, rect.bottom);
 
     ImGui::EndFrame();
 

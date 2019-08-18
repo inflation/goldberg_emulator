@@ -7,68 +7,16 @@
 #include <sstream>
 #include <cctype>
 #include <imgui.h>
-#include <impls/imgui_impl_win32.h>
 
 #include "../dll/dll.h"
+
+#include "Hook_Manager.h"
+#include "Windows_Hook.h"
 
 // Look here for info on how to hook on linux
 // https://github.com/AimTuxOfficial/AimTux/
 
 #include "notification.h"
-
-static decltype(GetRawInputBuffer)* _GetRawInputBuffer = GetRawInputBuffer;
-static decltype(GetRawInputData)* _GetRawInputData = GetRawInputData;
-
-extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-bool Steam_Overlay::IgnoreMsg(UINT uMsg)
-{
-    switch (uMsg)
-    {
-    // Mouse Events
-    case WM_MOUSEMOVE:
-    case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
-    case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
-    case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
-    case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
-    case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
-    case WM_MOUSEACTIVATE: case WM_MOUSEHOVER: case WM_MOUSELEAVE:
-    // Keyboard Events
-    case WM_KEYDOWN: case WM_KEYUP:
-    case WM_SYSKEYDOWN: case WM_SYSKEYUP: case WM_SYSDEADCHAR:
-    case WM_CHAR: case WM_UNICHAR: case WM_DEADCHAR:
-    // Raw Input Events
-    case WM_INPUT:
-        return true;
-    }
-    return false;
-}
-
-LRESULT CALLBACK Steam_Overlay::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
-    // Is the event is a key press
-    if (uMsg == WM_KEYDOWN)
-    {
-        // Tab is pressed and was not pressed before
-        if (wParam == VK_TAB && !(lParam & (1 << 30)))
-        {
-            // If Left Shift is pressed
-            if (GetAsyncKeyState(VK_LSHIFT) & (1 << 15))
-                _this->ShowOverlay(!_this->show_overlay);
-        }
-    }
-
-    if (_this->show_overlay)
-    {
-        ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-        if (_this->IgnoreMsg(uMsg))
-            return 0;
-    }
-
-    // Call the overlay window procedure
-    return CallWindowProc(_this->game_hwnd_proc, hWnd, uMsg, wParam, lParam);
-}
 
 void Steam_Overlay::steam_overlay_run_every_runcb(void* object)
 {
@@ -88,8 +36,6 @@ Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_resu
     callbacks(callbacks),
     run_every_runcb(run_every_runcb),
     network(network),
-    game_hwnd(NULL),
-    game_hwnd_proc(nullptr),
     show_overlay(false),
     is_ready(false),
     notif_position(ENotificationPosition::k_EPositionBottomLeft),
@@ -104,11 +50,6 @@ Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_resu
 Steam_Overlay::~Steam_Overlay()
 {
     run_every_runcb->remove(&Steam_Overlay::steam_overlay_run_every_runcb, this);
-}
-
-HWND Steam_Overlay::GetGameHwnd() const
-{
-    return game_hwnd;
 }
 
 bool Steam_Overlay::Ready() const
@@ -134,55 +75,20 @@ void Steam_Overlay::SetNotificationInset(int nHorizontalInset, int nVerticalInse
 
 void Steam_Overlay::SetupOverlay()
 {
-    Hook_Manager::Inst().HookRenderer(this);
+    Hook_Manager::Inst().HookRenderer();
 }
 
-UINT WINAPI Steam_Overlay::MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader)
+void Steam_Overlay::HookReady()
 {
-    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
-    if( !_this->show_overlay )
-        return _GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
-
-    return -1;
-}
-
-UINT WINAPI Steam_Overlay::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader)
-{
-    Steam_Overlay* _this = Hook_Manager::Inst().GetOverlay();
-    if (!_this->show_overlay)
-        return _GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
-
-    return -1;
-}
-
-void Steam_Overlay::HookReady(void* hWnd)
-{
-    if (game_hwnd != hWnd)
+    if (!is_ready) // If this is the first time we are ready, hook directinput and xinput, so we can intercept em and disable mouse.
     {
-        if (!is_ready) // If this is the first time we are ready, hook directinput and xinput, so we can intercept em and disable mouse.
-        {
-            window_hooks.BeginHook();
-                
-            window_hooks.HookFuncs(std::make_pair<void**, void*>(&(PVOID&)_GetRawInputBuffer, &MyGetRawInputBuffer),
-                                   std::make_pair<void**, void*>(&(PVOID&)_GetRawInputData, &MyGetRawInputData)
-                                    );
-            
-            window_hooks.EndHook();
+        // TODO: Uncomment this and draw our own cursor (cosmetics)
+        //ImGuiIO &io = ImGui::GetIO();
+        //io.WantSetMousePos = false;
+        //io.MouseDrawCursor = false;
+        //io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
-            // TODO: Uncomment this and draw our own cursor (cosmetics)
-            //ImGuiIO &io = ImGui::GetIO();
-            //io.WantSetMousePos = false;
-            //io.MouseDrawCursor = false;
-            //io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-
-            is_ready = true;
-        }
-
-        if (game_hwnd)
-            SetWindowLongPtr(game_hwnd, GWLP_WNDPROC, (LONG_PTR)game_hwnd_proc);
-
-        game_hwnd = (HWND)hWnd;
-        game_hwnd_proc = (WNDPROC)SetWindowLongPtr(game_hwnd, GWLP_WNDPROC, (LONG_PTR)&Steam_Overlay::HookWndProc);
+        is_ready = true;
     }
 }
 
@@ -201,6 +107,11 @@ void Steam_Overlay::OpenOverlay(const char* pchDialog)
     ShowOverlay(true);
 }
 
+bool Steam_Overlay::ShowOverlay() const
+{
+    return show_overlay;
+}
+
 void Steam_Overlay::ShowOverlay(bool state)
 {
     static RECT old_clip;
@@ -211,6 +122,7 @@ void Steam_Overlay::ShowOverlay(bool state)
     show_overlay = state;
     if (show_overlay)
     {
+        HWND game_hwnd = Windows_Hook::Inst().GetGameHwnd();
         RECT cliRect, wndRect, clipRect;
 
         GetClipCursor(&old_clip);
