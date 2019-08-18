@@ -91,6 +91,7 @@ bool IgnoreMsg(UINT uMsg)
 LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Steam_Overlay* overlay = get_steam_client()->steam_overlay;
+    bool show = overlay->ShowOverlay();
     // Is the event is a key press
     if (uMsg == WM_KEYDOWN)
     {
@@ -99,11 +100,15 @@ LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
         {
             // If Left Shift is pressed
             if (GetAsyncKeyState(VK_LSHIFT) & (1 << 15))
+            {
                 overlay->ShowOverlay(!overlay->ShowOverlay());
+                if (overlay->ShowOverlay())
+                    show = true;
+            }
         }
     }
 
-    if (overlay->ShowOverlay())
+    if (show)
     {
         ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
         if (IgnoreMsg(uMsg))
