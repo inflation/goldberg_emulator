@@ -20,7 +20,7 @@ bool DX9_Hook::start_hook()
 
         IDirect3D9Ex* pD3D;
         IDirect3DDevice9Ex* pDeviceEx;
-        decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(_dll, "Direct3DCreate9Ex");
+        decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(reinterpret_cast<HMODULE>(_library), "Direct3DCreate9Ex");
 
         Direct3DCreate9Ex(D3D_SDK_VERSION, &pD3D);
 
@@ -171,7 +171,7 @@ DX9_Hook::DX9_Hook():
     PresentEx(nullptr),
     Reset(nullptr)
 {
-    _dll = GetModuleHandle(DLL_NAME);
+    _library = LoadLibrary(DLL_NAME);
     // Hook to Direct3DCreate9 and Direct3DCreate9Ex so we know when it gets called.
     // If its called, then DX9 will be used to render the overlay.
     //Direct3DCreate9 = (decltype(Direct3DCreate9))GetProcAddress(_dll, "Direct3DCreate9");
@@ -189,7 +189,8 @@ DX9_Hook::~DX9_Hook()
 {
     PRINT_DEBUG("DX9 Hook removed\n");
 
-    if (_hooked)
+    //resetRenderState();
+    if (initialized)
     {
         //ImGui_ImplDX9_Shutdown(); This makes some games hang when Releasing the D3D9 device (pDevice->Release())
         // maybe because D3D is already shut down when we try to free the device?
@@ -197,6 +198,8 @@ DX9_Hook::~DX9_Hook()
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext();
     }
+
+    FreeLibrary(reinterpret_cast<HMODULE>(_library));
 
     _inst = nullptr;
 }

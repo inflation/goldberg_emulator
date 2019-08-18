@@ -115,7 +115,7 @@ OpenGL_Hook::OpenGL_Hook():
     initialized(false),
     wglSwapBuffers(nullptr)
 {
-    _dll = GetModuleHandle(DLL_NAME);
+    _library = LoadLibrary(DLL_NAME);
     // Hook to wglMakeCurrent so we know when it gets called.
     // If its called, then OpenGL will be used to render the overlay.
     //wglMakeCurrent = (decltype(wglMakeCurrent))GetProcAddress(_dll, "wglMakeCurrent");
@@ -132,12 +132,9 @@ OpenGL_Hook::~OpenGL_Hook()
 {
     PRINT_DEBUG("OpenGL Hook removed\n");
 
-    if (_hooked)
-    {
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplWin32_Shutdown();
-        ImGui::DestroyContext();
-    }
+    resetRenderState();
+
+    FreeLibrary(reinterpret_cast<HMODULE>(_library));
 
     _inst = nullptr;
 }

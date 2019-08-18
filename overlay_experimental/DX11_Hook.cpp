@@ -184,7 +184,7 @@ DX11_Hook::DX11_Hook():
     pContext(nullptr),
     mainRenderTargetView(nullptr)
 {
-    _dll = GetModuleHandle(DLL_NAME);
+    _library = LoadLibrary(DLL_NAME);
     
     // Hook to D3D11CreateDevice and D3D11CreateDeviceAndSwapChain so we know when it gets called.
     // If its called, then DX11 will be used to render the overlay.
@@ -203,8 +203,9 @@ DX11_Hook::~DX11_Hook()
 {
     PRINT_DEBUG("DX11 Hook removed\n");
 
-    if (_hooked)
-        resetRenderState();
+    resetRenderState();
+
+    FreeLibrary(reinterpret_cast<HMODULE>(_library));
 
     _inst = nullptr;
 }

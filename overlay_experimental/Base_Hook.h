@@ -5,10 +5,6 @@
 
 #ifndef NO_OVERLAY
 
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#include <Windows.h>
-
 #include <vector>
 #include <utility>
 
@@ -17,7 +13,7 @@ class Base_Hook
 protected:
     std::vector<std::pair<void**, void*>> _hooked_funcs;
 
-    HMODULE _dll;
+    void* _library;
     bool _hooked;
 
     Base_Hook(const Base_Hook&) = delete;

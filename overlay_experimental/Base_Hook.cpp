@@ -7,6 +7,10 @@
 
 #include "../detours/detours.h"
 
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#include <Windows.h>
+
 Base_Hook::Base_Hook():
     _hooked(false)
 {}

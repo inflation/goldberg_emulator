@@ -137,7 +137,7 @@ DX12_Hook::DX12_Hook():
     pCmdList(nullptr),
     pDescriptorHeap(nullptr)
 {
-    _dll = GetModuleHandle(DLL_NAME);
+    _library = GetModuleHandle(DLL_NAME);
 
     PRINT_DEBUG("Trying to hook DX12 but DX12_Hook is not implemented yet, please report to DEV with the game name.");
 
@@ -156,8 +156,9 @@ DX12_Hook::~DX12_Hook()
 {
     PRINT_DEBUG("DX12 Hook removed\n");
 
-    if (_hooked)
-        resetRenderState();
+    resetRenderState();
+
+    FreeLibrary(reinterpret_cast<HMODULE>(_library));
 
     _inst = nullptr;
 }
