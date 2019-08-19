@@ -12,7 +12,7 @@ DX11_Hook* DX11_Hook::_inst = nullptr;
 
 HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** ppDevice, ID3D11DeviceContext** ppContext)
 {
-    HRESULT ret = pSwapChain->GetDevice(__uuidof(ID3D11Device), (PVOID*)ppDevice);
+    HRESULT ret = pSwapChain->GetDevice(IID_PPV_ARGS(ppDevice));
 
     if (SUCCEEDED(ret))
         (*ppDevice)->GetImmediateContext(ppContext);
@@ -111,11 +111,13 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
         ID3D11Texture2D* pBackBuffer;
 
-        pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)& pBackBuffer);
+        pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
         pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
         pBackBuffer->Release();
 
         ImGui_ImplDX11_Init(pDevice, pContext);
+
+        pDevice->Release();
 
         initialized = true;
     }

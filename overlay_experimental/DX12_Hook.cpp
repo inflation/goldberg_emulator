@@ -138,7 +138,9 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         }
         if (!SUCCEEDED(pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pCmdAlloc, NULL, IID_PPV_ARGS(&pCmdList))))
         {
-
+            pCmdAlloc->Release();
+            pDescriptorHeap->Release();
+            pDevice->Release();
             return;
         }
 
@@ -150,6 +152,7 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
             pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
             pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
     
+        pCmdList->Release();
         pCmdAlloc->Release();
         pDescriptorHeap->Release();
         pDevice->Release();

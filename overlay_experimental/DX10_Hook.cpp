@@ -89,7 +89,7 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
     if (!initialized)
     {
-        if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D10Device), (PVOID*)& pDevice)))
+        if (FAILED(pSwapChain->GetDevice(IID_PPV_ARGS(&pDevice))))
             return;
 
         ImGui::CreateContext();
@@ -98,11 +98,13 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
         ID3D10Texture2D* pBackBuffer;
 
-        pSwapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (LPVOID*)& pBackBuffer);
+        pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
         pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
         pBackBuffer->Release();
 
         ImGui_ImplDX10_Init(pDevice);
+
+        pDevice->Release();
 
         initialized = true;
     }
