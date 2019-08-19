@@ -6,6 +6,7 @@
 #ifndef NO_OVERLAY
 
 #include <vector>
+#include <thread>
 
 #if defined(_WIN32) || defined(WIN32)
 #include <Windows.h>
@@ -31,6 +32,7 @@ protected:
     // If you do that, you should consider moving the renderer hooks to its own class and keep this one generic ?
     std::vector<Base_Hook*> _hooks; 
 
+    std::thread *_hook_thread;
     unsigned int _hook_retries;
     bool _renderer_found;       // Is the renderer hooked ?
     bool _ogl_hooked;           // wglMakeCurrent is hooked ? (opengl)
@@ -44,7 +46,7 @@ protected:
     void hook_opengl();
 
     bool stop_retry();
-    void HookLoadLibrary();
+    //void HookLoadLibrary();
 
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
     bool _loadlibrary_hooked;   // Are the LoadLibrary functions hooked ?
@@ -66,13 +68,15 @@ protected:
     // Setup DX12 Device and get vtable
     void hook_dx12();
 
-    void create_hookA(const char* libname);
-    void create_hookW(const wchar_t* libname);
+    void create_hook(const char* libname);
+    //void create_hookW(const wchar_t* libname);
 
-    static HMODULE WINAPI MyLoadLibraryA(LPCTSTR lpLibFileName);
-    static HMODULE WINAPI MyLoadLibraryW(LPCWSTR lpLibFileName);
-    static HMODULE WINAPI MyLoadLibraryExA(LPCTSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
-    static HMODULE WINAPI MyLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
+    static void find_renderer(Hook_Manager* _this);
+
+    //static HMODULE WINAPI MyLoadLibraryA(LPCTSTR lpLibFileName);
+    //static HMODULE WINAPI MyLoadLibraryW(LPCWSTR lpLibFileName);
+    //static HMODULE WINAPI MyLoadLibraryExA(LPCTSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
+    //static HMODULE WINAPI MyLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
     // If this is called, then DX10, DX11 or DX12 will be used to render overlay
     static HRESULT STDMETHODCALLTYPE MyIDXGISwapChain_Present(IDXGISwapChain* _this, UINT SyncInterval, UINT Flags);
     // If any of theses is called, then DX9 will be used to render overlay

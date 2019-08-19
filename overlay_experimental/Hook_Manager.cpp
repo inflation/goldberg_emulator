@@ -17,23 +17,18 @@
 #include <algorithm>
 
 #ifdef STEAM_WIN32
-decltype(LoadLibraryA    )* _LoadLibraryA     = LoadLibraryA;
-decltype(LoadLibraryW    )* _LoadLibraryW     = LoadLibraryW;
-decltype(LoadLibraryExA  )* _LoadLibraryExA   = LoadLibraryExA;
-decltype(LoadLibraryExW  )* _LoadLibraryExW   = LoadLibraryExW;
-
-decltype(&IDXGISwapChain::Present) _IDXGISwapChain_Present;
-decltype(&IDirect3DDevice9::Present) _IDirect3DDevice9_Present;
-decltype(&IDirect3DDevice9Ex::PresentEx) _IDirect3DDevice9Ex_PresentEx;
-decltype(wglMakeCurrent)* _wglMakeCurrent;
+static decltype(&IDXGISwapChain::Present) _IDXGISwapChain_Present;
+static decltype(&IDirect3DDevice9::Present) _IDirect3DDevice9_Present;
+static decltype(&IDirect3DDevice9Ex::PresentEx) _IDirect3DDevice9Ex_PresentEx;
+static decltype(wglMakeCurrent)* _wglMakeCurrent;
 
 HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain* _this, UINT SyncInterval, UINT Flags)
 {
     Hook_Manager& inst = Hook_Manager::Inst();
     if (!inst.stop_retry())
     {
-        IUnknown* pDevice;
-        _this->GetDevice(__uuidof(ID3D10Device), (void**)& pDevice);
+        IUnknown* pDevice = nullptr;
+        _this->GetDevice(__uuidof(ID3D10Device), (void**)&pDevice);
         if (pDevice)
         {
             DX10_Hook* hook = DX10_Hook::Inst();
@@ -324,7 +319,7 @@ void Hook_Manager::hook_opengl()
     }
 }
 
-void Hook_Manager::create_hookA(const char* libname)
+void Hook_Manager::create_hook(const char* libname)
 {
     if (!_stricmp(libname, "d3d9.dll"))
         Hook_Manager::Inst().hook_dx9();
@@ -338,47 +333,47 @@ void Hook_Manager::create_hookA(const char* libname)
         Hook_Manager::Inst().hook_opengl();
 }
 
-void Hook_Manager::create_hookW(const wchar_t *libname)
-{
-    if (!_wcsicmp(libname, L"d3d9.dll"))
-        Hook_Manager::Inst().hook_dx9();
-    else if (!_wcsicmp(libname, L"d3d10.dll"))
-        Hook_Manager::Inst().hook_dx10();
-    else if (!_wcsicmp(libname, L"d3d11.dll"))
-        Hook_Manager::Inst().hook_dx11();
-    else if (!_wcsicmp(libname, L"d3d12.dll"))
-        Hook_Manager::Inst().hook_dx12();
-    else if (!_wcsicmp(libname, L"opengl32.dll"))
-        Hook_Manager::Inst().hook_opengl();
-}
-
-HMODULE WINAPI Hook_Manager::MyLoadLibraryA(LPCTSTR lpLibFileName)
-{
-    auto res = _LoadLibraryA(lpLibFileName);
-    Hook_Manager::Inst().create_hookA(lpLibFileName);
-    return res;
-}
-
-HMODULE WINAPI Hook_Manager::MyLoadLibraryW(LPCWSTR lpLibFileName)
-{
-    auto res = _LoadLibraryW(lpLibFileName);
-    Hook_Manager::Inst().create_hookW(lpLibFileName);
-    return res;
-}
-
-HMODULE WINAPI Hook_Manager::MyLoadLibraryExA(LPCTSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
-{
-    auto res = _LoadLibraryA(lpLibFileName);
-    Hook_Manager::Inst().create_hookA(lpLibFileName);
-    return res;
-}
-
-HMODULE WINAPI Hook_Manager::MyLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
-{
-    auto res = _LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-    Hook_Manager::Inst().create_hookW(lpLibFileName);
-    return res;
-}
+//void Hook_Manager::create_hookW(const wchar_t *libname)
+//{
+//    if (!_wcsicmp(libname, L"d3d9.dll"))
+//        Hook_Manager::Inst().hook_dx9();
+//    else if (!_wcsicmp(libname, L"d3d10.dll"))
+//        Hook_Manager::Inst().hook_dx10();
+//    else if (!_wcsicmp(libname, L"d3d11.dll"))
+//        Hook_Manager::Inst().hook_dx11();
+//    else if (!_wcsicmp(libname, L"d3d12.dll"))
+//        Hook_Manager::Inst().hook_dx12();
+//    else if (!_wcsicmp(libname, L"opengl32.dll"))
+//        Hook_Manager::Inst().hook_opengl();
+//}
+//
+//HMODULE WINAPI Hook_Manager::MyLoadLibraryA(LPCTSTR lpLibFileName)
+//{
+//    auto res = _LoadLibraryA(lpLibFileName);
+//    Hook_Manager::Inst().create_hookA(lpLibFileName);
+//    return res;
+//}
+//
+//HMODULE WINAPI Hook_Manager::MyLoadLibraryW(LPCWSTR lpLibFileName)
+//{
+//    auto res = _LoadLibraryW(lpLibFileName);
+//    Hook_Manager::Inst().create_hookW(lpLibFileName);
+//    return res;
+//}
+//
+//HMODULE WINAPI Hook_Manager::MyLoadLibraryExA(LPCTSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
+//{
+//    auto res = _LoadLibraryA(lpLibFileName);
+//    Hook_Manager::Inst().create_hookA(lpLibFileName);
+//    return res;
+//}
+//
+//HMODULE WINAPI Hook_Manager::MyLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
+//{
+//    auto res = _LoadLibraryExW(lpLibFileName, hFile, dwFlags);
+//    Hook_Manager::Inst().create_hookW(lpLibFileName);
+//    return res;
+//}
 
 bool Hook_Manager::stop_retry()
 {
@@ -394,25 +389,33 @@ bool Hook_Manager::stop_retry()
     return stop;
 }
 
-void Hook_Manager::HookLoadLibrary()
+void Hook_Manager::find_renderer(Hook_Manager* _this)
 {
-    if (!_renderer_found && !_loadlibrary_hooked)
+    _this->rendererdetect_hook = new Base_Hook();
+    _this->AddHook(_this->rendererdetect_hook);
+
+    std::vector<std::string> const libraries = { "opengl32.dll", "d3d12.dll", "d3d11.dll", "d3d10.dll", "d3d9.dll" };
+
+    while (!_this->_renderer_found && !_this->stop_retry())
     {
-        _loadlibrary_hooked = true;
+        std::vector<std::string>::const_iterator it = libraries.begin();
+        while (it != libraries.end())
+        {
+            it = std::find_if(it, libraries.end(), [](std::string const& name) {
+                auto x = GetModuleHandle(name.c_str());
+                if (x != NULL)
+                    return true;
+                return false;
+            });
 
-        rendererdetect_hook = new Base_Hook();
-        AddHook(rendererdetect_hook);
+            if (it == libraries.end())
+                break;
 
-        rendererdetect_hook->BeginHook();
+            _this->create_hook(it->c_str());
+            ++it;
+        }
 
-        rendererdetect_hook->HookFuncs(
-            std::pair<void**, void*>((PVOID*)& _LoadLibraryA, &Hook_Manager::MyLoadLibraryA),
-            std::pair<void**, void*>((PVOID*)& _LoadLibraryW, &Hook_Manager::MyLoadLibraryW),
-            std::pair<void**, void*>((PVOID*)& _LoadLibraryExA, &Hook_Manager::MyLoadLibraryExA),
-            std::pair<void**, void*>((PVOID*)& _LoadLibraryExW, &Hook_Manager::MyLoadLibraryExW)
-        );
-
-        rendererdetect_hook->EndHook();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
 
@@ -444,24 +447,7 @@ Hook_Manager& Hook_Manager::Inst()
 void Hook_Manager::HookRenderer()
 {
 #ifdef STEAM_WIN32
-    HookLoadLibrary();
-    std::vector<std::string> const libraries = { "opengl32.dll", "d3d12.dll", "d3d11.dll", "d3d10.dll", "d3d9.dll" };
-    std::vector<std::string>::const_iterator it = libraries.begin();
-    while (it != libraries.end())
-    {
-        it = std::find_if(it, libraries.end(), [](std::string const& name) {
-            auto x = GetModuleHandle(name.c_str());
-            if (x != 0 && x != INVALID_HANDLE_VALUE)
-                return true;
-            return false;
-            });
-
-        if (it == libraries.end())
-            break;
-
-        create_hookA(it->c_str());
-        ++it;
-    }
+    _hook_thread = new std::thread(&Hook_Manager::find_renderer, this);
 #endif
 }
 
@@ -470,6 +456,9 @@ void Hook_Manager::FoundRenderer(Base_Hook* hook)
     if (!_renderer_found)
     {
         _renderer_found = true;
+
+        _hook_thread->join();
+        delete _hook_thread;
 
         // Remove all hooks that are unused
         _hooks.erase(std::remove_if(_hooks.begin(), _hooks.end(), [&hook](Base_Hook* it_hook) {
@@ -480,8 +469,6 @@ void Hook_Manager::FoundRenderer(Base_Hook* hook)
             }
             return false;
         }), _hooks.end());
-
-        _loadlibrary_hooked = false;
     }
 }
 
