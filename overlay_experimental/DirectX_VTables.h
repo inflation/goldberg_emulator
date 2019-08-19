@@ -29,6 +29,19 @@ enum class IDXGISwapChainVTable
     GetContainingOutput,
     GetFrameStatistics,
     GetLastPresentCount,
+
+    // IDXGISwapChain1
+    GetDesc1,
+    GetFullscreenDesc,
+    GetHwnd,
+    GetCoreWindow,
+    Present1,
+    IsTemporaryMonoSupported,
+    GetRestrictToOutput,
+    SetBackgroundColor,
+    GetBackgroundColor,
+    SetRotation,
+    GetRotation,
 };
 
 enum class ID3D11DeviceVTable

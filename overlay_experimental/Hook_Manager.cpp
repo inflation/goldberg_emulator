@@ -52,9 +52,12 @@ HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain*
             else
             {
                 _this->GetDevice(__uuidof(ID3D12Device), (void**)& pDevice);
-                DX12_Hook* hook = DX12_Hook::Inst();
-                if (hook->start_hook())
-                    inst.AddHook(hook);
+                if (pDevice)
+                {
+                //    DX12_Hook* hook = DX12_Hook::Inst();
+                //    if (hook->start_hook())
+                //        inst.AddHook(hook);
+                }
             }
         }
         if (pDevice) pDevice->Release();
@@ -260,9 +263,55 @@ void Hook_Manager::hook_dx12()
 {
     if (!_dxgi_hooked && !_renderer_found)
     {
-        DX12_Hook* hook = DX12_Hook::Inst();
-        hook->start_hook(); // TODO: Prints to error log about DX12 Implementation status
-        delete static_cast<Base_Hook*>(hook);
+        IDXGIFactory4* pDXGIFactory = nullptr;
+        IDXGISwapChain1* pSwapChain = nullptr;
+        D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+        ID3D12CommandQueue* pCommandQueue = nullptr;
+        ID3D12Device* pDevice = nullptr;
+        decltype(D3D12CreateDevice)* D3D12CreateDevice =
+            (decltype(D3D12CreateDevice))GetProcAddress(GetModuleHandle(DX12_Hook::DLL_NAME), "D3D12CreateDevice");
+
+        D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&pDevice));
+
+        if (pDevice)
+        {
+            DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
+            SwapChainDesc.Width = 0;
+            SwapChainDesc.Height = 0;
+            SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            SwapChainDesc.Stereo = FALSE;
+            SwapChainDesc.SampleDesc = { 1, 0 };
+            SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+            SwapChainDesc.BufferCount = 3;
+            SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+            SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+            SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+
+            queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+            queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+            pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&pCommandQueue));
+
+            if (pCommandQueue)
+            {
+                reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(GetModuleHandle("dxgi.dll"), "CreateDXGIFactory1"))(IID_PPV_ARGS(&pDXGIFactory));
+                pDXGIFactory->CreateSwapChainForHwnd(pCommandQueue, GetForegroundWindow(), &SwapChainDesc, NULL, NULL, &pSwapChain);
+                if (pSwapChain != nullptr)
+                {
+                    PRINT_DEBUG("Hooked IDXGISwapChain::Present to detect DX Version\n");
+                    (void*&)_IDXGISwapChain_Present = (*reinterpret_cast<void***>(pSwapChain))[(int)IDXGISwapChainVTable::Present];
+                    HookDXGIPresent();
+                }
+                else
+                {
+                    PRINT_DEBUG("Failed to Hook IDXGISwapChain::Present to detect DX Version\n");
+                }
+            }
+        }
+
+        if (pSwapChain) pSwapChain->Release();
+        if (pDXGIFactory) pDXGIFactory->Release();
+        if (pCommandQueue) pCommandQueue->Release();
+        if (pDevice) pDevice->Release();
     }
 }
 

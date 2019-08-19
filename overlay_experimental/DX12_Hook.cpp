@@ -8,17 +8,82 @@
 #include <imgui.h>
 #include <impls/imgui_impl_dx12.h>
 
+#include <dxgi1_4.h>
+
 DX12_Hook* DX12_Hook::_inst = nullptr;
 
 bool DX12_Hook::start_hook()
 {
     if (!_hooked)
     {
-        //if (!Windows_Hook::Inst().start_hook())
-        //    return false;
+        if (!Windows_Hook::Inst().start_hook())
+            return false;
 
-        PRINT_DEBUG("Hooked DirectX 12\n");
-        return false;
+        IDXGIFactory4* pDXGIFactory = nullptr;
+        IDXGISwapChain1* pSwapChain = nullptr;
+        D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+        ID3D12CommandQueue* pCommandQueue = nullptr;
+        ID3D12Device* pDevice = nullptr;
+        decltype(D3D12CreateDevice)* D3D12CreateDevice =
+            (decltype(D3D12CreateDevice))GetProcAddress(GetModuleHandle(DX12_Hook::DLL_NAME), "D3D12CreateDevice");
+
+        D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&pDevice));
+
+        if (pDevice)
+        {
+            DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
+            SwapChainDesc.Width = 0;
+            SwapChainDesc.Height = 0;
+            SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            SwapChainDesc.Stereo = FALSE;
+            SwapChainDesc.SampleDesc = { 1, 0 };
+            SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+            SwapChainDesc.BufferCount = 3;
+            SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+            SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+            SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+
+            queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+            queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+            pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&pCommandQueue));
+
+            if (pCommandQueue)
+            {
+                reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(GetModuleHandle("dxgi.dll"), "CreateDXGIFactory1"))(IID_PPV_ARGS(&pDXGIFactory));
+                pDXGIFactory->CreateSwapChainForHwnd(pCommandQueue, GetForegroundWindow(), &SwapChainDesc, NULL, NULL, &pSwapChain);
+
+                if (pSwapChain != nullptr)
+                {
+                    PRINT_DEBUG("Hooked DirectX 12\n");
+
+                    _hooked = true;
+                    Hook_Manager::Inst().FoundRenderer(this);
+
+                    loadFunctions(pDevice, pSwapChain);
+
+                    UnhookAll();
+                    BeginHook();
+                    HookFuncs(
+                        std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::Present, &DX12_Hook::MyPresent),
+                        std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::ResizeTarget, &DX12_Hook::MyResizeTarget),
+                        std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::ResizeBuffers, &DX12_Hook::MyResizeBuffers)
+                    );
+                    EndHook();
+
+                    get_steam_client()->steam_overlay->HookReady();
+                }
+                else
+                {
+                    PRINT_DEBUG("Failed to hook DirectX 12\n");
+                    return false;
+                }
+            }
+        }
+
+        if (pSwapChain) pSwapChain->Release();
+        if (pDXGIFactory) pDXGIFactory->Release();
+        if (pCommandQueue) pCommandQueue->Release();
+        if (pDevice) pDevice->Release();
     }
     return true;
 }
@@ -42,7 +107,6 @@ void DX12_Hook::resetRenderState()
 // Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 {
-    /*
     DXGI_SWAP_CHAIN_DESC desc;
     pSwapChain->GetDesc(&desc);
 
@@ -51,8 +115,9 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         D3D12_DESCRIPTOR_HEAP_DESC d3d12_desc = {};
         ID3D12Device* pDevice;
 
-        HRESULT ret = pSwapChain->GetDevice(__uuidof(ID3D12Device), (PVOID*)&pDevice);
-        
+        if (!SUCCEEDED(pSwapChain->GetDevice(IID_PPV_ARGS(&pDevice))))
+            return;
+
         d3d12_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
         d3d12_desc.NumDescriptors = 1;
         d3d12_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
@@ -63,28 +128,40 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
             return;
         }
 
-        SIZE_T rtvDescriptorSize = pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-        mainRenderTargetDescriptor = rtvHandle;
+        mainRenderTargetDescriptor = pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-        pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pCmdAlloc));
+        if (!SUCCEEDED(pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pCmdAlloc))))
+        {
+            pDescriptorHeap->Release();
+            pDevice->Release();
+            return;
+        }
+        if (!SUCCEEDED(pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pCmdAlloc, NULL, IID_PPV_ARGS(&pCmdList))))
+        {
 
-        pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pCmdAlloc, NULL, IID_PPV_ARGS(&pCmdList));
-        
-        Hook_Manager::Inst().ChangeGameWindow(desc.OutputWindow);
-        ImGui_ImplWin32_Init(desc.OutputWindow);
+            return;
+        }
+
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.IniFilename = NULL;
+
         ImGui_ImplDX12_Init(pDevice, 1, DXGI_FORMAT_R8G8B8A8_UNORM,
             pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
             pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+    
+        pCmdAlloc->Release();
+        pDescriptorHeap->Release();
+        pDevice->Release();
         initialized = true;
     }
 
     ImGui_ImplDX12_NewFrame();
-    ImGui_ImplWin32_NewFrame();
+    Windows_Hook::Inst().prepareForOverlay(desc.OutputWindow);
 
     ImGui::NewFrame();
 
-    Hook_Manager::Inst().CallOverlayProc(desc.BufferDesc.Width, desc.BufferDesc.Height);
+    get_steam_client()->steam_overlay->OverlayProc(desc.BufferDesc.Width, desc.BufferDesc.Height);
 
     ImGui::EndFrame();
 
@@ -96,7 +173,6 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     pCmdList->OMSetRenderTargets(1, &mainRenderTargetDescriptor, FALSE, NULL);
     pCmdList->SetDescriptorHeaps(1, &pDescriptorHeap);
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pCmdList);
-    */
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +217,7 @@ DX12_Hook::DX12_Hook():
     pCmdList(nullptr),
     pDescriptorHeap(nullptr)
 {
-    _library = GetModuleHandle(DLL_NAME);
+    _library = LoadLibrary(DLL_NAME);
 
     PRINT_DEBUG("Trying to hook DX12 but DX12_Hook is not implemented yet, please report to DEV with the game name.");
 

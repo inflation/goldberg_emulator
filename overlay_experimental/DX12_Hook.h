@@ -5,6 +5,7 @@
 #ifndef NO_OVERLAY
 
 #include <d3d12.h>
+#include <dxgi1_4.h>
 #include "DirectX_VTables.h"
 
 class DX12_Hook : public Base_Hook
