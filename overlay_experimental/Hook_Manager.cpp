@@ -198,7 +198,7 @@ void Hook_Manager::hook_dx10()
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
 
-        D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0, D3D10_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice);
+        D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_NULL, NULL, 0, D3D10_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice);
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
@@ -236,7 +236,7 @@ void Hook_Manager::hook_dx11()
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
 
-        D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, NULL, NULL, D3D11_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice, NULL, NULL);
+        D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_NULL, NULL, 0, NULL, NULL, D3D11_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice, NULL, NULL);
 
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
