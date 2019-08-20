@@ -19,6 +19,10 @@ bool DX9_Hook::start_hook()
         if (!Windows_Hook::Inst().start_hook())
             return false;
 
+        HWND hWnd = GetGameWindow();
+        if (!hWnd)
+            return false;
+
         IDirect3D9Ex* pD3D;
         IDirect3DDevice9Ex* pDeviceEx;
         decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(reinterpret_cast<HMODULE>(_library), "Direct3DCreate9Ex");
@@ -28,7 +32,7 @@ bool DX9_Hook::start_hook()
         D3DPRESENT_PARAMETERS params = {};
         params.BackBufferWidth = 1;
         params.BackBufferHeight = 1;
-        params.hDeviceWindow = GetForegroundWindow();
+        params.hDeviceWindow = hWnd;
 
         pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, &pDeviceEx);
 

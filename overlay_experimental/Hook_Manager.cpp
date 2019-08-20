@@ -10,11 +10,14 @@
 #include "DX11_Hook.h"
 #include "DX10_Hook.h"
 #include "DX9_Hook.h"
+#include "Windows_Hook.h"
 #endif
 
 #include "OpenGL_Hook.h"
 
 #include <algorithm>
+
+constexpr int max_hook_retries = 500;
 
 #ifdef STEAM_WIN32
 static decltype(&IDXGISwapChain::Present) _IDXGISwapChain_Present;
@@ -147,6 +150,10 @@ void Hook_Manager::hook_dx9()
 {
     if (!_dx9_hooked && !_renderer_found)
     {
+        HWND hWnd = GetGameWindow();
+        if (!hWnd)
+            return;
+
         IDirect3D9Ex* pD3D;
         IDirect3DDevice9Ex* pDeviceEx;
         decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(GetModuleHandle(DX9_Hook::DLL_NAME), "Direct3DCreate9Ex");
@@ -156,7 +163,7 @@ void Hook_Manager::hook_dx9()
         D3DPRESENT_PARAMETERS params = {};
         params.BackBufferWidth = 1;
         params.BackBufferHeight = 1;
-        params.hDeviceWindow = GetForegroundWindow();
+        params.hDeviceWindow = hWnd;
 
         pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, &pDeviceEx);
 
@@ -181,6 +188,10 @@ void Hook_Manager::hook_dx10()
 {
     if (!_dxgi_hooked && !_renderer_found)
     {
+        HWND hWnd = GetGameWindow();
+        if (!hWnd)
+            return;
+
         IDXGISwapChain* pSwapChain;
         ID3D10Device* pDevice;
         DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
@@ -193,7 +204,7 @@ void Hook_Manager::hook_dx10()
         SwapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
         SwapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
         SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        SwapChainDesc.OutputWindow = GetForegroundWindow();
+        SwapChainDesc.OutputWindow = hWnd;
         SwapChainDesc.SampleDesc.Count = 1;
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
@@ -219,6 +230,10 @@ void Hook_Manager::hook_dx11()
 {
     if (!_dxgi_hooked && !_renderer_found)
     {
+        HWND hWnd = GetGameWindow();
+        if (!hWnd)
+            return;
+
         IDXGISwapChain* pSwapChain;
         ID3D11Device* pDevice;
         DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
@@ -231,7 +246,7 @@ void Hook_Manager::hook_dx11()
         SwapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
         SwapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
         SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        SwapChainDesc.OutputWindow = GetForegroundWindow();
+        SwapChainDesc.OutputWindow = hWnd;
         SwapChainDesc.SampleDesc.Count = 1;
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
@@ -258,6 +273,10 @@ void Hook_Manager::hook_dx12()
 {
     if (!_dxgi_hooked && !_renderer_found)
     {
+        HWND hWnd = GetGameWindow();
+        if (!hWnd)
+            return;
+
         IDXGIFactory4* pDXGIFactory = nullptr;
         IDXGISwapChain1* pSwapChain = nullptr;
         D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -289,7 +308,7 @@ void Hook_Manager::hook_dx12()
             if (pCommandQueue)
             {
                 reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(GetModuleHandle("dxgi.dll"), "CreateDXGIFactory1"))(IID_PPV_ARGS(&pDXGIFactory));
-                pDXGIFactory->CreateSwapChainForHwnd(pCommandQueue, GetForegroundWindow(), &SwapChainDesc, NULL, NULL, &pSwapChain);
+                pDXGIFactory->CreateSwapChainForHwnd(pCommandQueue, hWnd, &SwapChainDesc, NULL, NULL, &pSwapChain);
                 if (pSwapChain != nullptr)
                 {
                     PRINT_DEBUG("Hooked IDXGISwapChain::Present to detect DX Version\n");
@@ -378,13 +397,10 @@ void Hook_Manager::create_hook(const char* libname)
 bool Hook_Manager::stop_retry()
 {
     // Retry 200 times, we look for rendering functions so its actually: "retry for 200 frames"
-    bool stop = ++_hook_retries >= 200;
+    bool stop = ++_hook_retries >= max_hook_retries;
 
     if (stop)
-    {
-        PRINT_DEBUG("We found a renderer but couldn't hook it, aborting overlay hook.\n");
         FoundRenderer(nullptr);
-    }
 
     return stop;
 }
@@ -456,6 +472,11 @@ void Hook_Manager::FoundRenderer(Base_Hook* hook)
     if (!_renderer_found)
     {
         _renderer_found = true;
+
+        if (hook == nullptr)
+            PRINT_DEBUG("We found a renderer but couldn't hook it, aborting overlay hook.\n");
+        else
+            PRINT_DEBUG("Hooked renderer in %d tries\n", _hook_retries);
 
         _hook_thread->join();
         delete _hook_thread;

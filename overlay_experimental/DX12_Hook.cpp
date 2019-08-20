@@ -19,6 +19,10 @@ bool DX12_Hook::start_hook()
         if (!Windows_Hook::Inst().start_hook())
             return false;
 
+        HWND hWnd = GetGameWindow();
+        if (!hWnd)
+            return false;
+
         IDXGIFactory4* pDXGIFactory = nullptr;
         IDXGISwapChain1* pSwapChain = nullptr;
         D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -50,7 +54,7 @@ bool DX12_Hook::start_hook()
             if (pCommandQueue)
             {
                 reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(GetModuleHandle("dxgi.dll"), "CreateDXGIFactory1"))(IID_PPV_ARGS(&pDXGIFactory));
-                pDXGIFactory->CreateSwapChainForHwnd(pCommandQueue, GetForegroundWindow(), &SwapChainDesc, NULL, NULL, &pSwapChain);
+                pDXGIFactory->CreateSwapChainForHwnd(pCommandQueue, hWnd, &SwapChainDesc, NULL, NULL, &pSwapChain);
 
                 if (pSwapChain != nullptr)
                 {

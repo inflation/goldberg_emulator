@@ -7,6 +7,26 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 
 #include "../dll/dll.h"
 
+HWND GetGameWindow()
+{
+    HWND hWnd = FindWindow(NULL, NULL);
+    while (hWnd)
+    {
+        if (!GetParent(hWnd))
+        {
+#if defined(_WIN64)
+            if (GetModuleHandle(NULL) == (HINSTANCE)GetWindowLong(hWnd, GWLP_HINSTANCE))
+                break;
+#elif defined(_WIN32)
+            if (GetModuleHandle(NULL) == (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE))      
+                break;
+#endif
+        }
+        hWnd = GetWindow(hWnd, GW_HWNDNEXT);
+    }
+    return hWnd;
+}
+
 bool Windows_Hook::start_hook()
 {
     if (!_hooked)

@@ -42,5 +42,7 @@ public:
     static Windows_Hook& Inst();
 };
 
+HWND GetGameWindow();
+
 #endif//NO_OVERLAY
 #endif//__INCLUDED_WINDOWS_HOOK_H__

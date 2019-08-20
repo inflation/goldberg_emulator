@@ -27,6 +27,10 @@ bool DX11_Hook::start_hook()
         if (!Windows_Hook::Inst().start_hook())
             return false;
 
+        HWND hWnd = GetGameWindow();
+        if (!hWnd)
+            return false;
+
         IDXGISwapChain* pSwapChain;
         ID3D11Device* pDevice;
         DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
@@ -39,7 +43,7 @@ bool DX11_Hook::start_hook()
         SwapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
         SwapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
         SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        SwapChainDesc.OutputWindow = GetForegroundWindow();
+        SwapChainDesc.OutputWindow = hWnd;
         SwapChainDesc.SampleDesc.Count = 1;
         SwapChainDesc.SampleDesc.Quality = 0;
         SwapChainDesc.Windowed = TRUE;
