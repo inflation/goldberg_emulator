@@ -7,20 +7,31 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 
 #include "../dll/dll.h"
 
+#include <psapi.h>
+
 HWND GetGameWindow()
 {
-    HWND hWnd = FindWindow(NULL, NULL);
-    while (hWnd)
+    HWND hWnd = FindWindow(nullptr, nullptr);
+    HMODULE hModules[512];
+    DWORD needed;
+    if (EnumProcessModules(GetCurrentProcess(), hModules, 512, &needed) != 0)
     {
-        if (!GetParent(hWnd))
+        int numMods = needed/sizeof(HMODULE);
+        while (hWnd)
         {
-            if (GetModuleHandle(NULL) == (HMODULE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE))
-                break;
+            HMODULE wndInst = (HMODULE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+            if (wndInst != nullptr)
+            {
+                for (int i = 0; i < numMods; ++i)
+                {
+                    if (!GetParent(hWnd) && hModules[i] == wndInst)
+                        return hWnd;
+                }
+            }
+            hWnd = GetWindow(hWnd, GW_HWNDNEXT);
         }
-        hWnd = GetWindow(hWnd, GW_HWNDNEXT);
     }
-    if (!hWnd)
-        PRINT_DEBUG("Failed to get game window HWND\n");
+    PRINT_DEBUG("Failed to get game window HWND\n");
     return hWnd;
 }
 
