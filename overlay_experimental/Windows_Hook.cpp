@@ -14,16 +14,13 @@ HWND GetGameWindow()
     {
         if (!GetParent(hWnd))
         {
-#if defined(_WIN64)
-            if (GetModuleHandle(NULL) == (HINSTANCE)GetWindowLong(hWnd, GWLP_HINSTANCE))
+            if (GetModuleHandle(NULL) == (HMODULE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE))
                 break;
-#elif defined(_WIN32)
-            if (GetModuleHandle(NULL) == (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE))      
-                break;
-#endif
         }
         hWnd = GetWindow(hWnd, GW_HWNDNEXT);
     }
+    if (!hWnd)
+        PRINT_DEBUG("Failed to get game window HWND\n");
     return hWnd;
 }
 

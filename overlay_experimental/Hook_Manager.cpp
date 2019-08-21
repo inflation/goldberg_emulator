@@ -396,7 +396,7 @@ void Hook_Manager::create_hook(const char* libname)
 
 bool Hook_Manager::stop_retry()
 {
-    // Retry 200 times, we look for rendering functions so its actually: "retry for 200 frames"
+    // Retry or not
     bool stop = ++_hook_retries >= max_hook_retries;
 
     if (stop)
