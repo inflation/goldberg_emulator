@@ -243,7 +243,19 @@ DX12_Hook::~DX12_Hook()
 {
     PRINT_DEBUG("DX12 Hook removed\n");
 
-    resetRenderState();
+    if (initialized)
+    {
+        pCmdAlloc->Release();
+        pCmdList->Release();
+        pDescriptorHeap->Release();
+
+        //ImGui_ImplDX12_Shutdown();
+        ImGui_ImplDX12_InvalidateDeviceObjects();
+        Windows_Hook::Inst().resetRenderState();
+        ImGui::DestroyContext();
+
+        initialized = false;
+    }
 
     FreeLibrary(reinterpret_cast<HMODULE>(_library));
 

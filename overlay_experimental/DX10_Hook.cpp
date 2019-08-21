@@ -194,7 +194,17 @@ DX10_Hook::~DX10_Hook()
 {
     PRINT_DEBUG("DX10 Hook removed\n");
 
-    resetRenderState();
+    if (initialized)
+    {
+        mainRenderTargetView->Release();
+
+        //ImGui_ImplDX10_Shutdown();
+        ImGui_ImplDX10_InvalidateDeviceObjects();
+        Windows_Hook::Inst().resetRenderState();
+        ImGui::DestroyContext();
+
+        initialized = false;
+    }
 
     FreeLibrary(reinterpret_cast<HMODULE>(_library));
 

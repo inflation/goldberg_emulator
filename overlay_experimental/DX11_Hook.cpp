@@ -212,7 +212,18 @@ DX11_Hook::~DX11_Hook()
 {
     PRINT_DEBUG("DX11 Hook removed\n");
 
-    resetRenderState();
+    if (initialized)
+    {
+        mainRenderTargetView->Release();
+        pContext->Release();
+
+        //ImGui_ImplDX11_Shutdown();
+        ImGui_ImplDX11_InvalidateDeviceObjects();
+        Windows_Hook::Inst().resetRenderState();
+        ImGui::DestroyContext();
+
+        initialized = false;
+    }
 
     FreeLibrary(reinterpret_cast<HMODULE>(_library));
 
