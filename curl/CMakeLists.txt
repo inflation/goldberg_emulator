@@ -38,9 +38,6 @@ else()
   else()
     message(FATAL_ERROR "Arch unknown")
   endif()
-  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -fvisibility=hidden -fPIC")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fPIC")
-  
 endif()
 
 set(CMAKE_CXX_STANDARD 11)

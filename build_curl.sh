@@ -32,6 +32,10 @@ args+=($build_testing)
 args+=($build_type)
 args+=($custom_arch_var)
 
+if [ ! -z "$EXTRA_CMAKE_ENV" ]; then
+  args+=("-DCURL_STATIC_CRT=ON")
+fi
+
 # EXTRA_CMAKE_ENV is set by setup_clang_env.sh to build for windows.
 # You must run setup_clang_env.sh before calling this script if you build for windows.
 
