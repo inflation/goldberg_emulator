@@ -335,6 +335,7 @@ Steam_Client::Steam_Client()
         }
     }
 
+    std::string achievements_db_file_path = (Local_Storage::get_game_settings_path() + "achievements.json");
     std::string items_db_file_path = (Local_Storage::get_game_settings_path() + "items.json");
 
     network = new Networking(settings_server->get_local_steam_id(), appid, port, &custom_broadcasts);
@@ -352,7 +353,7 @@ Steam_Client::Steam_Client()
     steam_utils = new Steam_Utils(settings_client, callback_results_client);
     steam_matchmaking = new Steam_Matchmaking(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_matchmaking_servers = new Steam_Matchmaking_Servers(settings_client, network);
-    steam_user_stats = new Steam_User_Stats(settings_client, local_storage, callback_results_client, callbacks_client);
+    steam_user_stats = new Steam_User_Stats(settings_client, local_storage, callback_results_client, callbacks_client, achievements_db_file_path);
     steam_apps = new Steam_Apps(settings_client, callback_results_client);
     steam_networking = new Steam_Networking(settings_client, network, callbacks_client, run_every_runcb);
     steam_remote_storage = new Steam_Remote_Storage(settings_client, local_storage, callback_results_client);
