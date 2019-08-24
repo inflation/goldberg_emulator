@@ -162,7 +162,7 @@ Steam_Client::Steam_Client()
     uint64 steam_id = 0;
     bool generate_new = false;
     //try to load steam id from game specific settings folder first
-    if (local_storage->get_data(SETTINGS_STORAGE_FOLDER, "user_steam_id.txt", array_steam_id, sizeof(array_steam_id) - 1) > 0) {
+    if (local_storage->get_data(Local_Storage::settings_storage_folder, "user_steam_id.txt", array_steam_id, sizeof(array_steam_id) - 1) > 0) {
         user_id = CSteamID((uint64)std::atoll(array_steam_id));
         if (!user_id.IsValid()) {
             generate_new = true;
@@ -335,9 +335,6 @@ Steam_Client::Steam_Client()
         }
     }
 
-    std::string achievements_db_file_path = (Local_Storage::get_game_settings_path() + "achievements.json");
-    std::string items_db_file_path = (Local_Storage::get_game_settings_path() + "items.json");
-
     network = new Networking(settings_server->get_local_steam_id(), appid, port, &custom_broadcasts);
 
     callback_results_client = new SteamCallResults();
@@ -353,7 +350,7 @@ Steam_Client::Steam_Client()
     steam_utils = new Steam_Utils(settings_client, callback_results_client);
     steam_matchmaking = new Steam_Matchmaking(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_matchmaking_servers = new Steam_Matchmaking_Servers(settings_client, network);
-    steam_user_stats = new Steam_User_Stats(settings_client, local_storage, callback_results_client, callbacks_client, achievements_db_file_path);
+    steam_user_stats = new Steam_User_Stats(settings_client, local_storage, callback_results_client, callbacks_client);
     steam_apps = new Steam_Apps(settings_client, callback_results_client);
     steam_networking = new Steam_Networking(settings_client, network, callbacks_client, run_every_runcb);
     steam_remote_storage = new Steam_Remote_Storage(settings_client, local_storage, callback_results_client);
@@ -365,7 +362,7 @@ Steam_Client::Steam_Client()
     steam_music = new Steam_Music(callbacks_client);
     steam_musicremote = new Steam_MusicRemote();
     steam_HTMLsurface = new Steam_HTMLsurface(settings_client, network, callback_results_client, callbacks_client);
-    steam_inventory = new Steam_Inventory(settings_client, callback_results_client, callbacks_client, run_every_runcb, items_db_file_path);
+    steam_inventory = new Steam_Inventory(settings_client, callback_results_client, callbacks_client, run_every_runcb, local_storage);
     steam_video = new Steam_Video();
     steam_parental = new Steam_Parental();
     steam_networking_sockets = new Steam_Networking_Sockets(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
@@ -383,7 +380,7 @@ Steam_Client::Steam_Client()
     steam_gameserverstats = new Steam_GameServerStats(settings_server, network, callback_results_server, callbacks_server);
     steam_gameserver_networking = new Steam_Networking(settings_server, network, callbacks_server, run_every_runcb);
     steam_gameserver_http = new Steam_HTTP(settings_server, network, callback_results_server, callbacks_server);
-    steam_gameserver_inventory = new Steam_Inventory(settings_server, callback_results_server, callbacks_server, run_every_runcb, items_db_file_path);
+    steam_gameserver_inventory = new Steam_Inventory(settings_server, callback_results_server, callbacks_server, run_every_runcb, local_storage);
     steam_gameserver_ugc = new Steam_UGC(settings_server, callback_results_server, callbacks_server);
     steam_gameserver_apps = new Steam_Apps(settings_server, callback_results_server);
     steam_gameserver_networking_sockets = new Steam_Networking_Sockets(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);

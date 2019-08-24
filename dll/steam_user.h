@@ -149,7 +149,7 @@ bool GetUserDataFolder( char *pchBuffer, int cubBuffer )
     PRINT_DEBUG("GetUserDataFolder\n");
     if (!cubBuffer) return false;
 
-    std::string user_data = local_storage->get_path(USER_DATA_FOLDER);
+    std::string user_data = local_storage->get_path(Local_Storage::user_data_storage);
     strncpy(pchBuffer, user_data.c_str(), cubBuffer - 1);
     pchBuffer[cubBuffer - 1] = 0;
     return true;
