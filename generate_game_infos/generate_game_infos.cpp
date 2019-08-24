@@ -206,7 +206,7 @@ int main()
             {
                 output_json[i]["name"]        = item.value()["name"];
                 output_json[i]["displayName"] = item.value()["displayName"];
-                output_json[i]["hidden"]      = item.value()["hidden"];
+                output_json[i]["hidden"]      = std::to_string(item.value()["hidden"].get<int>());
                 try
                 {
                     output_json[i]["description"] = item.value()["description"];
@@ -217,8 +217,6 @@ int main()
                 }
                 output_json[i]["icon"]        = item.value()["icon"];
                 output_json[i]["icongray"]    = item.value()["icongray"];
-                output_json[i]["time_earned"] = 0;
-                output_json[i]["earned"]      = 0;
                 ++i;
             }
             ach_file << std::setw(2) << output_json;
