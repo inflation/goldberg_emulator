@@ -666,6 +666,7 @@ bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPrope
                 {
                     // copy what we can
                     strncpy(pchValueBuffer, val.c_str(), *punValueBufferSizeOut);
+                    *punValueBufferSizeOut = std::min(static_cast<uint32>(val.length() + 1), *punValueBufferSizeOut);
                 }
                 else
                 {
