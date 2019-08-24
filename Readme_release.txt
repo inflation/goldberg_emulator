@@ -65,11 +65,16 @@ If you want to set custom ips (or domains) which the emulator will send broadcas
 If the custom ips/domains are specific for one game only you can put the custom_broadcasts.txt in the steam_settings\ folder.
 An example is provided in steam_settings.EXAMPLE\custom_broadcasts.EXAMPLE.txt
 
-Items or Inventory:
-Create a folder named steam_settings right beside steam_api.dll if there isn't one already. In that folder, create a file named items.json which will contain every item you want to have in your game.
+Achievements, Items or Inventory:
+Create a folder named steam_settings right beside steam_api.dll if there isn't one already. In that folder, create a file named items.json and/or achievements.json which will contain every item/achievement you want to have in your game.
 An example can be found in steam_settings.EXAMPLE that works with Killing Floor 2.
 The items.json syntax is simple, you SHOULD validate your .json file before trying to run your game or you won't have any item in your inventory. Just look for "online json validator" on your web brower to valide your file.
 You can use https://steamdb.info/ to list items and attributes they have and put them into your .json.
+Then you have to add item/achievement to you inventory. To do so, go to %appdata%\Goldberg SteamEmu Saves\inventory\<appid> on windows or [$XDG_DATA_HOME|~/.local/share]/Goldberg SteamEmu Saves on linux.
+In that folder, create a file items.json and/or achievements.json and fill it like in the example inventory.EXAMPLE.
+items.json syntax is like so: { "item_id": <quantity>, "other_item_id": <quantity> }.
+achievements.json syntax is like so: { "achievement_name": { "earned" : [true|false], "earned_time": <seconds since 1 january 1970> }, "second_name": { "earned" : [true|false], "earned_time": <seconds since 1 january 1970> } }
+"earned_time" can be 0, meaning the achievement was earned before before trace the earn time. (See https://partner.steamgames.com/doc/api/ISteamUserStats#GetAchievementAndUnlockTime)
 Keep in mind that some item are not valid to have in your inventory. For example, in PayDay2 all items below item_id 50000 will make your game crash.
 
 Leaderboards:
