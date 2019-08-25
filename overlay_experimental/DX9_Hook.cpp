@@ -14,6 +14,7 @@ DX9_Hook* DX9_Hook::_inst = nullptr;
 
 bool DX9_Hook::start_hook()
 {
+    bool res = true;
     if (!_hooked)
     {
         if (!Windows_Hook::Inst().start_hook())
@@ -60,13 +61,13 @@ bool DX9_Hook::start_hook()
         else
         {
             PRINT_DEBUG("Failed to DirectX 9\n");
-            return false;
+            res = false;
         }
 
         if(pDeviceEx)pDeviceEx->Release();
         if(pD3D)pD3D->Release();
     }
-    return true;
+    return res;
 }
 
 void DX9_Hook::resetRenderState()

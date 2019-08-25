@@ -37,6 +37,7 @@ HWND GetGameWindow()
 
 bool Windows_Hook::start_hook()
 {
+    bool res = true;
     if (!_hooked)
     {
         GetRawInputBuffer = ::GetRawInputBuffer;
@@ -51,7 +52,7 @@ bool Windows_Hook::start_hook()
 
         _hooked = true;
     }
-    return true;
+    return res;
 }
 
 void Windows_Hook::resetRenderState()
@@ -171,7 +172,7 @@ Windows_Hook::Windows_Hook() :
     GetRawInputBuffer(nullptr),
     GetRawInputData(nullptr)
 {
-
+    //_library = LoadLibrary(DLL_NAME);
 }
 
 Windows_Hook::~Windows_Hook()
@@ -179,6 +180,8 @@ Windows_Hook::~Windows_Hook()
     PRINT_DEBUG("Windows Hook removed\n");
 
     resetRenderState();
+
+    //FreeLibrary(reinterpret_cast<HMODULE>(_library));
 }
 
 Windows_Hook& Windows_Hook::Inst()

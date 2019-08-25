@@ -16,6 +16,7 @@ OpenGL_Hook* OpenGL_Hook::_inst = nullptr;
 
 bool OpenGL_Hook::start_hook()
 {
+    bool res = true;
     if (!_hooked)
     {
         if (!Windows_Hook::Inst().start_hook())
@@ -46,7 +47,7 @@ bool OpenGL_Hook::start_hook()
             PRINT_DEBUG("Failed to hook OpenGL\n");
             /* Problem: glewInit failed, something is seriously wrong. */
             PRINT_DEBUG("Error: %s\n", glewGetErrorString(err));
-            return false;
+            res = false;
         }
     }
     return true;

@@ -22,6 +22,7 @@ HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** 
 
 bool DX11_Hook::start_hook()
 {
+    bool res = true;
     if (!_hooked)
     {
         if (!Windows_Hook::Inst().start_hook())
@@ -73,13 +74,13 @@ bool DX11_Hook::start_hook()
         else
         {
             PRINT_DEBUG("Failed to hook DirectX 11\n");
-            return false;
+            res = false;
         }
 
         if(pDevice) pDevice->Release();
         if(pSwapChain) pSwapChain->Release();
     }
-    return true;
+    return res;
 }
 
 void DX11_Hook::resetRenderState()

@@ -12,6 +12,7 @@
 #include <Windows.h>
 
 Base_Hook::Base_Hook():
+    _library(nullptr),
     _hooked(false)
 {}
 

@@ -12,6 +12,7 @@ DX10_Hook* DX10_Hook::_inst = nullptr;
 
 bool DX10_Hook::start_hook()
 {
+    bool res = true;
     if (!_hooked)
     {
         if (!Windows_Hook::Inst().start_hook())
@@ -63,12 +64,12 @@ bool DX10_Hook::start_hook()
         else
         {
             PRINT_DEBUG("Failed to hook DirectX 10\n");
-            return false;
+            res = false;
         }
         if(pDevice)pDevice->Release();
         if(pSwapChain)pSwapChain->Release();
     }
-    return true;
+    return res;
 }
 
 void DX10_Hook::resetRenderState()

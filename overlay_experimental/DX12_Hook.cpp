@@ -14,6 +14,7 @@ DX12_Hook* DX12_Hook::_inst = nullptr;
 
 bool DX12_Hook::start_hook()
 {
+    bool res = true;
     if (!_hooked)
     {
         if (!Windows_Hook::Inst().start_hook())
@@ -79,7 +80,7 @@ bool DX12_Hook::start_hook()
                 else
                 {
                     PRINT_DEBUG("Failed to hook DirectX 12\n");
-                    return false;
+                    res = false;
                 }
             }
         }
@@ -89,7 +90,7 @@ bool DX12_Hook::start_hook()
         if (pCommandQueue) pCommandQueue->Release();
         if (pDevice) pDevice->Release();
     }
-    return true;
+    return res;
 }
 
 void DX12_Hook::resetRenderState()
