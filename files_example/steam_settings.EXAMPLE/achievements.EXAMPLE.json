@@ -2,2621 +2,2097 @@
   {
     "description": "Complete Burning Paris on Survival Normal difficulty",
     "displayName": "Tower Tussle",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/602f536d30b0c235518e7a1e44187d441eaf63d6.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_0",
-    "time_earned": 0
+    "name": "Achievement_0"
   },
   {
     "description": "Complete Burning Paris on Survival Hard difficulty",
     "displayName": "Seine Skirmish",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/636fe6d6fabcabde48e874b7f4743632578b1c5d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_1",
-    "time_earned": 0
+    "name": "Achievement_1"
   },
   {
     "description": "Beat Burning Paris on Suicidal",
     "displayName": "Bastille Brawl",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c917888af91dfe611af82089437b2893779c8efc.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_2",
-    "time_earned": 0
+    "name": "Achievement_2"
   },
   {
     "description": "Beat Burning Paris on Hell on Earth",
     "displayName": "Arc Action",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/70b565ce3857b76c0a05369f06c8c049e16f7acb.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_3",
-    "time_earned": 0
+    "name": "Achievement_3"
   },
   {
     "description": "Beat Outpost on Normal",
     "displayName": "You Can't Fight In Here, This Is The Control Room",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d47d3ba3fd18af18307316c45ef5928a2ef548ea.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_4",
-    "time_earned": 0
+    "name": "Achievement_4"
   },
   {
     "description": "Beat Outpost on Hard",
     "displayName": "This Is What Happens When You Meet A Zed In The Alps",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/02ee9ce922c7ce7a64829cd532f1ba2643dd4bb1.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_5",
-    "time_earned": 0
+    "name": "Achievement_5"
   },
   {
     "description": "Beat Outpost on Suicidal",
     "displayName": "The Shield Doors Must Be Closed",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/050dcb99026091b63eddda0cdc4d63fd722c1e1b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_6",
-    "time_earned": 0
+    "name": "Achievement_6"
   },
   {
     "description": "Beat Outpost on Hell on Earth",
     "displayName": "Fear Is For The Zeds, My Little Lord",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8431a972a1983e9caf674f6789a5c465805ebbc4.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_7",
-    "time_earned": 0
+    "name": "Achievement_7"
   },
   {
     "description": "Beat Biotics Lab on Normal",
     "displayName": "Open For Testing",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/0a8d274c3d77ec81d2aab54af370f724d40f15bc.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_8",
-    "time_earned": 0
+    "name": "Achievement_8"
   },
   {
     "description": "Beat Biotics Lab on Hard",
     "displayName": "Limited Contact",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/cbcc021969245995ce09589ad53ab1a47f0fdff7.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_9",
-    "time_earned": 0
+    "name": "Achievement_9"
   },
   {
     "description": "Beat Biotics Lab on Suicidal",
     "displayName": "Restricted Access",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/44268ccc9bac63ecbf60f39898d7dc2c17bd53ab.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_10",
-    "time_earned": 0
+    "name": "Achievement_10"
   },
   {
     "description": "Beat Biotics Lab on Hell on Earth",
     "displayName": "Controlled Environment",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/70cb90730ab2705bb1e306819354651d56c38552.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_11",
-    "time_earned": 0
+    "name": "Achievement_11"
   },
   {
     "description": "Beat Volter Manor on Normal",
     "displayName": "Just Visiting",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/61fa8d36c9829af872c0ad5228c60d64069fce17.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_12",
-    "time_earned": 0
+    "name": "Achievement_12"
   },
   {
     "description": "Beat Volter Manor on Hard",
     "displayName": "Mind Your Manor",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4e5b10441e0474095bbb81d5960f1af27c932084.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_13",
-    "time_earned": 0
+    "name": "Achievement_13"
   },
   {
     "description": "Beat Volter Manor on Suicidal",
     "displayName": "Settling In",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/1683c9b2122f6ede072934269661f93e17ab984e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_14",
-    "time_earned": 0
+    "name": "Achievement_14"
   },
   {
     "description": "Complete Volter Manor on Survival Hell On Earth difficulty",
     "displayName": "Lord of the Manor",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6c4b365273492452a071837a4255bd4d2dea73da.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_15",
-    "time_earned": 0
+    "name": "Achievement_15"
   },
   {
     "description": "Collect all the items on Burning Paris",
     "displayName": "Paris Plunder",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e1438bcf38af2bfc2c847a1f668faf687df0b732.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_16",
-    "time_earned": 0
+    "name": "Achievement_16"
   },
   {
     "description": "Collect all the items on Outpost",
     "displayName": "Outpost Offerings",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/59ffefa9465aaf04ffdbc9e705cf3164d28a91b0.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_17",
-    "time_earned": 0
+    "name": "Achievement_17"
   },
   {
     "description": "Collect all the items on Biotics Lab",
     "displayName": "Biotics Bling",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/da4820f31888fcefa4a634a584e12a96de211e88.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_18",
-    "time_earned": 0
+    "name": "Achievement_18"
   },
   {
     "description": "Collect all the items on Volter Manor",
     "displayName": "Manor Money",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/30c452781f10edb7b6b3abd3a038776eac66252d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fa19ba1f7d3065bc5a546edd438feed6b4fb9d.jpg",
-    "name": "Achievement_19",
-    "time_earned": 0
+    "name": "Achievement_19"
   },
   {
     "description": "Complete Evacuation Point on Survival Normal difficulty",
     "displayName": "The Suite Life",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/9c80431926b58a51f442831f69d109df8d3f64e1.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_20",
-    "time_earned": 0
+    "name": "Achievement_20"
   },
   {
     "description": "Complete Evacuation Point on Survival Hard difficulty",
     "displayName": "Unsinkable II",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3b2a9c5c63aad9b5f0a43f93424e0f29c8c6deb9.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_21",
-    "time_earned": 0
+    "name": "Achievement_21"
   },
   {
     "description": "Complete Evacuation Point on Survival Suicidal difficulty",
     "displayName": "Bow Movement",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4b22d317141e729496ec00a2f0f7bc6a8a3146f2.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_22",
-    "time_earned": 0
+    "name": "Achievement_22"
   },
   {
     "description": "Complete Evacuation Point on Survival Hell On Earth difficulty",
     "displayName": "Seas The Day",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b64bf6337277640aa8f455aed9d210168a7ce414.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_23",
-    "time_earned": 0
+    "name": "Achievement_23"
   },
   {
     "description": "Complete Catacombs on Survival Normal difficulty",
     "displayName": "A Light In The Darkness",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d2908401103ad32380e3cf3525dafc45a1691306.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_24",
-    "time_earned": 0
+    "name": "Achievement_24"
   },
   {
     "description": "Complete Catacombs on Survival Hard difficulty",
     "displayName": "This Is No Mine",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/1b79ab127fcaba5394686438c187275672fa62e3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_25",
-    "time_earned": 0
+    "name": "Achievement_25"
   },
   {
     "description": "Complete Catacombs on Survival Suicidal difficulty",
     "displayName": "This Is A Tomb, Theirs",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/72a312fa2a311a0d57ba43d5d0ff5324560bd954.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_26",
-    "time_earned": 0
+    "name": "Achievement_26"
   },
   {
     "description": "Complete Catacombs on Survival Hell On Earth difficulty",
     "displayName": "They Shall Not Pass",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b4770075a39f42f45b4fa7cf8f4c2e9c377633a0.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_27",
-    "time_earned": 0
+    "name": "Achievement_27"
   },
   {
     "description": "Collect all the items on Evacuation Point",
     "displayName": "Point Paper",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8946b527da24edc10caea62e796b1b43420f736b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_28",
-    "time_earned": 0
+    "name": "Achievement_28"
   },
   {
     "description": "Collect all the items on Catacombs",
     "displayName": "Catacombs Cash",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/daa37be2677f123e123bf39b945e996fb8758c45.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_29",
-    "time_earned": 0
+    "name": "Achievement_29"
   },
   {
     "description": "Reach Level 5 Berserker",
     "displayName": "Reach Level 5 Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ec445dee4f5bfcfca9e132ff680068e02c80983a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_30",
-    "time_earned": 0
+    "name": "Achievement_30"
   },
   {
     "description": "Reach Level 10 Berserker",
     "displayName": "Reach Level 10 Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8b2a3fc6e4112e667d045e7a0e3d1d229afe9273.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_31",
-    "time_earned": 0
+    "name": "Achievement_31"
   },
   {
     "description": "Reach Level 15 Berserker",
     "displayName": "Reach Level 15 Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/77fcacad378a8b65c6a1a40149a0bb41e571d252.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_32",
-    "time_earned": 0
+    "name": "Achievement_32"
   },
   {
     "description": "Reach Level 20 Berserker",
     "displayName": "Reach Level 20 Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/edcb6d683a8cdb6dd29bd6dfa6c4887aedf886ef.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_33",
-    "time_earned": 0
+    "name": "Achievement_33"
   },
   {
     "description": "Reach Level 25 Berserker",
     "displayName": "Reach Level 25 Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2c0797935113227a8a7d60cdd76dfe1d272bd9c3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_34",
-    "time_earned": 0
+    "name": "Achievement_34"
   },
   {
     "description": "Reach Level 5 Medic",
     "displayName": "Reach Level 5 Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f81cafc2e08f2373cf4a5a4feb8ebc9d42609f52.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_35",
-    "time_earned": 0
+    "name": "Achievement_35"
   },
   {
     "description": "Reach Level 10 Medic",
     "displayName": "Reach Level 10 Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6cfa49ae2939448e3eae52e6ef5d88a8d3e8cee5.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_36",
-    "time_earned": 0
+    "name": "Achievement_36"
   },
   {
     "description": "Reach Level 15 Medic",
     "displayName": "Reach Level 15 Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/9d05bece5bdc0c4a919629378aa8d0a838b01548.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_37",
-    "time_earned": 0
+    "name": "Achievement_37"
   },
   {
     "description": "Reach Level 20 Medic",
     "displayName": "Reach Level 20 Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8dcf9baa3420738cea516dfbb148d822b8cbc5c9.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_38",
-    "time_earned": 0
+    "name": "Achievement_38"
   },
   {
     "description": "Reach Level 25 Medic",
     "displayName": "Reach Level 25 Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/908b077bf03a98b6731c68d78bfb4071bb112604.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_39",
-    "time_earned": 0
+    "name": "Achievement_39"
   },
   {
     "description": "Reach Level 5 Commando",
     "displayName": "Reach Level 5 Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/59df9bded3394b3658929b5c0d6c4ef94d544bc3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_40",
-    "time_earned": 0
+    "name": "Achievement_40"
   },
   {
     "description": "Reach Level 10 Commando",
     "displayName": "Reach Level 10 Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/0052ebf1633c386974865ee696606c9fa003ff10.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_41",
-    "time_earned": 0
+    "name": "Achievement_41"
   },
   {
     "description": "Reach Level 15 Commando",
     "displayName": "Reach Level 15 Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6a211f3fb884248955eb1608987882372c44be91.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_42",
-    "time_earned": 0
+    "name": "Achievement_42"
   },
   {
     "description": "Reach Level 20 Commando",
     "displayName": "Reach Level 20 Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/46e7a0273fe5e82f4cbf6a650e8e9b519651ed46.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_43",
-    "time_earned": 0
+    "name": "Achievement_43"
   },
   {
     "description": "Reach Level 25 Commando",
     "displayName": "Reach Level 25 Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ea698f23e293f79e28ad83c710820c86c30e8639.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_44",
-    "time_earned": 0
+    "name": "Achievement_44"
   },
   {
     "description": "Reach Level 5 Support",
     "displayName": "Reach Level 5 Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8405e32f8bd371eb86b2d2c969efaba94d1b0076.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_45",
-    "time_earned": 0
+    "name": "Achievement_45"
   },
   {
     "description": "Reach Level 10 Support",
     "displayName": "Reach Level 10 Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d9f35337082a2acb1893cc3976a0bdfcc670eef2.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_46",
-    "time_earned": 0
+    "name": "Achievement_46"
   },
   {
     "description": "Reach Level 15 Support",
     "displayName": "Reach Level 15 Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/77627b9cf8a5ff535bc4cc0b1afb8dceeaa89dcc.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_47",
-    "time_earned": 0
+    "name": "Achievement_47"
   },
   {
     "description": "Reach Level 20 Support",
     "displayName": "Reach Level 20 Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/87d64c361dbacf7bb024abbfa1cb379b86e91989.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_48",
-    "time_earned": 0
+    "name": "Achievement_48"
   },
   {
     "description": "Reach Level 25 Support",
     "displayName": "Reach Level 25 Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/5a435a108d19908931941b652c758534d0147ce2.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_49",
-    "time_earned": 0
+    "name": "Achievement_49"
   },
   {
     "description": "Reach Level 5 Firebug",
     "displayName": "Reach Level 5 Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4e6db9d05a3d33d94868e43f0a7034ecdb3ad840.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_50",
-    "time_earned": 0
+    "name": "Achievement_50"
   },
   {
     "description": "Reach Level 10 Firebug",
     "displayName": "Reach Level 10 Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/23ca75c49075bfd65d1a262b8e42d9c021b311ef.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_51",
-    "time_earned": 0
+    "name": "Achievement_51"
   },
   {
     "description": "Reach Level 15 Firebug",
     "displayName": "Reach Level 15 Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e1cbb261b23edfea921a280c099d76f88dbd872a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_52",
-    "time_earned": 0
+    "name": "Achievement_52"
   },
   {
     "description": "Reach Level 20 Firebug",
     "displayName": "Reach Level 20 Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e133456760dd3f8148b9ec1417371c6ecebe62f5.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_53",
-    "time_earned": 0
+    "name": "Achievement_53"
   },
   {
     "description": "Reach Level 25 Firebug",
     "displayName": "Reach Level 25 Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2488d37177ef8c82d03ac5bf7eb43fe774518c11.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_54",
-    "time_earned": 0
+    "name": "Achievement_54"
   },
   {
     "description": "Reach Level 5 Demolitions",
     "displayName": "Reach Level 5 Demolitions",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f8ff68113d42586d47a3f8b8120a16f40794699b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_55",
-    "time_earned": 0
+    "name": "Achievement_55"
   },
   {
     "description": "Reach Level 10 Demolitions",
     "displayName": "Reach Level 10 Demolitions",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b2664d73ed43ef164935a580a295bbf1e9e4e8de.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_56",
-    "time_earned": 0
+    "name": "Achievement_56"
   },
   {
     "description": "Reach Level 15 Demolitions",
     "displayName": "Reach Level 15 Demolitions",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/dda8becc826584df747b1db31c1f36d8fe4a827e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_57",
-    "time_earned": 0
+    "name": "Achievement_57"
   },
   {
     "description": "Reach Level 20 Demolitions",
     "displayName": "Reach Level 20 Demolitions",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/97e880c18ee6117082b2fbf43e2c7f6b170fa5f8.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_58",
-    "time_earned": 0
+    "name": "Achievement_58"
   },
   {
     "description": "Reach Level 25 Demolitions",
     "displayName": "Reach Level 25 Demolitions",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ae40a49979e39239251944daaee0eb6a1e72603d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_59",
-    "time_earned": 0
+    "name": "Achievement_59"
   },
   {
     "description": "Reach Level 5 Gunslinger",
     "displayName": "Reach Level 5 Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6dc5ed68550025c39e585746f5f9386e38661758.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_60",
-    "time_earned": 0
+    "name": "Achievement_60"
   },
   {
     "description": "Reach Level 10 Gunslinger",
     "displayName": "Reach Level 10 Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/9a79962091ac4c31ea093da1edb1c3b0f47d129b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_61",
-    "time_earned": 0
+    "name": "Achievement_61"
   },
   {
     "description": "Reach Level 15 Gunslinger",
     "displayName": "Reach Level 15 Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/7fb6931c29993732579b4cd3d8e9daab9a09f0ca.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_62",
-    "time_earned": 0
+    "name": "Achievement_62"
   },
   {
     "description": "Reach Level 20 Gunslinger",
     "displayName": "Reach Level 20 Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/815dec2cee244bec1fd47ddcc4393276c0463ff9.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_63",
-    "time_earned": 0
+    "name": "Achievement_63"
   },
   {
     "description": "Reach Level 25 Gunslinger",
     "displayName": "Reach Level 25 Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/cc7a9b384ed3897cc74fade28cde0e0c2c95b0ce.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_64",
-    "time_earned": 0
+    "name": "Achievement_64"
   },
   {
     "description": "Beat Any One Map as Berserker on Normal Difficulty",
     "displayName": "Normal Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/36cc13be1928003332588ad18221760939c1dce3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_65",
-    "time_earned": 0
+    "name": "Achievement_65"
   },
   {
     "description": "Beat Any One Map as Berserker on Hard Difficulty",
     "displayName": "Hard Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/880c29a1d0131e4ecd8e863040e17bf504da9f2b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_66",
-    "time_earned": 0
+    "name": "Achievement_66"
   },
   {
     "description": "Beat Any One Map as Berserker on Suicidal Difficulty",
     "displayName": "Suicidal Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/1916652e0bc1aeeaa0d3b13031fa8bb67b4a4737.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_67",
-    "time_earned": 0
+    "name": "Achievement_67"
   },
   {
     "description": "Beat Any One Map as Berserker on Hell on Earth Difficulty",
     "displayName": "Hellish Berserker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/5134cbc5bab84d4fc20ada8bc9b51c6c742fffec.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_68",
-    "time_earned": 0
+    "name": "Achievement_68"
   },
   {
     "description": "Beat Any One Map as Medic on Normal Difficulty",
     "displayName": "Normal Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4839101153acbfda639e129955f4ad766cd24ee3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_69",
-    "time_earned": 0
+    "name": "Achievement_69"
   },
   {
     "description": "Beat Any One Map as Medic on Hard Difficulty",
     "displayName": "Hard Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4f2fc7260bbd80517e4ddc089ead393fee197a6a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_70",
-    "time_earned": 0
+    "name": "Achievement_70"
   },
   {
     "description": "Beat Any One Map as Medic on Suicidal Difficulty",
     "displayName": "Suicidal Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/74bfb721ee43daade7c92e83593e2633d1531016.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_71",
-    "time_earned": 0
+    "name": "Achievement_71"
   },
   {
     "description": "Beat Any One Map as Medic on Hell on Earth Difficulty",
     "displayName": "Hellish Medic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/bbf40f4f99ddd1251494c45cf44436fc3032364e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_72",
-    "time_earned": 0
+    "name": "Achievement_72"
   },
   {
     "description": "Complete any map as a Commando on Survival Normal difficulty",
     "displayName": "Normal Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/5a8c0c6211e1314c175b8e5dd2785c79d97e8480.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_73",
-    "time_earned": 0
+    "name": "Achievement_73"
   },
   {
     "description": "Complete any map as a Commando on Survival Hard difficulty",
     "displayName": "Hard Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b44f5d459d8b35a7383718ea39540b8aed9f1d28.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_74",
-    "time_earned": 0
+    "name": "Achievement_74"
   },
   {
     "description": "Complete any map as a Commando on Survival Suicidal difficulty",
     "displayName": "Suicidal Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3d5b0e7ae171e6abd460c512bf7afaad20cb9c53.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_75",
-    "time_earned": 0
+    "name": "Achievement_75"
   },
   {
     "description": "Complete any map as a Commando on Survival Hell On Earth difficulty",
     "displayName": "Hellish Commando",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e08ae8778751acbcf861ee08f3b9803d3181f34f.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_76",
-    "time_earned": 0
+    "name": "Achievement_76"
   },
   {
     "description": "Complete any map as a Support on Survival Normal difficulty",
     "displayName": "Normal Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f18256b3f3ddee86f22b477be44e0093f6d1897d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_77",
-    "time_earned": 0
+    "name": "Achievement_77"
   },
   {
     "description": "Complete any map as a Support on Survival Hard difficulty",
     "displayName": "Hard Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4ad83923f2f9638896fe49aa80b04f11a80bd6db.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_78",
-    "time_earned": 0
+    "name": "Achievement_78"
   },
   {
     "description": "Complete any map as a Support on Survival Suicidal difficulty",
     "displayName": "Suicidal Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/eb55f2e2431b03b787ca803bd8ebb09ba4d0fbdd.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_79",
-    "time_earned": 0
+    "name": "Achievement_79"
   },
   {
     "description": "Complete any map as a Support on Survival Hell On Earth difficulty",
     "displayName": "Hellish Support",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2c483d17dea8fedf4b013c3b8a1f3a86ed7c53a1.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_80",
-    "time_earned": 0
+    "name": "Achievement_80"
   },
   {
     "description": "Complete any map as a Firebug on Survival Normal difficulty",
     "displayName": "Normal Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d787f7a96c2396e035bfae8415739dd3ec53ce69.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_81",
-    "time_earned": 0
+    "name": "Achievement_81"
   },
   {
     "description": "Complete any map as a Firebug on Survival Hard difficulty",
     "displayName": "Hard Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/924384c8d486ef91bf856c25edd258e29b7243d5.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_82",
-    "time_earned": 0
+    "name": "Achievement_82"
   },
   {
     "description": "Complete any map as a Firebug on Survival Suicidal difficulty",
     "displayName": "Suicidal Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/0372e445fd1ad3208f784c254192a5b07ca00e94.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_83",
-    "time_earned": 0
+    "name": "Achievement_83"
   },
   {
     "description": "Complete any map as a Firebug on Survival Hell On Earth difficulty",
     "displayName": "Hellish Firebug",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/41e8861feba48471f3677b706c259ab7cc3c6ec1.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_84",
-    "time_earned": 0
+    "name": "Achievement_84"
   },
   {
     "description": "Complete any map as a Demolitionist on Survival Normal difficulty",
     "displayName": "Normal Demolition",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ba1d7d23335daf81fa6358a296219983d5c41d1a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_85",
-    "time_earned": 0
+    "name": "Achievement_85"
   },
   {
     "description": "Complete any map as a Demolitionist on Survival Hard difficulty",
     "displayName": "Hard Demolition",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2d72fe0b205be4a7c58f1a2f0560e7390fea1f5d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_86",
-    "time_earned": 0
+    "name": "Achievement_86"
   },
   {
     "description": "Complete any map as a Demolitionist on Survival Suicidal difficulty",
     "displayName": "Suicidal Demolition",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/68c99c300525c4b0524f9d1df77d54bab2b91b5f.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_87",
-    "time_earned": 0
+    "name": "Achievement_87"
   },
   {
     "description": "Complete any map as a Demolitionist on Survival Hell On Earth difficulty",
     "displayName": "Hellish Demolition",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f3e2fa5c5bf2fd11d3646cf4046fcd46f6fcea6f.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_88",
-    "time_earned": 0
+    "name": "Achievement_88"
   },
   {
     "description": "Complete any map as a Gunslinger on Survival Normal difficulty",
     "displayName": "Normal Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/fd2324d876a594a4a5e64a8e7e6912d41a334a30.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_89",
-    "time_earned": 0
+    "name": "Achievement_89"
   },
   {
     "description": "Complete any map as a Gunslinger on Survival Hard difficulty",
     "displayName": "Hard Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/74f2431f94c6ecc6639f6af75f4a02f12b2e164d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_90",
-    "time_earned": 0
+    "name": "Achievement_90"
   },
   {
     "description": "Complete any map as a Gunslinger on Survival Suicidal difficulty",
     "displayName": "Suicidal Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/35cc28c801142cd4e1e8c64c4f8f747e13761420.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_91",
-    "time_earned": 0
+    "name": "Achievement_91"
   },
   {
     "description": "Complete any map as a Gunslinger on Survival Hell On Earth difficulty",
     "displayName": "Hellish Gunslinger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/77b47b409488fe21a216cef5d279ac6293bb0b5e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_92",
-    "time_earned": 0
+    "name": "Achievement_92"
   },
   {
     "description": "Reach Level 25 in all Perks",
     "displayName": "Perked Up",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/36350fb27669319b6c3ec26304250c9ff76b8a13.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_93",
-    "time_earned": 0
+    "name": "Achievement_93"
   },
   {
     "description": "Complete Black Forest on Survival Normal difficulty",
     "displayName": "Killer Korn",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b69373a99d3d8d3216b09402a9896f5f29009564.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_94",
-    "time_earned": 0
+    "name": "Achievement_94"
   },
   {
     "description": "Complete Black Forest on Survival Hard difficulty",
     "displayName": "Lager Me Up",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/657bf135a2bbf040370e9b4f73f8dbb74c5f0022.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_95",
-    "time_earned": 0
+    "name": "Achievement_95"
   },
   {
     "description": "Complete Black Forest on Survival Suicidal difficulty",
     "displayName": "I'll Dopple Bock",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/da1fb07964ecc32315a797b1c825d8562bb86113.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_96",
-    "time_earned": 0
+    "name": "Achievement_96"
   },
   {
     "description": "Complete Black Forest on Survival Hell On Earth difficulty",
     "displayName": "Kein Bier Vor Vier",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/5284866c575c132f4d4c838d8c380b5c731e05b6.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_97",
-    "time_earned": 0
+    "name": "Achievement_97"
   },
   {
     "description": "Collect all the items on Black Forest",
     "displayName": "Black Forest Babies",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8b8f2d33dbc9f884b8de60ea4573cf8cdf737d6d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_98",
-    "time_earned": 0
+    "name": "Achievement_98"
   },
   {
     "description": "Beat Farmhouse on Normal Difficulty",
     "displayName": "Plow the Field",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/46cef619b81b1c389955bc1442c346a1b966431c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_99",
-    "time_earned": 0
+    "name": "Achievement_99"
   },
   {
     "description": "Beat Farmhouse on Hard Difficulty",
     "displayName": "Sow the Seed",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e20c6ea4e34b7953f9ea0982ad11835fa11ac9e9.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_100",
-    "time_earned": 0
+    "name": "Achievement_100"
   },
   {
     "description": "Beat Farmhouse on Suicidal Difficulty",
     "displayName": "Water the Crops",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a2da718294f17bc3fc0e06dac6e64c4942e691c4.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_101",
-    "time_earned": 0
+    "name": "Achievement_101"
   },
   {
     "description": "Beat Farmhouse on Hell on Earth Difficulty",
     "displayName": "Reap what you Sow",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/7beeff9f0fb5fc641f2ad9d986db7cab1cb93486.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_102",
-    "time_earned": 0
+    "name": "Achievement_102"
   },
   {
     "description": "Collect all the items on Farmhouse",
     "displayName": "Darkness Dolls",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/21abe9ca2790fed3a4f400bb82171de07460309e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_103",
-    "time_earned": 0
+    "name": "Achievement_103"
   },
   {
     "description": "Beat Prison on Normal",
     "displayName": "Walked into the wrong room",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/10b030dec54a8de662134975904e4b18546d2f8b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_104",
-    "time_earned": 0
+    "name": "Achievement_104"
   },
   {
     "description": "Beat Prison on Hard",
     "displayName": "Mercenaries get paid",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e10da3181de7bd0845b7a77d5f70dc83aae746fa.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_105",
-    "time_earned": 0
+    "name": "Achievement_105"
   },
   {
     "description": "Beat Prison on Suicidal",
     "displayName": "Like what, kill him again?",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ed1d9b6092c89566a47c9593506f5dec889b9403.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_106",
-    "time_earned": 0
+    "name": "Achievement_106"
   },
   {
     "description": "Beat Prison on Hell on Earth",
     "displayName": "I was trained by the best. British Intel.",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8ca6f43274c132cf9d995591fb4045aa5c57709c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_107",
-    "time_earned": 0
+    "name": "Achievement_107"
   },
   {
     "description": "Collect all the items on Prison",
     "displayName": "Perilous Prison",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/95c90482f7da7e7759fb68200f71d3b784e1396d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_108",
-    "time_earned": 0
+    "name": "Achievement_108"
   },
   {
     "description": "Complete the Training Floor",
     "displayName": "School's Out Forever",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/66f5309ba8030f4f5dc5f1c15e1db4dad14ffbb1.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_109",
-    "time_earned": 0
+    "name": "Achievement_109"
   },
   {
     "description": "Reach Level 5 Sharpshooter",
     "displayName": "Reach Level 5 Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/023f4f3f8b8b45547a7c0bd9a1ac409cb262fbe8.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_110",
-    "time_earned": 0
+    "name": "Achievement_110"
   },
   {
     "description": "Reach Level 10 Sharpshooter",
     "displayName": "Reach Level 10 Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ca9c4dea499a0212dd521cbf872715b54aa22018.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_111",
-    "time_earned": 0
+    "name": "Achievement_111"
   },
   {
     "description": "Reach Level 15 Sharpshooter",
     "displayName": "Reach Level 15 Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3c7a93ae33709f3e087c2d73b580ab71be443515.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_112",
-    "time_earned": 0
+    "name": "Achievement_112"
   },
   {
     "description": "Reach Level 20 Sharpshooter",
     "displayName": "Reach Level 20 Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/00d137f6217d596365635659f788f81a12a56cc7.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_113",
-    "time_earned": 0
+    "name": "Achievement_113"
   },
   {
     "description": "Reach Level 25 Sharpshooter",
     "displayName": "Reach Level 25 Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/1010a85f23b67a0ed426f76827dc71a47c898e91.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_114",
-    "time_earned": 0
+    "name": "Achievement_114"
   },
   {
     "description": "Beat Any One Map as Sharpshooter on Normal Difficulty",
     "displayName": "Normal Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/50e428ecaeb5ea710a68de937ab6db91871b8e06.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_115",
-    "time_earned": 0
+    "name": "Achievement_115"
   },
   {
     "description": "Beat Any One Map as Sharpshooter on Hard Difficulty",
     "displayName": "Hard Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/378eb9e717b7405b636c74a504ef1548d47b1087.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_116",
-    "time_earned": 0
+    "name": "Achievement_116"
   },
   {
     "description": "Complete any map as a Sharpshooter on Survival Suicidal difficulty",
     "displayName": "Suicidal Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/92ecee481d00897d6bd2d0526fd34fad7dd4dac2.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_117",
-    "time_earned": 0
+    "name": "Achievement_117"
   },
   {
     "description": "Complete any map as a Sharpshooter on Survival Hell On Earth difficulty",
     "displayName": "Hellish Sharpshooter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/37762c27fa85c5bfea8793d99760979c383105a1.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_118",
-    "time_earned": 0
+    "name": "Achievement_118"
   },
   {
     "description": "Complete Containment Station on Survival Normal difficulty",
     "displayName": "Never Got the Hang of Thursdays",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/9c72b7326246881b9d9e4c2a446f75fa5709455b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_119",
-    "time_earned": 0
+    "name": "Achievement_119"
   },
   {
     "description": "Complete Containment Station on Survival Hard difficulty",
     "displayName": "Don't Panic",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/7874cadae34f3a5adea32253491d2c9264a119f7.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_120",
-    "time_earned": 0
+    "name": "Achievement_120"
   },
   {
     "description": "Complete Containment Station on Survival Suicidal difficulty",
     "displayName": "Give Up and Go Mad Now",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/258ebf7dee2742339bbdc3ced7609ddbe4c33517.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_121",
-    "time_earned": 0
+    "name": "Achievement_121"
   },
   {
     "description": "Complete Containment Station on Survival Hell On Earth difficulty",
     "displayName": "So Long and Thanks for All the Zeds",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a9313fc5d346da24302330d8784dcf7143b5c143.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_122",
-    "time_earned": 0
+    "name": "Achievement_122"
   },
   {
     "description": "Collect All the Items on Containment Station",
     "displayName": "Can't Be Contained",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ffbbbe46c760cbed9d23cb5e53bf875384da70ee.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_123",
-    "time_earned": 0
+    "name": "Achievement_123"
   },
   {
     "description": "Complete Hostile Grounds on Survival Normal difficulty",
     "displayName": "Mind the Gap",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b2de6a1efe33cabc68b9ddc4bbc831a32bc4bc50.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_124",
-    "time_earned": 0
+    "name": "Achievement_124"
   },
   {
     "description": "Complete Hostile Grounds on Survival Hard difficulty",
     "displayName": "Can't Make an Omelette Without Killing a Few People",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/69d31dd091f48198d692aa5bdb64e07cf52a92a3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_125",
-    "time_earned": 0
+    "name": "Achievement_125"
   },
   {
     "description": "Complete Hostile Grounds on Survival Suicidal difficulty",
     "displayName": "There Is No I in Team, But There Is an I in Pie",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/bfcfa4a2fe2399e53034b696436610b0205540c8.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_126",
-    "time_earned": 0
+    "name": "Achievement_126"
   },
   {
     "description": "Complete Hostile Grounds on Survival Hell On Earth difficulty",
     "displayName": "Who Died and Made You #*%$&@ King of the Zombies?",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e3c20ee2ab91c0172796eac857bde8d7de639188.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_127",
-    "time_earned": 0
+    "name": "Achievement_127"
   },
   {
     "description": "Collect All the Items on Hostile Grounds",
     "displayName": "You've Got Red on You",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/020adbeabf8554ba8fe763cbb3c08df037a4965a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_128",
-    "time_earned": 0
+    "name": "Achievement_128"
   },
   {
     "description": "Kill a Siren Before She Screams",
     "displayName": "Dead Silence",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/08e4690859d94699a73a80e5589fb0b8c799fa1c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_129",
-    "time_earned": 0
+    "name": "Achievement_129"
   },
   {
     "description": "Kill the Patriarch Before He Has a Chance to Heal",
     "displayName": "Quick on the Trigger",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6fdfdd1f09fb91e90a1b25cb83a5421ae81a2cb5.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_130",
-    "time_earned": 0
+    "name": "Achievement_130"
   },
   {
     "description": "Kill Your First Fleshpound",
     "displayName": "It's Only a Flesh Wound",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/03ff0be17f0e56d8e312aa117844f27f134c47af.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_131",
-    "time_earned": 0
+    "name": "Achievement_131"
   },
   {
     "description": "Kill Your First Scrake",
     "displayName": "Hack and Slash",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6cfc51c010c7198347da1a22e1ce51d47f5ff13c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_132",
-    "time_earned": 0
+    "name": "Achievement_132"
   },
   {
     "description": "Kill Dr. Hans Volter For the First Time",
     "displayName": "Die Volter",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6f07eab287060d5516082afa7e3a7772017fe75c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_133",
-    "time_earned": 0
+    "name": "Achievement_133"
   },
   {
     "description": "Win Any Match on Hard Difficulty",
     "displayName": "Win Hard",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/be68c7423f778e6a2fc636b4dc2e20942c6f0c68.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_134",
-    "time_earned": 0
+    "name": "Achievement_134"
   },
   {
     "description": "Win Any Match on Suicidal Difficulty",
     "displayName": "Win Suicidal",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3f199fbc299b56e873bb1bfb2d1726d88db3bbe6.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_135",
-    "time_earned": 0
+    "name": "Achievement_135"
   },
   {
     "description": "Win Any Match on Hell on Earth Difficulty",
     "displayName": "Win Hell on Earth",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/35c0be17200bacee8c54fbe87f16e8f27a82a181.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_136",
-    "time_earned": 0
+    "name": "Achievement_136"
   },
   {
     "description": "Reach Level 5 on Any Perk",
     "displayName": "Mr. Perky 5",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/75ff6bda27bc5f21d0f5aa096305e66b87129871.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_137",
-    "time_earned": 0
+    "name": "Achievement_137"
   },
   {
     "description": "Reach Level 10 on Any Perk",
     "displayName": "Mr. Perky 10",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2b63768e9a813a14111cc4eeb283a0833db88874.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_138",
-    "time_earned": 0
+    "name": "Achievement_138"
   },
   {
     "description": "Reach Level 15 on Any Perk",
     "displayName": "Mr. Perky 15",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/26c3035ca19855e765ad032d1de71fe64ae153e9.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_139",
-    "time_earned": 0
+    "name": "Achievement_139"
   },
   {
     "description": "Reach Level 20 on Any Perk",
     "displayName": "Mr. Perky 20",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/99a2fb3824c9f1eb2c607e22da9b4109cee0124f.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_140",
-    "time_earned": 0
+    "name": "Achievement_140"
   },
   {
     "description": "Reach Level 25 on Any Perk",
     "displayName": "Mr. Perky 25",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/9aa58d0c8f2f80e8250bb75aa4de09ffba6da5b5.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_141",
-    "time_earned": 0
+    "name": "Achievement_141"
   },
   {
     "description": "Win 1 Multiplayer Match",
     "displayName": "Win 1",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/93aee896270cac79fb5ae36375c92091b57e9707.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_142",
-    "time_earned": 0
+    "name": "Achievement_142"
   },
   {
     "description": "Win 10 Multiplayer Matches",
     "displayName": "Win 10",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/5ac2c4dcfc8e708bce22d43c8fa0a28bc5f63177.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_143",
-    "time_earned": 0
+    "name": "Achievement_143"
   },
   {
     "description": "Win 25 Multiplayer Matches",
     "displayName": "Win 25",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/361fe6cb30916a4b3785ea0431b7df56bca3e111.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_144",
-    "time_earned": 0
+    "name": "Achievement_144"
   },
   {
     "description": "Win a VS Survival Round Playing as the Zeds",
     "displayName": "VS Zed Win",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/992d3a5c5c8d736cd26ef8ce2f371eeea33a8469.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_145",
-    "time_earned": 0
+    "name": "Achievement_145"
   },
   {
     "description": "Win a VS Survival Round Playing as the Humans",
     "displayName": "VS Human Win",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/af8cdf129ec3eaa218ca706105ed329792893872.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_146",
-    "time_earned": 0
+    "name": "Achievement_146"
   },
   {
     "description": "Weld a Door to 100%",
     "displayName": "Hold Out",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d5b03919fefaa82dc87765dc29961e4fd3816acb.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_147",
-    "time_earned": 0
+    "name": "Achievement_147"
   },
   {
     "description": "Heal a Teammate With the Syringe",
     "displayName": "I Got Your Back",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a873278bb202e325e5073ae542ebabf0dd276236.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_148",
-    "time_earned": 0
+    "name": "Achievement_148"
   },
   {
     "description": "Give 1000 Dosh to Another Player During a Multiplayer Match",
     "displayName": "Benefactor",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/7b07b668e976c865c0a2ad8707149d43f9652ef6.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_149",
-    "time_earned": 0
+    "name": "Achievement_149"
   },
   {
     "description": "Beat Infernal Realms on Normal",
     "displayName": "Hell is Other People",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/27b51a5f9b9795e0e2e90d0784c31e70d7047f3c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_150",
-    "time_earned": 0
+    "name": "Achievement_150"
   },
   {
     "description": "Complete Infernal Realms on Survival Hard difficulty",
     "displayName": "If You Are Going Through Hell, Keep Going",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a062da8ad5b21973ff9913dfeede3b05c81dc19c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_151",
-    "time_earned": 0
+    "name": "Achievement_151"
   },
   {
     "description": "Complete Infernal Realms on Survival Suicidal difficulty",
     "displayName": "Hell is Just a Frame of Mind",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ac0d5107bbe97948e7642300b3503e0d91bcee3b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_152",
-    "time_earned": 0
+    "name": "Achievement_152"
   },
   {
     "description": "Complete Infernal Realms on Survival Hell On Earth difficulty",
     "displayName": "All Hope abandon, Ye Who Enter Here",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/210ab00c89581caf7ffe220078d9ab9506f0dabd.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_153",
-    "time_earned": 0
+    "name": "Achievement_153"
   },
   {
     "description": "Collect all the Items in Infernal Realms",
     "displayName": "Infernal Relics",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3c81f20349851c9b12ea9fba2116d4458c8bb309.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_154",
-    "time_earned": 0
+    "name": "Achievement_154"
   },
   {
     "description": "Reach Level 5 SWAT",
     "displayName": "Reach Level 5 SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6919e017b0389e4e4f80b94a282bd10b88632567.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_155",
-    "time_earned": 0
+    "name": "Achievement_155"
   },
   {
     "description": "Reach Level 10 SWAT",
     "displayName": "Reach Level 10 SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ba0a2d8bea98c36f402cf72ff59a17a6ea8a5097.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_156",
-    "time_earned": 0
+    "name": "Achievement_156"
   },
   {
     "description": "Reach Level 15 SWAT",
     "displayName": "Reach Level 15 SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/07b4a6889ba0f960360b16c6a2c528b2802c8c0d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_157",
-    "time_earned": 0
+    "name": "Achievement_157"
   },
   {
     "description": "Reach Level 20 SWAT",
     "displayName": "Reach Level 20 SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/0577ad2c3987fa0186aaa017fa5c25c75c281133.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_158",
-    "time_earned": 0
+    "name": "Achievement_158"
   },
   {
     "description": "Reach Level 25 SWAT",
     "displayName": "Reach Level 25 SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c7655f2d1f275bc77e73b85a02d921f9e29d3031.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_159",
-    "time_earned": 0
+    "name": "Achievement_159"
   },
   {
     "description": "Complete any map as a SWAT on Survival Normal difficulty",
     "displayName": "Normal SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2b9a7646537a74042db00c7c46b58463c12331ad.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_160",
-    "time_earned": 0
+    "name": "Achievement_160"
   },
   {
     "description": "Beat Any One Map as SWAT on Hard Difficulty",
     "displayName": "Hard SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a43a6bb8e914126587b1419879ff3d95b83ec6f6.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_161",
-    "time_earned": 0
+    "name": "Achievement_161"
   },
   {
     "description": "Beat Any One Map as SWAT on Suicidal Difficulty",
     "displayName": "Suicidal SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/af9bbfa27fa159b8ea469ee79ba525bdbcf07b6e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_162",
-    "time_earned": 0
+    "name": "Achievement_162"
   },
   {
     "description": "Beat Any One Map as SWAT on Hell On Earth Difficulty",
     "displayName": "Hellish SWAT",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a86755764baed752a896d2c8cd524bd20e1d6c57.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_163",
-    "time_earned": 0
+    "name": "Achievement_163"
   },
   {
     "description": "Reach Level 5 Survivalist",
     "displayName": "Reach Level 5 Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/5c730159237de25db37bbba7ac8b899ba9b92f28.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_164",
-    "time_earned": 0
+    "name": "Achievement_164"
   },
   {
     "description": "Reach Level 10 Survivalist",
     "displayName": "Reach Level 10 Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c87bbe270e7a60494f0d6a46a173f48e8e90f266.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_165",
-    "time_earned": 0
+    "name": "Achievement_165"
   },
   {
     "description": "Reach Level 15 Survivalist",
     "displayName": "Reach Level 15 Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/0fc03a0b9535d3f31d8cfe3055e905e7cda85939.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_166",
-    "time_earned": 0
+    "name": "Achievement_166"
   },
   {
     "description": "Reach Level 20 Survivalist",
     "displayName": "Reach Level 20 Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f9526579c6b4f52621b85c5913ff8773940fed11.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_167",
-    "time_earned": 0
+    "name": "Achievement_167"
   },
   {
     "description": "Reach Level 25 Survivalist",
     "displayName": "Reach Level 25 Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a472196ec80ad363c21e1bac0206061a8ec6e1e1.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_168",
-    "time_earned": 0
+    "name": "Achievement_168"
   },
   {
     "description": "Beat Any One Map as Survivalist on Normal Difficulty",
     "displayName": "Normal Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b4c78a847b3842fac7ea587a603594d9a39ffc8a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_169",
-    "time_earned": 0
+    "name": "Achievement_169"
   },
   {
     "description": "Complete any map as a Survivalist on Survival Hard difficulty",
     "displayName": "Hard Survivalist ",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/17c50c8adff85ea28e3cbd3b7fa31d387efb3eff.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_170",
-    "time_earned": 0
+    "name": "Achievement_170"
   },
   {
     "description": "Complete any map as a Survivalist on Survival Suicidal difficulty",
     "displayName": "Suicidal Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/accaa92454ffe35037f67c63c03ebb9544eec484.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_171",
-    "time_earned": 0
+    "name": "Achievement_171"
   },
   {
     "description": "Complete any map as a Survivalist on Survival Hell On Earth difficulty",
     "displayName": "Hellish Survivalist",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/0a90fc7ad76f58c1278097f3a351001438c62327.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_172",
-    "time_earned": 0
+    "name": "Achievement_172"
   },
   {
     "description": "Complete Zed Landing on Survival Normal difficulty",
     "displayName": "Surfs Up",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6e1c100915ffb91be6090459fdcda997a31fe62f.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_173",
-    "time_earned": 0
+    "name": "Achievement_173"
   },
   {
     "description": "Complete Zed Landing on Survival Hard difficulty",
     "displayName": "Gnarly",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/1d855a17989f39be054443c9277c90907eff1f8d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_174",
-    "time_earned": 0
+    "name": "Achievement_174"
   },
   {
     "description": "Complete Zed Landing on Survival Suicidal difficulty",
     "displayName": "Close-out",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/25a425379ed71d99787c091fa7a24e507c2eecac.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_175",
-    "time_earned": 0
+    "name": "Achievement_175"
   },
   {
     "description": "Complete Zed Landing on Survival Hell On Earth difficulty",
     "displayName": "Blown Out",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8d5f30aa2ff0b4a3e080eab4a61e202a87cf1775.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_176",
-    "time_earned": 0
+    "name": "Achievement_176"
   },
   {
     "description": "Collect all the volley balls on Zed Landing",
     "displayName": "ALAN!!!!!!",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ffad0d1970b1b8813ba164cd4465fc4de9b271eb.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_177",
-    "time_earned": 0
+    "name": "Achievement_177"
   },
   {
     "description": "Complete The Descent on Survival Normal difficulty",
     "displayName": "How Bout Some Gas?",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/02f005688d599e8f655a6d41a65751031c1a4392.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_178",
-    "time_earned": 0
+    "name": "Achievement_178"
   },
   {
     "description": "Complete The Descent on Survival Hard difficulty",
     "displayName": "But what if we added Gas?",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/84848cab1b952d23328637f81e45b69aeda38ded.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_179",
-    "time_earned": 0
+    "name": "Achievement_179"
   },
   {
     "description": "Complete The Descent on Survival Suicidal difficulty",
     "displayName": "Let's Try Some Gas",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d6d7a2ce4b36b10b27946e972b3b7184f2226069.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_180",
-    "time_earned": 0
+    "name": "Achievement_180"
   },
   {
     "description": "Complete The Descent on Survival Hell On Earth difficulty",
     "displayName": "That's enough gas....",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6e2ab1da79c801e23fba287c2fccc548bdbf0026.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_181",
-    "time_earned": 0
+    "name": "Achievement_181"
   },
   {
     "description": "Collect all the items on The Descent",
     "displayName": "Hans Off the Merchandise",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/21ab02dcc7dc02c09b5e65a82fcdfa200a96a0db.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_182",
-    "time_earned": 0
+    "name": "Achievement_182"
   },
   {
     "description": "Complete Nuked on Survival Normal difficulty",
     "displayName": "The War Room",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2a96570f609cf5842a31691e5cc8c0a800907786.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_183",
-    "time_earned": 0
+    "name": "Achievement_183"
   },
   {
     "description": "Complete Nuked on Survival Hard difficulty",
     "displayName": "The Mineshaft Gap",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/47c28acbddf4b6bed6d2ad1ec7536b1160e3b056.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_184",
-    "time_earned": 0
+    "name": "Achievement_184"
   },
   {
     "description": "Complete Nuked on Survival Suicidal difficulty",
     "displayName": "Peace is Our Profession",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e759bb1400427742feb5d39e715e6c956c11987a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_185",
-    "time_earned": 0
+    "name": "Achievement_185"
   },
   {
     "description": "Complete Nuked on Survival Hell On Earth difficulty",
     "displayName": "How I Learned to Love the Bomb",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/47c42d2d9c5eb25d2c2c4a58dddd8084f470892e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_186",
-    "time_earned": 0
+    "name": "Achievement_186"
   },
   {
     "description": "Collect all the items on Nuked",
     "displayName": "Davy Crockett",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c16a98ee7a9a777730733ca1ec1cda2391fb89c7.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_187",
-    "time_earned": 0
+    "name": "Achievement_187"
   },
   {
     "description": "Complete Tragic Kingdom on Survival Normal difficulty",
     "displayName": "It's a Bloody World After All",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f0803a7e5a71920b9aa9c08e71eb381a9eda6e12.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_188",
-    "time_earned": 0
+    "name": "Achievement_188"
   },
   {
     "description": "Complete Tragic Kingdom on Survival Hard difficulty",
     "displayName": "The Goriest Place on Earth",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e2f6339b665184291d2987a3a48a5dbfb4b54c0e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_189",
-    "time_earned": 0
+    "name": "Achievement_189"
   },
   {
     "description": "Complete Tragic Kingdom on Survival Suicidal difficulty",
     "displayName": "The House the Zed Built",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/85f0612297393d567d8ff712fa324dabb0c269fb.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_190",
-    "time_earned": 0
+    "name": "Achievement_190"
   },
   {
     "description": "Complete Tragic Kingdom on Survival Hell On Earth difficulty",
     "displayName": "Where Nightmares Come True",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f68565b02007c17260805be1d5bb3c55271e1cb3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_191",
-    "time_earned": 0
+    "name": "Achievement_191"
   },
   {
     "description": "Collect all the items on The Tragic Kingdom",
     "displayName": "The Wonderful World of Merchandising",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/79ad35a7fe93d31661bd54825571708545e43210.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_192",
-    "time_earned": 0
+    "name": "Achievement_192"
   },
   {
     "description": "Beat Nightmare on Normal",
     "displayName": "I Got a Rock",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/1777445a1bc01a5c39a75c7167df6359edd5f26e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_193",
-    "time_earned": 0
+    "name": "Achievement_193"
   },
   {
     "description": "Beat Nightmare on Hard",
     "displayName": "Yuck, Candy Corn",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/fb9b4f18d7f58d43295ee571cae5c821a5f12836.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_194",
-    "time_earned": 0
+    "name": "Achievement_194"
   },
   {
     "description": "Beat Nightmare on Suicidal",
     "displayName": "Fun Size? What is Fun Size?",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/53e20884174ea4717588f5a7c324d1a02d207dae.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_195",
-    "time_earned": 0
+    "name": "Achievement_195"
   },
   {
     "description": "Beat Nightmare on Hell on Earth",
     "displayName": "Victory! Full Size Candy Bar!",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c69b7865a24dcc827d5ea44ac166907b8f08b4ad.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_196",
-    "time_earned": 0
+    "name": "Achievement_196"
   },
   {
     "description": "Collect all the items (skulls) on Nightmare",
     "displayName": "Letting the Demons Out",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/874e1f46efd7b59e66485ee1b9b4b5765bcab692.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_197",
-    "time_earned": 0
+    "name": "Achievement_197"
   },
   {
     "description": "Beat Krampus Lair on Normal",
     "displayName": "Stocking Full of Coal",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ff769cc651d4be77250428a4b6d4e0a254015b11.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_198",
-    "time_earned": 0
+    "name": "Achievement_198"
   },
   {
     "description": "Beat Krampus Lair on Hard",
     "displayName": "Bundle of Switches",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/84082b5ce17368ef1e6a1d9e78174866674686ba.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_199",
-    "time_earned": 0
+    "name": "Achievement_199"
   },
   {
     "description": "Beat Krampus Lair on Suicidal",
     "displayName": "A Whupping",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/fe7e707e5ad19ef5e0dd9152a6d1b3ddeb59d883.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_200",
-    "time_earned": 0
+    "name": "Achievement_200"
   },
   {
     "description": "Complete Krampus Lair on Survival Hell On Earth difficulty",
     "displayName": "Carried off to the Underworld",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c318550b2c02db9532d6051dd3af1f855cd87f5e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_201",
-    "time_earned": 0
+    "name": "Achievement_201"
   },
   {
     "description": "Collect all the items (Snowglobes) on Krampus Lair",
     "displayName": "A World Under Glass",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/486d1b5971dbe85edd3b93b61d19b474ff6764a8.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_202",
-    "time_earned": 0
+    "name": "Achievement_202"
   },
   {
     "description": "Complete DieSector wave 25 on Endless Normal difficulty",
     "displayName": "Training Simulation",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/510dc6da957123fce45794b85cc89075b6aa35d0.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_203",
-    "time_earned": 0
+    "name": "Achievement_203"
   },
   {
     "description": "Complete DieSector wave 25 on Endless Hard difficulty",
     "displayName": "Test Trials",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/925db58c260bb48f62eb56ef9a5e8faf9274c905.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_204",
-    "time_earned": 0
+    "name": "Achievement_204"
   },
   {
     "description": "Complete DieSector wave 25 on Endless Suicidal difficulty",
     "displayName": "Code Dead",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/222996c8e587aefda46d41c4c70b9108357ed175.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_205",
-    "time_earned": 0
+    "name": "Achievement_205"
   },
   {
     "description": "Complete DieSector wave 25 on Endless Hell On Earth difficulty",
     "displayName": "Fatal Exception",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/cf61a22148cdb35bd943ff14fb83f68c0cd8736e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_206",
-    "time_earned": 0
+    "name": "Achievement_206"
   },
   {
     "description": "Collect all the items (D.A.R. Bobbleheads) on DieSector",
     "displayName": "It's aD.A.R.able",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/53405d791ad24a2a03b0d71c9c6f515e05fe3620.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_207",
-    "time_earned": 0
+    "name": "Achievement_207"
   },
   {
     "description": "Complete Power Core on Survival Normal difficulty",
     "displayName": "A Spark to Light the Way",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/877725c3b9e141295e2c52ac6f14af6f68013f04.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_208",
-    "time_earned": 0
+    "name": "Achievement_208"
   },
   {
     "description": "Complete Power Core on Survival Hard difficulty",
     "displayName": "Bolting through the Core",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/95d39cdab7b75fca64b64c39e4671f3ff09f3871.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_209",
-    "time_earned": 0
+    "name": "Achievement_209"
   },
   {
     "description": "Complete Power Core on Survival Suicidal difficulty",
     "displayName": "High Voltage",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d5521e83f9cf369d9f807489db0120d97a3e3002.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_210",
-    "time_earned": 0
+    "name": "Achievement_210"
   },
   {
     "description": "Complete Power Core on Survival Hell On Earth difficulty",
     "displayName": "I Have the Power!",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8ca61bb09f6a26eebd4f76e5ab2804b2bdbd6540.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_211",
-    "time_earned": 0
+    "name": "Achievement_211"
   },
   {
     "description": "Collect all the items (Batteries) on Power Core",
     "displayName": "Surge Breaker",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/2942584ef67dfc745bed2c7fcbd8f04bd0c9b11b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_212",
-    "time_earned": 0
+    "name": "Achievement_212"
   },
   {
     "description": "Complete Airship on Survival Normal difficulty",
     "displayName": "A Little Turbulence",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/e76995587e9bf81b4beecad3b305b06f32ee35c3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/380c05c1490a2d062d0d38ab4edb3751edfb352b.jpg",
-    "name": "Achievement_213",
-    "time_earned": 0
+    "name": "Achievement_213"
   },
   {
     "description": "Complete Airship on Survival Hard difficulty",
     "displayName": "Flying Unfriendly Skies",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3dcc2a19350aef1f5b5079d2fa1510225bb5924f.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_214",
-    "time_earned": 0
+    "name": "Achievement_214"
   },
   {
     "description": "Complete Airship on Survival Suicidal difficulty",
     "displayName": "Soar, Gore, and More",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/d318dee401d56bafc7ebed0eaab6e4dcfb593b00.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/380c05c1490a2d062d0d38ab4edb3751edfb352b.jpg",
-    "name": "Achievement_215",
-    "time_earned": 0
+    "name": "Achievement_215"
   },
   {
     "description": "Complete Airship on Survival Hell On Earth difficulty",
     "displayName": "Mile High Dead Club",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/350d3e23eb31845a77fcef992c7fe899fd436f80.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_216",
-    "time_earned": 0
+    "name": "Achievement_216"
   },
   {
     "description": "Collect all the items (Steam Cells) on Airship",
     "displayName": "Powered by Steam",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b5fdc74747940179c7dc5f3ab964b1ef4175fdc0.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/380c05c1490a2d062d0d38ab4edb3751edfb352b.jpg",
-    "name": "Achievement_217",
-    "time_earned": 0
+    "name": "Achievement_217"
   },
   {
     "description": "Complete Lockdown on Survival Normal difficulty",
     "displayName": "Station Stabilization",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ffab338f1cf3295c1efd4a01d0e0bca3def85229.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_218",
-    "time_earned": 0
+    "name": "Achievement_218"
   },
   {
     "description": "Complete Lockdown on Survival Hard difficulty",
     "displayName": "Fun Near the Sun",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/39205159c665ba3b80af9365b4f6e58ccac29ef2.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_219",
-    "time_earned": 0
+    "name": "Achievement_219"
   },
   {
     "description": "Complete Lockdown on Survival Suicidal difficulty",
     "displayName": "Space Race",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/7c8cfb7f628de3b9c7a438d17311882900314c75.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_220",
-    "time_earned": 0
+    "name": "Achievement_220"
   },
   {
     "description": "Complete Lockdown on Survival Hell On Earth difficulty",
     "displayName": "Houston, We Don't Have a Problem",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/177825463454281e2ef5c05ecc1526ef2474c3d4.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_221",
-    "time_earned": 0
+    "name": "Achievement_221"
   },
   {
     "description": "Collect all the items (Batteries) on Lockdown",
     "displayName": "Shocking Discovery!",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c5b893ccd87f50690b337222fe6139c931b3533c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/380c05c1490a2d062d0d38ab4edb3751edfb352b.jpg",
-    "name": "Achievement_222",
-    "time_earned": 0
+    "name": "Achievement_222"
   },
   {
     "description": "Complete Monster Ball on Survival Normal difficulty",
     "displayName": "Castle Crashers",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/a5f8f0ecc173daa77a844bc1ad6b91ddaf60383d.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/380c05c1490a2d062d0d38ab4edb3751edfb352b.jpg",
-    "name": "Achievement_223",
-    "time_earned": 0
+    "name": "Achievement_223"
   },
   {
     "description": "Complete Monster Ball on Survival Hard difficulty",
     "displayName": "Party Hard!",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/49cda67ccd22c0ebf522717bd03fad590b786389.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_224",
-    "time_earned": 0
+    "name": "Achievement_224"
   },
   {
     "description": "Complete Monster Ball on Survival Suicidal difficulty",
     "displayName": "Dance on the Gore Floor",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/ce29727842be31de090c83871e6f5831efacfb87.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_225",
-    "time_earned": 0
+    "name": "Achievement_225"
   },
   {
     "description": "Complete Monster Ball on Survival Hell on Earth difficulty",
     "displayName": "Rest In Pieces",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/25005dfa6da839a95b8aa3664ebb13034a228f49.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_226",
-    "time_earned": 0
+    "name": "Achievement_226"
   },
   {
     "description": "Destroy 10 Glowing Skulls in Monster Ball",
     "displayName": "Spooky Scary Skeletons",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/8d3b14b6dcab1ffaa714e2bebdff231a8972e313.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_227",
-    "time_earned": 0
+    "name": "Achievement_227"
   },
   {
     "description": "Unlock the Alchemist Room in Monster Ball",
     "displayName": "Death's Door",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/382680a850833e6d1b227c6b92d066ebb892ce0e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_228",
-    "time_earned": 0
+    "name": "Achievement_228"
   },
   {
     "description": "Complete Santa's Workshop on Survival Normal Difficulty",
     "displayName": "Cookies and Milk",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6c9262e0a59ee9f4ae0b6b7f778e57aa5b84ddbb.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4bd7abab35ec5215d8bcc56872addd8ca2f331ff.jpg",
-    "name": "Achievement_229",
-    "time_earned": 0
+    "name": "Achievement_229"
   },
   {
     "description": "Complete Santa's Workshop on Survival Hard Difficulty",
     "displayName": "Slaying with Santa",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/b9ef59caab40af925efab875cec9c3cfcddc8bbd.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_230",
-    "time_earned": 0
+    "name": "Achievement_230"
   },
   {
     "description": "Complete Santa's Workshop on Survival Suicidal Difficulty",
     "displayName": "A Deadly Carol",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/55cebdba7cae5617c8a8664ff2361d31c98e41ac.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_231",
-    "time_earned": 0
+    "name": "Achievement_231"
   },
   {
     "description": "Complete Santa's Workshop on Survival Hell On Earth Difficulty",
     "displayName": "You're On The Badass List",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/42cdfa0830aaaafbf52b7aa22b14e37094277526.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_232",
-    "time_earned": 0
+    "name": "Achievement_232"
   },
   {
     "description": "Destroy 10 Snow Globes in Santa's Workshop",
     "displayName": "Yule Shoot Your Eye Out",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/486d1b5971dbe85edd3b93b61d19b474ff6764a8.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_233",
-    "time_earned": 0
+    "name": "Achievement_233"
   },
   {
     "description": "Complete Shopping Spree on Survival Normal Difficulty",
     "displayName": "Cleanup On Aisle 3",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3a4536ce96f3535865a03aea65fd970706339058.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_234",
-    "time_earned": 0
+    "name": "Achievement_234"
   },
   {
     "description": "Complete Shopping Spree on Survival Hard Difficulty",
     "displayName": "Shoot One Get Two Free",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/933bc0eaa31bc8e877f08e12cf5543a40032e4d5.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_235",
-    "time_earned": 0
+    "name": "Achievement_235"
   },
   {
     "description": "Complete Shopping Spree on Survival Suicidal Difficulty",
     "displayName": "Savings to Die For",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c4e0289e34928cce62665fe535b886f38d8a0534.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_236",
-    "time_earned": 0
+    "name": "Achievement_236"
   },
   {
     "description": "Complete Shopping Spree on Survival Hell On Earth Difficulty",
     "displayName": "Red Friday",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/eb976a5df4b166702cf5c16ef38026f62e76ba13.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/4bd7abab35ec5215d8bcc56872addd8ca2f331ff.jpg",
-    "name": "Achievement_237",
-    "time_earned": 0
+    "name": "Achievement_237"
   },
   {
     "description": "Destroy 10 Dosh Necklaces in Shopping Spree",
     "displayName": "A Special Deal",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/60d04d244713b2b9475658538261124a0da51adc.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54596c68ca49090f1ec57b19dfad28ff257400d2.jpg",
-    "name": "Achievement_238",
-    "time_earned": 0
+    "name": "Achievement_238"
   },
   {
     "description": "Complete Spillway on Survival Normal Difficulty",
     "displayName": "It's All Downstream From Here",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/84c45895752213f960988d909fac2317c1468d7e.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_239",
-    "time_earned": 0
+    "name": "Achievement_239"
   },
   {
     "description": "Complete Spillway on Survival Hard Difficulty",
     "displayName": "Zeds Be Dam",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/dca6e9d3e9aff9dd05a56c3a9838e21e37d2e8cf.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_240",
-    "time_earned": 0
+    "name": "Achievement_240"
   },
   {
     "description": "Complete Spillway on Survival Suicidal Difficulty",
     "displayName": "Overflow Controlled",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/0a834f5eca65f679bb9232faa5371501addd2222.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_241",
-    "time_earned": 0
+    "name": "Achievement_241"
   },
   {
     "description": "Complete Spillway on Survival Hell On Earth Difficulty",
     "displayName": "Dam You're Good!",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/751f4a1ed126d232c8be5cfa6b5efa05ec103316.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_242",
-    "time_earned": 0
+    "name": "Achievement_242"
   },
   {
     "description": "Destroy 10 Dosh Necklaces in Spillway",
     "displayName": "Money Down the Drain",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/87cc7f0c7342385b24efb2956f214c7d057f3288.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_243",
-    "time_earned": 0
+    "name": "Achievement_243"
   },
   {
     "description": "Complete Steam Fortress on Objective Normal Difficulty",
     "displayName": "Burning Out the Fuse",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c669333a43bc28fdda7a441d54bab8d69cb14b2c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_244",
-    "time_earned": 0
+    "name": "Achievement_244"
   },
   {
     "description": "Complete Steam Fortress on Objective Hard Difficulty",
     "displayName": "Touchdown Brings Me Down",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/6a3723df79a8f83adef085ad31bf5ce7584715cf.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_245",
-    "time_earned": 0
+    "name": "Achievement_245"
   },
   {
     "description": "Complete Steam Fortress on Objective Suicidal Difficulty",
     "displayName": "High as a Kite",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/7197c8ba18ed6dd63deaa9ac2198e26aa199d07b.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_246",
-    "time_earned": 0
+    "name": "Achievement_246"
   },
   {
     "description": "Complete Steam Fortress on Objective Hell On Earth Difficulty",
     "displayName": "It's Cold as Hell",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/54a004733d400ae8f350ce4fb95e8f9601462189.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_247",
-    "time_earned": 0
+    "name": "Achievement_247"
   },
   {
     "description": "Destroy 10 Steam Batteries on Steam Fortress",
     "displayName": "All This Science I Don't Understand",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f93605f0b8543fa506641195fa7fd6e21e6bb545.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/380c05c1490a2d062d0d38ab4edb3751edfb352b.jpg",
-    "name": "Achievement_248",
-    "time_earned": 0
+    "name": "Achievement_248"
   },
   {
     "description": "Complete Zed Landing on Objective Normal Difficulty",
     "displayName": "Droning On",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/3798d728855dc6dc65e926288176ab87666dbd86.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_249",
-    "time_earned": 0
+    "name": "Achievement_249"
   },
   {
     "description": "Complete Zed Landing on Objective Hard Difficulty",
     "displayName": "Data Deliverier ",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/7933cd8f729179eb61274fffa8ac3af69368997c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_250",
-    "time_earned": 0
+    "name": "Achievement_250"
   },
   {
     "description": "Complete Zed Landing on Objective Suicidal Difficulty",
     "displayName": "Island Isolation",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/c25b0221caf5779641711eae5dbe5e915d7feef0.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_251",
-    "time_earned": 0
+    "name": "Achievement_251"
   },
   {
     "description": "Complete Zed Landing on Objective Hell On Earth Difficulty",
     "displayName": "Someone Call a Chopper?",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/9ccce9f949a52cf79fbc4b53f703fb4bd726d652.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_252",
-    "time_earned": 0
+    "name": "Achievement_252"
   },
   {
     "description": "Complete Outpost on Objective Normal Difficulty",
     "displayName": "It's Snow Good. ",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/626744b7626d76146205e4ee0545ff5b82d48536.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_253",
-    "time_earned": 0
+    "name": "Achievement_253"
   },
   {
     "description": "Complete Outpost on Objective Hard Difficulty",
     "displayName": "Giving the Cold Shoulder",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/f0d63ed438b13319e0c81a6d7b3b0fea00e28b84.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_254",
-    "time_earned": 0
+    "name": "Achievement_254"
   },
   {
     "description": "Complete Outpost on Objective Suicidal Difficulty",
     "displayName": "Frozen Assets",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/72142caac4513322346bb51b738a099219288e9c.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_255",
-    "time_earned": 0
+    "name": "Achievement_255"
   },
   {
     "description": "Complete Outpost on Objective Hell On Earth Difficulty",
     "displayName": "The Snow Must Go On",
-    "earned": 0,
-    "hidden": 0,
+    "hidden": "0",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/18fb3f2cd9de0a8d536b4070a2ac59d747f5e76a.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_256",
-    "time_earned": 0
+    "name": "Achievement_256"
   },
   {
     "description": null,
     "displayName": "Achievement_257_Name",
-    "earned": 0,
-    "hidden": 1,
+    "hidden": "1",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_257",
-    "time_earned": 0
+    "name": "Achievement_257"
   },
   {
     "description": null,
     "displayName": "Achievement_258_Name",
-    "earned": 0,
-    "hidden": 1,
+    "hidden": "1",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_258",
-    "time_earned": 0
+    "name": "Achievement_258"
   },
   {
     "description": null,
     "displayName": "Achievement_259_Name",
-    "earned": 0,
-    "hidden": 1,
+    "hidden": "1",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_259",
-    "time_earned": 0
+    "name": "Achievement_259"
   },
   {
     "description": null,
     "displayName": "Achievement_260_Name",
-    "earned": 0,
-    "hidden": 1,
+    "hidden": "1",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_260",
-    "time_earned": 0
+    "name": "Achievement_260"
   },
   {
     "description": null,
     "displayName": "Achievement_261_Name",
-    "earned": 0,
-    "hidden": 1,
+    "hidden": "1",
     "icon": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
     "icongray": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/232090/34120e794323534aaec67ad4711d5674144656c3.jpg",
-    "name": "Achievement_261",
-    "time_earned": 0
+    "name": "Achievement_261"
   }
 ]
