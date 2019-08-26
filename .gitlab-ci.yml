@@ -62,8 +62,6 @@ build_windows:
       - dnf -y install wine wget p7zip sed dos2unix
       - unix2dos *.txt
       - unix2dos files_example/*.txt files_example/*/*.txt
-      - sed -i 's/C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat/.\\sdk_standalone\\set_vars64.bat/g' build_env_x64.bat
-      - sed -i 's/C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\vcvars32.bat/.\\sdk_standalone\\set_vars32.bat/g' build_env_x86.bat
       - sed -i 's/..\\vcpkg\\packages\\/.\\/g' build_set_protobuf_directories.bat
       - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/48db8f434a193aae872279dc4f5dde6a/sdk_standalone.7z'
       - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/0119304e030098b4821d73170fe52084/protobuf_x64-windows-static.7z'
