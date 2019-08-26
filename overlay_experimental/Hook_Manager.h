@@ -59,7 +59,7 @@ protected:
     // DX9 Present and PresentEx will be used to detect if DX9 should be used for overlay
     void HookDX9Present(IDirect3DDevice9* pDevice, bool ex);
     // wglMakeCurrent will be used to detect if OpenGL3 should be used for overlay
-    void HookwglMakeCurrent();
+    void HookwglMakeCurrent(BOOL (WINAPI *wglMakeCurrent)(HDC, HGLRC));
     // Setup DX9 Device and get vtable
     void hook_dx9();
     // Setup DX10 Device and get vtable

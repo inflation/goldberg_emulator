@@ -369,6 +369,17 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     ImGui::End();
 }
 
+void Steam_Overlay::BuildNotifications()
+{
+    //ImGui::SetNextWindowPos(ImVec2{ (float)width - 300, (float)height - 80 });
+    //ImGui::SetNextWindowSize(ImVec2{ 300.0, 80.0 });
+    //ImGui::Begin("##notification", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse
+    //    | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoFocusOnAppearing
+    //    | ImGuiWindowFlags_NoDecoration);
+    //
+    //ImGui::End();
+}
+
 // Try to make this function as short as possible or it might affect game's fps.
 void Steam_Overlay::OverlayProc( int width, int height )
 {
@@ -430,6 +441,7 @@ void Steam_Overlay::OverlayProc( int width, int height )
         ImGui::End();
     }// if(show_overlay)
 
+    BuildNotifications();
 }
 
 void Steam_Overlay::Callback(Common_Message *msg)

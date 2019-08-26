@@ -52,7 +52,7 @@ public:
     static DX12_Hook* Inst();
     virtual const char* get_lib_name() const;
     
-    void loadFunctions(ID3D12Device *pDevice, ID3D12CommandQueue *pCommandQueue, IDXGISwapChain *pSwapChain);
+    void loadFunctions(ID3D12CommandList *pCommandList, IDXGISwapChain *pSwapChain);
 };
 
 #endif//NO_OVERLAY

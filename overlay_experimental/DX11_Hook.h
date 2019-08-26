@@ -48,7 +48,7 @@ public:
     static DX11_Hook* Inst();
     virtual const char* get_lib_name() const;
     
-    void loadFunctions(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain);
+    void loadFunctions(IDXGISwapChain *pSwapChain);
 };
 
 #endif//NO_OVERLAY

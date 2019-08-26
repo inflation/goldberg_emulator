@@ -80,7 +80,8 @@ class Steam_Overlay
     void BuildContextMenu(Friend const& frd, friend_window_state &state);
     // Double click on friend
     void BuildFriendWindow(Friend const& frd, friend_window_state &state);
-
+    // Notifications like achievements, chat and invitations
+    void BuildNotifications();
 public:
     Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network);
 

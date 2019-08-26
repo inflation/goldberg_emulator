@@ -156,7 +156,10 @@ HRESULT STDMETHODCALLTYPE DX11_Hook::MyResizeBuffers(IDXGISwapChain* _this, UINT
 DX11_Hook::DX11_Hook():
     initialized(false),
     pContext(nullptr),
-    mainRenderTargetView(nullptr)
+    mainRenderTargetView(nullptr),
+    Present(nullptr),
+    ResizeBuffers(nullptr),
+    ResizeTarget(nullptr)
 {
     _library = LoadLibrary(DLL_NAME);
     
@@ -208,13 +211,9 @@ const char* DX11_Hook::get_lib_name() const
     return DLL_NAME;
 }
 
-void DX11_Hook::loadFunctions(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain)
+void DX11_Hook::loadFunctions(IDXGISwapChain *pSwapChain)
 {
-    void** vTable = *reinterpret_cast<void***>(pDevice);
-
-#define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D11DeviceVTable::X]
-
-#undef LOAD_FUNC
+    void** vTable;
 
     vTable = *reinterpret_cast<void***>(pSwapChain);
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)IDXGISwapChainVTable::X]

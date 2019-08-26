@@ -178,7 +178,7 @@ DX12_Hook::DX12_Hook():
 {
     _library = LoadLibrary(DLL_NAME);
 
-    PRINT_DEBUG("Trying to hook DX12 but DX12_Hook is not implemented yet, please report to DEV with the game name.\n");
+    PRINT_DEBUG("DX12 support is experimental, don't complain if it doesn't work as expected.\n");
 
     // Hook to D3D12CreateDevice and D3D12CreateDeviceAndSwapChain so we know when it gets called.
     // If its called, then DX12 will be used to render the overlay.
@@ -223,25 +223,10 @@ const char* DX12_Hook::get_lib_name() const
     return DLL_NAME;
 }
 
-void DX12_Hook::loadFunctions(ID3D12Device* pDevice, ID3D12CommandQueue* pCommandQueue, IDXGISwapChain *pSwapChain)
+void DX12_Hook::loadFunctions(ID3D12CommandList* pCommandList, IDXGISwapChain *pSwapChain)
 {
-    void** vTable = *reinterpret_cast<void***>(pDevice);
-#define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12DeviceVTable::X]
+    void** vTable;
     
-#undef LOAD_FUNC
-
-    vTable = *reinterpret_cast<void***>(pCommandQueue);
-#define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12CommandQueueVTable::X]
-    LOAD_FUNC(ExecuteCommandLists);
-#undef LOAD_FUNC
-
-
-    ID3D12CommandAllocator* pCommandAllocator;
-    ID3D12CommandList* pCommandList;
-
-    pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pCommandAllocator));
-    pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pCommandAllocator, NULL, IID_PPV_ARGS(&pCommandList));
-
     vTable = *reinterpret_cast<void***>(pCommandList);
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12GraphicsCommandListVTable::X]
     LOAD_FUNC(Close);
@@ -253,9 +238,6 @@ void DX12_Hook::loadFunctions(ID3D12Device* pDevice, ID3D12CommandQueue* pComman
     LOAD_FUNC(ResizeBuffers);
     LOAD_FUNC(ResizeTarget);
 #undef LOAD_FUNC
-
-    pCommandList->Release();
-    pCommandAllocator->Release();
 }
 
 #endif//NO_OVERLAY
