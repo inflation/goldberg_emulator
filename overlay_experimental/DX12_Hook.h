@@ -18,10 +18,9 @@ private:
 
     // Variables
     bool initialized;
-    ID3D12CommandAllocator* pCmdAlloc;
-    ID3D12GraphicsCommandList* pCmdList;
-    ID3D12DescriptorHeap* pDescriptorHeap;
-    D3D12_CPU_DESCRIPTOR_HANDLE mainRenderTargetDescriptor;
+
+    DXGI_SWAP_CHAIN_DESC sc_desc;
+    ID3D12DescriptorHeap* pSrvDescHeap;
 
     // Functions
     DX12_Hook();
@@ -34,10 +33,14 @@ private:
     static HRESULT STDMETHODCALLTYPE MyPresent(IDXGISwapChain* _this, UINT SyncInterval, UINT Flags);
     static HRESULT STDMETHODCALLTYPE MyResizeTarget(IDXGISwapChain* _this, const DXGI_MODE_DESC* pNewTargetParameters);
     static HRESULT STDMETHODCALLTYPE MyResizeBuffers(IDXGISwapChain* _this, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+    static void STDMETHODCALLTYPE MyExecuteCommandLists(ID3D12CommandQueue *_this, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists);
+    static HRESULT STDMETHODCALLTYPE MyClose(ID3D12GraphicsCommandList* _this);
 
     decltype(&IDXGISwapChain::Present)       Present;
     decltype(&IDXGISwapChain::ResizeBuffers) ResizeBuffers;
     decltype(&IDXGISwapChain::ResizeTarget)  ResizeTarget;
+    decltype(&ID3D12CommandQueue::ExecuteCommandLists) ExecuteCommandLists;
+    decltype(&ID3D12GraphicsCommandList::Close) Close;
 
     // Hook functions so we know we use DX11
     //static decltype(D3D12CreateDevice) MyD3D12CreateDevice;
@@ -47,8 +50,9 @@ private:
 public:
     bool start_hook();
     static DX12_Hook* Inst();
+    virtual const char* get_lib_name() const;
     
-    void loadFunctions(ID3D12Device *pDevice, IDXGISwapChain *pSwapChain);
+    void loadFunctions(ID3D12Device *pDevice, ID3D12CommandQueue *pCommandQueue, IDXGISwapChain *pSwapChain);
 };
 
 #endif//NO_OVERLAY

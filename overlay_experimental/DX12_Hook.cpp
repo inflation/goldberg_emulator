@@ -20,75 +20,23 @@ bool DX12_Hook::start_hook()
         if (!Windows_Hook::Inst().start_hook())
             return false;
 
-        HWND hWnd = GetGameWindow();
-        if (!hWnd)
-            return false;
+        PRINT_DEBUG("Hooked DirectX 12\n");
+        _hooked = true;
 
-        IDXGIFactory4* pDXGIFactory = nullptr;
-        IDXGISwapChain1* pSwapChain = nullptr;
-        D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-        ID3D12CommandQueue* pCommandQueue = nullptr;
-        ID3D12Device* pDevice = nullptr;
-        decltype(D3D12CreateDevice)* D3D12CreateDevice =
-            (decltype(D3D12CreateDevice))GetProcAddress(GetModuleHandle(DX12_Hook::DLL_NAME), "D3D12CreateDevice");
+        Hook_Manager::Inst().FoundRenderer(this);
 
-        D3D12CreateDevice(NULL, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&pDevice));
+        UnhookAll();
+        BeginHook();
+        HookFuncs(
+            std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::Present, &DX12_Hook::MyPresent),
+            std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::ResizeTarget, &DX12_Hook::MyResizeTarget),
+            std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::ResizeBuffers, &DX12_Hook::MyResizeBuffers),
+            std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::ExecuteCommandLists, &DX12_Hook::MyExecuteCommandLists),
+            std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::Close, &DX12_Hook::MyClose)
+        );
+        EndHook();
 
-        if (pDevice)
-        {
-            DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
-            SwapChainDesc.Width = 0;
-            SwapChainDesc.Height = 0;
-            SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            SwapChainDesc.Stereo = FALSE;
-            SwapChainDesc.SampleDesc = { 1, 0 };
-            SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-            SwapChainDesc.BufferCount = 3;
-            SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-            SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-            SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-
-            queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-            queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-            pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&pCommandQueue));
-
-            if (pCommandQueue)
-            {
-                reinterpret_cast<decltype(CreateDXGIFactory1)*>(GetProcAddress(GetModuleHandle("dxgi.dll"), "CreateDXGIFactory1"))(IID_PPV_ARGS(&pDXGIFactory));
-                pDXGIFactory->CreateSwapChainForHwnd(pCommandQueue, hWnd, &SwapChainDesc, NULL, NULL, &pSwapChain);
-
-                if (pSwapChain != nullptr)
-                {
-                    PRINT_DEBUG("Hooked DirectX 12\n");
-
-                    _hooked = true;
-                    Hook_Manager::Inst().FoundRenderer(this);
-
-                    loadFunctions(pDevice, pSwapChain);
-
-                    UnhookAll();
-                    BeginHook();
-                    HookFuncs(
-                        std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::Present, &DX12_Hook::MyPresent),
-                        std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::ResizeTarget, &DX12_Hook::MyResizeTarget),
-                        std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::ResizeBuffers, &DX12_Hook::MyResizeBuffers)
-                    );
-                    EndHook();
-
-                    get_steam_client()->steam_overlay->HookReady();
-                }
-                else
-                {
-                    PRINT_DEBUG("Failed to hook DirectX 12\n");
-                    res = false;
-                }
-            }
-        }
-
-        if (pSwapChain) pSwapChain->Release();
-        if (pDXGIFactory) pDXGIFactory->Release();
-        if (pCommandQueue) pCommandQueue->Release();
-        if (pDevice) pDevice->Release();
+        get_steam_client()->steam_overlay->HookReady();
     }
     return res;
 }
@@ -97,9 +45,7 @@ void DX12_Hook::resetRenderState()
 {
     if (initialized)
     {
-        pCmdAlloc->Release();
-        pCmdList->Release();
-        pDescriptorHeap->Release();
+        pSrvDescHeap->Release();
 
         ImGui_ImplDX12_Shutdown();
         Windows_Hook::Inst().resetRenderState();
@@ -112,75 +58,41 @@ void DX12_Hook::resetRenderState()
 // Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 {
-    DXGI_SWAP_CHAIN_DESC desc;
-    pSwapChain->GetDesc(&desc);
+    pSwapChain->GetDesc(&sc_desc);
+    
+    IDXGISwapChain3* pSwapChain3;
+    pSwapChain->QueryInterface(IID_PPV_ARGS(&pSwapChain3));
 
     if (!initialized)
     {
-        D3D12_DESCRIPTOR_HEAP_DESC d3d12_desc = {};
         ID3D12Device* pDevice;
-
-        if (!SUCCEEDED(pSwapChain->GetDevice(IID_PPV_ARGS(&pDevice))))
+        if (pSwapChain->GetDevice(IID_PPV_ARGS(&pDevice)) != S_OK)
             return;
 
-        d3d12_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        d3d12_desc.NumDescriptors = 1;
-        d3d12_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        d3d12_desc.NodeMask = 1;
-        if (pDevice->CreateDescriptorHeap(&d3d12_desc, IID_PPV_ARGS(&pDescriptorHeap)) != S_OK)
         {
-            pDevice->Release();
-            return;
-        }
-
-        mainRenderTargetDescriptor = pDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-        if (!SUCCEEDED(pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pCmdAlloc))))
-        {
-            pDescriptorHeap->Release();
-            pDevice->Release();
-            return;
-        }
-        if (!SUCCEEDED(pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pCmdAlloc, NULL, IID_PPV_ARGS(&pCmdList))))
-        {
-            pCmdAlloc->Release();
-            pDescriptorHeap->Release();
-            pDevice->Release();
-            return;
+            D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+            desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            desc.NumDescriptors = 1;
+            desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            if (pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&pSrvDescHeap)) != S_OK)
+            {
+                pDevice->Release();
+                return;
+            }
         }
 
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = NULL;
-
-        ImGui_ImplDX12_Init(pDevice, 1, DXGI_FORMAT_R8G8B8A8_UNORM,
-            pDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-            pDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
     
-        pCmdList->Release();
-        pCmdAlloc->Release();
-        pDescriptorHeap->Release();
+        ImGui_ImplDX12_Init(pDevice, 1, DXGI_FORMAT_R8G8B8A8_UNORM,
+            pSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
+            pSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
+    
         pDevice->Release();
+
         initialized = true;
     }
-
-    ImGui_ImplDX12_NewFrame();
-    Windows_Hook::Inst().prepareForOverlay(desc.OutputWindow);
-
-    ImGui::NewFrame();
-
-    get_steam_client()->steam_overlay->OverlayProc(desc.BufferDesc.Width, desc.BufferDesc.Height);
-
-    ImGui::EndFrame();
-
-    ImGui::Render();
-
-    pCmdAlloc->Reset();
-    pCmdList->Reset(pCmdAlloc, NULL);
-    //pCmdList->ClearRenderTargetView(mainRenderTargetDescriptor, (float*)& clear_color, 0, NULL);
-    pCmdList->OMSetRenderTargets(1, &mainRenderTargetDescriptor, FALSE, NULL);
-    pCmdList->SetDescriptorHeaps(1, &pDescriptorHeap);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pCmdList);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -219,15 +131,54 @@ HRESULT STDMETHODCALLTYPE DX12_Hook::MyResizeBuffers(IDXGISwapChain* _this, UINT
     return (_this->*DX12_Hook::Inst()->ResizeBuffers)(BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
+void STDMETHODCALLTYPE DX12_Hook::MyExecuteCommandLists(ID3D12CommandQueue *_this, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists)
+{
+    DX12_Hook* me = DX12_Hook::Inst();
+    // ----------------------------------------------------- //
+    // \/\/\/ TODO: Find a cleaner way to do all this \/\/\/ //
+    //      I'd like to put it in IDXGISwapChain::Present    //
+    // ----------------------------------------------------- //
+    if (me->initialized)
+    {
+        static std::recursive_mutex render_mutex; // Sniper Elite 4 where I test this uses multiple thread on this. ImGui is not reentrant
+        std::lock_guard<std::recursive_mutex> lock(render_mutex);
+        for (int i = 0; i < NumCommandLists; ++i)
+        {
+            if (((ID3D12GraphicsCommandList*)ppCommandLists[i])->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT)
+            {
+                ImGui_ImplDX12_NewFrame();
+                Windows_Hook::Inst().prepareForOverlay(me->sc_desc.OutputWindow);
+
+                ImGui::NewFrame();
+
+                get_steam_client()->steam_overlay->OverlayProc(me->sc_desc.BufferDesc.Width, me->sc_desc.BufferDesc.Height);
+
+                ImGui::EndFrame();
+
+                ((ID3D12GraphicsCommandList*)ppCommandLists[i])->SetDescriptorHeaps(1, &me->pSrvDescHeap);
+                ImGui::Render();
+                ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), (ID3D12GraphicsCommandList*)ppCommandLists[i]);
+                (((ID3D12GraphicsCommandList*)ppCommandLists[i])->*me->Close)();
+            }
+        }
+    }
+    (_this->*DX12_Hook::Inst()->ExecuteCommandLists)(NumCommandLists, ppCommandLists);
+}
+
+HRESULT STDMETHODCALLTYPE DX12_Hook::MyClose(ID3D12GraphicsCommandList* _this)
+{
+    if (DX12_Hook::Inst()->initialized && _this->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT)
+        return S_OK;
+    else
+        return (_this->*DX12_Hook::Inst()->Close)();
+}
+
 DX12_Hook::DX12_Hook():
-    initialized(false),
-    pCmdAlloc(nullptr),
-    pCmdList(nullptr),
-    pDescriptorHeap(nullptr)
+    initialized(false)
 {
     _library = LoadLibrary(DLL_NAME);
 
-    PRINT_DEBUG("Trying to hook DX12 but DX12_Hook is not implemented yet, please report to DEV with the game name.");
+    PRINT_DEBUG("Trying to hook DX12 but DX12_Hook is not implemented yet, please report to DEV with the game name.\n");
 
     // Hook to D3D12CreateDevice and D3D12CreateDeviceAndSwapChain so we know when it gets called.
     // If its called, then DX12 will be used to render the overlay.
@@ -246,10 +197,6 @@ DX12_Hook::~DX12_Hook()
 
     if (initialized)
     {
-        pCmdAlloc->Release();
-        pCmdList->Release();
-        pDescriptorHeap->Release();
-
         //ImGui_ImplDX12_Shutdown();
         ImGui_ImplDX12_InvalidateDeviceObjects();
         Windows_Hook::Inst().resetRenderState();
@@ -271,21 +218,44 @@ DX12_Hook* DX12_Hook::Inst()
     return _inst;
 }
 
-void DX12_Hook::loadFunctions(ID3D12Device *pDevice, IDXGISwapChain *pSwapChain)
+const char* DX12_Hook::get_lib_name() const
+{
+    return DLL_NAME;
+}
+
+void DX12_Hook::loadFunctions(ID3D12Device* pDevice, ID3D12CommandQueue* pCommandQueue, IDXGISwapChain *pSwapChain)
 {
     void** vTable = *reinterpret_cast<void***>(pDevice);
-
-    /*
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12DeviceVTable::X]
-
+    
 #undef LOAD_FUNC
-    */
+
+    vTable = *reinterpret_cast<void***>(pCommandQueue);
+#define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12CommandQueueVTable::X]
+    LOAD_FUNC(ExecuteCommandLists);
+#undef LOAD_FUNC
+
+
+    ID3D12CommandAllocator* pCommandAllocator;
+    ID3D12CommandList* pCommandList;
+
+    pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pCommandAllocator));
+    pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pCommandAllocator, NULL, IID_PPV_ARGS(&pCommandList));
+
+    vTable = *reinterpret_cast<void***>(pCommandList);
+#define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12GraphicsCommandListVTable::X]
+    LOAD_FUNC(Close);
+#undef LOAD_FUNC
+
     vTable = *reinterpret_cast<void***>(pSwapChain);
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)IDXGISwapChainVTable::X]
     LOAD_FUNC(Present);
     LOAD_FUNC(ResizeBuffers);
     LOAD_FUNC(ResizeTarget);
 #undef LOAD_FUNC
+
+    pCommandList->Release();
+    pCommandAllocator->Release();
 }
 
 #endif//NO_OVERLAY
