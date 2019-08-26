@@ -144,7 +144,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     uint64 steam_id = 0;
     bool generate_new = false;
     //try to load steam id from game specific settings folder first
-    if (local_storage->get_data(SETTINGS_STORAGE_FOLDER, "user_steam_id.txt", array_steam_id, sizeof(array_steam_id) - 1) > 0) {
+    if (local_storage->get_data(Local_Storage::settings_storage_folder, "user_steam_id.txt", array_steam_id, sizeof(array_steam_id) - 1) > 0) {
         user_id = CSteamID((uint64)std::atoll(array_steam_id));
         if (!user_id.IsValid()) {
             generate_new = true;
