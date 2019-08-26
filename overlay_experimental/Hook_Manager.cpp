@@ -420,7 +420,7 @@ void Hook_Manager::hook_opengl()
         decltype(wglMakeCurrent)* wglMakeCurrent = nullptr;
         if (library != nullptr)
         {
-            _wglMakeCurrent = (decltype(_wglMakeCurrent))GetProcAddress(library, "wglMakeCurrent");
+            wglMakeCurrent = (decltype(wglMakeCurrent))GetProcAddress(library, "wglMakeCurrent");
         }
         if (wglMakeCurrent != nullptr)
         {
