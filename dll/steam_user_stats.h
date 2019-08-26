@@ -131,10 +131,20 @@ bool GetStat( const char *pchName, int32 *pData )
     PRINT_DEBUG("GetStat int32 %s\n", pchName);
     if (!pchName || !pData) return false;
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto stats_config = settings->getStats();
+    auto stats_data = stats_config.find(pchName);
+    if (stats_data != stats_config.end()) {
+        if (stats_data->second.type != Stat_Type::STAT_TYPE_INT) return false;
+    }
 
     int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, pchName, (char* )pData, sizeof(*pData));
     if (read_data == sizeof(int32))
         return true;
+
+    if (stats_data != stats_config.end()) {
+        *pData = stats_data->second.default_value_int;
+        return true;
+    }
 
     return false;
 }
@@ -144,10 +154,20 @@ bool GetStat( const char *pchName, float *pData )
     PRINT_DEBUG("GetStat float %s\n", pchName);
     if (!pchName || !pData) return false;
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto stats_config = settings->getStats();
+    auto stats_data = stats_config.find(pchName);
+    if (stats_data != stats_config.end()) {
+        if (stats_data->second.type == Stat_Type::STAT_TYPE_INT) return false;
+    }
 
     int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, pchName, (char* )pData, sizeof(*pData));
-    if (read_data == sizeof(int32))
+    if (read_data == sizeof(float))
         return true;
+
+    if (stats_data != stats_config.end()) {
+        *pData = stats_data->second.default_value_float;
+        return true;
+    }
 
     return false;
 }

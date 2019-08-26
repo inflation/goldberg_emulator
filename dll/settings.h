@@ -38,6 +38,20 @@ struct Leaderboard_config {
     enum ELeaderboardDisplayType display_type;
 };
 
+enum Stat_Type {
+    STAT_TYPE_INT,
+    STAT_TYPE_FLOAT,
+    STAT_TYPE_AVGRATE
+};
+
+struct Stat_config {
+    enum Stat_Type type;
+    union {
+        float default_value_float;
+        uint32 default_value_int;
+    };
+};
+
 class Settings {
     CSteamID steam_id;
     CGameID game_id;
@@ -50,7 +64,9 @@ class Settings {
     std::vector<struct Mod_entry> mods;
     std::map<AppId_t, std::string> app_paths;
     std::map<std::string, Leaderboard_config> leaderboards;
+    std::map<std::string, Stat_config> stats;
     bool create_unknown_leaderboards;
+    uint16 port;
 
 public:
 #ifdef LOBBY_CONNECT
@@ -68,6 +84,8 @@ public:
     void set_lobby(CSteamID lobby_id);
     CSteamID get_lobby();
     bool is_offline() {return offline; }
+    uint16 get_port() {return port;}
+    void set_port(uint16 port) { this->port = port;}
 
     //DLC stuff
     void unlockAllDLC(bool value);
@@ -91,6 +109,13 @@ public:
     std::map<std::string, Leaderboard_config> getLeaderboards() { return leaderboards; }
     void setCreateUnknownLeaderboards(bool enable) {create_unknown_leaderboards = enable;}
     bool createUnknownLeaderboards() { return create_unknown_leaderboards; }
+
+    //custom broadcasts
+    std::set<uint32> custom_broadcasts;
+
+    //stats
+    std::map<std::string, Stat_config> getStats() { return stats; }
+    void setStatDefiniton(std::string name, struct Stat_config stat_config) {stats[name] = stat_config; }
 };
 
 #endif
