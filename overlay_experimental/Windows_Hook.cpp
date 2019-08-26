@@ -9,30 +9,44 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 
 #include <psapi.h>
 
+struct enum_wnd_param
+{
+    //HMODULE hModules[512];
+    //DWORD num_mods;
+    DWORD pid;
+    HWND window;
+};
+
+static BOOL __stdcall EnumWindowsProc(HWND hWnd, enum_wnd_param* param)
+{
+    DWORD pid;
+    GetWindowThreadProcessId(hWnd, &pid);
+    if (pid == param->pid && GetWindow(hWnd, GW_OWNER) == nullptr && IsWindowVisible(hWnd))
+    {
+        param->window = hWnd;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 HWND GetGameWindow()
 {
-    HWND hWnd = FindWindow(nullptr, nullptr);
-    HMODULE hModules[512];
-    DWORD needed;
-    if (EnumProcessModules(GetCurrentProcess(), hModules, 512, &needed) != 0)
-    {
-        int numMods = needed/sizeof(HMODULE);
-        while (hWnd)
-        {
-            HMODULE wndInst = (HMODULE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
-            if (wndInst != nullptr)
-            {
-                for (int i = 0; i < numMods; ++i)
-                {
-                    if (!GetParent(hWnd) && hModules[i] == wndInst)
-                        return hWnd;
-                }
-            }
-            hWnd = GetWindow(hWnd, GW_HWNDNEXT);
-        }
+    enum_wnd_param param;
+    param.window = nullptr;
+
+    param.pid = GetCurrentProcessId();
+    EnumWindows(reinterpret_cast<WNDENUMPROC>(EnumWindowsProc), reinterpret_cast<LPARAM>(&param));
+
+    if (param.window != nullptr) {
+        PRINT_DEBUG("Failed to get game window HWND\n");
     }
-    PRINT_DEBUG("Failed to get game window HWND\n");
-    return hWnd;
+    else {
+        char wnd_name[1024];
+        GetWindowText(param.window, wnd_name, 1023);
+        PRINT_DEBUG("Found window %s\n", wnd_name);
+    }
+    return param.window;
 }
 
 bool Windows_Hook::start_hook()
