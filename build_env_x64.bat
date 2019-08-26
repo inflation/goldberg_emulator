@@ -1,16 +1,22 @@
-if exist "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat" goto vs14
-if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat" goto vs2017
-if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat" goto vs2019
+@echo off
+cd /d "%~dp0"
+rem Put in the base path in which Visual Studio is installed, default would be C:\Program Files (x86)
 
-:vs14
-call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
+set VS_Base_Path=C:\Program Files (x86)
+
+if exist "%VS_Base_Path%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" goto vs2019
+if exist "%VS_Base_Path%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat" goto vs2017
+if exist "%VS_Base_Path%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat" goto vs14
+
+:vs2019
+call "%VS_Base_Path%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 goto batend
 
 :vs2017
-call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+call "%VS_Base_Path%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 goto batend
 
-:vs2019
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+:vs14
+call "%VS_Base_Path%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
 goto batend
 :batend

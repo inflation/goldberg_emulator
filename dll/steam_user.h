@@ -361,7 +361,7 @@ void AdvertiseGame( CSteamID steamIDGameServer, uint32 unIPServer, uint16 usPort
 STEAM_CALL_RESULT( EncryptedAppTicketResponse_t )
 SteamAPICall_t RequestEncryptedAppTicket( void *pDataToInclude, int cbDataToInclude )
 {
-    PRINT_DEBUG("Steam_User::RequestEncryptedAppTicket\n");
+    PRINT_DEBUG("Steam_User::RequestEncryptedAppTicket %i\n", cbDataToInclude);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     EncryptedAppTicketResponse_t data;
 	data.m_eResult = k_EResultOK;

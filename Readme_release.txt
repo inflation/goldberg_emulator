@@ -82,6 +82,13 @@ For the sort methods: 0 = none, 1 = ascending, 2 = descending
 For the display type: 0 = none, 1 = numeric, 2 = time seconds, 3 = milliseconds
 An example can be found in steam_settings.EXAMPLE
 
+Stats:
+By default this emulators assumes all stats do not exist unless they have been written once by the game. This works for the majority of games but some games might read a stat for the first time
+and expect a default value to be read when doing so. To set the type for each stat along with the default value, put a stats.txt file in the steam_settings/ folder.
+The format is: STAT_NAME=type=default value
+The type can be: int, float or avgrate
+The default value is simply a number that represents the default value for the stat.
+
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
 
 
