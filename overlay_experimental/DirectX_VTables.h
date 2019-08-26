@@ -44,6 +44,111 @@ enum class IDXGISwapChainVTable
     GetRotation,
 };
 
+enum class ID3D12CommandQueueVTable
+{
+    // IUnknown
+    QueryInterface,
+    AddRef,
+    Release,
+
+    // ID3D12Object
+    GetPrivateData,
+    SetPrivateData,
+    SetPrivateDataInterface,
+    SetName,
+
+    // ID3D12DeviceChild
+    GetDevice,
+
+    // ID3D12Pageable
+
+    // ID3D12CommandQueue
+    UpdateTileMappings,
+    CopyTileMappings,
+    ExecuteCommandLists,
+    SetMarker,
+    BeginEvent,
+    EndEvent,
+    Signal,
+    Wait,
+    GetTimestampFrequency,
+    GetClockCalibration,
+    GetDesc,
+};
+
+enum class ID3D12GraphicsCommandListVTable
+{
+    // IUnknown
+    QueryInterface,
+    AddRef,
+    Release,
+
+    // ID3D12Object
+    GetPrivateData,
+    SetPrivateData,
+    SetPrivateDataInterface,
+    SetName,
+
+    // ID3D12DeviceChild
+    GetDevice,
+
+    // ID3D12CommandList
+    GetType,
+
+    // ID3D12GraphicsCommandList
+    Close,
+    Reset,
+    ClearState,
+    DrawInstanced,
+    DrawIndexedInstanced,
+    Dispatch,
+    CopyBufferRegion,
+    CopyTextureRegion,
+    CopyResource,
+    CopyTiles,
+    ResolveSubresource,
+    IASetPrimitiveTopology,
+    RSSetViewports,
+    RSSetScissorRects,
+    OMSetBlendFactor,
+    OMSetStencilRef,
+    SetPipelineState,
+    ResourceBarrier,
+    ExecuteBundle,
+    SetDescriptorHeaps,
+    SetComputeRootSignature,
+    SetGraphicsRootSignature,
+    SetComputeRootDescriptorTable,
+    SetGraphicsRootDescriptorTable,
+    SetComputeRoot32BitConstant,
+    SetGraphicsRoot32BitConstant,
+    SetComputeRoot32BitConstants,
+    SetGraphicsRoot32BitConstants,
+    SetComputeRootConstantBufferView,
+    SetGraphicsRootConstantBufferView,
+    SetComputeRootShaderResourceView,
+    SetGraphicsRootShaderResourceView,
+    SetComputeRootUnorderedAccessView,
+    SetGraphicsRootUnorderedAccessView,
+    IASetIndexBuffer,
+    IASetVertexBuffers,
+    SOSetTargets,
+    OMSetRenderTargets,
+    ClearDepthStencilView,
+    ClearRenderTargetView,
+    ClearUnorderedAccessViewUint,
+    ClearUnorderedAccessViewFloat,
+    DiscardResource,
+    BeginQuery,
+    EndQuery,
+    ResolveQueryData,
+    SetPredication,
+    SetMarker,
+    BeginEvent,
+    EndEvent,
+    ExecuteIndirect,
+};
+
 enum class ID3D11DeviceVTable
 {
     // IUnknown

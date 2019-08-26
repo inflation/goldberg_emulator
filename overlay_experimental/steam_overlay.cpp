@@ -30,12 +30,13 @@ void Steam_Overlay::steam_overlay_callback(void* object, Common_Message* msg)
     _this->Callback(msg);
 }
 
-Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network) :
+Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking* network) :
     settings(settings),
     callback_results(callback_results),
     callbacks(callbacks),
     run_every_runcb(run_every_runcb),
     network(network),
+    setup_overlay_called(false),
     show_overlay(false),
     is_ready(false),
     notif_position(ENotificationPosition::k_EPositionBottomLeft),
@@ -75,7 +76,12 @@ void Steam_Overlay::SetNotificationInset(int nHorizontalInset, int nVerticalInse
 
 void Steam_Overlay::SetupOverlay()
 {
-    Hook_Manager::Inst().HookRenderer();
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (!setup_overlay_called)
+    {
+        setup_overlay_called = true;
+        Hook_Manager::Inst().HookRenderer();
+    }
 }
 
 void Steam_Overlay::HookReady()
@@ -390,6 +396,9 @@ void Steam_Overlay::OverlayProc( int width, int height )
                 settings->get_local_name(),
                 settings->get_local_steam_id().ConvertToUint64(),
                 settings->get_local_game_id().AppID());
+            ImGui::SameLine();
+            Base_Hook *hook = Hook_Manager::Inst().get_renderer();
+            ImGui::LabelText("##label", "Renderer: %s", (hook == nullptr ? "Unknown" : hook->get_lib_name()));
 
             ImGui::Spacing();
 

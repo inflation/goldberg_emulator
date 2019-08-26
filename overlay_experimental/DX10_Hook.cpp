@@ -18,56 +18,21 @@ bool DX10_Hook::start_hook()
         if (!Windows_Hook::Inst().start_hook())
             return false;
 
-        HWND hWnd = GetGameWindow();
-        if (!hWnd)
-            return false;
+        PRINT_DEBUG("Hooked DirectX 10\n");
+        _hooked = true;
 
-        IDXGISwapChain* pSwapChain;
-        ID3D10Device* pDevice;
-        DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
-        decltype(D3D10CreateDeviceAndSwapChain)* D3D10CreateDeviceAndSwapChain =
-            (decltype(D3D10CreateDeviceAndSwapChain))GetProcAddress(reinterpret_cast<HMODULE>(_library), "D3D10CreateDeviceAndSwapChain");
-        SwapChainDesc.BufferCount = 1;
-        SwapChainDesc.BufferDesc.Width = 1;
-        SwapChainDesc.BufferDesc.Height = 1;
-        SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        SwapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-        SwapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
-        SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        SwapChainDesc.OutputWindow = hWnd;
-        SwapChainDesc.SampleDesc.Count = 1;
-        SwapChainDesc.SampleDesc.Quality = 0;
-        SwapChainDesc.Windowed = TRUE;
+        Hook_Manager::Inst().FoundRenderer(this);
 
-        D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_NULL, NULL, 0, D3D10_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice);
+        UnhookAll();
+        BeginHook();
+        HookFuncs(
+            std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::Present, &DX10_Hook::MyPresent),
+            std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeTarget, &DX10_Hook::MyResizeTarget),
+            std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeBuffers, &DX10_Hook::MyResizeBuffers)
+        );
+        EndHook();
 
-        if (pDevice != nullptr && pSwapChain != nullptr)
-        {
-            PRINT_DEBUG("Hooked DirectX 10\n");
-
-            _hooked = true;
-            Hook_Manager::Inst().FoundRenderer(this);
-            
-            loadFunctions(pDevice, pSwapChain);
-
-            UnhookAll();
-            BeginHook();
-            HookFuncs(
-                std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::Present, &DX10_Hook::MyPresent),
-                std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeTarget, &DX10_Hook::MyResizeTarget),
-                std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::ResizeBuffers, &DX10_Hook::MyResizeBuffers)
-            );
-            EndHook();
-
-            get_steam_client()->steam_overlay->HookReady();
-        }
-        else
-        {
-            PRINT_DEBUG("Failed to hook DirectX 10\n");
-            res = false;
-        }
-        if(pDevice)pDevice->Release();
-        if(pSwapChain)pSwapChain->Release();
+        get_steam_client()->steam_overlay->HookReady();
     }
     return res;
 }
@@ -218,6 +183,11 @@ DX10_Hook* DX10_Hook::Inst()
         _inst = new DX10_Hook;
 
     return _inst;
+}
+
+const char* DX10_Hook::get_lib_name() const
+{
+    return DLL_NAME;
 }
 
 void DX10_Hook::loadFunctions(ID3D10Device *pDevice, IDXGISwapChain *pSwapChain)

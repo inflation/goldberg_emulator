@@ -40,6 +40,7 @@ public:
     WNDPROC GetGameWndProc() const;
 
     static Windows_Hook& Inst();
+    virtual const char* get_lib_name() const;
 };
 
 HWND GetGameWindow();

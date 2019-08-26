@@ -189,3 +189,8 @@ Windows_Hook& Windows_Hook::Inst()
     static Windows_Hook _inst;
     return _inst;
 }
+
+const char* Windows_Hook::get_lib_name() const
+{
+    return DLL_NAME;
+}

@@ -38,6 +38,7 @@ private:
 public:
     bool start_hook();
     static OpenGL_Hook* Inst();
+    virtual const char* get_lib_name() const;
 };
 
 #endif//NO_OVERLAY

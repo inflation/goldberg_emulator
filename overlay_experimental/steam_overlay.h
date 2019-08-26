@@ -52,6 +52,7 @@ class Steam_Overlay
     // friend id, show client window (to chat and accept invite maybe)
     std::map<Friend, friend_window_state, Friend_Less> friends;
 
+    bool setup_overlay_called;
     bool is_ready;
     bool show_overlay;
     ENotificationPosition notif_position;

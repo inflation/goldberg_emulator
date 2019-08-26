@@ -5,7 +5,7 @@
 
 #ifndef NO_OVERLAY
 
-#include <vector>
+#include <set>
 #include <thread>
 
 #if defined(_WIN32) || defined(WIN32)
@@ -30,13 +30,14 @@ protected:
     // TODO: If needed, create a second vector with only the renderers hook
     // Cause actually, a call to FoundRenderer will unhook everything registered except the renderer hook
     // If you do that, you should consider moving the renderer hooks to its own class and keep this one generic ?
-    std::vector<Base_Hook*> _hooks; 
+    std::set<Base_Hook*> _hooks; 
 
     std::thread *_hook_thread;
     unsigned int _hook_retries;
     bool _renderer_found;       // Is the renderer hooked ?
     bool _ogl_hooked;           // wglMakeCurrent is hooked ? (opengl)
     Base_Hook* rendererdetect_hook;
+    Base_Hook* game_renderer;
     class Steam_Overlay* overlay;
 
     Hook_Manager();
@@ -54,9 +55,9 @@ protected:
     bool _dxgi_hooked;          // DXGI Present is hooked ? (DX10, DX11, DX12)
 
     // DXGIPresent will be used to detect if DX10, DX11 or DX12 should be used for overlay
-    void HookDXGIPresent();
+    void HookDXGIPresent(IDXGISwapChain* pSwapChain);
     // DX9 Present and PresentEx will be used to detect if DX9 should be used for overlay
-    void HookDX9Present();
+    void HookDX9Present(IDirect3DDevice9* pDevice, bool ex);
     // wglMakeCurrent will be used to detect if OpenGL3 should be used for overlay
     void HookwglMakeCurrent();
     // Setup DX9 Device and get vtable
@@ -97,7 +98,9 @@ public:
     // Set the found hook and free all other hooks
     void FoundRenderer(Base_Hook *hook);
 
-    inline void AddHook(Base_Hook* hook) { _hooks.push_back(hook); }
+    inline void AddHook(Base_Hook* hook) { _hooks.insert(hook); }
+
+    inline Base_Hook* get_renderer() const { return game_renderer; }
 };
 
 #endif//NO_OVERLAY

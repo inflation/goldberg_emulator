@@ -14,60 +14,34 @@ DX9_Hook* DX9_Hook::_inst = nullptr;
 
 bool DX9_Hook::start_hook()
 {
-    bool res = true;
     if (!_hooked)
     {
         if (!Windows_Hook::Inst().start_hook())
             return false;
 
-        HWND hWnd = GetGameWindow();
-        if (!hWnd)
-            return false;
+        PRINT_DEBUG("Hooked DirectX 9\n");
+        _hooked = true;
 
-        IDirect3D9Ex* pD3D;
-        IDirect3DDevice9Ex* pDeviceEx;
-        decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(reinterpret_cast<HMODULE>(_library), "Direct3DCreate9Ex");
-
-        Direct3DCreate9Ex(D3D_SDK_VERSION, &pD3D);
-
-        D3DPRESENT_PARAMETERS params = {};
-        params.BackBufferWidth = 1;
-        params.BackBufferHeight = 1;
-        params.hDeviceWindow = hWnd;
-
-        pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, &pDeviceEx);
-
-        if (pDeviceEx != nullptr)
+        Hook_Manager::Inst().FoundRenderer(this);
+        
+        UnhookAll();
+        BeginHook();
+        HookFuncs(
+            std::make_pair<void**, void*>(&(PVOID&)Reset, &DX9_Hook::MyReset),
+            std::make_pair<void**, void*>(&(PVOID&)Present, &DX9_Hook::MyPresent)
+        );
+        if (PresentEx != nullptr)
         {
-            PRINT_DEBUG("Hooked DirectX 9\n");
-
-            _hooked = true;
-            Hook_Manager::Inst().FoundRenderer(this);
-            
-            loadFunctions(pDeviceEx);
-
-            UnhookAll();
-            BeginHook();
             HookFuncs(
-                std::make_pair<void**, void*>(&(PVOID&)Reset, &DX9_Hook::MyReset),
-                std::make_pair<void**, void*>(&(PVOID&)Present, &DX9_Hook::MyPresent),
                 std::make_pair<void**, void*>(&(PVOID&)PresentEx, &DX9_Hook::MyPresentEx)
                 //std::make_pair<void**, void*>(&(PVOID&)EndScene, &DX9_Hook::MyEndScene)
             );
-            EndHook();
-
-            get_steam_client()->steam_overlay->HookReady();
         }
-        else
-        {
-            PRINT_DEBUG("Failed to DirectX 9\n");
-            res = false;
-        }
+        EndHook();
 
-        if(pDeviceEx)pDeviceEx->Release();
-        if(pD3D)pD3D->Release();
+        get_steam_client()->steam_overlay->HookReady();
     }
-    return res;
+    return true;
 }
 
 void DX9_Hook::resetRenderState()
@@ -220,15 +194,21 @@ DX9_Hook* DX9_Hook::Inst()
     return _inst;
 }
 
-void DX9_Hook::loadFunctions(IDirect3DDevice9Ex* pDeviceEx)
+const char* DX9_Hook::get_lib_name() const
 {
-    void** vTable = *reinterpret_cast<void***>(pDeviceEx);
+    return DLL_NAME;
+}
+
+void DX9_Hook::loadFunctions(IDirect3DDevice9* pDevice, bool ex)
+{
+    void** vTable = *reinterpret_cast<void***>(pDevice);
 
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)IDirect3DDevice9VTable::X]
     LOAD_FUNC(Reset);
     LOAD_FUNC(EndScene);
     LOAD_FUNC(Present);
-    LOAD_FUNC(PresentEx);
+    if (ex)
+        LOAD_FUNC(PresentEx);
 #undef LOAD_FUNC
 }
 

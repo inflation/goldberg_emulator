@@ -47,8 +47,9 @@ private:
 public:
     bool start_hook();
     static DX9_Hook* Inst();
+    virtual const char* get_lib_name() const;
     
-    void loadFunctions(IDirect3DDevice9Ex *pDeviceEx);
+    void loadFunctions(IDirect3DDevice9 *pDevice, bool ex);
 };
 
 #endif//NO_OVERLAY

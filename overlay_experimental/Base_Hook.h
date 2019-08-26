@@ -29,6 +29,7 @@ public:
     void EndHook();
     void UnhookAll();
 
+    virtual const char* get_lib_name() const;
     void HookFunc(std::pair<void**, void*> hook);
 
     template<typename T>

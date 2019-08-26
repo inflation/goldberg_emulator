@@ -46,6 +46,7 @@ private:
 public:
     bool start_hook();
     static DX10_Hook* Inst();
+    virtual const char* get_lib_name() const;
     
     void loadFunctions(ID3D10Device *pDevice, IDXGISwapChain *pSwapChain);
 };

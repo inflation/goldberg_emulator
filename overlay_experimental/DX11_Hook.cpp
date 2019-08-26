@@ -28,57 +28,21 @@ bool DX11_Hook::start_hook()
         if (!Windows_Hook::Inst().start_hook())
             return false;
 
-        HWND hWnd = GetGameWindow();
-        if (!hWnd)
-            return false;
+        PRINT_DEBUG("Hooked DirectX 11\n");
+        _hooked = true;
 
-        IDXGISwapChain* pSwapChain;
-        ID3D11Device* pDevice;
-        DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
-        decltype(D3D11CreateDeviceAndSwapChain)* D3D11CreateDeviceAndSwapChain =
-            (decltype(D3D11CreateDeviceAndSwapChain))GetProcAddress(reinterpret_cast<HMODULE>(_library), "D3D11CreateDeviceAndSwapChain");
-        SwapChainDesc.BufferCount = 1;
-        SwapChainDesc.BufferDesc.Width = 1;
-        SwapChainDesc.BufferDesc.Height = 1;
-        SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        SwapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-        SwapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
-        SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        SwapChainDesc.OutputWindow = hWnd;
-        SwapChainDesc.SampleDesc.Count = 1;
-        SwapChainDesc.SampleDesc.Quality = 0;
-        SwapChainDesc.Windowed = TRUE;
+        Hook_Manager::Inst().FoundRenderer(this);
 
-        D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_NULL, NULL, 0, NULL, NULL, D3D11_SDK_VERSION, &SwapChainDesc, &pSwapChain, &pDevice, NULL, NULL);
+        UnhookAll();
+        BeginHook();
+        HookFuncs(
+            std::make_pair<void**, void*>(&(PVOID&)DX11_Hook::Present, &DX11_Hook::MyPresent),
+            std::make_pair<void**, void*>(&(PVOID&)DX11_Hook::ResizeTarget, &DX11_Hook::MyResizeTarget),
+            std::make_pair<void**, void*>(&(PVOID&)DX11_Hook::ResizeBuffers, &DX11_Hook::MyResizeBuffers)
+        );
+        EndHook();
 
-        if (pDevice != nullptr && pSwapChain != nullptr)
-        {
-            PRINT_DEBUG("Hooked DirectX 11\n");
-
-            _hooked = true;
-            Hook_Manager::Inst().FoundRenderer(this);
-
-            loadFunctions(pDevice, pSwapChain);
-
-            UnhookAll();
-            BeginHook();
-            HookFuncs(
-                std::make_pair<void**, void*>(&(PVOID&)DX11_Hook::Present, &DX11_Hook::MyPresent),
-                std::make_pair<void**, void*>(&(PVOID&)DX11_Hook::ResizeTarget, &DX11_Hook::MyResizeTarget),
-                std::make_pair<void**, void*>(&(PVOID&)DX11_Hook::ResizeBuffers, &DX11_Hook::MyResizeBuffers)
-            );
-            EndHook();
-
-            get_steam_client()->steam_overlay->HookReady();
-        }
-        else
-        {
-            PRINT_DEBUG("Failed to hook DirectX 11\n");
-            res = false;
-        }
-
-        if(pDevice) pDevice->Release();
-        if(pSwapChain) pSwapChain->Release();
+        get_steam_client()->steam_overlay->HookReady();
     }
     return res;
 }
@@ -237,6 +201,11 @@ DX11_Hook* DX11_Hook::Inst()
         _inst = new DX11_Hook;
 
     return _inst;
+}
+
+const char* DX11_Hook::get_lib_name() const
+{
+    return DLL_NAME;
 }
 
 void DX11_Hook::loadFunctions(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain)

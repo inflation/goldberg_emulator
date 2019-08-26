@@ -45,6 +45,11 @@ void Base_Hook::UnhookAll()
     }
 }
 
+const char* Base_Hook::get_lib_name() const
+{
+    return "<no_name>";
+}
+
 void Base_Hook::HookFunc(std::pair<void**, void*> hook)
 {
     if( DetourAttach(hook.first, hook.second) == 0 )

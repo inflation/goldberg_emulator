@@ -152,4 +152,9 @@ OpenGL_Hook* OpenGL_Hook::Inst()
     return _inst;
 }
 
+const char* OpenGL_Hook::get_lib_name() const
+{
+    return DLL_NAME;
+}
+
 #endif//NO_OVERLAY

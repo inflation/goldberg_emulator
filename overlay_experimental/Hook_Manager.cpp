@@ -20,10 +20,10 @@
 constexpr int max_hook_retries = 500;
 
 #ifdef STEAM_WIN32
-static decltype(&IDXGISwapChain::Present) _IDXGISwapChain_Present;
-static decltype(&IDirect3DDevice9::Present) _IDirect3DDevice9_Present;
-static decltype(&IDirect3DDevice9Ex::PresentEx) _IDirect3DDevice9Ex_PresentEx;
-static decltype(wglMakeCurrent)* _wglMakeCurrent;
+static decltype(&IDXGISwapChain::Present) _IDXGISwapChain_Present = nullptr;
+static decltype(&IDirect3DDevice9::Present) _IDirect3DDevice9_Present = nullptr;
+static decltype(&IDirect3DDevice9Ex::PresentEx) _IDirect3DDevice9Ex_PresentEx = nullptr;
+static decltype(wglMakeCurrent)* _wglMakeCurrent = nullptr;
 
 HRESULT STDMETHODCALLTYPE Hook_Manager::MyIDXGISwapChain_Present(IDXGISwapChain* _this, UINT SyncInterval, UINT Flags)
 {
@@ -100,11 +100,13 @@ BOOL WINAPI Hook_Manager::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
     return _wglMakeCurrent(hDC, hGLRC);
 }
 
-void Hook_Manager::HookDXGIPresent()
+void Hook_Manager::HookDXGIPresent(IDXGISwapChain *pSwapChain)
 {
     if (!_dxgi_hooked)
     {
         _dxgi_hooked = true;
+        (void*&)_IDXGISwapChain_Present = (*reinterpret_cast<void***>(pSwapChain))[(int)IDXGISwapChainVTable::Present];
+
         rendererdetect_hook->BeginHook();
 
         rendererdetect_hook->HookFuncs(
@@ -115,17 +117,26 @@ void Hook_Manager::HookDXGIPresent()
     }
 }
 
-void Hook_Manager::HookDX9Present()
+void Hook_Manager::HookDX9Present(IDirect3DDevice9* pDevice, bool ex)
 {
     if (!_dx9_hooked)
     {
         _dx9_hooked = true;
+        (void*&)_IDirect3DDevice9_Present = (*reinterpret_cast<void***>(pDevice))[(int)IDirect3DDevice9VTable::Present];
+        if (ex)
+            (void*&)_IDirect3DDevice9Ex_PresentEx = (*reinterpret_cast<void***>(pDevice))[(int)IDirect3DDevice9VTable::PresentEx];
+
         rendererdetect_hook->BeginHook();
 
         rendererdetect_hook->HookFuncs(
-            std::pair<void**, void*>((PVOID*)& _IDirect3DDevice9_Present, &Hook_Manager::MyPresent),
-            std::pair<void**, void*>((PVOID*)& _IDirect3DDevice9Ex_PresentEx, &Hook_Manager::MyPresentEx)
+            std::pair<void**, void*>((PVOID*)& _IDirect3DDevice9_Present, &Hook_Manager::MyPresent)
         );
+        if (ex)
+        {
+            rendererdetect_hook->HookFuncs(
+                std::pair<void**, void*>((PVOID*)& _IDirect3DDevice9Ex_PresentEx, &Hook_Manager::MyPresentEx)
+            );
+        }
 
         rendererdetect_hook->EndHook();
     }
@@ -154,33 +165,48 @@ void Hook_Manager::hook_dx9()
         if (!hWnd)
             return;
 
-        IDirect3D9Ex* pD3D;
-        IDirect3DDevice9Ex* pDeviceEx;
-        decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(GetModuleHandle(DX9_Hook::DLL_NAME), "Direct3DCreate9Ex");
-
-        Direct3DCreate9Ex(D3D_SDK_VERSION, &pD3D);
+        IDirect3D9Ex* pD3D = nullptr;
+        IUnknown* pDevice = nullptr;
 
         D3DPRESENT_PARAMETERS params = {};
         params.BackBufferWidth = 1;
         params.BackBufferHeight = 1;
         params.hDeviceWindow = hWnd;
+        params.BackBufferCount = 1;
+        params.Windowed = TRUE;
+        params.SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-        pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, &pDeviceEx);
-
-        if (pDeviceEx)
+        decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = (decltype(Direct3DCreate9Ex))GetProcAddress(GetModuleHandle(DX9_Hook::DLL_NAME), "Direct3DCreate9Ex");
+        if (Direct3DCreate9Ex != nullptr)
+        {
+            Direct3DCreate9Ex(D3D_SDK_VERSION, &pD3D);
+            pD3D->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, NULL, reinterpret_cast<IDirect3DDevice9Ex**>(&pDevice));
+        }
+        else
+        {
+            decltype(Direct3DCreate9)* Direct3DCreate9 = (decltype(Direct3DCreate9))GetProcAddress(GetModuleHandle(DX9_Hook::DLL_NAME), "Direct3DCreate9");
+            if (Direct3DCreate9)
+            {
+                pD3D = reinterpret_cast<IDirect3D9Ex*>(Direct3DCreate9(D3D_SDK_VERSION));
+                pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_NULLREF, NULL, D3DCREATE_HARDWARE_VERTEXPROCESSING, &params, reinterpret_cast<IDirect3DDevice9 * *>(&pDevice));
+            }
+        }
+        
+        if (pDevice != nullptr)
         {
             PRINT_DEBUG("Hooked D3D9::Present to detect DX Version\n");
-            (void*&)_IDirect3DDevice9_Present = (*reinterpret_cast<void***>(pDeviceEx))[(int)IDirect3DDevice9VTable::Present];
-            (void*&)_IDirect3DDevice9Ex_PresentEx = (*reinterpret_cast<void***>(pDeviceEx))[(int)IDirect3DDevice9VTable::PresentEx];
-            HookDX9Present();
+            auto h = DX9_Hook::Inst();
+            h->loadFunctions(reinterpret_cast<IDirect3DDevice9*>(pDevice), Direct3DCreate9Ex != nullptr);
+            _hooks.insert(h);
+            HookDX9Present(reinterpret_cast<IDirect3DDevice9*>(pDevice), Direct3DCreate9Ex != nullptr);
         }
         else
         {
             PRINT_DEBUG("Failed to hook D3D9::Present to detect DX Version\n");
         }
 
-        if (pDeviceEx)pDeviceEx->Release();
-        if (pD3D)pD3D->Release();
+        if (pDevice) pDevice->Release();
+        if (pD3D) pD3D->Release();
     }
 }
 
@@ -214,8 +240,10 @@ void Hook_Manager::hook_dx10()
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
             PRINT_DEBUG("Hooked IDXGISwapChain::Present to detect DX Version\n");
-            (void*&)_IDXGISwapChain_Present = (*reinterpret_cast<void***>(pSwapChain))[(int)IDXGISwapChainVTable::Present];
-            HookDXGIPresent();
+            auto h = DX10_Hook::Inst();
+            h->loadFunctions(pDevice, pSwapChain);
+            _hooks.insert(h);
+            HookDXGIPresent(pSwapChain);
         }
         else
         {
@@ -256,8 +284,10 @@ void Hook_Manager::hook_dx11()
         if (pDevice != nullptr && pSwapChain != nullptr)
         {
             PRINT_DEBUG("Hooked IDXGISwapChain::Present to detect DX Version\n");
-            (void*&)_IDXGISwapChain_Present = (*reinterpret_cast<void***>(pSwapChain))[(int)IDXGISwapChainVTable::Present];
-            HookDXGIPresent();
+            auto h = DX11_Hook::Inst();
+            h->loadFunctions(pDevice, pSwapChain);
+            _hooks.insert(h);
+            HookDXGIPresent(pSwapChain);
         }
         else
         {
@@ -282,6 +312,7 @@ void Hook_Manager::hook_dx12()
         D3D12_COMMAND_QUEUE_DESC queueDesc = {};
         ID3D12CommandQueue* pCommandQueue = nullptr;
         ID3D12Device* pDevice = nullptr;
+
         decltype(D3D12CreateDevice)* D3D12CreateDevice =
             (decltype(D3D12CreateDevice))GetProcAddress(GetModuleHandle(DX12_Hook::DLL_NAME), "D3D12CreateDevice");
 
@@ -290,14 +321,14 @@ void Hook_Manager::hook_dx12()
         if (pDevice)
         {
             DXGI_SWAP_CHAIN_DESC1 SwapChainDesc = {};
-            SwapChainDesc.Width = 0;
-            SwapChainDesc.Height = 0;
+            SwapChainDesc.BufferCount = 2;
+            SwapChainDesc.Width = 1;
+            SwapChainDesc.Height = 1;
             SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
             SwapChainDesc.Stereo = FALSE;
             SwapChainDesc.SampleDesc = { 1, 0 };
             SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-            SwapChainDesc.BufferCount = 3;
-            SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+            SwapChainDesc.Scaling = DXGI_SCALING_NONE;
             SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
             SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 
@@ -312,8 +343,11 @@ void Hook_Manager::hook_dx12()
                 if (pSwapChain != nullptr)
                 {
                     PRINT_DEBUG("Hooked IDXGISwapChain::Present to detect DX Version\n");
-                    (void*&)_IDXGISwapChain_Present = (*reinterpret_cast<void***>(pSwapChain))[(int)IDXGISwapChainVTable::Present];
-                    HookDXGIPresent();
+
+                    auto h = DX12_Hook::Inst();
+                    h->loadFunctions(pDevice, pCommandQueue, pSwapChain);
+                    _hooks.insert(h);
+                    HookDXGIPresent(pSwapChain);
                 }
                 else
                 {
@@ -472,6 +506,7 @@ void Hook_Manager::FoundRenderer(Base_Hook* hook)
     if (!_renderer_found)
     {
         _renderer_found = true;
+        game_renderer = hook;
 
         if (hook == nullptr)
             PRINT_DEBUG("We found a renderer but couldn't hook it, aborting overlay hook.\n");
@@ -480,16 +515,15 @@ void Hook_Manager::FoundRenderer(Base_Hook* hook)
 
         _hook_thread->join();
         delete _hook_thread;
+        _hook_thread = nullptr;
 
         // Remove all hooks that are unused
-        _hooks.erase(std::remove_if(_hooks.begin(), _hooks.end(), [&hook](Base_Hook* it_hook) {
-            if (hook != it_hook)
-            {
-                delete it_hook;
-                return true;
-            }
-            return false;
-        }), _hooks.end());
+        std::set<Base_Hook*>::iterator item;
+        while ((item = std::find_if(_hooks.begin(), _hooks.end(), [hook](Base_Hook* item) {return item != hook; })) != _hooks.end())
+        {
+            delete *item;
+            _hooks.erase(item);
+        }
     }
 }
 
