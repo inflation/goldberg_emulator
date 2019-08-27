@@ -1,12 +1,12 @@
 #ifndef __INCLUDED_BASE_HOOK_H__
 #define __INCLUDED_BASE_HOOK_H__
 
-#include "../dll/base.h"
-
 #ifndef NO_OVERLAY
 
 #include <vector>
 #include <utility>
+
+#include "../dll/base.h"
 
 class Base_Hook
 {

@@ -1,6 +1,4 @@
 #include "Renderer_Detector.h"
-
-#include "../detours/detours.h"
 #include "Hook_Manager.h"
 
 #ifdef STEAM_WIN32

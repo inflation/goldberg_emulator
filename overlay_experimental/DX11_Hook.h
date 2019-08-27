@@ -36,13 +36,6 @@ private:
     decltype(&IDXGISwapChain::ResizeBuffers) ResizeBuffers;
     decltype(&IDXGISwapChain::ResizeTarget)  ResizeTarget;
 
-    // Hook functions so we know we use DX11
-    //static decltype(D3D11CreateDevice) MyD3D11CreateDevice;
-    //static decltype(D3D11CreateDeviceAndSwapChain) MyD3D11CreateDeviceAndSwapChain;
-
-    //decltype(D3D11CreateDevice)* D3D11CreateDevice;
-    //decltype(D3D11CreateDeviceAndSwapChain)* D3D11CreateDeviceAndSwapChain;
-
 public:
     virtual ~DX11_Hook();
 

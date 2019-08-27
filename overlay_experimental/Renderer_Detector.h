@@ -2,11 +2,11 @@
 #define __INCLUDED_RENDERER_DETECTOR_H__
 
 #include "Base_Hook.h"
+#include <thread>
+
 #ifndef NO_OVERLAY
 
-#if defined(_WIN32) || defined(WIN32)
-#include <Windows.h>
-
+#ifdef STEAM_WIN32
 struct IDXGISwapChain;
 struct IDirect3DDevice9;
 struct IDirect3DDevice9Ex;

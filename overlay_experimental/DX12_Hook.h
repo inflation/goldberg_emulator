@@ -42,11 +42,6 @@ private:
     decltype(&ID3D12CommandQueue::ExecuteCommandLists) ExecuteCommandLists;
     decltype(&ID3D12GraphicsCommandList::Close) Close;
 
-    // Hook functions so we know we use DX11
-    //static decltype(D3D12CreateDevice) MyD3D12CreateDevice;
-
-    //decltype(D3D12CreateDevice)* D3D12CreateDevice;
-
 public:
     virtual ~DX12_Hook();
 
