@@ -120,33 +120,36 @@ HRESULT STDMETHODCALLTYPE Renderer_Detector::MyPresent(IDirect3DDevice9* _this, 
 {
     Renderer_Detector& inst = Renderer_Detector::Inst();
     Hook_Manager& hm = Hook_Manager::Inst();
+    auto res = (_this->*_IDirect3DDevice9_Present)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
     if (!inst.stop_retry())
     {
         DX9_Hook::Inst()->start_hook();
     }
-    return (_this->*_IDirect3DDevice9_Present)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+    return res;
 }
 
 HRESULT STDMETHODCALLTYPE Renderer_Detector::MyPresentEx(IDirect3DDevice9Ex* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion, DWORD dwFlags)
 {
     Renderer_Detector& inst = Renderer_Detector::Inst();
     Hook_Manager& hm = Hook_Manager::Inst();
+    auto res = (_this->*_IDirect3DDevice9Ex_PresentEx)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
     if (!inst.stop_retry())
     {
         DX9_Hook::Inst()->start_hook();
     }
-    return (_this->*_IDirect3DDevice9Ex_PresentEx)(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion, dwFlags);
+    return res;
 }
 
 BOOL WINAPI Renderer_Detector::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
 {
     Renderer_Detector& inst = Renderer_Detector::Inst();
     Hook_Manager& hm = Hook_Manager::Inst();
+    auto res = _wglMakeCurrent(hDC, hGLRC);
     if (!inst.stop_retry())
     {
         OpenGL_Hook::Inst()->start_hook();
     }
-    return _wglMakeCurrent(hDC, hGLRC);
+    return res;
 }
 
 void Renderer_Detector::HookDXGIPresent(IDXGISwapChain* pSwapChain)
