@@ -16,13 +16,13 @@ private:
     static DX11_Hook* _inst;
 
     // Variables
+    bool hooked;
     bool initialized;
     ID3D11DeviceContext* pContext;
     ID3D11RenderTargetView* mainRenderTargetView;   
 
     // Functions
     DX11_Hook();
-    virtual ~DX11_Hook();
 
     void resetRenderState();
     void prepareForOverlay(IDXGISwapChain* pSwapChain);
@@ -44,6 +44,8 @@ private:
     //decltype(D3D11CreateDeviceAndSwapChain)* D3D11CreateDeviceAndSwapChain;
 
 public:
+    virtual ~DX11_Hook();
+
     bool start_hook();
     static DX11_Hook* Inst();
     virtual const char* get_lib_name() const;

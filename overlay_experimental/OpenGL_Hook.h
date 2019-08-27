@@ -16,11 +16,11 @@ private:
     static OpenGL_Hook* _inst;
 
     // Variables
+    bool hooked;
     bool initialized;
 
     // Functions
     OpenGL_Hook();
-    virtual ~OpenGL_Hook();
 
     void resetRenderState();
     void prepareForOverlay(HDC hDC);
@@ -36,9 +36,12 @@ private:
     //wglMakeCurrent_t wglMakeCurrent;
 
 public:
+    virtual ~OpenGL_Hook();
+
     bool start_hook();
     static OpenGL_Hook* Inst();
     virtual const char* get_lib_name() const;
+    void loadFunctions(wglSwapBuffers_t pfnwglSwapBuffers);
 };
 
 #endif//NO_OVERLAY

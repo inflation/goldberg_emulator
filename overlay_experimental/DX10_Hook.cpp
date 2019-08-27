@@ -1,6 +1,6 @@
 #include "DX10_Hook.h"
 #include "Windows_Hook.h"
-#include "Hook_Manager.h"
+#include "Renderer_Detector.h"
 #include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
@@ -13,17 +13,16 @@ DX10_Hook* DX10_Hook::_inst = nullptr;
 bool DX10_Hook::start_hook()
 {
     bool res = true;
-    if (!_hooked)
+    if (!hooked)
     {
-        if (!Windows_Hook::Inst().start_hook())
+        if (!Windows_Hook::Inst()->start_hook())
             return false;
 
         PRINT_DEBUG("Hooked DirectX 10\n");
-        _hooked = true;
+        hooked = true;
 
-        Hook_Manager::Inst().FoundRenderer(this);
+        Renderer_Detector::Inst().renderer_found(this);
 
-        UnhookAll();
         BeginHook();
         HookFuncs(
             std::make_pair<void**, void*>(&(PVOID&)DX10_Hook::Present, &DX10_Hook::MyPresent),
@@ -44,7 +43,7 @@ void DX10_Hook::resetRenderState()
         mainRenderTargetView->Release();
 
         ImGui_ImplDX10_Shutdown();
-        Windows_Hook::Inst().resetRenderState();
+        Windows_Hook::Inst()->resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -80,7 +79,7 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     }
 
     ImGui_ImplDX10_NewFrame();
-    Windows_Hook::Inst().prepareForOverlay(desc.OutputWindow);
+    Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
 
     ImGui::NewFrame();
 
@@ -138,6 +137,7 @@ HRESULT STDMETHODCALLTYPE DX10_Hook::MyResizeBuffers(IDXGISwapChain* _this, UINT
 
 DX10_Hook::DX10_Hook():
     initialized(false),
+    hooked(false),
     pDevice(nullptr),
     mainRenderTargetView(nullptr),
     Present(nullptr),
@@ -169,7 +169,6 @@ DX10_Hook::~DX10_Hook()
 
         //ImGui_ImplDX10_Shutdown();
         ImGui_ImplDX10_InvalidateDeviceObjects();
-        Windows_Hook::Inst().resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;

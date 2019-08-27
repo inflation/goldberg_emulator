@@ -1,61 +1,25 @@
 #include "Windows_Hook.h"
+#include "Renderer_Detector.h"
+#include "../dll/dll.h"
+
+#ifndef NO_OVERLAY
 
 #include <imgui.h>
 #include <impls/imgui_impl_win32.h>
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-#include "../dll/dll.h"
-
-#include <psapi.h>
-
-struct enum_wnd_param
-{
-    //HMODULE hModules[512];
-    //DWORD num_mods;
-    DWORD pid;
-    HWND window;
-};
-
-static BOOL __stdcall EnumWindowsProc(HWND hWnd, enum_wnd_param* param)
-{
-    DWORD pid;
-    GetWindowThreadProcessId(hWnd, &pid);
-    if (pid == param->pid && GetWindow(hWnd, GW_OWNER) == nullptr && IsWindowVisible(hWnd))
-    {
-        param->window = hWnd;
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-HWND GetGameWindow()
-{
-    enum_wnd_param param;
-    param.window = nullptr;
-
-    param.pid = GetCurrentProcessId();
-    EnumWindows(reinterpret_cast<WNDENUMPROC>(EnumWindowsProc), reinterpret_cast<LPARAM>(&param));
-
-    if (param.window != nullptr) {
-        PRINT_DEBUG("Failed to get game window HWND\n");
-    }
-    else {
-        char wnd_name[1024];
-        GetWindowText(param.window, wnd_name, 1023);
-        PRINT_DEBUG("Found window %s\n", wnd_name);
-    }
-    return param.window;
-}
+Windows_Hook* Windows_Hook::_inst = nullptr;
 
 bool Windows_Hook::start_hook()
 {
     bool res = true;
-    if (!_hooked)
+    if (!hooked)
     {
         GetRawInputBuffer = ::GetRawInputBuffer;
         GetRawInputData = ::GetRawInputData;
+
+        PRINT_DEBUG("Hooked Windows\n");
 
         BeginHook();
         HookFuncs(
@@ -64,7 +28,7 @@ bool Windows_Hook::start_hook()
         );
         EndHook();
 
-        _hooked = true;
+        hooked = true;
     }
     return res;
 }
@@ -159,13 +123,13 @@ LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
     }
 
     // Call the overlay window procedure
-    return CallWindowProc(Windows_Hook::Inst()._game_wndproc, hWnd, uMsg, wParam, lParam);
+    return CallWindowProc(Windows_Hook::Inst()->_game_wndproc, hWnd, uMsg, wParam, lParam);
 }
 
 UINT WINAPI Windows_Hook::MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader)
 {
     if (!get_steam_client()->steam_overlay->ShowOverlay())
-        return Windows_Hook::Inst().GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
+        return Windows_Hook::Inst()->GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
 
     return -1;
 }
@@ -173,7 +137,7 @@ UINT WINAPI Windows_Hook::MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UI
 UINT WINAPI Windows_Hook::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader)
 {
     if (!get_steam_client()->steam_overlay->ShowOverlay())
-        return Windows_Hook::Inst().GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
+        return Windows_Hook::Inst()->GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
 
     return -1;
 }
@@ -181,6 +145,7 @@ UINT WINAPI Windows_Hook::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand,
 
 Windows_Hook::Windows_Hook() :
     initialized(false),
+    hooked(false),
     _game_hwnd(nullptr),
     _game_wndproc(nullptr),
     GetRawInputBuffer(nullptr),
@@ -196,11 +161,15 @@ Windows_Hook::~Windows_Hook()
     resetRenderState();
 
     //FreeLibrary(reinterpret_cast<HMODULE>(_library));
+
+    _inst = nullptr;
 }
 
-Windows_Hook& Windows_Hook::Inst()
+Windows_Hook* Windows_Hook::Inst()
 {
-    static Windows_Hook _inst;
+    if (_inst == nullptr)
+        _inst = new Windows_Hook;
+
     return _inst;
 }
 
@@ -208,3 +177,5 @@ const char* Windows_Hook::get_lib_name() const
 {
     return DLL_NAME;
 }
+
+#endif//NO_OVERLAY

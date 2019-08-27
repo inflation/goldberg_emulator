@@ -16,13 +16,13 @@ private:
     static DX10_Hook* _inst;
 
     // Variables
+    bool hooked;
     bool initialized;
     ID3D10Device* pDevice;
     ID3D10RenderTargetView* mainRenderTargetView;
 
     // Functions
     DX10_Hook();
-    virtual ~DX10_Hook();
 
     void resetRenderState();
     void prepareForOverlay(IDXGISwapChain *pSwapChain);
@@ -44,6 +44,8 @@ private:
     //decltype(D3D10CreateDeviceAndSwapChain)* D3D10CreateDeviceAndSwapChain;
 
 public:
+    virtual ~DX10_Hook();
+
     bool start_hook();
     static DX10_Hook* Inst();
     virtual const char* get_lib_name() const;

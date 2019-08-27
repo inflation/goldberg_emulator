@@ -16,12 +16,12 @@ private:
     static DX9_Hook* _inst;
 
     // Variables
+    bool hooked;
     bool initialized;
     bool uses_present;
 
     // Functions
     DX9_Hook();
-    virtual ~DX9_Hook();
 
     void resetRenderState();
     void prepareForOverlay(IDirect3DDevice9* pDevice);
@@ -45,6 +45,8 @@ private:
     //decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex;
 
 public:
+    virtual ~DX9_Hook();
+
     bool start_hook();
     static DX9_Hook* Inst();
     virtual const char* get_lib_name() const;

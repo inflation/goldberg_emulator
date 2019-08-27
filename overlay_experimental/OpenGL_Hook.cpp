@@ -1,6 +1,6 @@
 #include "OpenGL_Hook.h"
 #include "Windows_Hook.h"
-#include "Hook_Manager.h"
+#include "Renderer_Detector.h"
 #include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
@@ -17,9 +17,9 @@ OpenGL_Hook* OpenGL_Hook::_inst = nullptr;
 bool OpenGL_Hook::start_hook()
 {
     bool res = true;
-    if (!_hooked)
+    if (!hooked)
     {
-        if (!Windows_Hook::Inst().start_hook())
+        if (!Windows_Hook::Inst()->start_hook())
             return false;
 
         GLenum err = glewInit();
@@ -28,10 +28,8 @@ bool OpenGL_Hook::start_hook()
         {
             PRINT_DEBUG("Hooked OpenGL\n");
 
-            _hooked = true;
-            Hook_Manager::Inst().FoundRenderer(this);
-
-            wglSwapBuffers = (decltype(wglSwapBuffers))GetProcAddress(reinterpret_cast<HMODULE>(_library), "wglSwapBuffers");
+            hooked = true;
+            Renderer_Detector::Inst().renderer_found(this);
 
             UnhookAll();
             BeginHook();
@@ -58,7 +56,7 @@ void OpenGL_Hook::resetRenderState()
     if (initialized)
     {
         ImGui_ImplOpenGL3_Shutdown();
-        Windows_Hook::Inst().resetRenderState();
+        Windows_Hook::Inst()->resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -73,7 +71,7 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
 
     GetClientRect(hWnd, &rect);
 
-    if (hWnd != Windows_Hook::Inst().GetGameHwnd())
+    if (hWnd != Windows_Hook::Inst()->GetGameHwnd())
         resetRenderState();
 
     if (!initialized)
@@ -87,7 +85,7 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
         initialized = true;
     }
     ImGui_ImplOpenGL3_NewFrame();
-    Windows_Hook::Inst().prepareForOverlay(hWnd);
+    Windows_Hook::Inst()->prepareForOverlay(hWnd);
 
     ImGui::NewFrame();
 
@@ -118,6 +116,7 @@ BOOL WINAPI OpenGL_Hook::MywglSwapBuffers(HDC hDC)
 
 OpenGL_Hook::OpenGL_Hook():
     initialized(false),
+    hooked(false),
     wglSwapBuffers(nullptr)
 {
     _library = LoadLibrary(DLL_NAME);
@@ -137,7 +136,11 @@ OpenGL_Hook::~OpenGL_Hook()
 {
     PRINT_DEBUG("OpenGL Hook removed\n");
 
-    resetRenderState();
+    if (initialized)
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui::DestroyContext();
+    }
 
     FreeLibrary(reinterpret_cast<HMODULE>(_library));
 
@@ -155,6 +158,11 @@ OpenGL_Hook* OpenGL_Hook::Inst()
 const char* OpenGL_Hook::get_lib_name() const
 {
     return DLL_NAME;
+}
+
+void OpenGL_Hook::loadFunctions(wglSwapBuffers_t pfnwglSwapBuffers)
+{
+    wglSwapBuffers = pfnwglSwapBuffers;
 }
 
 #endif//NO_OVERLAY

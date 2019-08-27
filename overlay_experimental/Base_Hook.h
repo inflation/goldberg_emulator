@@ -14,7 +14,6 @@ protected:
     std::vector<std::pair<void**, void*>> _hooked_funcs;
 
     void* _library;
-    bool _hooked;
 
     Base_Hook(const Base_Hook&) = delete;
     Base_Hook(Base_Hook&&) = delete;

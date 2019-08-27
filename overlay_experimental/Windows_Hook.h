@@ -14,14 +14,16 @@ public:
     static constexpr const char* DLL_NAME = "user32.dll";
 
 private:
+    static Windows_Hook* _inst;
+
     // Variables
+    bool hooked;
     bool initialized;
     HWND _game_hwnd;
     WNDPROC _game_wndproc;
 
     // Functions
     Windows_Hook();
-    virtual ~Windows_Hook();
 
     // Hook to Windows window messages
     decltype(GetRawInputBuffer)* GetRawInputBuffer;
@@ -32,18 +34,18 @@ private:
     static UINT WINAPI MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader);
 
 public:
-    bool start_hook();
+    virtual ~Windows_Hook();
+
     void resetRenderState();
     void prepareForOverlay(HWND);
 
     HWND GetGameHwnd() const;
     WNDPROC GetGameWndProc() const;
 
-    static Windows_Hook& Inst();
+    bool start_hook();
+    static Windows_Hook* Inst();
     virtual const char* get_lib_name() const;
 };
-
-HWND GetGameWindow();
 
 #endif//NO_OVERLAY
 #endif//__INCLUDED_WINDOWS_HOOK_H__

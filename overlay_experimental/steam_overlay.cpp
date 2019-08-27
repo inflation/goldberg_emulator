@@ -10,7 +10,7 @@
 
 #include "../dll/dll.h"
 
-#include "Hook_Manager.h"
+#include "Renderer_Detector.h"
 #include "Windows_Hook.h"
 
 // Look here for info on how to hook on linux
@@ -80,7 +80,7 @@ void Steam_Overlay::SetupOverlay()
     if (!setup_overlay_called)
     {
         setup_overlay_called = true;
-        Hook_Manager::Inst().HookRenderer();
+        Renderer_Detector::Inst().find_renderer();
     }
 }
 
@@ -128,7 +128,7 @@ void Steam_Overlay::ShowOverlay(bool state)
     show_overlay = state;
     if (show_overlay)
     {
-        HWND game_hwnd = Windows_Hook::Inst().GetGameHwnd();
+        HWND game_hwnd = Windows_Hook::Inst()->GetGameHwnd();
         RECT cliRect, wndRect, clipRect;
 
         GetClipCursor(&old_clip);
@@ -408,7 +408,7 @@ void Steam_Overlay::OverlayProc( int width, int height )
                 settings->get_local_steam_id().ConvertToUint64(),
                 settings->get_local_game_id().AppID());
             ImGui::SameLine();
-            Base_Hook *hook = Hook_Manager::Inst().get_renderer();
+            Base_Hook* hook = Renderer_Detector::Inst().get_renderer();
             ImGui::LabelText("##label", "Renderer: %s", (hook == nullptr ? "Unknown" : hook->get_lib_name()));
 
             ImGui::Spacing();

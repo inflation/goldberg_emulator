@@ -1,6 +1,6 @@
 #include "DX9_Hook.h"
 #include "Windows_Hook.h"
-#include "Hook_Manager.h"
+#include "Renderer_Detector.h"
 #include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
@@ -14,17 +14,16 @@ DX9_Hook* DX9_Hook::_inst = nullptr;
 
 bool DX9_Hook::start_hook()
 {
-    if (!_hooked)
+    if (!hooked)
     {
-        if (!Windows_Hook::Inst().start_hook())
+        if (!Windows_Hook::Inst()->start_hook())
             return false;
 
         PRINT_DEBUG("Hooked DirectX 9\n");
-        _hooked = true;
-
-        Hook_Manager::Inst().FoundRenderer(this);
+        hooked = true;
         
-        UnhookAll();
+        Renderer_Detector::Inst().renderer_found(this);
+
         BeginHook();
         HookFuncs(
             std::make_pair<void**, void*>(&(PVOID&)Reset, &DX9_Hook::MyReset),
@@ -50,7 +49,7 @@ void DX9_Hook::resetRenderState()
     {
         initialized = false;
         ImGui_ImplDX9_Shutdown();
-        Windows_Hook::Inst().resetRenderState();
+        Windows_Hook::Inst()->resetRenderState();
         ImGui::DestroyContext();
     }
 }
@@ -68,7 +67,7 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
     pDevice->GetCreationParameters(&param);
 
     // Workaround to detect if we changed window.
-    if (param.hFocusWindow != Windows_Hook::Inst().GetGameHwnd())
+    if (param.hFocusWindow != Windows_Hook::Inst()->GetGameHwnd())
         resetRenderState();
 
     if (!initialized)
@@ -82,7 +81,7 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
     }
     
     ImGui_ImplDX9_NewFrame();
-    Windows_Hook::Inst().prepareForOverlay(param.hFocusWindow);
+    Windows_Hook::Inst()->prepareForOverlay(param.hFocusWindow);
 
     ImGui::NewFrame();
 
@@ -147,6 +146,7 @@ HRESULT STDMETHODCALLTYPE DX9_Hook::MyPresentEx(IDirect3DDevice9Ex* _this, CONST
 
 DX9_Hook::DX9_Hook():
     initialized(false),
+    hooked(false),
     uses_present(false),
     EndScene(nullptr),
     Present(nullptr),
@@ -177,7 +177,6 @@ DX9_Hook::~DX9_Hook()
         //ImGui_ImplDX9_Shutdown(); This makes some games hang when Releasing the D3D9 device (pDevice->Release())
         // maybe because D3D is already shut down when we try to free the device?
         ImGui_ImplDX9_InvalidateDeviceObjects();
-        Windows_Hook::Inst().resetRenderState();
         ImGui::DestroyContext();
     }
 

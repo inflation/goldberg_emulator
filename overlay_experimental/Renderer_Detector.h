@@ -1,0 +1,68 @@
+#ifndef __INCLUDED_RENDERER_DETECTOR_H__
+#define __INCLUDED_RENDERER_DETECTOR_H__
+
+#include "Base_Hook.h"
+#ifndef NO_OVERLAY
+
+#if defined(_WIN32) || defined(WIN32)
+#include <Windows.h>
+
+struct IDXGISwapChain;
+struct IDirect3DDevice9;
+struct IDirect3DDevice9Ex;
+#endif
+
+class Renderer_Detector
+{
+private:
+    // Variables
+    std::thread* _hook_thread;
+    unsigned int _hook_retries;
+    bool _renderer_found;       // Is the renderer hooked ?
+    bool _dx9_hooked;
+    bool _dx10_hooked;
+    bool _dx11_hooked;
+    bool _dx12_hooked;
+    bool _dxgi_hooked;
+    bool _ogl_hooked;           // wglMakeCurrent is hooked ? (opengl)
+    Base_Hook* rendererdetect_hook;
+    Base_Hook* game_renderer;
+
+    ATOM atom;
+    HWND dummy_hWnd;
+
+    // Functions
+    Renderer_Detector();
+    ~Renderer_Detector();
+
+    static HRESULT STDMETHODCALLTYPE MyIDXGISwapChain_Present(IDXGISwapChain* _this, UINT SyncInterval, UINT Flags);
+    static HRESULT STDMETHODCALLTYPE MyPresent(IDirect3DDevice9* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
+    static HRESULT STDMETHODCALLTYPE MyPresentEx(IDirect3DDevice9Ex* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion, DWORD dwFlags);
+    static BOOL WINAPI MywglMakeCurrent(HDC hDC, HGLRC hGLRC);
+
+    void HookDXGIPresent(IDXGISwapChain* pSwapChain);
+    void HookDX9Present(IDirect3DDevice9* pDevice, bool ex);
+    void HookwglMakeCurrent(decltype(wglMakeCurrent)* wglMakeCurrent);
+
+    void hook_dx9();
+    void hook_dx10();
+    void hook_dx11();
+    void hook_dx12();
+    void hook_opengl();
+
+    void create_hwnd();
+    void destroy_hwnd();
+    void create_hook(const char* libname);
+    bool stop_retry();
+
+    static void find_renderer_proc(Renderer_Detector* _this);
+
+public:
+    void find_renderer();
+    void renderer_found(Base_Hook* hook);
+    Base_Hook* get_renderer() const;
+    static Renderer_Detector& Inst();
+};
+
+#endif//NO_OVERLAY
+#endif//__INCLUDED_RENDERER_DETECTOR_H__

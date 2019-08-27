@@ -1,6 +1,6 @@
 #include "DX11_Hook.h"
 #include "Windows_Hook.h"
-#include "Hook_Manager.h"
+#include "Renderer_Detector.h"
 #include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
@@ -23,17 +23,16 @@ HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** 
 bool DX11_Hook::start_hook()
 {
     bool res = true;
-    if (!_hooked)
+    if (!hooked)
     {
-        if (!Windows_Hook::Inst().start_hook())
+        if (!Windows_Hook::Inst()->start_hook())
             return false;
 
         PRINT_DEBUG("Hooked DirectX 11\n");
-        _hooked = true;
+        hooked = true;
 
-        Hook_Manager::Inst().FoundRenderer(this);
+        Renderer_Detector::Inst().renderer_found(this);
 
-        UnhookAll();
         BeginHook();
         HookFuncs(
             std::make_pair<void**, void*>(&(PVOID&)DX11_Hook::Present, &DX11_Hook::MyPresent),
@@ -55,7 +54,7 @@ void DX11_Hook::resetRenderState()
         pContext->Release();
 
         ImGui_ImplDX11_Shutdown();
-        Windows_Hook::Inst().resetRenderState();
+        Windows_Hook::Inst()->resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -92,7 +91,7 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     }
 
     ImGui_ImplDX11_NewFrame();
-    Windows_Hook::Inst().prepareForOverlay(desc.OutputWindow);
+    Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
 
     ImGui::NewFrame();
 
@@ -155,6 +154,7 @@ HRESULT STDMETHODCALLTYPE DX11_Hook::MyResizeBuffers(IDXGISwapChain* _this, UINT
 
 DX11_Hook::DX11_Hook():
     initialized(false),
+    hooked(false),
     pContext(nullptr),
     mainRenderTargetView(nullptr),
     Present(nullptr),
@@ -187,7 +187,6 @@ DX11_Hook::~DX11_Hook()
 
         //ImGui_ImplDX11_Shutdown();
         ImGui_ImplDX11_InvalidateDeviceObjects();
-        Windows_Hook::Inst().resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;

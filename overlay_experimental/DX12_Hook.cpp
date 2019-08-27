@@ -1,6 +1,6 @@
 #include "DX12_Hook.h"
 #include "Windows_Hook.h"
-#include "Hook_Manager.h"
+#include "Renderer_Detector.h"
 #include "../dll/dll.h"
 
 #ifndef NO_OVERLAY
@@ -15,17 +15,16 @@ DX12_Hook* DX12_Hook::_inst = nullptr;
 bool DX12_Hook::start_hook()
 {
     bool res = true;
-    if (!_hooked)
+    if (!hooked)
     {
-        if (!Windows_Hook::Inst().start_hook())
+        if (!Windows_Hook::Inst()->start_hook())
             return false;
 
         PRINT_DEBUG("Hooked DirectX 12\n");
-        _hooked = true;
+        hooked = true;
 
-        Hook_Manager::Inst().FoundRenderer(this);
+        Renderer_Detector::Inst().renderer_found(this);
 
-        UnhookAll();
         BeginHook();
         HookFuncs(
             std::make_pair<void**, void*>(&(PVOID&)DX12_Hook::Present, &DX12_Hook::MyPresent),
@@ -48,7 +47,7 @@ void DX12_Hook::resetRenderState()
         pSrvDescHeap->Release();
 
         ImGui_ImplDX12_Shutdown();
-        Windows_Hook::Inst().resetRenderState();
+        Windows_Hook::Inst()->resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -147,7 +146,7 @@ void STDMETHODCALLTYPE DX12_Hook::MyExecuteCommandLists(ID3D12CommandQueue *_thi
             if (((ID3D12GraphicsCommandList*)ppCommandLists[i])->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT)
             {
                 ImGui_ImplDX12_NewFrame();
-                Windows_Hook::Inst().prepareForOverlay(me->sc_desc.OutputWindow);
+                Windows_Hook::Inst()->prepareForOverlay(me->sc_desc.OutputWindow);
 
                 ImGui::NewFrame();
 
@@ -174,7 +173,14 @@ HRESULT STDMETHODCALLTYPE DX12_Hook::MyClose(ID3D12GraphicsCommandList* _this)
 }
 
 DX12_Hook::DX12_Hook():
-    initialized(false)
+    initialized(false),
+    hooked(false),
+    pSrvDescHeap(nullptr),
+    Present(nullptr),
+    ResizeBuffers(nullptr),
+    ResizeTarget(nullptr),
+    ExecuteCommandLists(nullptr),
+    Close(nullptr)
 {
     _library = LoadLibrary(DLL_NAME);
 
@@ -199,7 +205,6 @@ DX12_Hook::~DX12_Hook()
     {
         //ImGui_ImplDX12_Shutdown();
         ImGui_ImplDX12_InvalidateDeviceObjects();
-        Windows_Hook::Inst().resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -223,10 +228,15 @@ const char* DX12_Hook::get_lib_name() const
     return DLL_NAME;
 }
 
-void DX12_Hook::loadFunctions(ID3D12CommandList* pCommandList, IDXGISwapChain *pSwapChain)
+void DX12_Hook::loadFunctions(ID3D12CommandQueue* pCommandQueue, ID3D12GraphicsCommandList* pCommandList, IDXGISwapChain *pSwapChain)
 {
     void** vTable;
     
+    vTable = *reinterpret_cast<void***>(pCommandList);
+#define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12CommandQueueVTable::X]
+    LOAD_FUNC(ExecuteCommandLists);
+#undef LOAD_FUNC
+
     vTable = *reinterpret_cast<void***>(pCommandList);
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12GraphicsCommandListVTable::X]
     LOAD_FUNC(Close);

@@ -17,6 +17,7 @@ private:
     static DX12_Hook* _inst;
 
     // Variables
+    bool hooked;
     bool initialized;
 
     DXGI_SWAP_CHAIN_DESC sc_desc;
@@ -24,7 +25,6 @@ private:
 
     // Functions
     DX12_Hook();
-    virtual ~DX12_Hook();
 
     void resetRenderState();
     void prepareForOverlay(IDXGISwapChain* pSwapChain);
@@ -48,11 +48,13 @@ private:
     //decltype(D3D12CreateDevice)* D3D12CreateDevice;
 
 public:
+    virtual ~DX12_Hook();
+
     bool start_hook();
     static DX12_Hook* Inst();
     virtual const char* get_lib_name() const;
     
-    void loadFunctions(ID3D12CommandList *pCommandList, IDXGISwapChain *pSwapChain);
+    void loadFunctions(ID3D12CommandQueue* pCommandQueue, ID3D12GraphicsCommandList* pCommandList, IDXGISwapChain* pSwapChain);
 };
 
 #endif//NO_OVERLAY
