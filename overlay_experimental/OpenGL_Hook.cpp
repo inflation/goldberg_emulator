@@ -98,16 +98,6 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-// OpenGL Initialization functions
-//BOOL WINAPI OpenGL_Hook::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
-//{
-//    auto res = hook->wglMakeCurrent(hDC, hGLRC);
-//    hook->hook_ogl();
-//    return res;
-//}
-
-/////////////////////////////////////////////////////////////////////////////////////
 BOOL WINAPI OpenGL_Hook::MywglSwapBuffers(HDC hDC)
 {
     OpenGL_Hook::Inst()->prepareForOverlay(hDC);
@@ -120,16 +110,6 @@ OpenGL_Hook::OpenGL_Hook():
     wglSwapBuffers(nullptr)
 {
     _library = LoadLibrary(DLL_NAME);
-    // Hook to wglMakeCurrent so we know when it gets called.
-    // If its called, then OpenGL will be used to render the overlay.
-    //wglMakeCurrent = (decltype(wglMakeCurrent))GetProcAddress(_dll, "wglMakeCurrent");
-    //wglSwapBuffers = (decltype(wglSwapBuffers))GetProcAddress(_dll, "wglSwapBuffers");
-    //
-    //BeginHook();
-    //HookFuncs(
-    //    std::make_pair<void**, void*>(&(PVOID&)wglMakeCurrent, &OpenGL_Hook::MywglMakeCurrent)
-    //);
-    //EndHook();
 }
 
 OpenGL_Hook::~OpenGL_Hook()

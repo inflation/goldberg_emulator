@@ -93,30 +93,6 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     ImGui_ImplDX10_RenderDrawData(ImGui::GetDrawData());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-// DirectX 10 Initialization functions
-//HRESULT WINAPI DX10_Hook::MyD3D10CreateDevice(IDXGIAdapter* pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, UINT SDKVersion, ID3D10Device** ppDevice)
-//{
-//    auto res = _D3D10CreateDevice(pAdapter, DriverType, Software, Flags, SDKVersion, ppDevice);
-//
-//    if (SUCCEEDED(res))
-//        hook->hook_dx10(SDKVersion);
-//
-//    return res;
-//}
-
-//HRESULT WINAPI DX10_Hook::MyD3D10CreateDeviceAndSwapChain(IDXGIAdapter* pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, UINT SDKVersion,
-//    DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, IDXGISwapChain** ppSwapChain, ID3D10Device** ppDevice)
-//{
-//    auto res = hook->D3D10CreateDeviceAndSwapChain(pAdapter, DriverType, Software, Flags, SDKVersion, pSwapChainDesc, ppSwapChain, ppDevice);
-//
-//    if (SUCCEEDED(res))
-//        hook->hook_dx10(SDKVersion);
-//
-//    return res;
-//}
-/////////////////////////////////////////////////////////////////////////////////////
-
 HRESULT STDMETHODCALLTYPE DX10_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)
 {
     DX10_Hook::Inst()->prepareForOverlay(_this);
@@ -145,18 +121,6 @@ DX10_Hook::DX10_Hook():
     ResizeTarget(nullptr)
 {
     _library = LoadLibrary(DLL_NAME);
-
-    // Hook to D3D10CreateDevice and D3D10CreateDeviceAndSwapChain so we know when it gets called.
-    // If its called, then DX10 will be used to render the overlay.
-    //_D3D10CreateDevice = (decltype(_D3D10CreateDevice))GetProcAddress(_dll, "D3D10CreateDevice");
-    //D3D10CreateDeviceAndSwapChain = (decltype(D3D10CreateDeviceAndSwapChain))GetProcAddress(_dll, "D3D10CreateDeviceAndSwapChain");
-    //
-    //BeginHook();
-    //HookFuncs(
-    //    //std::make_pair<void**, void*>(&(PVOID&)_D3D10CreateDevice, &DX10_Hook::MyD3D10CreateDevice),
-    //    std::make_pair<void**, void*>(&(PVOID&)D3D10CreateDeviceAndSwapChain, &DX10_Hook::MyD3D10CreateDeviceAndSwapChain)
-    //);
-    //EndHook();
 }
 
 DX10_Hook::~DX10_Hook()
@@ -167,7 +131,6 @@ DX10_Hook::~DX10_Hook()
     {
         mainRenderTargetView->Release();
 
-        //ImGui_ImplDX10_Shutdown();
         ImGui_ImplDX10_InvalidateDeviceObjects();
         ImGui::DestroyContext();
 

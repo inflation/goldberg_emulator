@@ -105,34 +105,6 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-// DirectX 11 Initialization functions
-//HRESULT WINAPI DX11_Hook::MyD3D11CreateDevice(__in_opt IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, 
-//    __in_ecount_opt(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, __out_opt ID3D11Device** ppDevice,
-//    __out_opt D3D_FEATURE_LEVEL* pFeatureLevel, __out_opt ID3D11DeviceContext** ppImmediateContext)
-//{
-//    auto res = D3D11CreateDevice(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
-//
-//    if (SUCCEEDED(res))
-//        hook->hook_dx11(SDKVersion);
-//
-//    return res;
-//}
-
-//HRESULT WINAPI DX11_Hook::MyD3D11CreateDeviceAndSwapChain(__in_opt IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags,
-//    __in_ecount_opt(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, 
-//    __in_opt CONST DXGI_SWAP_CHAIN_DESC* pSwapChainDesc, __out_opt IDXGISwapChain** ppSwapChain, __out_opt ID3D11Device** ppDevice,
-//    __out_opt D3D_FEATURE_LEVEL* pFeatureLevel, __out_opt ID3D11DeviceContext** ppImmediateContext)
-//{
-//    auto res = hook->D3D11CreateDeviceAndSwapChain(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);    
-//
-//    if (SUCCEEDED(res))
-//        hook->hook_dx11(SDKVersion);
-//
-//    return res;
-//}
-/////////////////////////////////////////////////////////////////////////////////////
-
 HRESULT STDMETHODCALLTYPE DX11_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)
 {
     DX11_Hook::Inst()->prepareForOverlay(_this);
@@ -162,18 +134,6 @@ DX11_Hook::DX11_Hook():
     ResizeTarget(nullptr)
 {
     _library = LoadLibrary(DLL_NAME);
-    
-    // Hook to D3D11CreateDevice and D3D11CreateDeviceAndSwapChain so we know when it gets called.
-    // If its called, then DX11 will be used to render the overlay.
-    //D3D11CreateDevice = (decltype(D3D11CreateDevice))GetProcAddress(_dll, "D3D11CreateDevice");
-    //D3D11CreateDeviceAndSwapChain = (decltype(D3D11CreateDeviceAndSwapChain))GetProcAddress(_dll, "D3D11CreateDeviceAndSwapChain");
-    //
-    //BeginHook();
-    //HookFuncs(
-    //    //std::make_pair<void**, void*>(&(PVOID&)D3D11CreateDevice, &DX11_Hook::MyD3D11CreateDevice),
-    //    std::make_pair<void**, void*>(&(PVOID&)D3D11CreateDeviceAndSwapChain, &DX11_Hook::MyD3D11CreateDeviceAndSwapChain)
-    //);
-    //EndHook();
 }
 
 DX11_Hook::~DX11_Hook()
@@ -185,7 +145,6 @@ DX11_Hook::~DX11_Hook()
         mainRenderTargetView->Release();
         pContext->Release();
 
-        //ImGui_ImplDX11_Shutdown();
         ImGui_ImplDX11_InvalidateDeviceObjects();
         ImGui::DestroyContext();
 

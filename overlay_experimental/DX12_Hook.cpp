@@ -94,23 +94,6 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-// DirectX 12 Initialization functions
-//HRESULT WINAPI DX12_Hook::MyD3D12CreateDevice(
-//        _In_opt_ IUnknown* pAdapter,
-//        D3D_FEATURE_LEVEL MinimumFeatureLevel,
-//        _In_ REFIID riid, // Expected: ID3D12Device
-//        _COM_Outptr_opt_ void** ppDevice)
-//{
-//    auto res = hook->D3D12CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
-//
-//    if (SUCCEEDED(res))
-//        hook->hook_dx12(MinimumFeatureLevel);
-//
-//    return res;
-//}
-/////////////////////////////////////////////////////////////////////////////////////
-
 HRESULT STDMETHODCALLTYPE DX12_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)
 {
     DX12_Hook::Inst()->prepareForOverlay(_this);
@@ -185,16 +168,6 @@ DX12_Hook::DX12_Hook():
     _library = LoadLibrary(DLL_NAME);
 
     PRINT_DEBUG("DX12 support is experimental, don't complain if it doesn't work as expected.\n");
-
-    // Hook to D3D12CreateDevice and D3D12CreateDeviceAndSwapChain so we know when it gets called.
-    // If its called, then DX12 will be used to render the overlay.
-    //D3D12CreateDevice = (decltype(D3D12CreateDevice))GetProcAddress(_dll, "D3D12CreateDevice");
-    //
-    //BeginHook();
-    //HookFuncs(
-    //    std::make_pair<void**, void*>(&(PVOID&)D3D12CreateDevice, &DX12_Hook::MyD3D12CreateDevice)
-    //);
-    //EndHook();
 }
 
 DX12_Hook::~DX12_Hook()
@@ -203,7 +176,6 @@ DX12_Hook::~DX12_Hook()
 
     if (initialized)
     {
-        //ImGui_ImplDX12_Shutdown();
         ImGui_ImplDX12_InvalidateDeviceObjects();
         ImGui::DestroyContext();
 

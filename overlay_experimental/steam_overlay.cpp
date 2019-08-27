@@ -182,7 +182,7 @@ void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
         if (!(frd.window_state & window_state_show))
         {
             frd.window_state |= window_state_need_attention;
-            PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
+            // TODO: Push a notification
         }
     }
 }
@@ -205,7 +205,7 @@ void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
         if (!(frd.window_state & window_state_show))
         {
             frd.window_state |= window_state_need_attention;
-            PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
+            // TODO: Push a notification
         }
     }
 }
@@ -298,6 +298,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     {
         if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
         {
+            PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
             state.window_state &= ~window_state_need_attention;
         }
 
@@ -421,10 +422,6 @@ void Steam_Overlay::OverlayProc( int width, int height )
                 {
                     ImGui::PushID(i.first.id());
 
-                    /* TODO: Do something with this to notify the user something happened with this friend (invite or chat)
-                     * i.second.window_state & window_state_need_attention
-                     */
-
                     ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
                     BuildContextMenu(i.first, i.second);
                     if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
@@ -459,7 +456,6 @@ void Steam_Overlay::Callback(Common_Message *msg)
             if (!(friend_info->second.window_state & window_state_show))
             {
                 friend_info->second.window_state |= window_state_need_attention;
-                PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
             }
         }
     }
