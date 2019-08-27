@@ -58,9 +58,6 @@ void DX12_Hook::resetRenderState()
 void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 {
     pSwapChain->GetDesc(&sc_desc);
-    
-    IDXGISwapChain3* pSwapChain3;
-    pSwapChain->QueryInterface(IID_PPV_ARGS(&pSwapChain3));
 
     if (!initialized)
     {
@@ -204,7 +201,7 @@ void DX12_Hook::loadFunctions(ID3D12CommandQueue* pCommandQueue, ID3D12GraphicsC
 {
     void** vTable;
     
-    vTable = *reinterpret_cast<void***>(pCommandList);
+    vTable = *reinterpret_cast<void***>(pCommandQueue);
 #define LOAD_FUNC(X) (void*&)X = vTable[(int)ID3D12CommandQueueVTable::X]
     LOAD_FUNC(ExecuteCommandLists);
 #undef LOAD_FUNC

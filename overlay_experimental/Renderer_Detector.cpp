@@ -84,6 +84,8 @@ HRESULT STDMETHODCALLTYPE Renderer_Detector::MyIDXGISwapChain_Present(IDXGISwapC
 {
     Renderer_Detector& inst = Renderer_Detector::Inst();
     Hook_Manager& hm = Hook_Manager::Inst();
+
+    auto res = (_this->*_IDXGISwapChain_Present)(SyncInterval, Flags);
     if (!inst.stop_retry())
     {
         IUnknown* pDevice = nullptr;
@@ -111,7 +113,7 @@ HRESULT STDMETHODCALLTYPE Renderer_Detector::MyIDXGISwapChain_Present(IDXGISwapC
         if (pDevice) pDevice->Release();
     }
 
-    return (_this->*_IDXGISwapChain_Present)(SyncInterval, Flags);
+    return res;
 }
 
 HRESULT STDMETHODCALLTYPE Renderer_Detector::MyPresent(IDirect3DDevice9* _this, CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
@@ -433,7 +435,7 @@ void Renderer_Detector::hook_dx12()
                 }//if (pDevice != nullptr)
             }//if (D3D12CreateDevice != nullptr)
         }//if (library != nullptr)
-        if (pSwapChain != nullptr && pCommandList != nullptr)
+        if (pCommandQueue != nullptr && pCommandList != nullptr && pSwapChain != nullptr)
         {
             PRINT_DEBUG("Hooked IDXGISwapChain::Present to detect DX Version\n");
 
