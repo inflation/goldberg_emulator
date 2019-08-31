@@ -120,12 +120,13 @@ bool Steam_Overlay::ShowOverlay() const
 
 void Steam_Overlay::ShowOverlay(bool state)
 {
+    if (!Ready() || show_overlay == state)
+        return;
+
+#ifdef STEAM_WIN32
     static RECT old_clip;
     static BOOL show_cursor = FALSE;
 
-    if (!Ready() || show_overlay == state)
-        return;
-    
     if (state)
     {
         HWND game_hwnd = Windows_Hook::Inst()->GetGameHwnd();
@@ -173,8 +174,12 @@ void Steam_Overlay::ShowOverlay(bool state)
         if (!show_cursor)
             while (ShowCursor(FALSE) >= 0);
     }
+
+#else
+
+#endif
+
     show_overlay = state;
-   
     overlay_state_changed = true;
 }
 
@@ -260,7 +265,7 @@ bool Steam_Overlay::IHaveLobby()
     Steam_Friends* steamFriends = get_steam_client()->steam_friends;
     if (std::string(steamFriends->GetFriendRichPresence(settings->get_local_steam_id(), "connect")).length() > 0)
         return true;
-    
+
     if (settings->get_lobby().IsValid())
         return true;
 
@@ -312,7 +317,9 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     {
         if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
         {
+#ifdef STEAM_WIN32
             PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
+#endif
             state.window_state &= ~window_state_need_attention;
         }
 
@@ -335,7 +342,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
         ImGui::PushItemWidth(-1.0f); // Make the chat history widget fill the window
         ImGui::ColoredInputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, 0 }, ImGuiInputTextFlags_ReadOnly);
         ImGui::PopItemWidth();
-        
+
         // TODO: Fix the layout of the chat line + send button.
         // It should be like this: chat input should fill the window size minus send button size (button size is fixed)
         // |------------------------------|
@@ -432,7 +439,7 @@ void Steam_Overlay::OverlayProc( int width, int height )
             if (!friends.empty())
             {
                 ImGui::ListBoxHeader("##label", friend_size);
-                std::for_each(friends.begin(), friends.end(), [this](auto& i)
+                std::for_each(friends.begin(), friends.end(), [this](std::pair<Friend const, friend_window_state> &i)
                 {
                     ImGui::PushID(i.first.id());
 
