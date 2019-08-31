@@ -117,7 +117,7 @@ bool IgnoreEvent(XEvent &event)
         // MouseButton
         case ButtonPress: case ButtonRelease:
         // Mouse move
-        case MotionNotify: case ClientMessage:
+        case MotionNotify:
             return true;
     }
     return false;
