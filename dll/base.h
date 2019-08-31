@@ -29,10 +29,18 @@
 #endif
 
 #if defined(__linux__) || defined(linux)
-	#define __LINUX__
+    #if defined(__x86_64__)
+        #define __LINUX_64__
+    #else
+        #define __LINUX_32__
+    #endif
 #endif
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(__LINUX_32__) || defined(__LINUX_64__)
+    #define __LINUX__
+#endif
+
+#if defined(__WINDOWS__)
 #define STEAM_WIN32
 #pragma warning( disable : 4716)
 #ifndef NOMINMAX
