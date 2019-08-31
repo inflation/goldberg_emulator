@@ -1,6 +1,10 @@
 #include "Renderer_Detector.h"
 #include "Hook_Manager.h"
 
+#include <algorithm>
+
+constexpr int max_hook_retries = 500;
+
 #ifdef STEAM_WIN32
 #include "DX12_Hook.h"
 #include "DX11_Hook.h"
@@ -8,13 +12,7 @@
 #include "DX9_Hook.h"
 #include "OpenGL_Hook.h"
 #include "Windows_Hook.h"
-#endif
 
-#include <algorithm>
-
-constexpr int max_hook_retries = 500;
-
-#ifdef STEAM_WIN32
 static decltype(&IDXGISwapChain::Present) _IDXGISwapChain_Present = nullptr;
 static decltype(&IDirect3DDevice9::Present) _IDirect3DDevice9_Present = nullptr;
 static decltype(&IDirect3DDevice9Ex::PresentEx) _IDirect3DDevice9Ex_PresentEx = nullptr;
@@ -493,27 +491,16 @@ void Renderer_Detector::hook_opengl()
 
 void Renderer_Detector::create_hook(const char* libname)
 {
-    if (!_stricmp(libname, "d3d9.dll"))
+    if (!_stricmp(libname, DX9_Hook::DLL_NAME))
         hook_dx9();
-    else if (!_stricmp(libname, "d3d10.dll"))
+    else if (!_stricmp(libname, DX10_Hook::DLL_NAME))
         hook_dx10();
-    else if (!_stricmp(libname, "d3d11.dll"))
+    else if (!_stricmp(libname, DX11_Hook::DLL_NAME))
         hook_dx11();
-    else if (!_stricmp(libname, "d3d12.dll"))
+    else if (!_stricmp(libname, DX12_Hook::DLL_NAME))
         hook_dx12();
-    else if (!_stricmp(libname, "opengl32.dll"))
+    else if (!_stricmp(libname, OpenGL_Hook::DLL_NAME))
         hook_opengl();
-}
-
-bool Renderer_Detector::stop_retry()
-{
-    // Retry or not
-    bool stop = ++_hook_retries >= max_hook_retries;
-
-    if (stop)
-        renderer_found(nullptr);
-
-    return stop;
 }
 
 void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
@@ -547,18 +534,6 @@ void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
     }
 }
 
-#endif
-
-void Renderer_Detector::find_renderer()
-{
-    if (_hook_thread == nullptr)
-    {
-#ifdef STEAM_WIN32
-        _hook_thread = new std::thread(&Renderer_Detector::find_renderer_proc, this);
-#endif
-    }
-}
-
 void Renderer_Detector::renderer_found(Base_Hook* hook)
 {
     Hook_Manager& hm = Hook_Manager::Inst();
@@ -578,7 +553,6 @@ void Renderer_Detector::renderer_found(Base_Hook* hook)
     hm.RemoveHook(rendererdetect_hook);
     destroy_hwnd();
 
-#ifdef STEAM_WIN32
     if (hook == nullptr) // Couldn't hook renderer
     {
         hm.RemoveHook(Windows_Hook::Inst());
@@ -632,18 +606,6 @@ void Renderer_Detector::renderer_found(Base_Hook* hook)
             hm.RemoveHook(h);
         }
     }
-#endif
-}
-
-Renderer_Detector& Renderer_Detector::Inst()
-{
-    static Renderer_Detector inst;
-    return inst;
-}
-
-Base_Hook* Renderer_Detector::get_renderer() const
-{
-    return game_renderer;
 }
 
 Renderer_Detector::Renderer_Detector():
@@ -661,6 +623,179 @@ Renderer_Detector::Renderer_Detector():
     atom(0),
     dummy_hWnd(nullptr)
 {}
+
+#else// defined(__LINUX__)//!STEAM_WIN32
+#include "X11_Hook.h"
+
+#include <dlfcn.h>
+#include <fstream>
+
+static decltype(glXSwapBuffers)* _glXSwapBuffers = nullptr;
+
+void Renderer_Detector::MyglXSwapBuffers(Display *dpy, GLXDrawable drawable)
+{
+    Renderer_Detector& inst = Renderer_Detector::Inst();
+    Hook_Manager& hm = Hook_Manager::Inst();
+    _glXSwapBuffers(reinterpret_cast<::Display*>(dpy), drawable);
+    if (!inst.stop_retry())
+    {
+        OpenGLX_Hook::Inst()->start_hook();
+    }
+}
+
+void Renderer_Detector::HookglXSwapBuffers(decltype(glXSwapBuffers)* glXSwapBuffers)
+{
+    _glXSwapBuffers = glXSwapBuffers;
+
+    rendererdetect_hook->BeginHook();
+
+    rendererdetect_hook->HookFuncs(
+        std::pair<void**, void*>(&(void*&)_glXSwapBuffers, (void*)MyglXSwapBuffers)
+    );
+
+    rendererdetect_hook->EndHook();
+}
+
+void Renderer_Detector::hook_openglx(const char* libname)
+{
+    if (!_oglx_hooked && !_renderer_found)
+    {
+        void* library = dlopen(libname, RTLD_NOW);
+        decltype(glXSwapBuffers)* glXSwapBuffers = nullptr;
+        if (library != nullptr)
+        {
+            glXSwapBuffers = (decltype(glXSwapBuffers))dlsym(library, "glXSwapBuffers");
+        }
+        if (glXSwapBuffers != nullptr)
+        {
+            PRINT_DEBUG("Hooked glXMakeCurrent to detect OpenGLX\n");
+
+            _oglx_hooked = true;
+            auto h = OpenGLX_Hook::Inst();
+            h->loadFunctions(glXSwapBuffers);
+            Hook_Manager::Inst().AddHook(h);
+            HookglXSwapBuffers(glXSwapBuffers);
+        }
+        else
+        {
+            PRINT_DEBUG("Failed to Hook glXMakeCurrent to detect OpenGLX\n");
+        }
+    }
+}
+
+void Renderer_Detector::create_hook(const char* libname)
+{
+    if (strcasestr(libname, OpenGLX_Hook::DLL_NAME) != nullptr)
+        hook_openglx(libname);
+}
+
+void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
+{
+    _this->rendererdetect_hook = new Base_Hook();
+    Hook_Manager& hm = Hook_Manager::Inst();
+    hm.AddHook(_this->rendererdetect_hook);
+
+
+    std::vector<std::string> const libraries = { "libGLX.so" };
+
+    while (!_this->_renderer_found && !_this->stop_retry())
+    {
+        std::ifstream flibrary("/proc/self/maps");
+        std::string line;
+        while( std::getline(flibrary, line) )
+        {
+            std::for_each(libraries.begin(), libraries.end(), [&line, &_this]( std::string const& library )
+            {
+                if( std::search(line.begin(), line.end(), library.begin(), library.end()) != line.end() )
+                {
+                    _this->create_hook(line.substr(line.find('/')).c_str());
+                }
+            });
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+}
+
+Renderer_Detector::Renderer_Detector():
+    _hook_thread(nullptr),
+    _hook_retries(0),
+    _renderer_found(false),
+    _oglx_hooked(false),
+    rendererdetect_hook(nullptr),
+    game_renderer(nullptr)
+{}
+
+void Renderer_Detector::renderer_found(Base_Hook* hook)
+{
+    Hook_Manager& hm = Hook_Manager::Inst();
+
+    _renderer_found = true;
+    game_renderer = hook;
+
+    if (hook == nullptr)
+        PRINT_DEBUG("We found a renderer but couldn't hook it, aborting overlay hook.\n");
+    else
+        PRINT_DEBUG("Hooked renderer in %d/%d tries\n", _hook_retries, max_hook_retries);
+
+    _hook_thread->join();
+    delete _hook_thread;
+    _hook_thread = nullptr;
+
+    hm.RemoveHook(rendererdetect_hook);
+
+    if (hook == nullptr) // Couldn't hook renderer
+    {
+        hm.RemoveHook(X11_Hook::Inst());
+    }
+    else
+    {
+        hm.AddHook(X11_Hook::Inst());
+    }
+    if (_oglx_hooked)
+    {
+        auto h = OpenGLX_Hook::Inst();
+        if (h != hook)
+        {
+            _oglx_hooked = false;
+            hm.RemoveHook(h);
+        }
+    }
+}
+
+#endif
+
+bool Renderer_Detector::stop_retry()
+{
+    // Retry or not
+    bool stop = ++_hook_retries >= max_hook_retries;
+
+    if (stop)
+    {
+        renderer_found(nullptr);
+    }
+
+    return stop;
+}
+
+void Renderer_Detector::find_renderer()
+{
+    if (_hook_thread == nullptr)
+    {
+        _hook_thread = new std::thread(&Renderer_Detector::find_renderer_proc, this);
+    }
+}
+
+Renderer_Detector& Renderer_Detector::Inst()
+{
+    static Renderer_Detector inst;
+    return inst;
+}
+
+Base_Hook* Renderer_Detector::get_renderer() const
+{
+    return game_renderer;
+}
 
 Renderer_Detector::~Renderer_Detector()
 {

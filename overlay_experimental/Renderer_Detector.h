@@ -5,12 +5,11 @@
 #include <thread>
 
 #ifndef NO_OVERLAY
+#ifdef __WINDOWS__
 
-#ifdef STEAM_WIN32
 struct IDXGISwapChain;
 struct IDirect3DDevice9;
 struct IDirect3DDevice9Ex;
-#endif
 
 class Renderer_Detector
 {
@@ -64,5 +63,41 @@ public:
     static Renderer_Detector& Inst();
 };
 
+#elif defined __LINUX__
+#include "OpenGLX_Hook.h"
+
+class Renderer_Detector
+{
+    // Variables
+    std::thread* _hook_thread;
+    unsigned int _hook_retries;
+    bool _oglx_hooked;
+    bool _renderer_found;       // Is the renderer hooked ?
+    Base_Hook* rendererdetect_hook;
+    Base_Hook* game_renderer;
+
+    // Functions
+    Renderer_Detector();
+    ~Renderer_Detector();
+
+    static void MyglXSwapBuffers(Display *dpy, GLXDrawable drawable);
+
+    void HookglXSwapBuffers(decltype(glXSwapBuffers)* glXSwapBuffers);
+
+    void hook_openglx(const char* libname);
+
+    void create_hook(const char* libname);
+    bool stop_retry();
+
+    static void find_renderer_proc(Renderer_Detector* _this);
+
+public:
+    void find_renderer();
+    void renderer_found(Base_Hook* hook);
+    Base_Hook* get_renderer() const;
+    static Renderer_Detector& Inst();
+};
+
+#endif//__WINDOWS__
 #endif//NO_OVERLAY
 #endif//__INCLUDED_RENDERER_DETECTOR_H__
