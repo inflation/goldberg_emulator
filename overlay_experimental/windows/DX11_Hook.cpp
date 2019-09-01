@@ -1,12 +1,12 @@
 #include "DX11_Hook.h"
 #include "Windows_Hook.h"
-#include "Renderer_Detector.h"
-#include "../dll/dll.h"
+#include "../Renderer_Detector.h"
+#include "../../dll/dll.h"
 
 #ifndef NO_OVERLAY
 
 #include <imgui.h>
-#include <impls/imgui_impl_dx11.h>
+#include <impls/windows/imgui_impl_dx11.h>
 
 DX11_Hook* DX11_Hook::_inst = nullptr;
 

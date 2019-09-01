@@ -1,7 +1,7 @@
 #ifndef __INCLUDED_DX11_HOOK_H__
 #define __INCLUDED_DX11_HOOK_H__
 
-#include "Base_Hook.h"
+#include "../Base_Hook.h"
 #ifndef NO_OVERLAY
 
 #include <d3d11.h>
@@ -19,7 +19,7 @@ private:
     bool hooked;
     bool initialized;
     ID3D11DeviceContext* pContext;
-    ID3D11RenderTargetView* mainRenderTargetView;   
+    ID3D11RenderTargetView* mainRenderTargetView;
 
     // Functions
     DX11_Hook();
@@ -42,7 +42,7 @@ public:
     bool start_hook();
     static DX11_Hook* Inst();
     virtual const char* get_lib_name() const;
-    
+
     void loadFunctions(IDXGISwapChain *pSwapChain);
 };
 

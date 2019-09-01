@@ -6,12 +6,12 @@
 constexpr int max_hook_retries = 500;
 
 #ifdef STEAM_WIN32
-#include "DX12_Hook.h"
-#include "DX11_Hook.h"
-#include "DX10_Hook.h"
-#include "DX9_Hook.h"
-#include "OpenGL_Hook.h"
-#include "Windows_Hook.h"
+#include "windows/DX12_Hook.h"
+#include "windows/DX11_Hook.h"
+#include "windows/DX10_Hook.h"
+#include "windows/DX9_Hook.h"
+#include "windows/OpenGL_Hook.h"
+#include "windows/Windows_Hook.h"
 
 static decltype(&IDXGISwapChain::Present) _IDXGISwapChain_Present = nullptr;
 static decltype(&IDirect3DDevice9::Present) _IDirect3DDevice9_Present = nullptr;

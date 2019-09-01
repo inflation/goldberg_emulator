@@ -1,7 +1,7 @@
 #include "OpenGL_Hook.h"
 #include "Windows_Hook.h"
-#include "Renderer_Detector.h"
-#include "../dll/dll.h"
+#include "../Renderer_Detector.h"
+#include "../../dll/dll.h"
 
 #ifndef NO_OVERLAY
 
@@ -10,7 +10,7 @@
 
 #include <GL/glew.h>
 
-#include "steam_overlay.h"
+#include "../steam_overlay.h"
 
 OpenGL_Hook* OpenGL_Hook::_inst = nullptr;
 

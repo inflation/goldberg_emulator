@@ -23,14 +23,14 @@
 //  2018-06-08: DirectX12: Use draw_data->DisplayPos and draw_data->DisplaySize to setup projection matrix and clipping rectangle (to ease support for future multi-viewport).
 //  2018-02-22: Merged into master with all Win32 code synchronized to other examples.
 
-#include "../imgui.h"
+#include "../../imgui.h"
 #include "imgui_impl_dx12.h"
 
 // DirectX
 #include <d3d12.h>
 #include <dxgi1_4.h>
 
-#include "../../overlay_experimental/ImGui_ShaderBlobs.h"
+#include "../../../overlay_experimental/windows/ImGui_ShaderBlobs.h"
 
 #ifdef USE_D3DCOMPILE
 static ID3DBlob* g_pVertexShaderBlob = NULL;

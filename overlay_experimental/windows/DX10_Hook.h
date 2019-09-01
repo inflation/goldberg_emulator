@@ -1,7 +1,7 @@
 #ifndef __INCLUDED_DX10_HOOK_H__
 #define __INCLUDED_DX10_HOOK_H__
 
-#include "Base_Hook.h"
+#include "../Base_Hook.h"
 #ifndef NO_OVERLAY
 
 #include <d3d10.h>
@@ -42,7 +42,7 @@ public:
     bool start_hook();
     static DX10_Hook* Inst();
     virtual const char* get_lib_name() const;
-    
+
     void loadFunctions(IDXGISwapChain *pSwapChain);
 };
 

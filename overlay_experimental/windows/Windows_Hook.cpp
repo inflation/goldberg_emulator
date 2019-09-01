@@ -1,11 +1,11 @@
 #include "Windows_Hook.h"
-#include "Renderer_Detector.h"
-#include "../dll/dll.h"
+#include "../Renderer_Detector.h"
+#include "../../dll/dll.h"
 
 #ifndef NO_OVERLAY
 
 #include <imgui.h>
-#include <impls/imgui_impl_win32.h>
+#include <impls/windows/imgui_impl_win32.h>
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

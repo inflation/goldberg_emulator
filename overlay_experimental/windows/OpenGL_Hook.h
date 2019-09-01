@@ -1,14 +1,14 @@
 #ifndef __INCLUDED_OPENGL_HOOK_H__
 #define __INCLUDED_OPENGL_HOOK_H__
 
-#include "Base_Hook.h"
+#include "../Base_Hook.h"
 #ifndef NO_OVERLAY
 
 class OpenGL_Hook : public Base_Hook
 {
 public:
     static constexpr const char *DLL_NAME = "opengl32.dll";
-    
+
     using wglSwapBuffers_t = BOOL(WINAPI*)(HDC);
 
 private:

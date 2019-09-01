@@ -1,7 +1,7 @@
 #ifndef __INCLUDED_DX9_HOOK_H__
 #define __INCLUDED_DX9_HOOK_H__
 
-#include "Base_Hook.h"
+#include "../Base_Hook.h"
 #ifndef NO_OVERLAY
 
 #include <d3d9.h>
@@ -43,7 +43,7 @@ public:
     bool start_hook();
     static DX9_Hook* Inst();
     virtual const char* get_lib_name() const;
-    
+
     void loadFunctions(IDirect3DDevice9 *pDevice, bool ex);
 };
 

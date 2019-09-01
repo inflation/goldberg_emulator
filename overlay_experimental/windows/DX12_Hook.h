@@ -1,7 +1,7 @@
 #ifndef __INCLUDED_DX12_HOOK_H__
 #define __INCLUDED_DX12_HOOK_H__
 
-#include "Base_Hook.h"
+#include "../Base_Hook.h"
 #ifndef NO_OVERLAY
 
 #include <d3d12.h>
@@ -48,7 +48,7 @@ public:
     bool start_hook();
     static DX12_Hook* Inst();
     virtual const char* get_lib_name() const;
-    
+
     void loadFunctions(ID3D12CommandQueue* pCommandQueue, ID3D12GraphicsCommandList* pCommandList, IDXGISwapChain* pSwapChain);
 };
 
