@@ -64,7 +64,7 @@ public:
 };
 
 #elif defined __LINUX__
-#include "OpenGLX_Hook.h"
+#include "linux/OpenGLX_Hook.h"
 
 class Renderer_Detector
 {

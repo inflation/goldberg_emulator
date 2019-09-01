@@ -11,10 +11,10 @@
 #include "../dll/dll.h"
 
 #include "Renderer_Detector.h"
-#include "Windows_Hook.h"
 
-// Look here for info on how to hook on linux
-// https://github.com/AimTuxOfficial/AimTux/
+#ifdef __WINDOWS__
+#include "windows/Windows_Hook.h"
+#endif
 
 #include "notification.h"
 
@@ -123,7 +123,7 @@ void Steam_Overlay::ShowOverlay(bool state)
     if (!Ready() || show_overlay == state)
         return;
 
-#ifdef STEAM_WIN32
+#ifdef __WINDOWS__
     static RECT old_clip;
     static BOOL show_cursor = FALSE;
 
@@ -317,7 +317,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     {
         if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
         {
-#ifdef STEAM_WIN32
+#ifdef __WINDOWS__
             PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
 #endif
             state.window_state &= ~window_state_need_attention;

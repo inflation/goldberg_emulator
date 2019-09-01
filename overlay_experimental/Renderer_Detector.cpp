@@ -625,7 +625,7 @@ Renderer_Detector::Renderer_Detector():
 {}
 
 #else// defined(__LINUX__)//!STEAM_WIN32
-#include "X11_Hook.h"
+#include "linux/X11_Hook.h"
 
 #include <dlfcn.h>
 #include <fstream>

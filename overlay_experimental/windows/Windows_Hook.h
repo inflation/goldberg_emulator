@@ -1,7 +1,7 @@
 #ifndef __INCLUDED_WINDOWS_HOOK_H__
 #define __INCLUDED_WINDOWS_HOOK_H__
 
-#include "Base_Hook.h"
+#include "../Base_Hook.h"
 
 #ifdef __WINDOWS__
 #ifndef NO_OVERLAY

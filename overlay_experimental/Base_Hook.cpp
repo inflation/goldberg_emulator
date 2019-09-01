@@ -39,7 +39,7 @@ void Base_Hook::UnhookAll()
 }
 
 #else
-#include "Linux_Detour.h"
+#include "linux/Linux_Detour.h"
 
 void Base_Hook::BeginHook()
 {
