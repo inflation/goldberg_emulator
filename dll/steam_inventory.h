@@ -847,9 +847,9 @@ bool SubmitUpdateProperties( SteamInventoryUpdateHandle_t handle, SteamInventory
 
 void RunCallbacks()
 {
-    if (call_definition_update) {
-        read_items_db();
+    if (call_definition_update && !definition_update_called) {
         definition_update_called = true;
+        read_items_db();
 
         SteamInventoryDefinitionUpdate_t data = {};
         callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
@@ -860,6 +860,7 @@ void RunCallbacks()
         read_inventory_db();
         inventory_loaded = true;
 
+        call_definition_update = true;
         call_inventory_update = false;
     }
 
