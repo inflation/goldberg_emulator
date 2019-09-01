@@ -254,7 +254,10 @@ void generate_achievements(CurlEasy &easy)
             output_json[i]["hidden"] = std::to_string(item.value()["hidden"].get<int>());
             try
             {
-                output_json[i]["description"] = item.value()["description"];
+                if( !item.value()["description"].is_null() )
+                    output_json[i]["description"] = item.value()["description"];
+                else
+                    output_json[i]["description"] = "";
             }
             catch (...)
             {
