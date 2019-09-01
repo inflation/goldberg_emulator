@@ -2,11 +2,9 @@
 #define __INCLUDED_WINDOWS_HOOK_H__
 
 #include "Base_Hook.h"
-#ifndef NO_OVERLAY
 
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#include <Windows.h>
+#ifdef __WINDOWS__
+#ifndef NO_OVERLAY
 
 class Windows_Hook : public Base_Hook
 {
@@ -48,4 +46,5 @@ public:
 };
 
 #endif//NO_OVERLAY
+#endif//__WINDOWS__
 #endif//__INCLUDED_WINDOWS_HOOK_H__
