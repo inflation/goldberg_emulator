@@ -15,12 +15,16 @@
 #include <X11/keysym.h>
 #include <GL/glew.h>
 
+#include <ctime>
+
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
 //  2019-08-31: Initial X11 implementation
 
 // X11 Data
 static Display*             g_Display = nullptr;
+static uint64_t              g_Time = 0;
+static uint64_t              g_TicksPerSecond = 0;
 static ImGuiMouseCursor     g_LastMouseCursor = ImGuiMouseCursor_COUNT;
 static bool                 g_HasGamepad = false;
 static bool                 g_WantUpdateHasGamepad = true;
@@ -28,6 +32,13 @@ static bool                 g_WantUpdateHasGamepad = true;
 // Functions
 bool    ImGui_ImplX11_Init(void *display)
 {
+    timespec ts, tsres;
+    clock_getres(CLOCK_MONOTONIC_RAW, &tsres);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+
+    g_TicksPerSecond = 100000000 / (static_cast<uint64_t>(tsres.tv_nsec) + static_cast<uint64_t>(tsres.tv_sec)*1000000000);
+    g_Time = static_cast<uint64_t>(ts.tv_nsec) + static_cast<uint64_t>(ts.tv_sec)*1000000000;
+
     //if (!::QueryPerformanceFrequency((LARGE_INTEGER *)&g_TicksPerSecond))
     //    return false;
     //if (!::QueryPerformanceCounter((LARGE_INTEGER *)&g_Time))
@@ -42,6 +53,28 @@ bool    ImGui_ImplX11_Init(void *display)
     io.ImeWindowHandle = nullptr;
 
     // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array that we will update during the application lifetime.
+    io.KeyMap[ImGuiKey_Tab]        = XKeysymToKeycode(g_Display, XK_Tab);
+    io.KeyMap[ImGuiKey_LeftArrow]  = XKeysymToKeycode(g_Display, XK_Left);
+    io.KeyMap[ImGuiKey_RightArrow] = XKeysymToKeycode(g_Display, XK_Right);
+    io.KeyMap[ImGuiKey_UpArrow]    = XKeysymToKeycode(g_Display, XK_Up);
+    io.KeyMap[ImGuiKey_DownArrow]  = XKeysymToKeycode(g_Display, XK_Down);
+    io.KeyMap[ImGuiKey_PageUp]     = XKeysymToKeycode(g_Display, XK_Prior);
+    io.KeyMap[ImGuiKey_PageDown]   = XKeysymToKeycode(g_Display, XK_Next);
+    io.KeyMap[ImGuiKey_Home]       = XKeysymToKeycode(g_Display, XK_Home);
+    io.KeyMap[ImGuiKey_End]        = XKeysymToKeycode(g_Display, XK_End);
+    io.KeyMap[ImGuiKey_Insert]     = XKeysymToKeycode(g_Display, XK_Insert);
+    io.KeyMap[ImGuiKey_Delete]     = XKeysymToKeycode(g_Display, XK_Delete);
+    io.KeyMap[ImGuiKey_Backspace]  = XKeysymToKeycode(g_Display, XK_BackSpace);
+    io.KeyMap[ImGuiKey_Space]      = XKeysymToKeycode(g_Display, XK_space);
+    io.KeyMap[ImGuiKey_Enter]      = XKeysymToKeycode(g_Display, XK_Return);
+    io.KeyMap[ImGuiKey_Escape]     = XKeysymToKeycode(g_Display, XK_Escape);
+    io.KeyMap[ImGuiKey_A]          = XKeysymToKeycode(g_Display, XK_A);
+    io.KeyMap[ImGuiKey_C]          = XKeysymToKeycode(g_Display, XK_C);
+    io.KeyMap[ImGuiKey_V]          = XKeysymToKeycode(g_Display, XK_V);
+    io.KeyMap[ImGuiKey_X]          = XKeysymToKeycode(g_Display, XK_X);
+    io.KeyMap[ImGuiKey_Y]          = XKeysymToKeycode(g_Display, XK_Y);
+    io.KeyMap[ImGuiKey_Z]          = XKeysymToKeycode(g_Display, XK_Z);
+    /*
     io.KeyMap[ImGuiKey_Tab] = -1;
     io.KeyMap[ImGuiKey_LeftArrow] = -1;
     io.KeyMap[ImGuiKey_RightArrow] = -1;
@@ -63,6 +96,8 @@ bool    ImGui_ImplX11_Init(void *display)
     io.KeyMap[ImGuiKey_X] = -1;
     io.KeyMap[ImGuiKey_Y] = -1;
     io.KeyMap[ImGuiKey_Z] = -1;
+    */
+
     return true;
 }
 
@@ -120,7 +155,15 @@ static void ImGui_ImplWin32_UpdateMousePos()
     // Set mouse position
     io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 
+    Window rootWnd = DefaultRootWindow(g_Display);
+    Window unused_window;
+    int rx, ry, x, y;
+    unsigned int mask;
 
+    XQueryPointer(g_Display, rootWnd, &unused_window, &unused_window, &rx, &ry, &x, &y, &mask);
+
+    io.MousePos.x = rx;
+    io.MousePos.y = ry;
 }
 
 /* TODO: support linux gamepad ?
@@ -185,31 +228,35 @@ void    ImGui_ImplX11_NewFrame()
     Window rootWnd = DefaultRootWindow(g_Display);
 
     // Todo: use X11 to get this value
-    GLint m_viewport[4];
-    glGetIntegerv( GL_VIEWPORT, m_viewport );
-    io.DisplaySize.x = m_viewport[2];
-    io.DisplaySize.y = m_viewport[3];
+    unsigned int width, height;
+    Window unused_window;
+    int unused_int;
+    unsigned int unused_unsigned_int;
 
+    XGetGeometry(g_Display, rootWnd, &unused_window, &unused_int, &unused_int, &width, &height, &unused_unsigned_int, &unused_unsigned_int);
 
-    /*
-    io.DisplaySize = ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
+    io.DisplaySize.x = width;
+    io.DisplaySize.y = height;
 
-    // Setup time step
-    INT64 current_time;
-    ::QueryPerformanceCounter((LARGE_INTEGER *)&current_time);
+    timespec ts, tsres;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+
+    uint64_t current_time = static_cast<uint64_t>(ts.tv_nsec) + static_cast<uint64_t>(ts.tv_sec)*1000000000;
+
     io.DeltaTime = (float)(current_time - g_Time) / g_TicksPerSecond;
     g_Time = current_time;
 
+    /*
     // Read keyboard modifiers inputs
     io.KeyCtrl = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
     io.KeyShift = (::GetKeyState(VK_SHIFT) & 0x8000) != 0;
     io.KeyAlt = (::GetKeyState(VK_MENU) & 0x8000) != 0;
     io.KeySuper = false;
     // io.KeysDown[], io.MousePos, io.MouseDown[], io.MouseWheel: filled by the WndProc handler below.
-
+    */
     // Update OS mouse position
     ImGui_ImplWin32_UpdateMousePos();
-
+    /*
     // Update OS mouse cursor with the cursor requested by imgui
     ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
     if (g_LastMouseCursor != mouse_cursor)
