@@ -13,8 +13,8 @@
 //------------------------------------------------------------------------------//
 // Helper funcs
 //------------------------------------------------------------------------------//
-constexpr static auto relative_jump_size = 5;
 constexpr static auto relative_addr_jump_size = sizeof(int32_t);
+constexpr static auto relative_jump_size = 1 + relative_addr_jump_size;
 constexpr static auto absolute_jump_size = 6;
 
 struct
@@ -134,14 +134,12 @@ struct trampoline_x86_t
     uint8_t trampolineBytes[16+relative_jump_size]; // trampoline + original function opcodes
     uint8_t hookJump[relative_jump_size]; // jump to hook addr, needed because of relative jump overflow
     uint8_t nOriginalBytes;               // number of original function bytes bkp
-    uint8_t originalBytes[16];            // original function bytes
 };
 
 typedef trampoline_x86_t trampoline_t;
 
 struct trampoline_region_t
 {
-    uint32_t header;
     uint8_t numTrampolines; // current trampolines allocated
     trampoline_t *trampolines_start; // start pointer of current region trampolines
     trampoline_t *next_free_trampoline; // next free trampoline in region
@@ -492,7 +490,7 @@ int Linux_Detour::transaction_commit()
             res = mprotect(originalFunctionPage, page_size()*2, PROT_READ|PROT_WRITE|PROT_EXEC);
 
             // Write the original opcodes
-            std::copy(trampoline->originalBytes, trampoline->originalBytes+trampoline->nOriginalBytes,
+            std::copy(trampoline->trampolineBytes, trampoline->trampolineBytes+trampoline->nOriginalBytes,
                       reinterpret_cast<uint8_t*>(*ppOriginalFunc));
 
             // Remove write permission
@@ -582,7 +580,6 @@ int Linux_Detour::hook_func(void** ppOriginalFunc, void* _hook)
     gen_immediate_jump(trampoline->hookJump, hook);
     // Copy original opcodes
     trampoline->nOriginalBytes = code_len;
-    std::copy((uint8_t*)pOriginalFunc, ((uint8_t*)pOriginalFunc)+code_len, trampoline->originalBytes);
     std::copy((uint8_t*)pOriginalFunc, ((uint8_t*)pOriginalFunc)+code_len, pTrampolineCode);
     pTrampolineCode += code_len;
     // Create the relative jmp to original (function + backed up opcodes)
