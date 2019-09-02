@@ -532,28 +532,10 @@ void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-}
 
-void Renderer_Detector::renderer_found(Base_Hook* hook)
-{
-    Hook_Manager& hm = Hook_Manager::Inst();
+    _this->destroy_hwnd();
 
-    _renderer_found = true;
-    game_renderer = hook;
-
-    if (hook == nullptr)
-        PRINT_DEBUG("We found a renderer but couldn't hook it, aborting overlay hook.\n");
-    else
-        PRINT_DEBUG("Hooked renderer in %d/%d tries\n", _hook_retries, max_hook_retries);
-
-    _hook_thread->join();
-    delete _hook_thread;
-    _hook_thread = nullptr;
-
-    hm.RemoveHook(rendererdetect_hook);
-    destroy_hwnd();
-
-    if (hook == nullptr) // Couldn't hook renderer
+    if (_this->game_renderer == nullptr) // Couldn't hook renderer
     {
         hm.RemoveHook(Windows_Hook::Inst());
     }
@@ -561,51 +543,54 @@ void Renderer_Detector::renderer_found(Base_Hook* hook)
     {
         hm.AddHook(Windows_Hook::Inst());
     }
-    if (_ogl_hooked)
+    if (_this->_ogl_hooked)
     {
         auto h = OpenGL_Hook::Inst();
-        if (h != hook)
+        if (h != _this->game_renderer)
         {
-            _ogl_hooked = false;
+            _this->_ogl_hooked = false;
             hm.RemoveHook(h);
         }
     }
-    if (_dx9_hooked)
+    if (_this->_dx9_hooked)
     {
         auto h = DX9_Hook::Inst();
-        if (h != hook)
+        if (h != _this->game_renderer)
         {
-            _dx9_hooked = false;
+            _this->_dx9_hooked = false;
             hm.RemoveHook(h);
         }
     }
-    if (_dx10_hooked)
+    if (_this->_dx10_hooked)
     {
         auto h = DX10_Hook::Inst();
-        if (h != hook)
+        if (h != _this->game_renderer)
         {
-            _dx10_hooked = false;
+            _this->_dx10_hooked = false;
             hm.RemoveHook(h);
         }
     }
-    if (_dx11_hooked)
+    if (_this->_dx11_hooked)
     {
         auto h = DX11_Hook::Inst();
-        if (h != hook)
+        if (h != _this->game_renderer)
         {
-            _dx11_hooked = false;
+            _this->_dx11_hooked = false;
             hm.RemoveHook(h);
         }
     }
-    if (_dx12_hooked)
+    if (_this->_dx12_hooked)
     {
         auto h = DX12_Hook::Inst();
-        if (h != hook)
+        if (h != _this->game_renderer)
         {
-            _dx12_hooked = false;
+            _this->_dx12_hooked = false;
             hm.RemoveHook(h);
         }
     }
+
+    delete _this->_hook_thread;
+    _this->_hook_thread = nullptr;
 }
 
 Renderer_Detector::Renderer_Detector():
@@ -715,6 +700,27 @@ void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
+
+    if (_this->game_renderer == nullptr) // Couldn't hook renderer
+    {
+        hm.RemoveHook(X11_Hook::Inst());
+    }
+    else
+    {
+        hm.AddHook(X11_Hook::Inst());
+    }
+    if (_this->_oglx_hooked)
+    {
+        auto h = OpenGLX_Hook::Inst();
+        if (h != _this->game_renderer)
+        {
+            _this->_oglx_hooked = false;
+            hm.RemoveHook(h);
+        }
+    }
+
+    delete _this->_hook_thread;
+    _this->_hook_thread = nullptr;
 }
 
 Renderer_Detector::Renderer_Detector():
@@ -725,6 +731,8 @@ Renderer_Detector::Renderer_Detector():
     rendererdetect_hook(nullptr),
     game_renderer(nullptr)
 {}
+
+#endif
 
 void Renderer_Detector::renderer_found(Base_Hook* hook)
 {
@@ -738,32 +746,8 @@ void Renderer_Detector::renderer_found(Base_Hook* hook)
     else
         PRINT_DEBUG("Hooked renderer in %d/%d tries\n", _hook_retries, max_hook_retries);
 
-    _hook_thread->join();
-    delete _hook_thread;
-    _hook_thread = nullptr;
-
     hm.RemoveHook(rendererdetect_hook);
-
-    if (hook == nullptr) // Couldn't hook renderer
-    {
-        hm.RemoveHook(X11_Hook::Inst());
-    }
-    else
-    {
-        hm.AddHook(X11_Hook::Inst());
-    }
-    if (_oglx_hooked)
-    {
-        auto h = OpenGLX_Hook::Inst();
-        if (h != hook)
-        {
-            _oglx_hooked = false;
-            hm.RemoveHook(h);
-        }
-    }
 }
-
-#endif
 
 bool Renderer_Detector::stop_retry()
 {
@@ -771,9 +755,7 @@ bool Renderer_Detector::stop_retry()
     bool stop = ++_hook_retries >= max_hook_retries;
 
     if (stop)
-    {
         renderer_found(nullptr);
-    }
 
     return stop;
 }
@@ -783,6 +765,7 @@ void Renderer_Detector::find_renderer()
     if (_hook_thread == nullptr)
     {
         _hook_thread = new std::thread(&Renderer_Detector::find_renderer_proc, this);
+        _hook_thread->detach();
     }
 }
 
@@ -802,7 +785,5 @@ Renderer_Detector::~Renderer_Detector()
     if (_hook_thread != nullptr)
     {
         _hook_retries = max_hook_retries;
-        _hook_thread->join();
-        delete _hook_thread;
     }
 }

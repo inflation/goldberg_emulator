@@ -208,7 +208,7 @@ int find_space_for_trampoline(uint8_t* func, int bytes_needed)
     if( func == nullptr )
         return -1;
 
-    int code_len = -1;
+    int code_len = 0;
     bool search = true;
     uint8_t *startCode = reinterpret_cast<uint8_t*>(func);
     uint8_t *pCode = startCode;
