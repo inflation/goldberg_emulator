@@ -509,7 +509,13 @@ void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
     Hook_Manager& hm = Hook_Manager::Inst();
     hm.AddHook(_this->rendererdetect_hook);
 
-    std::vector<std::string> const libraries = { "opengl32.dll", "d3d12.dll", "d3d11.dll", "d3d10.dll", "d3d9.dll" };
+    std::vector<std::string> const libraries = {
+        OpenGL_Hook::DLL_NAME,
+        DX12_Hook::DLL_NAME,
+        DX11_Hook::DLL_NAME,
+        DX10_Hook::DLL_NAME,
+        DX9_Hook::DLL_NAME
+    };
 
     while (!_this->_renderer_found && !_this->stop_retry())
     {
@@ -615,8 +621,12 @@ Renderer_Detector::Renderer_Detector():
 #include <dlfcn.h>
 #include <fstream>
 
-static decltype(glXSwapBuffers)* _glXSwapBuffers = nullptr;
+extern "C" void *_dl_sym(void *, const char *, void *);
 
+static decltype(glXGetProcAddress)* real_glXGetProcAddress = nullptr;
+static decltype(glXGetProcAddressARB)* real_glXGetProcAddressARB = nullptr;
+
+/*
 void Renderer_Detector::MyglXSwapBuffers(Display *dpy, GLXDrawable drawable)
 {
     Renderer_Detector& inst = Renderer_Detector::Inst();
@@ -653,7 +663,7 @@ void Renderer_Detector::hook_openglx(const char* libname)
         }
         if (glXSwapBuffers != nullptr)
         {
-            PRINT_DEBUG("Hooked glXMakeCurrent to detect OpenGLX\n");
+            PRINT_DEBUG("Hooked glXSwapBuffers to detect OpenGLX\n");
 
             _oglx_hooked = true;
             auto h = OpenGLX_Hook::Inst();
@@ -663,7 +673,7 @@ void Renderer_Detector::hook_openglx(const char* libname)
         }
         else
         {
-            PRINT_DEBUG("Failed to Hook glXMakeCurrent to detect OpenGLX\n");
+            PRINT_DEBUG("Failed to Hook glXSwapBuffers to detect OpenGLX\n");
         }
     }
 }
@@ -673,54 +683,15 @@ void Renderer_Detector::create_hook(const char* libname)
     if (strcasestr(libname, OpenGLX_Hook::DLL_NAME) != nullptr)
         hook_openglx(libname);
 }
+*/
 
 void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
 {
+    /*
     _this->rendererdetect_hook = new Base_Hook();
     Hook_Manager& hm = Hook_Manager::Inst();
     hm.AddHook(_this->rendererdetect_hook);
-
-
-    std::vector<std::string> const libraries = { "libGLX.so" };
-
-    while (!_this->_renderer_found && !_this->stop_retry())
-    {
-        std::ifstream flibrary("/proc/self/maps");
-        std::string line;
-        while( std::getline(flibrary, line) )
-        {
-            std::for_each(libraries.begin(), libraries.end(), [&line, &_this]( std::string const& library )
-            {
-                if( std::search(line.begin(), line.end(), library.begin(), library.end()) != line.end() )
-                {
-                    _this->create_hook(line.substr(line.find('/')).c_str());
-                }
-            });
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-
-    if (_this->game_renderer == nullptr) // Couldn't hook renderer
-    {
-        hm.RemoveHook(X11_Hook::Inst());
-    }
-    else
-    {
-        hm.AddHook(X11_Hook::Inst());
-    }
-    if (_this->_oglx_hooked)
-    {
-        auto h = OpenGLX_Hook::Inst();
-        if (h != _this->game_renderer)
-        {
-            _this->_oglx_hooked = false;
-            hm.RemoveHook(h);
-        }
-    }
-
-    delete _this->_hook_thread;
-    _this->_hook_thread = nullptr;
+    */
 }
 
 Renderer_Detector::Renderer_Detector():
@@ -731,6 +702,123 @@ Renderer_Detector::Renderer_Detector():
     rendererdetect_hook(nullptr),
     game_renderer(nullptr)
 {}
+
+static decltype(dlsym)* real_dlsym = nullptr;
+
+// hook library static loading
+extern "C" int XEventsQueued(Display *display, int mode)
+{
+    auto h = X11_Hook::Inst();
+    if( h->get_XEventsQueued() == nullptr )
+        h->loadXEventsQueued((decltype(XEventsQueued)*)real_dlsym(RTLD_NEXT, "XEventsQueued"));
+
+    return X11_Hook::MyXEventsQueued(display, mode);
+}
+
+//extern "C" int XPeekEvent(Display *display, XEvent *event)
+//{
+//    auto h = X11_Hook::Inst();
+//    if( h->get_XPeekEvent() == nullptr )
+//        h->loadXPeekEvent((decltype(XPeekEvent)*)real_dlsym(RTLD_NEXT, "XPeekEvent"));
+//
+//    return X11_Hook::MyXPeekEvent(display, event);
+//}
+
+//extern "C" int XNextEvent(Display *display, XEvent *event)
+//{
+//    auto h = X11_Hook::Inst();
+//    if( h->get_XNextEvent() == nullptr )
+//        h->loadXNextEvent((decltype(XNextEvent)*)real_dlsym(RTLD_NEXT, "XNextEvent"));
+//
+//    return X11_Hook::MyXNextEvent(display, event);
+//}
+
+extern "C" int XPending(Display *display)
+{
+    auto h = X11_Hook::Inst();
+    if( h->get_XPending() == nullptr )
+        h->loadXPending((decltype(XPending)*)real_dlsym(RTLD_NEXT, "XPending"));
+
+    return X11_Hook::MyXPending(display);
+}
+
+extern "C" void glXSwapBuffers(Display *display, GLXDrawable drawable)
+{
+    OpenGLX_Hook::Inst()->start_hook();
+    OpenGLX_Hook::MyglXSwapBuffers(display, drawable);
+}
+
+extern "C" __GLXextFuncPtr glXGetProcAddress(const GLubyte * procName)
+{
+    if( strcmp((const char*)procName, "glXSwapBuffers") == 0 )
+    {
+        decltype(glXSwapBuffers)* real_glXSwapBuffers = (decltype(real_glXSwapBuffers))real_glXGetProcAddress(procName);
+        OpenGLX_Hook::Inst()->loadFunctions(real_glXSwapBuffers);
+        return (__GLXextFuncPtr)glXSwapBuffers;
+    }
+
+    __GLXextFuncPtr func = (__GLXextFuncPtr)real_glXGetProcAddress(procName);
+
+    return func;
+}
+
+extern "C" __GLXextFuncPtr glXGetProcAddressARB (const GLubyte* procName)
+{
+    if( strcmp((const char*)procName, "glXSwapBuffers") == 0 )
+    {
+        decltype(glXSwapBuffers)* real_glXSwapBuffers = (decltype(real_glXSwapBuffers))real_glXGetProcAddressARB(procName);
+        OpenGLX_Hook::Inst()->loadFunctions(real_glXSwapBuffers);
+        return (__GLXextFuncPtr)glXSwapBuffers;
+    }
+
+    __GLXextFuncPtr func = (__GLXextFuncPtr)real_glXGetProcAddressARB(procName);
+
+    return func;
+}
+
+extern "C" void* dlsym(void* handle, const char* name)
+{
+    if (real_dlsym == nullptr)
+        real_dlsym = (decltype(dlsym)*)_dl_sym(RTLD_NEXT, "dlsym", reinterpret_cast<void*>(dlsym));
+
+    if ( strcmp(name,"dlsym") == 0 )
+        return (void*)dlsym;
+
+    if( strcmp(name, "glXGetProcAddress") == 0 )
+    {
+        if( real_glXGetProcAddress == nullptr )
+        {
+            real_glXGetProcAddress = (decltype(glXGetProcAddress)*)real_dlsym(RTLD_NEXT, "glXGetProcAddress");
+        }
+        return (void*)glXGetProcAddress;
+    }
+    if( strcmp(name, "glXGetProcAddressARB") == 0 )
+    {
+        if( real_glXGetProcAddressARB == nullptr )
+        {
+            real_glXGetProcAddressARB = (decltype(glXGetProcAddressARB)*)real_dlsym(RTLD_NEXT, "glXGetProcAddressARB");
+        }
+        return (void*)glXGetProcAddressARB;
+    }
+    if( strcmp(name, "XEventsQueued") == 0 )
+    {
+        return (void*)XEventsQueued;
+    }
+    //if( strcmp(name, "XNextEvent") == 0 )
+    //{
+    //    return (void*)XNextEvent;
+    //}
+    //if( strcmp(name, "XPeekEvent") == 0 )
+    //{
+    //    return (void*)XPeekEvent;
+    //}
+    if( strcmp(name, "XPending") == 0 )
+    {
+        return (void*)XPending;
+    }
+
+    return real_dlsym(handle,name);
+}
 
 #endif
 

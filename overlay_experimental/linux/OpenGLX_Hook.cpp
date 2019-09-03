@@ -30,12 +30,14 @@ bool OpenGLX_Hook::start_hook()
             hooked = true;
             Renderer_Detector::Inst().renderer_found(this);
 
+            /*
             UnhookAll();
             BeginHook();
             HookFuncs(
                 std::make_pair<void**, void*>(&(void*&)_glXSwapBuffers, (void*)&OpenGLX_Hook::MyglXSwapBuffers)
             );
             EndHook();
+            */
 
             get_steam_client()->steam_overlay->HookReady();
         }
@@ -55,7 +57,7 @@ void OpenGLX_Hook::resetRenderState()
     if (initialized)
     {
         ImGui_ImplOpenGL3_Shutdown();
-        //X11_Hook::Inst()->resetRenderState();
+        X11_Hook::Inst()->resetRenderState();
         ImGui::DestroyContext();
 
         initialized = false;
@@ -63,9 +65,12 @@ void OpenGLX_Hook::resetRenderState()
 }
 
 // Try to make this function and overlay's proc as short as possible or it might affect game's fps.
-void OpenGLX_Hook::prepareForOverlay(Display* display)
+void OpenGLX_Hook::prepareForOverlay(Display* display, GLXDrawable drawable)
 {
     PRINT_DEBUG("Called SwapBuffer hook");
+
+    if( (Window)drawable != X11_Hook::Inst()->get_game_wnd() )
+        resetRenderState();
 
     if( ! initialized )
     {
@@ -81,17 +86,12 @@ void OpenGLX_Hook::prepareForOverlay(Display* display)
     {
         ImGuiIO& io = ImGui::GetIO();
 
-        GLint m_viewport[4];
-        glGetIntegerv( GL_VIEWPORT, m_viewport );
-        int width = m_viewport[2];
-        int height = m_viewport[3];
-
         ImGui_ImplOpenGL3_NewFrame();
-        X11_Hook::Inst()->prepareForOverlay(display);
+        X11_Hook::Inst()->prepareForOverlay(display, (Window)drawable);
 
         ImGui::NewFrame();
 
-        get_steam_client()->steam_overlay->OverlayProc(width, height);
+        get_steam_client()->steam_overlay->OverlayProc(io.DisplaySize.x, io.DisplaySize.y);
 
         ImGui::EndFrame();
 
@@ -103,7 +103,7 @@ void OpenGLX_Hook::prepareForOverlay(Display* display)
 
 void OpenGLX_Hook::MyglXSwapBuffers(Display* display, GLXDrawable drawable)
 {
-    OpenGLX_Hook::Inst()->prepareForOverlay(display);
+    OpenGLX_Hook::Inst()->prepareForOverlay(display, drawable);
     OpenGLX_Hook::Inst()->_glXSwapBuffers(display, drawable);
 }
 

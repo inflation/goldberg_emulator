@@ -24,14 +24,16 @@ private:
     OpenGLX_Hook();
 
     void resetRenderState();
-    void prepareForOverlay(Display* display);
+    void prepareForOverlay(Display* display, GLXDrawable drawable);
 
     // Hook to render functions
-    static void MyglXSwapBuffers(Display* display, GLXDrawable drawable);
+
 
     decltype(glXSwapBuffers)* _glXSwapBuffers;
 
 public:
+    static void MyglXSwapBuffers(Display* display, GLXDrawable drawable);
+
     virtual ~OpenGLX_Hook();
 
     bool start_hook();
