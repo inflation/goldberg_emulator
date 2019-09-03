@@ -125,7 +125,6 @@ void Steam_Overlay::ShowOverlay(bool state)
 
 #ifdef __WINDOWS__
     static RECT old_clip;
-    static BOOL show_cursor = FALSE;
 
     if (state)
     {
@@ -155,24 +154,12 @@ void Steam_Overlay::ShowOverlay(bool state)
         clipRect.bottom -= borderWidth;
 
         ClipCursor(&clipRect);
-
-        CURSORINFO cinfo;
-        cinfo.cbSize = sizeof(cinfo);
-        GetCursorInfo(&cinfo);
-        show_cursor = cinfo.flags == CURSOR_SHOWING;
-
-        POINT pos;
-        pos.x = cliRect.right/2;
-        pos.y = cliRect.bottom/2;
-        ClientToScreen(game_hwnd, &pos);
-        SetCursorPos(pos.x, pos.y);
-        while (ShowCursor(TRUE) < 0);
+        ImGui::GetIO().MouseDrawCursor = true;
     }
     else
     {
         ClipCursor(&old_clip);
-        if (!show_cursor)
-            while (ShowCursor(FALSE) >= 0);
+        ImGui::GetIO().MouseDrawCursor = false;
     }
 
 #else
