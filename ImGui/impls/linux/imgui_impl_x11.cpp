@@ -23,8 +23,9 @@
 
 // X11 Data
 static Display*             g_Display = nullptr;
-static uint64_t              g_Time = 0;
-static uint64_t              g_TicksPerSecond = 0;
+static Window               g_Window = 0;
+static uint64_t             g_Time = 0;
+static uint64_t             g_TicksPerSecond = 0;
 static ImGuiMouseCursor     g_LastMouseCursor = ImGuiMouseCursor_COUNT;
 static bool                 g_HasGamepad = false;
 static bool                 g_WantUpdateHasGamepad = true;
@@ -56,7 +57,7 @@ bool IsKeySys(int key)
 }
 
 // Functions
-bool    ImGui_ImplX11_Init(void *display)
+bool    ImGui_ImplX11_Init(void *display, void *window)
 {
     timespec ts, tsres;
     clock_getres(CLOCK_MONOTONIC_RAW, &tsres);
@@ -72,6 +73,7 @@ bool    ImGui_ImplX11_Init(void *display)
 
     // Setup back-end capabilities flags
     g_Display = reinterpret_cast<Display*>(display);
+    g_Window = reinterpret_cast<Window>(window);
     ImGuiIO& io = ImGui::GetIO();
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;         // We can honor GetMouseCursor() values (optional)
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
@@ -107,6 +109,7 @@ bool    ImGui_ImplX11_Init(void *display)
 void    ImGui_ImplX11_Shutdown()
 {
     g_Display = nullptr;
+    g_Window = 0;
 }
 
 static bool ImGui_ImplX11_UpdateMouseCursor()
@@ -143,7 +146,7 @@ static bool ImGui_ImplX11_UpdateMouseCursor()
     return true;
 }
 
-static void ImGui_ImplX11_UpdateMousePos(Window window)
+static void ImGui_ImplX11_UpdateMousePos()
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -160,7 +163,7 @@ static void ImGui_ImplX11_UpdateMousePos(Window window)
     int rx, ry, x, y;
     unsigned int mask;
 
-    XQueryPointer(g_Display, window, &unused_window, &unused_window, &rx, &ry, &x, &y, &mask);
+    XQueryPointer(g_Display, g_Window, &unused_window, &unused_window, &rx, &ry, &x, &y, &mask);
 
     io.MousePos.x = x;
     io.MousePos.y = y;
@@ -215,7 +218,7 @@ static void ImGui_ImplX11_UpdateGamepads()
     */
 }
 
-void    ImGui_ImplX11_NewFrame(void* window)
+void    ImGui_ImplX11_NewFrame()
 {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built! It is generally built by the renderer back-end. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");
@@ -225,7 +228,7 @@ void    ImGui_ImplX11_NewFrame(void* window)
     int unused_int;
     unsigned int unused_unsigned_int;
 
-    XGetGeometry(g_Display, (Window)window, &unused_window, &unused_int, &unused_int, &width, &height, &unused_unsigned_int, &unused_unsigned_int);
+    XGetGeometry(g_Display, (Window)g_Window, &unused_window, &unused_int, &unused_int, &width, &height, &unused_unsigned_int, &unused_unsigned_int);
 
     io.DisplaySize.x = width;
     io.DisplaySize.y = height;
@@ -249,7 +252,7 @@ void    ImGui_ImplX11_NewFrame(void* window)
     // io.KeysDown[], io.MousePos, io.MouseDown[], io.MouseWheel: filled by the WndProc handler below.
 
     // Update OS mouse position
-    ImGui_ImplX11_UpdateMousePos((Window)window);
+    ImGui_ImplX11_UpdateMousePos();
     /*
     // Update OS mouse cursor with the cursor requested by imgui
     ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();

@@ -24,6 +24,7 @@ private:
 
     // Functions
     X11_Hook();
+    int check_for_overlay(Display *d, int num_events);
 
     // Hook to X11 window messages
 

@@ -41,14 +41,14 @@ void X11_Hook::prepareForOverlay(Display *display, Window wnd)
 {
     if (!initialized)
     {
-        ImGui_ImplX11_Init(display);
+        ImGui_ImplX11_Init(display, (void*)wnd);
 
         game_wnd = wnd;
 
         initialized = true;
     }
 
-    ImGui_ImplX11_NewFrame((void*)wnd);
+    ImGui_ImplX11_NewFrame();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,65 @@ bool IgnoreEvent(XEvent &event)
     return false;
 }
 
+int X11_Hook::check_for_overlay(Display *d, int num_events)
+{
+    static Time prev_time = {};
+
+    X11_Hook* inst = Inst();
+
+    if( inst->initialized )
+    {
+        XEvent event;
+        while(num_events)
+        {
+            //inst->_XPeekEvent(d, &event);
+            XPeekEvent(d, &event);
+
+            Steam_Overlay* overlay = get_steam_client()->steam_overlay;
+            bool show = overlay->ShowOverlay();
+            // Is the event is a key press
+            if (event.type == KeyPress)
+            {
+                // Tab is pressed and was not pressed before
+                //if (event.xkey.keycode == inst->_XKeysymToKeycode(d, XK_Tab) && event.xkey.state & ShiftMask)
+                if (event.xkey.keycode == XKeysymToKeycode(d, XK_Tab) && event.xkey.state & ShiftMask)
+                {
+                    // if key TAB is held, don't make the overlay flicker :p
+                    if( event.xkey.time != prev_time)
+                    {
+                        overlay->ShowOverlay(!overlay->ShowOverlay());
+
+                        if (overlay->ShowOverlay())
+                            show = true;
+                    }
+                }
+            }
+            //else if(event.type == KeyRelease && event.xkey.keycode == inst->_XKeysymToKeycode(d, XK_Tab))
+            else if(event.type == KeyRelease && event.xkey.keycode == XKeysymToKeycode(d, XK_Tab))
+            {
+                prev_time = event.xkey.time;
+            }
+
+            if (show)
+            {
+                ImGui_ImplX11_EventHandler(event);
+
+                if (IgnoreEvent(event))
+                {
+                    //inst->_XNextEvent(d, &event);
+                    XNextEvent(d, &event);
+                    --num_events;
+                }
+                else
+                    break;
+            }
+            else
+                break;
+        }
+    }
+    return num_events;
+}
+
 int X11_Hook::MyXEventsQueued(Display *display, int mode)
 {
     X11_Hook* inst = X11_Hook::Inst();
@@ -76,53 +135,9 @@ int X11_Hook::MyXEventsQueued(Display *display, int mode)
 
     if( res )
     {
-        static Time prev_time = {};
-
-        XEvent event;
-        //inst->_XPeekEvent(display, &event);
-        XPeekEvent(display, &event);
-
-        Steam_Overlay* overlay = get_steam_client()->steam_overlay;
-        bool show = overlay->ShowOverlay();
-        // Is the event is a key press
-        if (event.type == KeyPress)
-        {
-            // Tab is pressed and was not pressed before
-            //if (event.xkey.keycode == inst->_XKeysymToKeycode(display, XK_Tab) && event.xkey.state & ShiftMask)
-            if (event.xkey.keycode == XKeysymToKeycode(display, XK_Tab) && event.xkey.state & ShiftMask)
-            {
-                // if key TAB is held, don't make the overlay flicker :p
-                if( event.xkey.time != prev_time)
-                {
-                    overlay->ShowOverlay(!overlay->ShowOverlay());
-
-                    if (overlay->ShowOverlay())
-                        show = true;
-                }
-            }
-        }
-        //else if(event.type == KeyRelease && event.xkey.keycode == inst->_XKeysymToKeycode(display, XK_Tab))
-        else if(event.type == KeyRelease && event.xkey.keycode == XKeysymToKeycode(display, XK_Tab))
-        {
-            prev_time = event.xkey.time;
-        }
-
-        if (show)
-        {
-            ImGui_ImplX11_EventHandler(event);
-
-            if (IgnoreEvent(event))
-            {
-                //inst->_XNextEvent(display, &event);
-                XNextEvent(display, &event);
-                return 0;
-            }
-        }
+        res = inst->check_for_overlay(display, res);
     }
 
-    // XEventsQueued returns the num of events available.
-    // Usually, games tend to read all events queued before calling again XEventsQueued
-    // making us unavailable to intercept undesired events
     return res;
 }
 
@@ -140,19 +155,9 @@ int X11_Hook::MyXPending(Display* display)
 {
     int res = Inst()->_XPending(display);
 
-    if( res && get_steam_client()->steam_overlay->ShowOverlay() )
+    if( res )
     {
-        XEvent event;
-        //Inst()->_XPeekEvent(display, &event);
-        XPeekEvent(display, &event);
-        if( IgnoreEvent(event) )
-        {
-            ImGui_ImplX11_EventHandler(event);
-
-            //Inst()->_XNextEvent(display, &event);
-            XNextEvent(display, &event);
-            res = 0;
-        }
+        res = Inst()->check_for_overlay(display, res);
     }
 
     return res;
