@@ -29,6 +29,32 @@ static ImGuiMouseCursor     g_LastMouseCursor = ImGuiMouseCursor_COUNT;
 static bool                 g_HasGamepad = false;
 static bool                 g_WantUpdateHasGamepad = true;
 
+bool GetKeyState(int keysym, char keys[32])
+{
+    int keycode = XKeysymToKeycode(g_Display, keysym);
+    return keys[keycode/8] & (1<<keycode%8);
+}
+
+bool IsKeySys(int key)
+{
+    switch(key)
+    {
+        case XK_Shift_L  : case XK_Shift_R   :
+        case XK_Control_L: case XK_Control_R :
+        case XK_Alt_L    : case XK_Alt_R     :
+        case XK_Super_L  : case XK_Super_R   :
+        case XK_Caps_Lock: case XK_Shift_Lock:
+        case XK_BackSpace: case XK_Delete    :
+        case XK_Left     : case XK_Right     :
+        case XK_Up       : case XK_Down      :
+        case XK_Prior    : case XK_Next      :
+        case XK_Home     : case XK_End       :
+        case XK_Insert   : case XK_Return    :
+            return true;
+    }
+    return false;
+}
+
 // Functions
 bool    ImGui_ImplX11_Init(void *display)
 {
@@ -36,7 +62,7 @@ bool    ImGui_ImplX11_Init(void *display)
     clock_getres(CLOCK_MONOTONIC_RAW, &tsres);
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
 
-    g_TicksPerSecond = 100000000 / (static_cast<uint64_t>(tsres.tv_nsec) + static_cast<uint64_t>(tsres.tv_sec)*1000000000);
+    g_TicksPerSecond = 1000000000.0f / (static_cast<uint64_t>(tsres.tv_nsec) + static_cast<uint64_t>(tsres.tv_sec)*1000000000);
     g_Time = static_cast<uint64_t>(ts.tv_nsec) + static_cast<uint64_t>(ts.tv_sec)*1000000000;
 
     //if (!::QueryPerformanceFrequency((LARGE_INTEGER *)&g_TicksPerSecond))
@@ -74,29 +100,6 @@ bool    ImGui_ImplX11_Init(void *display)
     io.KeyMap[ImGuiKey_X]          = XKeysymToKeycode(g_Display, XK_X);
     io.KeyMap[ImGuiKey_Y]          = XKeysymToKeycode(g_Display, XK_Y);
     io.KeyMap[ImGuiKey_Z]          = XKeysymToKeycode(g_Display, XK_Z);
-    /*
-    io.KeyMap[ImGuiKey_Tab] = -1;
-    io.KeyMap[ImGuiKey_LeftArrow] = -1;
-    io.KeyMap[ImGuiKey_RightArrow] = -1;
-    io.KeyMap[ImGuiKey_UpArrow] = -1;
-    io.KeyMap[ImGuiKey_DownArrow] = -1;
-    io.KeyMap[ImGuiKey_PageUp] = -1;
-    io.KeyMap[ImGuiKey_PageDown] = -1;
-    io.KeyMap[ImGuiKey_Home] = -1;
-    io.KeyMap[ImGuiKey_End] = -1;
-    io.KeyMap[ImGuiKey_Insert] = -1;
-    io.KeyMap[ImGuiKey_Delete] = -1;
-    io.KeyMap[ImGuiKey_Backspace] = -1;
-    io.KeyMap[ImGuiKey_Space] = -1;
-    io.KeyMap[ImGuiKey_Enter] = -1;
-    io.KeyMap[ImGuiKey_Escape] = -1;
-    io.KeyMap[ImGuiKey_A] = -1;
-    io.KeyMap[ImGuiKey_C] = -1;
-    io.KeyMap[ImGuiKey_V] = -1;
-    io.KeyMap[ImGuiKey_X] = -1;
-    io.KeyMap[ImGuiKey_Y] = -1;
-    io.KeyMap[ImGuiKey_Z] = -1;
-    */
 
     return true;
 }
@@ -140,7 +143,7 @@ static bool ImGui_ImplWin32_UpdateMouseCursor()
     return true;
 }
 
-static void ImGui_ImplWin32_UpdateMousePos()
+static void ImGui_ImplWin32_UpdateMousePos(Window window)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -153,17 +156,14 @@ static void ImGui_ImplWin32_UpdateMousePos()
     //}
 
     // Set mouse position
-    io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-
-    Window rootWnd = DefaultRootWindow(g_Display);
     Window unused_window;
     int rx, ry, x, y;
     unsigned int mask;
 
-    XQueryPointer(g_Display, rootWnd, &unused_window, &unused_window, &rx, &ry, &x, &y, &mask);
+    XQueryPointer(g_Display, window, &unused_window, &unused_window, &rx, &ry, &x, &y, &mask);
 
-    io.MousePos.x = rx;
-    io.MousePos.y = ry;
+    io.MousePos.x = x;
+    io.MousePos.y = y;
 }
 
 /* TODO: support linux gamepad ?
@@ -219,7 +219,7 @@ static void ImGui_ImplWin32_UpdateGamepads()
 }
 */
 
-void    ImGui_ImplX11_NewFrame()
+void    ImGui_ImplX11_NewFrame(void* window)
 {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built! It is generally built by the renderer back-end. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");
@@ -233,7 +233,7 @@ void    ImGui_ImplX11_NewFrame()
     int unused_int;
     unsigned int unused_unsigned_int;
 
-    XGetGeometry(g_Display, rootWnd, &unused_window, &unused_int, &unused_int, &width, &height, &unused_unsigned_int, &unused_unsigned_int);
+    XGetGeometry(g_Display, (Window)window, &unused_window, &unused_int, &unused_int, &width, &height, &unused_unsigned_int, &unused_unsigned_int);
 
     io.DisplaySize.x = width;
     io.DisplaySize.y = height;
@@ -246,37 +246,37 @@ void    ImGui_ImplX11_NewFrame()
     io.DeltaTime = (float)(current_time - g_Time) / g_TicksPerSecond;
     g_Time = current_time;
 
-    /*
     // Read keyboard modifiers inputs
-    io.KeyCtrl = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
-    io.KeyShift = (::GetKeyState(VK_SHIFT) & 0x8000) != 0;
-    io.KeyAlt = (::GetKeyState(VK_MENU) & 0x8000) != 0;
+    char keys[32];
+    XQueryKeymap(g_Display, keys);
+
+    io.KeyCtrl = GetKeyState(XK_Control_L, keys);
+    io.KeyShift = GetKeyState(XK_Shift_L, keys);
+    io.KeyAlt = GetKeyState(XK_Alt_L, keys);
     io.KeySuper = false;
     // io.KeysDown[], io.MousePos, io.MouseDown[], io.MouseWheel: filled by the WndProc handler below.
-    */
+
     // Update OS mouse position
-    ImGui_ImplWin32_UpdateMousePos();
+    ImGui_ImplWin32_UpdateMousePos((Window)window);
     /*
     // Update OS mouse cursor with the cursor requested by imgui
     ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
     if (g_LastMouseCursor != mouse_cursor)
     {
         g_LastMouseCursor = mouse_cursor;
-        ImGui_ImplWin32_UpdateMouseCursor();
+        ImGui_ImplX11_UpdateMouseCursor();
     }
     */
 
     // Update game controllers (if enabled and available)
-    //ImGui_ImplWin32_UpdateGamepads();
+    //ImGui_ImplX11_UpdateGamepads();
 }
 
-// Process Win32 mouse/keyboard inputs.
+// Process X11 mouse/keyboard inputs.
 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
 // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
 // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
 // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-// PS: In this Win32 handler, we use the capture API (GetCapture/SetCapture/ReleaseCapture) to be able to read mouse coordinates when dragging mouse outside of our window bounds.
-// PS: We treat DBLCLK messages as regular mouse down messages, so this code will work on windows classes that have the CS_DBLCLKS flag set. Our own example app code doesn't set this flag.
 IMGUI_IMPL_API int ImGui_ImplX11_EventHandler(XEvent &event)
 {
     if (ImGui::GetCurrentContext() == NULL)
@@ -286,58 +286,53 @@ IMGUI_IMPL_API int ImGui_ImplX11_EventHandler(XEvent &event)
     switch (event.type)
     {
         case ButtonPress:
-            switch(event.xbutton.button )
+        case ButtonRelease:
+            switch(event.xbutton.button)
             {
-                case Button1: case Button2: case Button3:
-                    io.MouseDown[event.xbutton.button-1] = true;
+                case Button1:
+                    io.MouseDown[0] = event.type == ButtonPress;
+                    break;
+
+                case Button2:
+                    io.MouseDown[2] = event.type == ButtonPress;
+                    break;
+
+                case Button3:
+                    io.MouseDown[1] = event.type == ButtonPress;
                     break;
 
                 case Button4: // Mouse wheel up
-                    event.xbutton.button = Button4;
-                    //io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+                    if( event.type == ButtonPress )
+                        io.MouseWheel += 1;
                     return 0;
 
                 case Button5: // Mouse wheel down
-                    event.xbutton.button = Button5;
-                    //io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+                    if( event.type == ButtonPress )
+                        io.MouseWheel -= 1;
                     return 0;
             }
 
             break;
 
-        case ButtonRelease:
-            switch(event.xbutton.button )
-            {
-                case Button1: case Button2: case Button3:
-                    io.MouseDown[event.xbutton.button-1] = false;
-                    break;
-            }
-            break;
-
         case KeyPress:
-        case KeyRelease:
-            break;
+        {
+            int key = XKeycodeToKeysym(g_Display, event.xkey.keycode, event.xkey.state & ShiftMask ? 1 : 0);
+            if( IsKeySys(key) )
+                io.KeysDown[event.xkey.keycode] = true;
+            else
+                io.AddInputCharacter(key);
+            return 0;
+        }
 
-        case MotionNotify:
-            io.MousePos.x = event.xmotion.x;
-            io.MousePos.y = event.xmotion.y;
-            break;
+        case KeyRelease:
+        {
+            int key = XKeycodeToKeysym(g_Display, event.xkey.keycode, event.xkey.state & ShiftMask ? 1 : 0);
+            if( IsKeySys(key) )
+                io.KeysDown[event.xkey.keycode] = false;
+            return 0;
+        }
     }
             /*
-    case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
-        if (wParam < 256)
-            io.KeysDown[wParam] = 1;
-        return 0;
-    case WM_KEYUP:
-    case WM_SYSKEYUP:
-        if (wParam < 256)
-            io.KeysDown[wParam] = 0;
-        return 0;
-    case WM_CHAR:
-        // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
-        io.AddInputCharacter((unsigned int)wParam);
-        return 0;
     case WM_DEVICECHANGE:
         if ((UINT)wParam == DBT_DEVNODES_CHANGED)
             g_WantUpdateHasGamepad = true;
