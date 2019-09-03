@@ -60,6 +60,8 @@ void OpenGLX_Hook::resetRenderState()
         X11_Hook::Inst()->resetRenderState();
         ImGui::DestroyContext();
 
+        glXDestroyContext(display, context);
+        display = nullptr;
         initialized = false;
     }
 }
@@ -70,7 +72,7 @@ void OpenGLX_Hook::prepareForOverlay(Display* display, GLXDrawable drawable)
     PRINT_DEBUG("Called SwapBuffer hook");
 
     if( (Window)drawable != X11_Hook::Inst()->get_game_wnd() )
-        resetRenderState();
+        X11_Hook::Inst()->resetRenderState();
 
     if( ! initialized )
     {
@@ -79,26 +81,48 @@ void OpenGLX_Hook::prepareForOverlay(Display* display, GLXDrawable drawable)
         io.IniFilename = NULL;
 
         ImGui_ImplOpenGL3_Init();
+
+        int attributes[] = { //can't be const b/c X11 doesn't like it.  Not sure if that's intentional or just stupid.
+            GLX_RGBA, //apparently nothing comes after this?
+            GLX_RED_SIZE,    8,
+            GLX_GREEN_SIZE,  8,
+            GLX_BLUE_SIZE,   8,
+            GLX_ALPHA_SIZE,  8,
+            //Ideally, the size would be 32 (or at least 24), but I have actually seen
+            //  this size (on a modern OS even).
+            GLX_DEPTH_SIZE, 16,
+            GLX_DOUBLEBUFFER, True,
+            None
+        };
+
+        XVisualInfo* visual_info = glXChooseVisual(display, DefaultScreen(display), attributes);
+
+        context = glXCreateContext(display, visual_info, nullptr, True);
+        this->display = display;
+
         initialized = true;
     }
 
-    if( initialized )
-    {
-        ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
 
-        ImGui_ImplOpenGL3_NewFrame();
-        X11_Hook::Inst()->prepareForOverlay(display, (Window)drawable);
+    auto oldContext = glXGetCurrentContext();
 
-        ImGui::NewFrame();
+    glXMakeCurrent(display, drawable, context);
 
-        get_steam_client()->steam_overlay->OverlayProc(io.DisplaySize.x, io.DisplaySize.y);
+    ImGui_ImplOpenGL3_NewFrame();
+    X11_Hook::Inst()->prepareForOverlay(display, (Window)drawable);
 
-        ImGui::EndFrame();
+    ImGui::NewFrame();
 
-        ImGui::Render();
+    get_steam_client()->steam_overlay->OverlayProc(io.DisplaySize.x, io.DisplaySize.y);
 
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    }
+    ImGui::EndFrame();
+
+    ImGui::Render();
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    glXMakeCurrent(display, drawable, oldContext);
 }
 
 void OpenGLX_Hook::MyglXSwapBuffers(Display* display, GLXDrawable drawable)
@@ -123,6 +147,7 @@ OpenGLX_Hook::~OpenGLX_Hook()
     {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui::DestroyContext();
+        glXDestroyContext(display, context);
     }
 
     //dlclose(_library);

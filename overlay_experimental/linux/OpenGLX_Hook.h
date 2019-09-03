@@ -19,6 +19,8 @@ private:
     // Variables
     bool hooked;
     bool initialized;
+    Display *display;
+    GLXContext context;
 
     // Functions
     OpenGLX_Hook();
