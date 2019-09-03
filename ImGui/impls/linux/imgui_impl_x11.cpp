@@ -109,7 +109,7 @@ void    ImGui_ImplX11_Shutdown()
     g_Display = nullptr;
 }
 
-static bool ImGui_ImplWin32_UpdateMouseCursor()
+static bool ImGui_ImplX11_UpdateMouseCursor()
 {
     /*
     ImGuiIO& io = ImGui::GetIO();
@@ -143,7 +143,7 @@ static bool ImGui_ImplWin32_UpdateMouseCursor()
     return true;
 }
 
-static void ImGui_ImplWin32_UpdateMousePos(Window window)
+static void ImGui_ImplX11_UpdateMousePos(Window window)
 {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -166,14 +166,10 @@ static void ImGui_ImplWin32_UpdateMousePos(Window window)
     io.MousePos.y = y;
 }
 
-/* TODO: support linux gamepad ?
-#ifdef _MSC_VER
-#pragma comment(lib, "xinput")
-#endif
-
 // Gamepad navigation mapping
-static void ImGui_ImplWin32_UpdateGamepads()
+static void ImGui_ImplX11_UpdateGamepads()
 {
+    /* TODO: support linux gamepad ?
     ImGuiIO& io = ImGui::GetIO();
     memset(io.NavInputs, 0, sizeof(io.NavInputs));
     if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
@@ -216,18 +212,14 @@ static void ImGui_ImplWin32_UpdateGamepads()
         #undef MAP_BUTTON
         #undef MAP_ANALOG
     }
+    */
 }
-*/
 
 void    ImGui_ImplX11_NewFrame(void* window)
 {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built! It is generally built by the renderer back-end. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");
 
-    // Setup display size (every frame to accommodate for window resizing)
-    Window rootWnd = DefaultRootWindow(g_Display);
-
-    // Todo: use X11 to get this value
     unsigned int width, height;
     Window unused_window;
     int unused_int;
@@ -257,7 +249,7 @@ void    ImGui_ImplX11_NewFrame(void* window)
     // io.KeysDown[], io.MousePos, io.MouseDown[], io.MouseWheel: filled by the WndProc handler below.
 
     // Update OS mouse position
-    ImGui_ImplWin32_UpdateMousePos((Window)window);
+    ImGui_ImplX11_UpdateMousePos((Window)window);
     /*
     // Update OS mouse cursor with the cursor requested by imgui
     ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
@@ -269,7 +261,7 @@ void    ImGui_ImplX11_NewFrame(void* window)
     */
 
     // Update game controllers (if enabled and available)
-    //ImGui_ImplX11_UpdateGamepads();
+    ImGui_ImplX11_UpdateGamepads();
 }
 
 // Process X11 mouse/keyboard inputs.
