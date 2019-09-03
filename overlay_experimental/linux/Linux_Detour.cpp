@@ -10,6 +10,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 
+#include "../../dll/base.h"
+
 //------------------------------------------------------------------------------//
 // Helper funcs
 //------------------------------------------------------------------------------//
@@ -244,7 +246,7 @@ int find_space_for_trampoline(uint8_t* func, int bytes_needed)
             switch( *pCode )
             {
                 case CALL: case JMP: case LJMP: case SHORT_JMP:
-                    //std::cerr << "CALL and JMP are not supported for trampolines." << std::endl;
+                    PRINT_DEBUG("JMP or CALL is forbidden for trampolines.\n");
                     search = false;
                     break;
 
@@ -264,7 +266,7 @@ int find_space_for_trampoline(uint8_t* func, int bytes_needed)
                     break;
 
                 default:
-                    //std::cerr << "opcode " << std::hex << (uint32_t)*pCode << " no registered" << std::endl;
+                    PRINT_DEBUG("Unknown opcode %02X\n", (int)*pCode);
                     search = false;
             }
         }
