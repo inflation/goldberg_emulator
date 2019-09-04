@@ -165,6 +165,8 @@ public:
 
     void FriendConnect(Friend _friend) {}
     void FriendDisconnect(Friend _friend) {}
+    
+    void AddNotification(std::string const& message) {}
 };
 
 #endif
