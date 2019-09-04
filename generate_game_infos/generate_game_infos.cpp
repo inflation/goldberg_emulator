@@ -357,7 +357,7 @@ void generate_items(CurlEasy& easy)
         }
         else
         {
-            std::cerr << "Error while parsing json. Try to go at " << url << " and see what you can do to build your achivements.json";
+            std::cerr << "Error while parsing json. Try to go at " << url << " and see what you can do to build your items.json";
         }
         std::cerr << std::endl;
     }
