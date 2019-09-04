@@ -170,6 +170,18 @@ void Steam_Overlay::ShowOverlay(bool state)
     overlay_state_changed = true;
 }
 
+void Steam_Overlay::NotifyUser(friend_window_state& friend_state, std::string const& message)
+{
+    if (!(friend_state.window_state & window_state_show))
+    {
+        friend_state.window_state |= window_state_need_attention;
+#ifdef __WINDOWS__
+        PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
+#endif
+        AddNotification(message);
+    }
+}
+
 void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
 {
     if (!Ready())
@@ -184,12 +196,7 @@ void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
         frd.window_state |= window_state_lobby_invite;
         // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
         frd.window_state &= ~window_state_rich_invite;
-
-        if (!(frd.window_state & window_state_show))
-        {
-            frd.window_state |= window_state_need_attention;
-            // TODO: Push a notification
-        }
+        NotifyUser(i->second, i->first.name() + " invited you to join a game");
     }
 }
 
@@ -207,12 +214,7 @@ void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
         frd.window_state |= window_state_rich_invite;
         // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
         frd.window_state &= ~window_state_lobby_invite;
-
-        if (!(frd.window_state & window_state_show))
-        {
-            frd.window_state |= window_state_need_attention;
-            // TODO: Push a notification
-        }
+        NotifyUser(i->second, i->first.name() + " invited you to join a game");
     }
 }
 
@@ -230,6 +232,14 @@ void Steam_Overlay::FriendDisconnect(Friend _friend)
     auto it = friends.find(_friend);
     if (it != friends.end())
         friends.erase(it);
+}
+
+void Steam_Overlay::AddNotification(std::string const& message)
+{
+    Notification notif;
+    notif.message = message;
+    notif.start_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+    notifications.emplace_back(notif);
 }
 
 bool Steam_Overlay::FriendHasLobby(uint64 friend_id)
@@ -304,9 +314,6 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     {
         if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
         {
-#ifdef __WINDOWS__
-            PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
-#endif
             state.window_state &= ~window_state_need_attention;
         }
 
@@ -378,15 +385,49 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     ImGui::End();
 }
 
-void Steam_Overlay::BuildNotifications()
+void Steam_Overlay::BuildNotifications(int width, int height)
 {
-    //ImGui::SetNextWindowPos(ImVec2{ (float)width - 300, (float)height - 80 });
-    //ImGui::SetNextWindowSize(ImVec2{ 300.0, 80.0 });
-    //ImGui::Begin("##notification", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse
-    //    | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoFocusOnAppearing
-    //    | ImGuiWindowFlags_NoDecoration);
-    //
-    //ImGui::End();
+    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    int i = 0;
+    for (auto it = notifications.begin(); it != notifications.end(); ++it, ++i)
+    {
+        auto elapsed_notif = now - it->start_time;
+
+        if ( elapsed_notif < Notification::fade_in)
+        {
+            float alpha = Notification::max_alpha * (elapsed_notif.count() / static_cast<float>(Notification::fade_in.count()));
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, alpha));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, alpha));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, alpha*2));
+        }
+        else if ( elapsed_notif > Notification::fade_out_start)
+        {
+            float alpha = Notification::max_alpha * ((Notification::show_time - elapsed_notif).count() / static_cast<float>(Notification::fade_out.count()));
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, alpha));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, alpha));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, alpha*2));
+        }
+        else
+        {
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, Notification::max_alpha));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, Notification::max_alpha));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, Notification::max_alpha*2));
+        }
+        
+        ImGui::SetNextWindowPos(ImVec2((float)width - Notification::width, (float)Notification::height * i ));
+        ImGui::SetNextWindowSize(ImVec2( Notification::width, Notification::height ));
+        ImGui::Begin(std::to_string(10000+i).c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | 
+            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMouseInputs);
+
+        ImGui::TextWrapped("%s", it->message.c_str());
+
+        ImGui::End();
+
+        ImGui::PopStyleColor(3);
+    }
+    notifications.erase(std::remove_if(notifications.begin(), notifications.end(), [&now](Notification &item) {
+        return (now - item.start_time) > Notification::show_time;
+    }), notifications.end());
 }
 
 // Try to make this function as short as possible or it might affect game's fps.
@@ -396,6 +437,8 @@ void Steam_Overlay::OverlayProc( int width, int height )
 
     if (!Ready())
         return;
+
+    BuildNotifications(width, height);
 
     if (show_overlay)
     {
@@ -445,8 +488,6 @@ void Steam_Overlay::OverlayProc( int width, int height )
         }
         ImGui::End();
     }// if(show_overlay)
-
-    BuildNotifications();
 }
 
 void Steam_Overlay::Callback(Common_Message *msg)
@@ -465,6 +506,8 @@ void Steam_Overlay::Callback(Common_Message *msg)
             {
                 friend_info->second.window_state |= window_state_need_attention;
             }
+
+            AddNotification(friend_info->first.name() + " says: " + steam_message.message());
         }
     }
 }

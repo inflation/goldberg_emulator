@@ -39,6 +39,22 @@ struct Friend_Less
     }
 };
 
+struct Notification
+{
+    static constexpr float width = 200.0;
+    static constexpr float height = 60.0;
+    static constexpr std::chrono::milliseconds fade_in   = std::chrono::milliseconds(2000);
+    static constexpr std::chrono::milliseconds fade_out  = std::chrono::milliseconds(2000);
+    static constexpr std::chrono::milliseconds show_time = std::chrono::milliseconds(6000) + fade_in + fade_out;
+    static constexpr std::chrono::milliseconds fade_out_start = show_time - fade_out;
+    static constexpr float r = 0.16;
+    static constexpr float g = 0.29;
+    static constexpr float b = 0.48;
+    static constexpr float max_alpha = 0.5f;
+    std::chrono::seconds start_time;
+    std::string message;
+};
+
 #ifndef NO_OVERLAY
 
 class Steam_Overlay
@@ -60,6 +76,7 @@ class Steam_Overlay
 
     // Callback infos
     std::queue<Friend> has_friend_action;
+    std::vector<Notification> notifications;
     bool overlay_state_changed;
 
     Steam_Overlay(Steam_Overlay const&) = delete;
@@ -76,12 +93,14 @@ class Steam_Overlay
     bool FriendHasLobby(uint64 friend_id);
     bool IHaveLobby();
 
+    void NotifyUser(friend_window_state& friend_state, std::string const& message);
+
     // Right click on friend
     void BuildContextMenu(Friend const& frd, friend_window_state &state);
     // Double click on friend
     void BuildFriendWindow(Friend const& frd, friend_window_state &state);
     // Notifications like achievements, chat and invitations
-    void BuildNotifications();
+    void BuildNotifications(int width, int height);
 public:
     Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network);
 
@@ -111,6 +130,8 @@ public:
 
     void FriendConnect(Friend _friend);
     void FriendDisconnect(Friend _friend);
+
+    void AddNotification(std::string const& message);
 };
 
 #else
