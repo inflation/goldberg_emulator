@@ -86,7 +86,7 @@ void Steam_Overlay::SetupOverlay()
 
 void Steam_Overlay::HookReady()
 {
-    if (!is_ready) // If this is the first time we are ready, hook directinput and xinput, so we can intercept em and disable mouse.
+    if (!is_ready)
     {
         // TODO: Uncomment this and draw our own cursor (cosmetics)
         //ImGuiIO &io = ImGui::GetIO();
@@ -97,10 +97,6 @@ void Steam_Overlay::HookReady()
         is_ready = true;
     }
 }
-
-// https://niemand.com.ar/2019/01/01/how-to-hook-directx-11-imgui/
-// https://github.com/spazzarama/Direct3DHook/blob/master/Capture/Hook
-// https://github.com/unknownv2/LinuxDetours
 
 void Steam_Overlay::OpenOverlayInvite(CSteamID lobbyId)
 {
@@ -172,7 +168,7 @@ void Steam_Overlay::ShowOverlay(bool state)
 
 void Steam_Overlay::NotifyUser(friend_window_state& friend_state, std::string const& message)
 {
-    if (!(friend_state.window_state & window_state_show))
+    if (!(friend_state.window_state & window_state_show) || !show_overlay)
     {
         friend_state.window_state |= window_state_need_attention;
 #ifdef __WINDOWS__
@@ -385,10 +381,16 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     ImGui::End();
 }
 
+ImFont *font_default;
+ImFont *font_notif;
+
 void Steam_Overlay::BuildNotifications(int width, int height)
 {
     auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     int i = 0;
+
+    int font_size = ImGui::GetFontSize();
+
     for (auto it = notifications.begin(); it != notifications.end(); ++it, ++i)
     {
         auto elapsed_notif = now - it->start_time;
@@ -414,8 +416,8 @@ void Steam_Overlay::BuildNotifications(int width, int height)
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, Notification::max_alpha*2));
         }
         
-        ImGui::SetNextWindowPos(ImVec2((float)width - Notification::width, (float)Notification::height * i ));
-        ImGui::SetNextWindowSize(ImVec2( Notification::width, Notification::height ));
+        ImGui::SetNextWindowPos(ImVec2((float)width - width * Notification::width, Notification::height * font_size * i ));
+        ImGui::SetNextWindowSize(ImVec2( width * Notification::width, Notification::height * font_size ));
         ImGui::Begin(std::to_string(10000+i).c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | 
             ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMouseInputs);
 
@@ -430,15 +432,38 @@ void Steam_Overlay::BuildNotifications(int width, int height)
     }), notifications.end());
 }
 
+void Steam_Overlay::CreateFonts()
+{
+    ImGuiIO& io = ImGui::GetIO();
+    ImFontConfig fontcfg;
+
+    fontcfg.OversampleH = fontcfg.OversampleV = 1;
+    fontcfg.PixelSnapH = true;
+    fontcfg.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
+
+    fontcfg.SizePixels = std::round(io.DisplaySize.y / 68);
+    font_default = io.Fonts->AddFontDefault(&fontcfg);
+
+    fontcfg.SizePixels = std::round(io.DisplaySize.y / 60);
+    font_notif = io.Fonts->AddFontDefault(&fontcfg);
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 0.0; // Disable round window
+}
+
 // Try to make this function as short as possible or it might affect game's fps.
-void Steam_Overlay::OverlayProc( int width, int height )
+void Steam_Overlay::OverlayProc()
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     if (!Ready())
         return;
 
-    BuildNotifications(width, height);
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGui::PushFont(font_notif);
+    BuildNotifications(io.DisplaySize.x, io.DisplaySize.y);
+    ImGui::PopFont();
 
     if (show_overlay)
     {
@@ -446,12 +471,12 @@ void Steam_Overlay::OverlayProc( int width, int height )
 
         // Set the overlay windows to the size of the game window
         ImGui::SetNextWindowPos({ 0,0 });
-        ImGui::SetNextWindowSize({ static_cast<float>(width),
-                                   static_cast<float>(height) });
+        ImGui::SetNextWindowSize({ static_cast<float>(io.DisplaySize.x),
+                                   static_cast<float>(io.DisplaySize.y) });
 
         ImGui::SetNextWindowBgAlpha(0.50);
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.WindowRounding = 0.0; // Disable round window
+
+        ImGui::PushFont(font_default);
 
         if (ImGui::Begin("SteamOverlay", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
         {
@@ -487,6 +512,8 @@ void Steam_Overlay::OverlayProc( int width, int height )
             }
         }
         ImGui::End();
+
+        ImGui::PopFont();
     }// if(show_overlay)
 }
 
@@ -507,7 +534,7 @@ void Steam_Overlay::Callback(Common_Message *msg)
                 friend_info->second.window_state |= window_state_need_attention;
             }
 
-            AddNotification(friend_info->first.name() + " says: " + steam_message.message());
+            NotifyUser(friend_info->second, friend_info->first.name() + " says: " + steam_message.message());
         }
     }
 }

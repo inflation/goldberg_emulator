@@ -75,6 +75,8 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
         pDevice->Release();
 
+        get_steam_client()->steam_overlay->CreateFonts();
+
         initialized = true;
     }
 
@@ -83,9 +85,7 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
     ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc(desc.BufferDesc.Width, desc.BufferDesc.Height);
-
-    ImGui::EndFrame();
+    get_steam_client()->steam_overlay->OverlayProc();
 
     ImGui::Render();
 

@@ -41,8 +41,8 @@ struct Friend_Less
 
 struct Notification
 {
-    static constexpr float width = 200.0;
-    static constexpr float height = 60.0;
+    static constexpr float width = 0.25;
+    static constexpr float height = 4.0;
     static constexpr std::chrono::milliseconds fade_in   = std::chrono::milliseconds(2000);
     static constexpr std::chrono::milliseconds fade_out  = std::chrono::milliseconds(2000);
     static constexpr std::chrono::milliseconds show_time = std::chrono::milliseconds(6000) + fade_in + fade_out;
@@ -117,7 +117,8 @@ public:
 
     void HookReady();
 
-    void OverlayProc(int width, int height);
+    void CreateFonts();
+    void OverlayProc();
 
     void OpenOverlayInvite(CSteamID lobbyId);
     void OpenOverlay(const char* pchDialog);
@@ -139,7 +140,7 @@ public:
 class Steam_Overlay
 {
 public:
-    Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking *network) {}
+    Steam_Overlay(Settings* settings, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Networking* network) {}
     ~Steam_Overlay() {}
 
     bool Ready() const { return false; }
@@ -151,13 +152,15 @@ public:
     void SetNotificationInset(int nHorizontalInset, int nVerticalInset) {}
     void SetupOverlay() {}
 
-    void HookReady(void* hWnd) {}
+    void HookReady() {}
 
-    void OverlayProc(int width, int height) {}
+    void CreateFonts() {}
+    void OverlayProc() {}
 
     void OpenOverlayInvite(CSteamID lobbyId) {}
     void OpenOverlay(const char* pchDialog) {}
 
+    bool ShowOverlay() const {}
     void ShowOverlay(bool state) {}
 
     void SetLobbyInvite(Friend friendId, uint64 lobbyId) {}

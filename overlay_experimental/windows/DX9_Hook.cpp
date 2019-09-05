@@ -55,12 +55,6 @@ void DX9_Hook::resetRenderState()
 // Try to make this function and overlay's proc as short as possible or it might affect game's fps.
 void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
 {
-    IDirect3DSwapChain9* pSwapChain;
-    pDevice->GetSwapChain(0, &pSwapChain);
-    D3DPRESENT_PARAMETERS PresentParameters;
-    pSwapChain->GetPresentParameters(&PresentParameters);
-    pSwapChain->Release();
-
     D3DDEVICE_CREATION_PARAMETERS param;
     pDevice->GetCreationParameters(&param);
 
@@ -75,6 +69,9 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
         io.IniFilename = NULL;
 
         ImGui_ImplDX9_Init(pDevice);
+
+        get_steam_client()->steam_overlay->CreateFonts();
+
         initialized = true;
     }
     
@@ -83,9 +80,7 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
 
     ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc(PresentParameters.BackBufferWidth, PresentParameters.BackBufferHeight);
-
-    ImGui::EndFrame();
+    get_steam_client()->steam_overlay->OverlayProc();
 
     ImGui::Render();
 

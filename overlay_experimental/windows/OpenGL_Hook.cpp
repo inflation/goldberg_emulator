@@ -67,9 +67,6 @@ void OpenGL_Hook::resetRenderState()
 void OpenGL_Hook::prepareForOverlay(HDC hDC)
 {
     HWND hWnd = WindowFromDC(hDC);
-    RECT rect;
-
-    GetClientRect(hWnd, &rect);
 
     if (hWnd != Windows_Hook::Inst()->GetGameHwnd())
         resetRenderState();
@@ -82,6 +79,8 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
 
         ImGui_ImplOpenGL3_Init();
 
+        get_steam_client()->steam_overlay->CreateFonts();
+
         initialized = true;
     }
     ImGui_ImplOpenGL3_NewFrame();
@@ -89,9 +88,7 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
 
     ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc(rect.right, rect.bottom);
-
-    ImGui::EndFrame();
+    get_steam_client()->steam_overlay->OverlayProc();
 
     ImGui::Render();
 

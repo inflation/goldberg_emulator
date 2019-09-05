@@ -87,6 +87,8 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
     
         pDevice->Release();
 
+        get_steam_client()->steam_overlay->CreateFonts();
+
         initialized = true;
     }
 }
@@ -130,9 +132,7 @@ void STDMETHODCALLTYPE DX12_Hook::MyExecuteCommandLists(ID3D12CommandQueue *_thi
 
                 ImGui::NewFrame();
 
-                get_steam_client()->steam_overlay->OverlayProc(me->sc_desc.BufferDesc.Width, me->sc_desc.BufferDesc.Height);
-
-                ImGui::EndFrame();
+                get_steam_client()->steam_overlay->OverlayProc();
 
                 ((ID3D12GraphicsCommandList*)ppCommandLists[i])->SetDescriptorHeaps(1, &me->pSrvDescHeap);
                 ImGui::Render();

@@ -100,10 +100,10 @@ void OpenGLX_Hook::prepareForOverlay(Display* display, GLXDrawable drawable)
         context = glXCreateContext(display, visual_info, nullptr, True);
         this->display = display;
 
+        get_steam_client()->steam_overlay->CreateFonts();
+
         initialized = true;
     }
-
-    ImGuiIO& io = ImGui::GetIO();
 
     auto oldContext = glXGetCurrentContext();
 
@@ -114,9 +114,7 @@ void OpenGLX_Hook::prepareForOverlay(Display* display, GLXDrawable drawable)
 
     ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc(io.DisplaySize.x, io.DisplaySize.y);
-
-    ImGui::EndFrame();
+    get_steam_client()->steam_overlay->OverlayProc();
 
     ImGui::Render();
 
