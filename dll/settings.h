@@ -52,6 +52,12 @@ struct Stat_config {
     };
 };
 
+struct Image_Data {
+    uint32 width;
+    uint32 height;
+    std::string data;
+};
+
 class Settings {
     CSteamID steam_id;
     CGameID game_id;
@@ -116,6 +122,10 @@ public:
     //stats
     std::map<std::string, Stat_config> getStats() { return stats; }
     void setStatDefiniton(std::string name, struct Stat_config stat_config) {stats[name] = stat_config; }
+
+    //images
+    std::map<int, struct Image_Data> images;
+    int add_image(std::string data, uint32 width, uint32 height);
 };
 
 #endif
