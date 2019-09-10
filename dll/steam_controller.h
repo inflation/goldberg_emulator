@@ -16,6 +16,55 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
+#include "../controller/gamepad.h"
+#include <cctype>
+
+struct Controller_Map {
+    std::map<ControllerDigitalActionHandle_t, std::set<int>> active_digital;
+    std::map<ControllerAnalogActionHandle_t, std::pair<std::set<int>, enum EInputSourceMode>> active_analog;
+};
+
+struct Controller_Action {
+    ControllerHandle_t controller_handle;
+    struct Controller_Map active_map;
+    ControllerDigitalActionHandle_t active_set;
+
+    Controller_Action(ControllerHandle_t controller_handle) {
+        this->controller_handle = controller_handle;
+    }
+
+    void activate_action_set(ControllerDigitalActionHandle_t active_set, std::map<ControllerActionSetHandle_t, struct Controller_Map> &controller_maps) {
+        auto map = controller_maps.find(active_set);
+        if (map == controller_maps.end()) return;
+        this->active_set = active_set;
+        this->active_map = map->second;
+    }
+
+    std::set<int> button_id(ControllerDigitalActionHandle_t handle) {
+        auto a = active_map.active_digital.find(handle);
+        if (a == active_map.active_digital.end()) return {};
+        return a->second;
+    }
+
+    std::pair<std::set<int>, enum EInputSourceMode> analog_id(ControllerAnalogActionHandle_t handle) {
+        auto a = active_map.active_analog.find(handle);
+        if (a == active_map.active_analog.end()) return std::pair<std::set<int>, enum EInputSourceMode>({}, k_EInputSourceMode_None);
+        return a->second;
+    }
+};
+
+enum EXTRA_GAMEPAD_BUTTONS {
+    BUTTON_LTRIGGER = BUTTON_COUNT + 1,
+    BUTTON_RTRIGGER = BUTTON_COUNT + 2,
+    BUTTON_STICK_LEFT_UP = BUTTON_COUNT + 3,
+    BUTTON_STICK_LEFT_DOWN = BUTTON_COUNT + 4,
+    BUTTON_STICK_LEFT_LEFT = BUTTON_COUNT + 5,
+    BUTTON_STICK_LEFT_RIGHT = BUTTON_COUNT + 6,
+    BUTTON_STICK_RIGHT_UP = BUTTON_COUNT + 7,
+    BUTTON_STICK_RIGHT_DOWN = BUTTON_COUNT + 8,
+    BUTTON_STICK_RIGHT_LEFT = BUTTON_COUNT + 9,
+    BUTTON_STICK_RIGHT_RIGHT = BUTTON_COUNT + 10,
+};
 
 class Steam_Controller :
 public ISteamController001,
@@ -26,12 +75,154 @@ public ISteamController006,
 public ISteamController,
 public ISteamInput
 {
+    class Settings *settings;
+    class SteamCallResults *callback_results;
+    class SteamCallBacks *callbacks;
+    class RunEveryRunCB *run_every_runcb;
+
+    std::map<std::string, int> button_strings = {
+        {"DUP", BUTTON_DPAD_UP},
+        {"DDOWN", BUTTON_DPAD_DOWN},
+        {"DLEFT", BUTTON_DPAD_LEFT},
+        {"DRIGHT", BUTTON_DPAD_RIGHT},
+        {"START", BUTTON_START},
+        {"BACK", BUTTON_BACK},
+        {"LSTICK", BUTTON_LEFT_THUMB},
+        {"RSTICK", BUTTON_RIGHT_THUMB},
+        {"LBUMPER", BUTTON_LEFT_SHOULDER},
+        {"RBUMPER", BUTTON_RIGHT_SHOULDER},
+        {"A", BUTTON_A},
+        {"B", BUTTON_B},
+        {"X", BUTTON_X},
+        {"Y", BUTTON_Y},
+        {"DLTRIGGER", BUTTON_LTRIGGER},
+        {"DRTRIGGER", BUTTON_RTRIGGER},
+        {"DLJOYUP", BUTTON_STICK_LEFT_UP},
+        {"DLJOYDOWN", BUTTON_STICK_LEFT_DOWN},
+        {"DLJOYLEFT", BUTTON_STICK_LEFT_LEFT},
+        {"DLJOYRIGHT", BUTTON_STICK_LEFT_RIGHT},
+        {"DRJOYUP", BUTTON_STICK_RIGHT_UP},
+        {"DRJOYDOWN", BUTTON_STICK_RIGHT_DOWN},
+        {"DRJOYLEFT", BUTTON_STICK_RIGHT_LEFT},
+        {"DRJOYRIGHT", BUTTON_STICK_RIGHT_RIGHT},
+    };
+
+    std::map<std::string, int> analog_strings = {
+        {"LTRIGGER", TRIGGER_LEFT},
+        {"RTRIGGER", TRIGGER_RIGHT},
+        {"LJOY", STICK_LEFT + 10},
+        {"RJOY", STICK_RIGHT + 10},
+    };
+
+    std::map<std::string, enum EInputSourceMode> analog_input_modes = {
+        {"joystick_move", k_EInputSourceMode_JoystickMove},
+        {"joystick_camera", k_EInputSourceMode_JoystickCamera},
+        {"trigger", k_EInputSourceMode_Trigger},
+    };
+
+    std::map<std::string, ControllerActionSetHandle_t> action_handles;
+    std::map<std::string, ControllerDigitalActionHandle_t> digital_action_handles;
+    std::map<std::string, ControllerAnalogActionHandle_t> analog_action_handles;
+
+    std::map<ControllerActionSetHandle_t, struct Controller_Map> controller_maps;
+    std::map<ControllerHandle_t, struct Controller_Action> controllers;
+
+    bool disabled;
+
+    void set_handles(std::map<std::string, std::map<std::string, std::pair<std::set<std::string>, std::string>>> action_sets) {
+        uint64 handle_num = 1;
+        for (auto & set : action_sets) {
+            ControllerActionSetHandle_t action_handle_num = handle_num;
+            ++handle_num;
+
+            action_handles[set.first] = action_handle_num;
+            for (auto & config_key : set.second) {
+                uint64 current_handle_num = handle_num;
+                ++handle_num;
+
+                for (auto & button_string : config_key.second.first) {
+                    auto digital = button_strings.find(button_string);
+                    if (digital != button_strings.end()) {
+                        ControllerDigitalActionHandle_t digital_handle_num = current_handle_num;
+
+                        digital_action_handles[config_key.first] = digital_handle_num;
+                        controller_maps[action_handle_num].active_digital[digital_handle_num].insert(digital->second);
+                    } else {
+                        auto analog = analog_strings.find(button_string);
+                        if (analog != analog_strings.end()) {
+                            ControllerAnalogActionHandle_t analog_handle_num = current_handle_num;
+
+                            enum EInputSourceMode source_mode;
+                            if (analog->second == TRIGGER_LEFT || analog->second == TRIGGER_RIGHT) {
+                                source_mode = k_EInputSourceMode_Trigger;
+                            } else {
+                                source_mode = k_EInputSourceMode_JoystickMove;
+                            }
+
+                            auto input_mode = analog_input_modes.find(config_key.second.second);
+                            if (input_mode != analog_input_modes.end()) {
+                                source_mode = input_mode->second;
+                            }
+
+                            analog_action_handles[config_key.first] = analog_handle_num;
+                            controller_maps[action_handle_num].active_analog[analog_handle_num].first.insert(analog->second);
+                            controller_maps[action_handle_num].active_analog[analog_handle_num].second = source_mode;
+
+                        } else {
+                            PRINT_DEBUG("Did not recognize controller button %s\n", button_string.c_str());
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 public:
-	
+
+static void steam_run_every_runcb(void *object)
+{
+    PRINT_DEBUG("steam_controller_run_every_runcb\n");
+
+    Steam_Controller *steam_controller = (Steam_Controller *)object;
+    steam_controller->RunCallbacks();
+}
+
+Steam_Controller(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb)
+{
+    this->settings = settings;
+    this->run_every_runcb = run_every_runcb;
+    this->run_every_runcb->add(&Steam_Controller::steam_run_every_runcb, this);
+
+    this->callback_results = callback_results;
+    this->callbacks = callbacks;
+
+    set_handles(settings->controller_settings.action_sets);
+    disabled = !action_handles.size();
+}
+
+~Steam_Controller()
+{
+    //TODO rm network callbacks
+    this->run_every_runcb->remove(&Steam_Controller::steam_run_every_runcb, this);
+}
+
 // Init and Shutdown must be called when starting/ending use of this interface
 bool Init()
 {
     PRINT_DEBUG("Steam_Controller::Init()\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (disabled) {
+        return true;
+    }
+
+    GamepadInit();
+    GamepadUpdate();
+
+    for (int i = 1; i < 5; ++i) {
+        controllers.insert(std::pair<ControllerHandle_t, struct Controller_Action>(i, Controller_Action(i)));
+    }
+
     return true;
 }
 
@@ -44,6 +235,12 @@ bool Init( const char *pchAbsolutePathToControllerConfigVDF )
 bool Shutdown()
 {
     PRINT_DEBUG("Steam_Controller::Shutdown()\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (disabled) {
+        return true;
+    }
+
+    GamepadShutdown();
     return true;
 }
 
@@ -58,6 +255,11 @@ void SetOverrideMode( const char *pchMode )
 void RunFrame()
 {
     PRINT_DEBUG("Steam_Controller::RunFrame()\n");
+    if (disabled) {
+        return;
+    }
+
+    GamepadUpdate();
 }
 
 bool GetControllerState( uint32 unControllerIndex, SteamControllerState001_t *pState )
@@ -71,8 +273,20 @@ bool GetControllerState( uint32 unControllerIndex, SteamControllerState001_t *pS
 // Returns the number of handles written to handlesOut
 int GetConnectedControllers( ControllerHandle_t *handlesOut )
 {
-    PRINT_DEBUG("GetConnectedControllers\n");
-    return 0;
+    PRINT_DEBUG("Steam_Controller::GetConnectedControllers\n");
+    if (!handlesOut) return 0;
+    if (disabled) {
+        return 0;
+    }
+
+    int count = 0;
+    if (GamepadIsConnected(GAMEPAD_0)) {*handlesOut = GAMEPAD_0 + 1; ++handlesOut; ++count;};
+    if (GamepadIsConnected(GAMEPAD_1)) {*handlesOut = GAMEPAD_1 + 1; ++handlesOut; ++count;};
+    if (GamepadIsConnected(GAMEPAD_2)) {*handlesOut = GAMEPAD_2 + 1; ++handlesOut; ++count;};
+    if (GamepadIsConnected(GAMEPAD_3)) {*handlesOut = GAMEPAD_3 + 1; ++handlesOut; ++count;};
+
+    PRINT_DEBUG("returned %i connected controllers\n", count);
+    return count;
 }
 
 
@@ -80,7 +294,7 @@ int GetConnectedControllers( ControllerHandle_t *handlesOut )
 // Returns false is overlay is disabled / unavailable, or the user is not in Big Picture mode
 bool ShowBindingPanel( ControllerHandle_t controllerHandle )
 {
-    PRINT_DEBUG("ShowBindingPanel\n");
+    PRINT_DEBUG("Steam_Controller::ShowBindingPanel\n");
     return false;
 }
 
@@ -89,8 +303,15 @@ bool ShowBindingPanel( ControllerHandle_t controllerHandle )
 // Lookup the handle for an Action Set. Best to do this once on startup, and store the handles for all future API calls.
 ControllerActionSetHandle_t GetActionSetHandle( const char *pszActionSetName )
 {
-    PRINT_DEBUG("GetActionSetHandle %s\n", pszActionSetName);
-    return 124;
+    PRINT_DEBUG("Steam_Controller::GetActionSetHandle %s\n", pszActionSetName);
+    if (!pszActionSetName) return 0;
+    std::string upper_action_name(pszActionSetName);
+    std::transform(upper_action_name.begin(), upper_action_name.end(), upper_action_name.begin(),[](unsigned char c){ return std::toupper(c); });
+
+    auto set_handle = action_handles.find(upper_action_name);
+    if (set_handle == action_handles.end()) return 0;
+
+    return set_handle->second;
 }
 
 
@@ -99,34 +320,41 @@ ControllerActionSetHandle_t GetActionSetHandle( const char *pszActionSetName )
 // your state loops, instead of trying to place it in all of your state transitions.
 void ActivateActionSet( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle )
 {
-    PRINT_DEBUG("ActivateActionSet\n");
+    PRINT_DEBUG("Steam_Controller::ActivateActionSet %llu %llu\n", controllerHandle, actionSetHandle);
+    auto controller = controllers.find(controllerHandle);
+    if (controller == controllers.end()) return;
+
+    controller->second.activate_action_set(actionSetHandle, controller_maps);
 }
 
 ControllerActionSetHandle_t GetCurrentActionSet( ControllerHandle_t controllerHandle )
 {
-    PRINT_DEBUG("GetCurrentActionSet\n");
-    return 124;
+    PRINT_DEBUG("Steam_Controller::GetCurrentActionSet %llu\n", controllerHandle);
+    auto controller = controllers.find(controllerHandle);
+    if (controller == controllers.end()) return 0;
+
+    return controller->second.active_set;
 }
 
 
 void ActivateActionSetLayer( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle )
 {
-    PRINT_DEBUG("ActivateActionSetLayer\n");
+    PRINT_DEBUG("Steam_Controller::ActivateActionSetLayer\n");
 }
 
 void DeactivateActionSetLayer( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle )
 {
-    PRINT_DEBUG("DeactivateActionSetLayer\n");
+    PRINT_DEBUG("Steam_Controller::DeactivateActionSetLayer\n");
 }
 
 void DeactivateAllActionSetLayers( ControllerHandle_t controllerHandle )
 {
-    PRINT_DEBUG("DeactivateAllActionSetLayers\n");
+    PRINT_DEBUG("Steam_Controller::DeactivateAllActionSetLayers\n");
 }
 
 int GetActiveActionSetLayers( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t *handlesOut )
 {
-    PRINT_DEBUG("GetActiveActionSetLayers\n");
+    PRINT_DEBUG("Steam_Controller::GetActiveActionSetLayers\n");
     return 0;
 }
 
@@ -136,17 +364,72 @@ int GetActiveActionSetLayers( ControllerHandle_t controllerHandle, ControllerAct
 // Lookup the handle for a digital action. Best to do this once on startup, and store the handles for all future API calls.
 ControllerDigitalActionHandle_t GetDigitalActionHandle( const char *pszActionName )
 {
-    PRINT_DEBUG("GetDigitalActionHandle %s\n", pszActionName);
-    return 123;
+    PRINT_DEBUG("Steam_Controller::GetDigitalActionHandle %s\n", pszActionName);
+    if (!pszActionName) return 0;
+    std::string upper_action_name(pszActionName);
+    std::transform(upper_action_name.begin(), upper_action_name.end(), upper_action_name.begin(),[](unsigned char c){ return std::toupper(c); });
+
+    auto handle = digital_action_handles.find(upper_action_name);
+    if (handle == digital_action_handles.end()) return 0;
+
+    return handle->second;
 }
 
 
 // Returns the current state of the supplied digital game action
 ControllerDigitalActionData_t GetDigitalActionData( ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle )
 {
-    PRINT_DEBUG("GetDigitalActionData\n");
+    PRINT_DEBUG("Steam_Controller::GetDigitalActionData %llu %llu\n", controllerHandle, digitalActionHandle);
     ControllerDigitalActionData_t digitalData;
     digitalData.bActive = false;
+    digitalData.bState = false;
+
+    auto controller = controllers.find(controllerHandle);
+    if (controller == controllers.end()) return digitalData;
+
+    std::set<int> buttons = controller->second.button_id(digitalActionHandle);
+    if (!buttons.size()) return digitalData;
+    digitalData.bActive = true;
+
+    GAMEPAD_DEVICE device = (GAMEPAD_DEVICE)(controllerHandle - 1);
+
+    for (auto button : buttons) {
+        bool pressed = false;
+        if (button < BUTTON_COUNT) {
+            pressed = GamepadButtonDown(device, (GAMEPAD_BUTTON)button);
+        } else {
+            switch (button) {
+                case BUTTON_LTRIGGER:
+                    pressed = GamepadTriggerLength(device, TRIGGER_LEFT) > 0.8;
+                    break;
+                case BUTTON_RTRIGGER:
+                    pressed = GamepadTriggerLength(device, TRIGGER_RIGHT) > 0.8;
+                    break;
+                case BUTTON_STICK_LEFT_UP:
+                case BUTTON_STICK_LEFT_DOWN:
+                case BUTTON_STICK_LEFT_LEFT:
+                case BUTTON_STICK_LEFT_RIGHT:
+                    pressed = GamepadStickLength(device, STICK_LEFT) > 0.1 &&
+                                        ((int)GamepadStickDir(device, STICK_LEFT) == ((button - BUTTON_STICK_LEFT_UP) + 1));
+                    break;
+                case BUTTON_STICK_RIGHT_UP:
+                case BUTTON_STICK_RIGHT_DOWN:
+                case BUTTON_STICK_RIGHT_LEFT:
+                case BUTTON_STICK_RIGHT_RIGHT:
+                    pressed = GamepadStickLength(device, STICK_RIGHT) > 0.1 &&
+                                        ((int)GamepadStickDir(device, STICK_RIGHT) == ((button - BUTTON_STICK_RIGHT_UP) + 1));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (pressed) {
+            digitalData.bState = true;
+            break;
+        }
+    }
+
     return digitalData;
 }
 
@@ -155,32 +438,58 @@ ControllerDigitalActionData_t GetDigitalActionData( ControllerHandle_t controlle
 // originsOut should point to a STEAM_CONTROLLER_MAX_ORIGINS sized array of EControllerActionOrigin handles
 int GetDigitalActionOrigins( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin *originsOut )
 {
-    PRINT_DEBUG("GetDigitalActionOrigins\n");
+    PRINT_DEBUG("Steam_Controller::GetDigitalActionOrigins\n");
     return 0;
 }
 
 int GetDigitalActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut )
 {
-    PRINT_DEBUG("GetDigitalActionOrigins steaminput\n");
+    PRINT_DEBUG("Steam_Controller::GetDigitalActionOrigins steaminput\n");
     return 0;
 }
 
 // Lookup the handle for an analog action. Best to do this once on startup, and store the handles for all future API calls.
 ControllerAnalogActionHandle_t GetAnalogActionHandle( const char *pszActionName )
 {
-    PRINT_DEBUG("GetAnalogActionHandle %s\n", pszActionName);
-    return 125;
+    PRINT_DEBUG("Steam_Controller::GetAnalogActionHandle %s\n", pszActionName);
+    if (!pszActionName) return 0;
+    std::string upper_action_name(pszActionName);
+    std::transform(upper_action_name.begin(), upper_action_name.end(), upper_action_name.begin(),[](unsigned char c){ return std::toupper(c); });
+
+    auto handle = analog_action_handles.find(upper_action_name);
+    if (handle == analog_action_handles.end()) return 0;
+
+    return handle->second;
 }
 
 
 // Returns the current state of these supplied analog game action
 ControllerAnalogActionData_t GetAnalogActionData( ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle )
 {
-    PRINT_DEBUG("GetAnalogActionData\n");
+    PRINT_DEBUG("Steam_Controller::GetAnalogActionData %llu %llu\n", controllerHandle, analogActionHandle);
     ControllerAnalogActionData_t data;
     data.eMode = k_EInputSourceMode_None;
     data.x = data.y = 0;
     data.bActive = false;
+
+    auto controller = controllers.find(controllerHandle);
+    if (controller == controllers.end()) return data;
+
+    auto analog = controller->second.analog_id(analogActionHandle);
+    if (!analog.first.size()) return data;
+
+    data.bActive = true;
+    data.eMode = analog.second;
+
+    for (auto a : analog.first) {
+        if (a >= 10) {
+            int joystick_id = a - 10;
+            GamepadStickNormXY((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_STICK) joystick_id, &data.x, &data.y);
+        } else {
+            data.x = GamepadTriggerLength((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_TRIGGER) a);
+        }
+    }
+
     return data;
 }
 
@@ -189,32 +498,32 @@ ControllerAnalogActionData_t GetAnalogActionData( ControllerHandle_t controllerH
 // originsOut should point to a STEAM_CONTROLLER_MAX_ORIGINS sized array of EControllerActionOrigin handles
 int GetAnalogActionOrigins( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin *originsOut )
 {
-    PRINT_DEBUG("GetAnalogActionOrigins\n");
+    PRINT_DEBUG("Steam_Controller::GetAnalogActionOrigins\n");
     return 0;
 }
 
 int GetAnalogActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut )
 {
-    PRINT_DEBUG("GetAnalogActionOrigins steaminput\n");
+    PRINT_DEBUG("Steam_Controller::GetAnalogActionOrigins steaminput\n");
     return 0;
 }
 
     
 void StopAnalogActionMomentum( ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t eAction )
 {
-    PRINT_DEBUG("StopAnalogActionMomentum\n");
+    PRINT_DEBUG("Steam_Controller::StopAnalogActionMomentum\n");
 }
 
 
 // Trigger a haptic pulse on a controller
 void TriggerHapticPulse( ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec )
 {
-    PRINT_DEBUG("TriggerHapticPulse\n");
+    PRINT_DEBUG("Steam_Controller::TriggerHapticPulse\n");
 }
 
 void TriggerHapticPulse( uint32 unControllerIndex, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec )
 {
-    PRINT_DEBUG("TriggerHapticPulse old\n");
+    PRINT_DEBUG("Steam_Controller::TriggerHapticPulse old\n");
     TriggerHapticPulse(unControllerIndex, eTargetPad, usDurationMicroSec );
 }
 
@@ -222,28 +531,32 @@ void TriggerHapticPulse( uint32 unControllerIndex, ESteamControllerPad eTargetPa
 // nFlags is currently unused and reserved for future use.
 void TriggerRepeatedHapticPulse( ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags )
 {
-    PRINT_DEBUG("TriggerRepeatedHapticPulse\n");
+    PRINT_DEBUG("Steam_Controller::TriggerRepeatedHapticPulse\n");
 }
 
 
 // Tigger a vibration event on supported controllers.  
 void TriggerVibration( ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed )
 {
-    PRINT_DEBUG("TriggerVibration\n");
+    PRINT_DEBUG("Steam_Controller::TriggerVibration %hu %hu\n", usLeftSpeed, usRightSpeed);
+    auto controller = controllers.find(controllerHandle);
+    if (controller == controllers.end()) return;
+
+    GamepadSetRumble((GAMEPAD_DEVICE)(controllerHandle - 1), ((double)usLeftSpeed) / 65535.0, ((double)usRightSpeed) / 65535.0);
 }
 
 
 // Set the controller LED color on supported controllers.  
 void SetLEDColor( ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags )
 {
-    PRINT_DEBUG("SetLEDColor\n");
+    PRINT_DEBUG("Steam_Controller::SetLEDColor\n");
 }
 
 
 // Returns the associated gamepad index for the specified controller, if emulating a gamepad
 int GetGamepadIndexForController( ControllerHandle_t ulControllerHandle )
 {
-    PRINT_DEBUG("GetGamepadIndexForController\n");
+    PRINT_DEBUG("Steam_Controller::GetGamepadIndexForController\n");
     return 0;
 }
 
@@ -251,7 +564,7 @@ int GetGamepadIndexForController( ControllerHandle_t ulControllerHandle )
 // Returns the associated controller handle for the specified emulated gamepad
 ControllerHandle_t GetControllerForGamepadIndex( int nIndex )
 {
-    PRINT_DEBUG("GetControllerForGamepadIndex\n");
+    PRINT_DEBUG("Steam_Controller::GetControllerForGamepadIndex\n");
     return 0;
 }
 
@@ -259,7 +572,7 @@ ControllerHandle_t GetControllerForGamepadIndex( int nIndex )
 // Returns raw motion data from the specified controller
 ControllerMotionData_t GetMotionData( ControllerHandle_t controllerHandle )
 {
-    PRINT_DEBUG("GetMotionData\n");
+    PRINT_DEBUG("Steam_Controller::GetMotionData\n");
     ControllerMotionData_t data = {};
     return data;
 }
@@ -269,13 +582,13 @@ ControllerMotionData_t GetMotionData( ControllerHandle_t controllerHandle )
 // Returns false is overlay is disabled / unavailable, or the user is not in Big Picture mode
 bool ShowDigitalActionOrigins( ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle, float flScale, float flXPosition, float flYPosition )
 {
-    PRINT_DEBUG("ShowDigitalActionOrigins\n");
+    PRINT_DEBUG("Steam_Controller::ShowDigitalActionOrigins\n");
     return true;
 }
 
 bool ShowAnalogActionOrigins( ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle, float flScale, float flXPosition, float flYPosition )
 {
-    PRINT_DEBUG("ShowAnalogActionOrigins\n");
+    PRINT_DEBUG("Steam_Controller::ShowAnalogActionOrigins\n");
     return true;
 }
 
@@ -283,13 +596,13 @@ bool ShowAnalogActionOrigins( ControllerHandle_t controllerHandle, ControllerAna
 // Returns a localized string (from Steam's language setting) for the specified origin
 const char *GetStringForActionOrigin( EControllerActionOrigin eOrigin )
 {
-    PRINT_DEBUG("GetStringForActionOrigin\n");
+    PRINT_DEBUG("Steam_Controller::GetStringForActionOrigin\n");
     return "Button String";
 }
 
 const char *GetStringForActionOrigin( EInputActionOrigin eOrigin )
 {
-    PRINT_DEBUG("GetStringForActionOrigin steaminput\n");
+    PRINT_DEBUG("Steam_Controller::GetStringForActionOrigin steaminput\n");
     return "Button String";
 }
 
@@ -297,75 +610,82 @@ const char *GetStringForActionOrigin( EInputActionOrigin eOrigin )
 // Get a local path to art for on-screen glyph for a particular origin 
 const char *GetGlyphForActionOrigin( EControllerActionOrigin eOrigin )
 {
-    PRINT_DEBUG("GetGlyphForActionOrigin\n");
+    PRINT_DEBUG("Steam_Controller::GetGlyphForActionOrigin\n");
     return "";
 }
 
 const char *GetGlyphForActionOrigin( EInputActionOrigin eOrigin )
 {
-    PRINT_DEBUG("GetGlyphForActionOrigin steaminput\n");
+    PRINT_DEBUG("Steam_Controller::GetGlyphForActionOrigin steaminput\n");
     return "";
 }
 
 // Returns the input type for a particular handle
 ESteamInputType GetInputTypeForHandle( ControllerHandle_t controllerHandle )
 {
-    PRINT_DEBUG("GetInputTypeForHandle\n");
-    return k_ESteamInputType_Unknown;
+    PRINT_DEBUG("Steam_Controller::GetInputTypeForHandle\n");
+    auto controller = controllers.find(controllerHandle);
+    if (controller == controllers.end()) return k_ESteamInputType_Unknown;
+    return k_ESteamInputType_XBox360Controller;
 }
 
 const char *GetStringForXboxOrigin( EXboxOrigin eOrigin )
 {
-    PRINT_DEBUG("GetStringForXboxOrigin\n");
+    PRINT_DEBUG("Steam_Controller::GetStringForXboxOrigin\n");
     return "";
 }
 
 const char *GetGlyphForXboxOrigin( EXboxOrigin eOrigin )
 {
-    PRINT_DEBUG("GetGlyphForXboxOrigin\n");
+    PRINT_DEBUG("Steam_Controller::GetGlyphForXboxOrigin\n");
     return "";
 }
 
 EControllerActionOrigin GetActionOriginFromXboxOrigin_( ControllerHandle_t controllerHandle, EXboxOrigin eOrigin )
 {
-    PRINT_DEBUG("GetActionOriginFromXboxOrigin\n");
+    PRINT_DEBUG("Steam_Controller::GetActionOriginFromXboxOrigin\n");
     return k_EControllerActionOrigin_None;
 }
 
 EInputActionOrigin GetActionOriginFromXboxOrigin( InputHandle_t inputHandle, EXboxOrigin eOrigin )
 {
-    PRINT_DEBUG("GetActionOriginFromXboxOrigin steaminput\n");
+    PRINT_DEBUG("Steam_Controller::GetActionOriginFromXboxOrigin steaminput\n");
     return k_EInputActionOrigin_None;
 }
 
 EControllerActionOrigin TranslateActionOrigin( ESteamInputType eDestinationInputType, EControllerActionOrigin eSourceOrigin )
 {
-    PRINT_DEBUG("TranslateActionOrigin\n");
+    PRINT_DEBUG("Steam_Controller::TranslateActionOrigin\n");
     return k_EControllerActionOrigin_None;
 }
 
 EInputActionOrigin TranslateActionOrigin( ESteamInputType eDestinationInputType, EInputActionOrigin eSourceOrigin )
 {
-    PRINT_DEBUG("TranslateActionOrigin steaminput\n");
+    PRINT_DEBUG("Steam_Controller::TranslateActionOrigin steaminput\n");
     return k_EInputActionOrigin_None;
 }
 
 bool GetControllerBindingRevision( ControllerHandle_t controllerHandle, int *pMajor, int *pMinor )
 {
-    PRINT_DEBUG("GetControllerBindingRevision\n");
+    PRINT_DEBUG("Steam_Controller::GetControllerBindingRevision\n");
     return false;
 }
 
 bool GetDeviceBindingRevision( InputHandle_t inputHandle, int *pMajor, int *pMinor )
 {
-    PRINT_DEBUG("GetDeviceBindingRevision\n");
+    PRINT_DEBUG("Steam_Controller::GetDeviceBindingRevision\n");
     return false;
 }
 
 uint32 GetRemotePlaySessionID( InputHandle_t inputHandle )
 {
-    PRINT_DEBUG("GetRemotePlaySessionID\n");
+    PRINT_DEBUG("Steam_Controller::GetRemotePlaySessionID\n");
     return 0;
+}
+
+void RunCallbacks()
+{
+    RunFrame();
 }
 
 };

@@ -58,6 +58,12 @@ struct Image_Data {
     std::string data;
 };
 
+struct Controller_Settings {
+    std::map<std::string, std::map<std::string, std::pair<std::set<std::string>, std::string>>> action_sets = {{"ship_controls", {{"analog_controls", {{"LJOY"}, "joystick_move"}}}}, {"menu_controls", {{"menu_up", {{"DLJOYUP", "DUP"}, ""}}, {"menu_down", {{"DLJOYDOWN", "DDOWN"}, ""}}}}};
+    std::map<std::string, std::string> action_set_layer_parents;
+    std::map<std::string, std::map<std::string, std::pair<std::set<std::string>, std::string>>> action_set_layers;
+};
+
 class Settings {
     CSteamID steam_id;
     CGameID game_id;
@@ -126,6 +132,9 @@ public:
     //images
     std::map<int, struct Image_Data> images;
     int add_image(std::string data, uint32 width, uint32 height);
+
+    //controller
+    struct Controller_Settings controller_settings;
 };
 
 #endif

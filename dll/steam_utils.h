@@ -87,6 +87,8 @@ bool GetImageSize( int iImage, uint32 *pnWidth, uint32 *pnHeight )
 {
     PRINT_DEBUG("GetImageSize %i\n", iImage);
     if (!iImage || !pnWidth || !pnHeight) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
     auto image = settings->images.find(iImage);
     if (image == settings->images.end()) return false;
 
@@ -102,6 +104,8 @@ bool GetImageRGBA( int iImage, uint8 *pubDest, int nDestBufferSize )
 {
     PRINT_DEBUG("GetImageRGBA %i\n", iImage);
     if (!iImage || !pubDest || !nDestBufferSize) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
     auto image = settings->images.find(iImage);
     if (image == settings->images.end()) return false;
 
