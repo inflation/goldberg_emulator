@@ -59,7 +59,7 @@ struct Image_Data {
 };
 
 struct Controller_Settings {
-    std::map<std::string, std::map<std::string, std::pair<std::set<std::string>, std::string>>> action_sets = {{"ship_controls", {{"analog_controls", {{"LJOY"}, "joystick_move"}}}}, {"menu_controls", {{"menu_up", {{"DLJOYUP", "DUP"}, ""}}, {"menu_down", {{"DLJOYDOWN", "DDOWN"}, ""}}}}};
+    std::map<std::string, std::map<std::string, std::pair<std::set<std::string>, std::string>>> action_sets;
     std::map<std::string, std::string> action_set_layer_parents;
     std::map<std::string, std::map<std::string, std::pair<std::set<std::string>, std::string>>> action_set_layers;
 };
