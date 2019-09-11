@@ -145,7 +145,12 @@ public ISteamInput
                     if (digital != button_strings.end()) {
                         ControllerDigitalActionHandle_t digital_handle_num = current_handle_num;
 
-                        digital_action_handles[config_key.first] = digital_handle_num;
+                        if (digital_action_handles.find(config_key.first) == digital_action_handles.end()) {
+                            digital_action_handles[config_key.first] = digital_handle_num;
+                        } else {
+                            digital_handle_num = digital_action_handles[config_key.first];
+                        }
+
                         controller_maps[action_handle_num].active_digital[digital_handle_num].insert(digital->second);
                     } else {
                         auto analog = analog_strings.find(button_string);
@@ -164,7 +169,12 @@ public ISteamInput
                                 source_mode = input_mode->second;
                             }
 
-                            analog_action_handles[config_key.first] = analog_handle_num;
+                            if (analog_action_handles.find(config_key.first) == analog_action_handles.end()) {
+                                analog_action_handles[config_key.first] = analog_handle_num;
+                            } else {
+                                analog_handle_num = analog_action_handles[config_key.first];
+                            }
+
                             controller_maps[action_handle_num].active_analog[analog_handle_num].first.insert(analog->second);
                             controller_maps[action_handle_num].active_analog[analog_handle_num].second = source_mode;
 
