@@ -554,6 +554,10 @@ static void GamepadUpdateStick(GAMEPAD_AXIS* axis, float deadzone) {
 		axis->nx = axis->x / axis->length;
 		axis->ny = axis->y / axis->length;
 
+		//fix special case
+		if (axis->nx < -1.0) axis->nx = -1.0;
+		if (axis->ny < -1.0) axis->ny = -1.0;
+
 		// adjust length for deadzone and find normalized length
 		axis->length -= deadzone;
 		axis->length /= (32767.0f - deadzone);

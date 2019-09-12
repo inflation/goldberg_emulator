@@ -495,8 +495,15 @@ ControllerAnalogActionData_t GetAnalogActionData( ControllerHandle_t controllerH
         if (a >= 10) {
             int joystick_id = a - 10;
             GamepadStickNormXY((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_STICK) joystick_id, &data.x, &data.y);
+            float length = GamepadStickLength((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_STICK) joystick_id);
+            data.x = data.x * length;
+            data.y = data.y * length;
         } else {
             data.x = GamepadTriggerLength((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_TRIGGER) a);
+        }
+
+        if (data.x || data.y) {
+            break;
         }
     }
 
