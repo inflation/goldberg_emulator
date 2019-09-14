@@ -232,7 +232,14 @@ bool Init()
     GamepadUpdate();
 
     for (int i = 1; i < 5; ++i) {
-        controllers.insert(std::pair<ControllerHandle_t, struct Controller_Action>(i, Controller_Action(i)));
+        struct Controller_Action cont_action(i);
+        //Activate the action set if there is only one present.
+        //TODO: I don't know if one gets activated by default when there's more than one
+        if (action_handles.size() == 1) {
+            cont_action.activate_action_set(action_handles.begin()->second, controller_maps);
+        }
+
+        controllers.insert(std::pair<ControllerHandle_t, struct Controller_Action>(i, cont_action));
     }
 
     return true;
