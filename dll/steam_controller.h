@@ -66,6 +66,8 @@ enum EXTRA_GAMEPAD_BUTTONS {
     BUTTON_STICK_RIGHT_RIGHT = BUTTON_COUNT + 10,
 };
 
+#define JOY_ID_START 10
+
 class Steam_Controller :
 public ISteamController001,
 public ISteamController003,
@@ -110,8 +112,8 @@ public ISteamInput
     std::map<std::string, int> analog_strings = {
         {"LTRIGGER", TRIGGER_LEFT},
         {"RTRIGGER", TRIGGER_RIGHT},
-        {"LJOY", STICK_LEFT + 10},
-        {"RJOY", STICK_RIGHT + 10},
+        {"LJOY", STICK_LEFT + JOY_ID_START},
+        {"RJOY", STICK_RIGHT + JOY_ID_START},
     };
 
     std::map<std::string, enum EInputSourceMode> analog_input_modes = {
@@ -331,6 +333,12 @@ ControllerActionSetHandle_t GetActionSetHandle( const char *pszActionSetName )
 void ActivateActionSet( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle )
 {
     PRINT_DEBUG("Steam_Controller::ActivateActionSet %llu %llu\n", controllerHandle, actionSetHandle);
+    if (controllerHandle == STEAM_CONTROLLER_HANDLE_ALL_CONTROLLERS) {
+        for (auto & c: controllers) {
+            c.second.activate_action_set(actionSetHandle, controller_maps);
+        }
+    }
+
     auto controller = controllers.find(controllerHandle);
     if (controller == controllers.end()) return;
 
@@ -449,13 +457,118 @@ ControllerDigitalActionData_t GetDigitalActionData( ControllerHandle_t controlle
 int GetDigitalActionOrigins( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin *originsOut )
 {
     PRINT_DEBUG("Steam_Controller::GetDigitalActionOrigins\n");
-    return 0;
+    EInputActionOrigin origins[STEAM_CONTROLLER_MAX_ORIGINS];
+    int ret = GetDigitalActionOrigins(controllerHandle, actionSetHandle, digitalActionHandle, origins );
+    for (int i = 0; i < ret; ++i) {
+        originsOut[i] = (EControllerActionOrigin)(origins[i] - (k_EInputActionOrigin_XBoxOne_A - k_EControllerActionOrigin_XBox360_A));
+    }
+
+    return ret;
 }
 
 int GetDigitalActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin *originsOut )
 {
     PRINT_DEBUG("Steam_Controller::GetDigitalActionOrigins steaminput\n");
-    return 0;
+    auto controller = controllers.find(inputHandle);
+    if (controller == controllers.end()) return 0;
+
+    auto map = controller_maps.find(actionSetHandle);
+    if (map == controller_maps.end()) return 0;
+
+    auto a = map->second.active_digital.find(digitalActionHandle);
+    if (a == map->second.active_digital.end()) return 0;
+
+    int count = 0;
+    for (auto button: a->second) {
+        switch (button) {
+            case BUTTON_A:
+                originsOut[count] = k_EInputActionOrigin_XBox360_A;
+                break;
+            case BUTTON_B:
+                originsOut[count] = k_EInputActionOrigin_XBox360_B;
+                break;
+            case BUTTON_X:
+                originsOut[count] = k_EInputActionOrigin_XBox360_X;
+                break;
+            case BUTTON_Y:
+                originsOut[count] = k_EInputActionOrigin_XBox360_Y;
+                break;
+            case BUTTON_LEFT_SHOULDER:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftBumper;
+                break;
+            case BUTTON_RIGHT_SHOULDER:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightBumper;
+                break;
+            case BUTTON_START:
+                originsOut[count] = k_EInputActionOrigin_XBox360_Start;
+                break;
+            case BUTTON_BACK:
+                originsOut[count] = k_EInputActionOrigin_XBox360_Back;
+                break;
+            case BUTTON_LTRIGGER:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftTrigger_Click;
+                break;
+            case BUTTON_RTRIGGER:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightTrigger_Click;
+                break;
+            case BUTTON_LEFT_THUMB:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftStick_Click;
+                break;
+            case BUTTON_RIGHT_THUMB:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightStick_Click;
+                break;
+
+            case BUTTON_STICK_LEFT_UP:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftStick_DPadNorth;
+                break;
+            case BUTTON_STICK_LEFT_DOWN:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftStick_DPadSouth;
+                break;
+            case BUTTON_STICK_LEFT_LEFT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftStick_DPadWest;
+                break;
+            case BUTTON_STICK_LEFT_RIGHT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftStick_DPadEast;
+                break;
+
+            case BUTTON_STICK_RIGHT_UP:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightStick_DPadNorth;
+                break;
+            case BUTTON_STICK_RIGHT_DOWN:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightStick_DPadSouth;
+                break;
+            case BUTTON_STICK_RIGHT_LEFT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightStick_DPadWest;
+                break;
+            case BUTTON_STICK_RIGHT_RIGHT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightStick_DPadEast;
+                break;
+
+            case BUTTON_DPAD_UP:
+                originsOut[count] = k_EInputActionOrigin_XBox360_DPad_North;
+                break;
+            case BUTTON_DPAD_DOWN:
+                originsOut[count] = k_EInputActionOrigin_XBox360_DPad_South;
+                break;
+            case BUTTON_DPAD_LEFT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_DPad_West;
+                break;
+            case BUTTON_DPAD_RIGHT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_DPad_East;
+                break;
+
+            default:
+                originsOut[count] = k_EInputActionOrigin_None;
+                break;
+        }
+
+        ++count;
+        if (count >= STEAM_INPUT_MAX_ORIGINS) {
+            break;
+        }
+    }
+
+    return count;
 }
 
 // Lookup the handle for an analog action. Best to do this once on startup, and store the handles for all future API calls.
@@ -492,8 +605,8 @@ ControllerAnalogActionData_t GetAnalogActionData( ControllerHandle_t controllerH
     data.eMode = analog.second;
 
     for (auto a : analog.first) {
-        if (a >= 10) {
-            int joystick_id = a - 10;
+        if (a >= JOY_ID_START) {
+            int joystick_id = a - JOY_ID_START;
             GamepadStickNormXY((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_STICK) joystick_id, &data.x, &data.y);
             float length = GamepadStickLength((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_STICK) joystick_id);
             data.x = data.x * length;
@@ -516,12 +629,52 @@ ControllerAnalogActionData_t GetAnalogActionData( ControllerHandle_t controllerH
 int GetAnalogActionOrigins( ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin *originsOut )
 {
     PRINT_DEBUG("Steam_Controller::GetAnalogActionOrigins\n");
-    return 0;
+    EInputActionOrigin origins[STEAM_CONTROLLER_MAX_ORIGINS];
+    int ret = GetAnalogActionOrigins(controllerHandle, actionSetHandle, analogActionHandle, origins );
+    for (int i = 0; i < ret; ++i) {
+        originsOut[i] = (EControllerActionOrigin)(origins[i] - (k_EInputActionOrigin_XBoxOne_A - k_EControllerActionOrigin_XBox360_A));
+    }
+
+    return ret;
 }
 
 int GetAnalogActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin *originsOut )
 {
     PRINT_DEBUG("Steam_Controller::GetAnalogActionOrigins steaminput\n");
+    auto controller = controllers.find(inputHandle);
+    if (controller == controllers.end()) return 0;
+
+    auto map = controller_maps.find(actionSetHandle);
+    if (map == controller_maps.end()) return 0;
+
+    auto a = map->second.active_analog.find(analogActionHandle);
+    if (a == map->second.active_analog.end()) return 0;
+
+    int count = 0;
+    for (auto a: a->second.first) {
+        switch (a) {
+            case TRIGGER_LEFT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftTrigger_Pull;
+                break;
+            case TRIGGER_RIGHT:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightTrigger_Pull;
+                break;
+            case STICK_LEFT + JOY_ID_START:
+                originsOut[count] = k_EInputActionOrigin_XBox360_LeftStick_Move;
+                break;
+            case STICK_RIGHT + JOY_ID_START:
+                originsOut[count] = k_EInputActionOrigin_XBox360_RightStick_Move;
+                break;
+            default:
+                originsOut[count] = k_EInputActionOrigin_None;
+                break;
+        }
+
+        ++count;
+        if (count >= STEAM_INPUT_MAX_ORIGINS) {
+            break;
+        }
+    }
     return 0;
 }
 
