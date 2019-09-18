@@ -53,11 +53,6 @@ std::string Local_Storage::get_global_settings_path()
     return "";
 }
 
-std::string Local_Storage::get_global_inventory_path()
-{
-    return "";
-}
-
 Local_Storage::Local_Storage(std::string save_directory)
 {
 
@@ -527,11 +522,6 @@ std::string Local_Storage::get_global_settings_path()
     return save_directory + settings_storage_folder + PATH_SEPARATOR;
 }
 
-std::string Local_Storage::get_global_inventory_path()
-{
-    return save_directory + inventory_storage_folder + PATH_SEPARATOR;
-}
-
 std::vector<std::string> Local_Storage::get_filenames_path(std::string path)
 {
     if (path.back() != *PATH_SEPARATOR) {
@@ -703,7 +693,7 @@ bool Local_Storage::update_save_filenames(std::string folder)
 
 bool Local_Storage::load_inventory_file(nlohmann::json& json, std::string const&file)
 {
-    std::string inv_path = std::move(get_global_inventory_path() + appid + file);
+    std::string inv_path = std::move(save_directory + appid + inventory_storage_folder + PATH_SEPARATOR + file);
     std::ifstream inventory_file(inv_path);
     // If there is a file and we opened it
     if (inventory_file)
@@ -735,11 +725,11 @@ bool Local_Storage::load_inventory_file(nlohmann::json& json, std::string const&
 
 bool Local_Storage::write_inventory_file(nlohmann::json const& json, std::string const&file)
 {
-    std::string inv_path = std::move(get_global_inventory_path() + appid);
+    std::string inv_path = std::move(save_directory + appid + inventory_storage_folder);
 
     create_directory(inv_path);
 
-    std::ofstream inventory_file(inv_path + file, std::ios::trunc | std::ios::out);
+    std::ofstream inventory_file(inv_path + PATH_SEPARATOR + file, std::ios::trunc | std::ios::out);
     if (inventory_file)
     {
         inventory_file << std::setw(2) << json;

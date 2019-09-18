@@ -59,7 +59,6 @@ public:
     bool file_delete(std::string folder, std::string file);
     uint64_t file_timestamp(std::string folder, std::string file);
     std::string get_global_settings_path();
-    std::string get_global_inventory_path();
     std::string get_path(std::string folder);
 
     bool update_save_filenames(std::string folder);
