@@ -71,16 +71,15 @@ static void get_broadcast_info(uint16 port)
         IP_ADAPTER_INFO *pAdapter = pAdapterInfo;
 
         while (pAdapter) {
-            unsigned long gateway = 0, subnet_mask = 0;
+            unsigned long iface_ip = 0, subnet_mask = 0;
 
             
             if (inet_pton(AF_INET, pAdapter->IpAddressList.IpMask.String, &subnet_mask) == 1
-                    && inet_pton(AF_INET, pAdapter->GatewayList.IpAddress.String, &gateway) == 1) {
+                    && inet_pton(AF_INET, pAdapter->IpAddressList.IpAddress.String, &iface_ip) == 1) {
                     IP_PORT *ip_port = &broadcasts[number_broadcasts];
                     //ip_port->ip.family = AF_INET;
-                    uint32 gateway_ip = ntohl(gateway), subnet_ip = ntohl(subnet_mask);
-                    uint32 broadcast_ip = gateway_ip + ~subnet_ip - 1;
-                    ip_port->ip = htonl(broadcast_ip);
+                    uint32 broadcast_ip = iface_ip | ~subnet_mask;
+                    ip_port->ip = broadcast_ip;
                     ip_port->port = port;
                     number_broadcasts++;
 
