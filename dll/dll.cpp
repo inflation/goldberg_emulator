@@ -477,7 +477,7 @@ STEAMAPI_API ISteamHTMLSurface *SteamHTMLSurface()				{ PRINT_DEBUG("SteamHTMLSu
 STEAMAPI_API ISteamInventory *SteamInventory()					{ PRINT_DEBUG("SteamInventory()\n");return get_steam_client_old()->GetISteamInventory(SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), old_inventory); }
 STEAMAPI_API ISteamVideo *SteamVideo()							{ PRINT_DEBUG("SteamVideo()\n");return get_steam_client_old()->GetISteamVideo(SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), old_video); }
 STEAMAPI_API ISteamParentalSettings *SteamParentalSettings()		{ PRINT_DEBUG("SteamParentalSettings()\n");return get_steam_client_old()->GetISteamParentalSettings(SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), ""); }
-
+STEAMAPI_API ISteamUnifiedMessages *SteamUnifiedMessages()      { PRINT_DEBUG("SteamUnifiedMessages()\n");return get_steam_client_old()->GetISteamUnifiedMessages(SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), old_unified_messages); }
 
 
 //Gameserver stuff

@@ -203,3 +203,14 @@ void Settings::setLeaderboard(std::string leaderboard, enum ELeaderboardSortMeth
 
     leaderboards[leaderboard] = leader;
 }
+
+int Settings::add_image(std::string data, uint32 width, uint32 height)
+{
+    int last = images.size() + 1;
+    struct Image_Data dt;
+    dt.width = width;
+    dt.height = height;
+    dt.data = data;
+    images[last] = dt;
+    return last;
+}

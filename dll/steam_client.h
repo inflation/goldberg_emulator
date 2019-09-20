@@ -27,7 +27,11 @@
 #include "steam_remote_storage.h"
 #include "steam_screenshots.h"
 #include "steam_http.h"
+#ifdef CONTROLLER_SUPPORT
 #include "steam_controller.h"
+#else
+#include "steam_controller_disabled.h"
+#endif
 #include "steam_ugc.h"
 #include "steam_applist.h"
 #include "steam_music.h"

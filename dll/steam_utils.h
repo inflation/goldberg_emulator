@@ -84,38 +84,38 @@ const char *GetIPCountry()
     return "US";
 }
 
-static uint32 width_image(int iImage)
-{
-    if ((iImage % 3) == 1) return 32;
-    if ((iImage % 3) == 2) return 64;
-    return 184;
-}
-
 // returns true if the image exists, and valid sizes were filled out
 bool GetImageSize( int iImage, uint32 *pnWidth, uint32 *pnHeight )
 {
-    PRINT_DEBUG("GetImageSize\n");
+    PRINT_DEBUG("GetImageSize %i\n", iImage);
     if (!iImage || !pnWidth || !pnHeight) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    *pnWidth = width_image(iImage);
-    *pnHeight = width_image(iImage);;
+    auto image = settings->images.find(iImage);
+    if (image == settings->images.end()) return false;
+
+    *pnWidth = image->second.width;
+    *pnHeight = image->second.height;
     return true;
 }
-
 
 // returns true if the image exists, and the buffer was successfully filled out
 // results are returned in RGBA format
 // the destination buffer size should be 4 * height * width * sizeof(char)
 bool GetImageRGBA( int iImage, uint8 *pubDest, int nDestBufferSize )
 {
-    PRINT_DEBUG("GetImageRGBA\n");
+    PRINT_DEBUG("GetImageRGBA %i\n", iImage);
     if (!iImage || !pubDest || !nDestBufferSize) return false;
-    unsigned size = width_image(iImage) * width_image(iImage) * 4;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
+    auto image = settings->images.find(iImage);
+    if (image == settings->images.end()) return false;
+
+    unsigned size = image->second.data.size();
     if (nDestBufferSize < size) size = nDestBufferSize;
-    memset(pubDest, 0xFF, size);
+    image->second.data.copy((char *)pubDest, nDestBufferSize);
     return true;
 }
-
 
 // returns the IP of the reporting server for valve - currently only used in Source engine games
 bool GetCSERIPPort( uint32 *unIP, uint16 *usPort )
