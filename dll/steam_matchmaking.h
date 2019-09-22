@@ -1152,16 +1152,21 @@ void RunCallbacks()
                             }
                         }
                     } else {
-                        int compare_to = stoi(value->second, 0, 0);
-                        PRINT_DEBUG("Compare Values %i %i\n", compare_to, f.value_int);
-                        if (f.eComparisonType == k_ELobbyComparisonEqual) {
-                            if (compare_to == f.value_int) {
-                                PRINT_DEBUG("Equal\n");
-                                //use = use;
-                            } else {
-                                PRINT_DEBUG("Not Equal\n");
-                                use = false;
+                        try {
+                            int compare_to = std::stoi(value->second, 0, 0);
+                            PRINT_DEBUG("Compare Values %i %i\n", compare_to, f.value_int);
+                            if (f.eComparisonType == k_ELobbyComparisonEqual) {
+                                if (compare_to == f.value_int) {
+                                    PRINT_DEBUG("Equal\n");
+                                    //use = use;
+                                } else {
+                                    PRINT_DEBUG("Not Equal\n");
+                                    use = false;
+                                }
                             }
+                        } catch (...) {
+                            //Same case as if the key is not in the lobby?
+                            use = false;
                         }
                         //TODO: add more comparisons
                     }
