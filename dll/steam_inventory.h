@@ -44,6 +44,7 @@ class Steam_Inventory :
 {
 public:
     static constexpr auto items_user_file = "items.json";
+    static constexpr auto items_default_file = "default_items.json";
 
 private:
     class Settings *settings;
@@ -122,7 +123,36 @@ void read_items_db()
 
 void read_inventory_db()
 {
-    local_storage->load_inventory_file(user_items, items_user_file);
+    // If we havn't got any inventory
+    if (!local_storage->load_inventory_file(user_items, items_user_file))
+    {
+        // Try to load a default one
+        std::string items_db_path = Local_Storage::get_game_settings_path() + items_default_file;
+        PRINT_DEBUG("Default items file path: %s\n", items_db_path.c_str());
+        std::ifstream inventory_file(items_db_path);
+        // If there is a file and we opened it
+        if (inventory_file)
+        {
+            inventory_file.seekg(0, std::ios::end);
+            size_t size = inventory_file.tellg();
+            std::string buffer(size, '\0');
+            inventory_file.seekg(0);
+            // Read it entirely, if the .json file gets too big,
+            // I should look into this and split reads into smaller parts.
+            inventory_file.read(&buffer[0], size);
+            inventory_file.close();
+
+            try
+            {
+                user_items = std::move(nlohmann::json::parse(buffer));
+                PRINT_DEBUG("Loaded default inventory. Loaded %u items.\n", user_items.size());
+            }
+            catch (std::exception& e)
+            {
+                PRINT_DEBUG("Error while parsing inventory json: %s\n", e.what());
+            }
+        }
+    }
 }
 
 public:
