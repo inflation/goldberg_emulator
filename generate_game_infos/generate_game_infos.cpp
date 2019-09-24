@@ -250,7 +250,7 @@ static bool create_directory(std::string const& strPath)
 
 static bool create_directory(std::string const& strPath)
 {
-    stat sb;
+    struct stat sb;
 
     if (stat(strPath.c_str(), &sb) != 0)
     {
