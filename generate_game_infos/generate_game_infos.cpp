@@ -231,7 +231,40 @@ public:
 std::string steam_apikey;
 std::string app_id;
 
-void generate_achievements(CurlEasy &easy)
+#if defined(WIN32) || defined(_WIN32)
+#include <windows.h>
+
+static bool create_directory(std::string const& strPath)
+{
+    DWORD dwAttrib = GetFileAttributesA(strPath.c_str());
+
+    if (dwAttrib != INVALID_FILE_ATTRIBUTES && dwAttrib & FILE_ATTRIBUTE_DIRECTORY)
+        return true;
+        
+    return CreateDirectoryA(strPath.c_str(), NULL);
+}
+#elif defined(__linux__)
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+static bool create_directory(std::string const& strPath)
+{
+    stat sb;
+
+    if (stat(strPath.c_str(), &sb) != 0)
+    {
+        return mkdir(strPath.c_str(), 0755) == 0;
+    }
+    if (S_ISDIR(sb.st_mode))
+        return true;
+
+    return false;
+}
+
+#endif
+
+static void generate_achievements(CurlEasy &easy)
 {
     std::string url = "http://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key=";
     url += steam_apikey;
@@ -263,8 +296,35 @@ void generate_achievements(CurlEasy &easy)
             {
                 output_json[i]["description"] = "";
             }
-            output_json[i]["icon"] = item.value()["icon"];
-            output_json[i]["icongray"] = item.value()["icongray"];
+            
+            {
+                std::string icon_path = "images/" + item.value()["name"].get<std::string>() + ".jpg";
+                std::ofstream achievement_icon(icon_path, std::ios::out | std::ios::trunc | std::ios::binary);
+                if (!achievement_icon)
+                {
+                    std::cerr << "Cannot create achievement icon \"" << icon_path << "\"" << std::endl;
+                    return;
+                }
+                easy.set_url(item.value()["icon"]);
+                easy.perform();
+
+                std::string picture = easy.get_answer();
+                achievement_icon.write(picture.c_str(), picture.length());
+            }
+            {
+                std::string icon_path = "images/" + item.value()["name"].get<std::string>() + "_gray.jpg";
+                std::ofstream achievement_icon(icon_path, std::ios::out | std::ios::trunc | std::ios::binary);
+                if (!achievement_icon)
+                {
+                    std::cerr << "Cannot create achievement icon \"" << icon_path << "\"" << std::endl;
+                    return;
+                }
+                easy.set_url(item.value()["icongray"]);
+                easy.perform();
+                
+                std::string picture = easy.get_answer();
+                achievement_icon.write(picture.c_str(), picture.length());
+            }
             ++i;
         }
         ach_file << std::setw(2) << output_json;
@@ -285,7 +345,7 @@ void generate_achievements(CurlEasy &easy)
     }
 }
 
-void generate_items(CurlEasy& easy)
+static void generate_items(CurlEasy& easy)
 {
     std::string url = "https://api.steampowered.com/IInventoryService/GetItemDefMeta/v1?key=";
     url += steam_apikey;
@@ -365,6 +425,12 @@ void generate_items(CurlEasy& easy)
 
 int main()
 {
+    if (!create_directory("images"))
+    {
+        std::cerr << "Cannot create directory \"images\"" << std::endl;
+        return -1;
+    }
+
     CurlGlobal& cglobal = CurlGlobal::Inst();
     cglobal.init();
 
