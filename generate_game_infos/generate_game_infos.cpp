@@ -310,6 +310,9 @@ static void generate_achievements(CurlEasy &easy)
 
                 std::string picture = easy.get_answer();
                 achievement_icon.write(picture.c_str(), picture.length());
+
+                output_json[i]["icon"] = icon_path;
+                
             }
             {
                 std::string icon_path = "images/" + item.value()["name"].get<std::string>() + "_gray.jpg";
@@ -324,6 +327,8 @@ static void generate_achievements(CurlEasy &easy)
                 
                 std::string picture = easy.get_answer();
                 achievement_icon.write(picture.c_str(), picture.length());
+
+                output_json[i]["icongray"] = icon_path;
             }
             ++i;
         }
