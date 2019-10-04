@@ -119,7 +119,7 @@ SteamAPICall_t FileWriteAsync( const char *pchFile, const void *pvData, uint32 c
     RemoteStorageFileWriteAsyncComplete_t data;
     data.m_eResult = success ? k_EResultOK : k_EResultFail;
 
-    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
+    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data), 0.1);
 }
 
 
