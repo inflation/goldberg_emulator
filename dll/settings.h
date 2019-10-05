@@ -135,6 +135,9 @@ public:
 
     //controller
     struct Controller_Settings controller_settings;
+
+    //networking
+    bool disable_networking = false;
 };
 
 #endif

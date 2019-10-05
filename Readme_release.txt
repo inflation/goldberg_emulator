@@ -60,6 +60,10 @@ The steam appid can also be set using the SteamAppId or SteamGameId env variable
 Offline mode:
 Some games that connect to online servers might only work if the steam emu behaves like steam is in offline mode. If you need this create a offline.txt file in the steam_settings folder.
 
+Disable networking:
+If for some reason you want to disable all the networking functionality of the emu you can create a disable_networking.txt file in the steam_settings folder. This will of course break all the
+networking functionality so games that use networking related functionality like lobbies or those that launch a server in the background will not work.
+
 Custom Broadcast ips:
 If you want to set custom ips (or domains) which the emulator will send broadcast packets to, make a list of them, one on each line in: Goldberg SteamEmu Saves\settings\custom_broadcasts.txt
 If the custom ips/domains are specific for one game only you can put the custom_broadcasts.txt in the steam_settings\ folder.

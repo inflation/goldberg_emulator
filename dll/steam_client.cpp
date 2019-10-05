@@ -45,7 +45,7 @@ Steam_Client::Steam_Client()
     uint32 appid = create_localstorage_settings(&settings_client, &settings_server, &local_storage);
     std::string items_db_file_path = (Local_Storage::get_game_settings_path() + "items.json");
 
-    network = new Networking(settings_server->get_local_steam_id(), appid, settings_server->get_port(), &(settings_server->custom_broadcasts));
+    network = new Networking(settings_server->get_local_steam_id(), appid, settings_server->get_port(), &(settings_server->custom_broadcasts), settings_server->disable_networking);
 
     callback_results_client = new SteamCallResults();
     callback_results_server = new SteamCallResults();
