@@ -60,6 +60,10 @@ The steam appid can also be set using the SteamAppId or SteamGameId env variable
 Offline mode:
 Some games that connect to online servers might only work if the steam emu behaves like steam is in offline mode. If you need this create a offline.txt file in the steam_settings folder.
 
+Disable networking:
+If for some reason you want to disable all the networking functionality of the emu you can create a disable_networking.txt file in the steam_settings folder. This will of course break all the
+networking functionality so games that use networking related functionality like lobbies or those that launch a server in the background will not work.
+
 Custom Broadcast ips:
 If you want to set custom ips (or domains) which the emulator will send broadcast packets to, make a list of them, one on each line in: Goldberg SteamEmu Saves\settings\custom_broadcasts.txt
 If the custom ips/domains are specific for one game only you can put the custom_broadcasts.txt in the steam_settings\ folder.
@@ -91,13 +95,61 @@ The default value is simply a number that represents the default value for the s
 
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
 
-
 Notes:
-You must all be on the same LAN for it to work. This is an early work so a lot of games will likely not work.
+You must all be on the same LAN for it to work.
 
 IMPORTANT:
 Do not run more than one steam game with the same appid at the same time on the same computer with my emu or there might be network issues (dedicated servers should be fine though).
 
+
+Controller (Note: at the moment this feature is only enabled in the windows experimental builds):
+SteamController/SteamInput support is limited to XInput controllers. If your controller is not XInput, there are many tools (at least for windows) that you can use to make it emulate an XInput one.
+Steam uses things called action sets for controller configuration. An action set is a group of action names. Action names are bound to buttons, triggers or joysticks.
+The emulator needs to know for each action set, which button is linked to which action name. Create a ACTION_SET_NAME.txt file in the steam_settings\controller folder for every action set the game uses.
+To see an example for the game Crystar see: steam_settings.EXAMPLE\controller.EXAMPLE
+In the action set txt files the format is:
+For digital actions (buttons, on or off): ACTION_NAME=BUTTON_NAME
+For analog actions (joysticks, triggers): ACTION_NAME=ANALOG_NAME=input source mode
+Actions can be bound to more than one button by separating the buttons with , like this: ACTION_NAME=A,B
+
+If you want to configure a game yourself, find the xbox360 or xbox one vdf file for the game and you should be able to figure things out.
+
+For example to get the vdf file for the game Crystar: https://steamdb.info/app/981750/config/
+If you look at: steamcontrollerconfigdetails, you will see something like: 1779660455/controller_type: controller_xbox360
+1779660455 refers to a file id that you can dl using your favorite steam workshop downloader site.
+The url would be: https://steamcommunity.com/sharedfiles/filedetails/?id=1779660455
+
+Valid digital button names:
+DUP
+DDOWN
+DLEFT
+DRIGHT
+START
+BACK
+LSTICK
+RSTICK
+LBUMPER
+RBUMPER
+A
+B
+X
+Y
+DLTRIGGER  (emulated buttons, the joy ones are used by games in menus for example. When the game wants to know if the trigger is pressed without the intensity)
+DRTRIGGER
+DLJOYUP
+DLJOYDOWN
+DLJOYLEFT
+DLJOYRIGHT
+DRJOYUP
+DRJOYDOWN
+DRJOYLEFT
+DRJOYRIGHT
+
+Valid analog names:
+LTRIGGER
+RTRIGGER
+LJOY
+RJOY
 
 
 

@@ -19,6 +19,12 @@
 
 #define SEND_FRIEND_RATE 4.0
 
+struct Avatar_Numbers {
+    int smallest;
+    int medium;
+    int large;
+};
+
 class Steam_Friends : 
 public ISteamFriends004,
 public ISteamFriends005,
@@ -45,7 +51,7 @@ public ISteamFriends
     bool modified;
     std::vector<Friend> friends;
 
-    unsigned img_count;
+    std::map<uint64, struct Avatar_Numbers> avatars;
     CSteamID lobby_id;
 
     std::chrono::high_resolution_clock::time_point last_sent_friends;
@@ -80,6 +86,29 @@ bool isAppIdCompatible(Friend *f)
     if (settings->is_lobby_connect) return true;
     if (f == &us) return true;
     return settings->get_local_game_id().AppID() == f->appid();
+}
+
+struct Avatar_Numbers add_friend_avatars(CSteamID id)
+{
+    uint64 steam_id = id.ConvertToUint64();
+    auto avatar_ids = avatars.find(steam_id);
+    if (avatar_ids != avatars.end()) {
+        return avatar_ids->second;
+    }
+
+    //TODO: get real image data from self/other peers
+    struct Avatar_Numbers avatar_numbers;
+    char zero_array[184 * 184 * 4] = {};
+    std::string small_avatar(zero_array, 32 * 32 * 4);
+    std::string medium_avatar(zero_array, 64 * 64 * 4);
+    std::string large_avatar(zero_array, 184 * 184 * 4);
+
+    avatar_numbers.smallest = settings->add_image(small_avatar, 32, 32);
+    avatar_numbers.medium = settings->add_image(medium_avatar, 64, 64);
+    avatar_numbers.large = settings->add_image(large_avatar, 184, 184);
+
+    avatars[steam_id] = avatar_numbers;
+    return avatar_numbers;
 }
 
 public:
@@ -552,8 +581,10 @@ void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby )
 int GetSmallFriendAvatar( CSteamID steamIDFriend )
 {
     PRINT_DEBUG("Steam_Friends::GetSmallFriendAvatar\n");
-    ++img_count;
-    return (img_count * 3) + 1;
+    //IMPORTANT NOTE: don't change friend avatar numbers for the same friend or else some games endlessly allocate stuff.
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    struct Avatar_Numbers numbers = add_friend_avatars(steamIDFriend);
+    return numbers.smallest;
 }
 
 
@@ -561,8 +592,9 @@ int GetSmallFriendAvatar( CSteamID steamIDFriend )
 int GetMediumFriendAvatar( CSteamID steamIDFriend )
 {
     PRINT_DEBUG("Steam_Friends::GetMediumFriendAvatar\n");
-    ++img_count;
-    return (img_count * 3) + 2;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    struct Avatar_Numbers numbers = add_friend_avatars(steamIDFriend);
+    return numbers.medium;
 }
 
 
@@ -571,8 +603,9 @@ int GetMediumFriendAvatar( CSteamID steamIDFriend )
 int GetLargeFriendAvatar( CSteamID steamIDFriend )
 {
     PRINT_DEBUG("Steam_Friends::GetLargeFriendAvatar\n");
-    ++img_count;
-    return (img_count * 3) + 0;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    struct Avatar_Numbers numbers = add_friend_avatars(steamIDFriend);
+    return numbers.large;
 }
 
 int GetFriendAvatar( CSteamID steamIDFriend, int eAvatarSize )
@@ -671,19 +704,19 @@ bool SetRichPresence( const char *pchKey, const char *pchValue )
     PRINT_DEBUG("Steam_Friends::SetRichPresence %s %s\n", pchKey, pchValue ? pchValue : "NULL");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (pchValue) {
-        #ifdef SHOW_DIALOG_RICH_CONNECT
-        if (std::string(pchKey) == std::string("connect"))
-            MessageBox(0, pchValue, pchKey, MB_OK);
-        #endif
-        (*us.mutable_rich_presence())[pchKey] = pchValue;
+        auto prev_value = (*us.mutable_rich_presence()).find(pchKey);
+        if (prev_value == (*us.mutable_rich_presence()).end() || prev_value->second != pchValue) {
+            (*us.mutable_rich_presence())[pchKey] = pchValue;
+            modified = true;
+        }
     } else {
         auto to_remove = us.mutable_rich_presence()->find(pchKey);
         if (to_remove != us.mutable_rich_presence()->end()) {
             us.mutable_rich_presence()->erase(to_remove);
+            modified = true;
         }
     }
-    modified = true;
-    
+
     return true;
 }
 

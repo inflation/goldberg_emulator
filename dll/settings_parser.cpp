@@ -18,6 +18,8 @@
 #include "settings_parser.h"
 #include <fstream>
 #include <cctype>
+#include <sstream>
+#include <iterator>
 
 static void load_custom_broadcasts(std::string broadcasts_filepath, std::set<uint32> &custom_broadcasts)
 {
@@ -32,6 +34,77 @@ static void load_custom_broadcasts(std::string broadcasts_filepath, std::set<uin
     }
 }
 
+template<typename Out>
+static void split_string(const std::string &s, char delim, Out result) {
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        *(result++) = item;
+    }
+}
+
+static void load_gamecontroller_settings(Settings *settings)
+{
+    std::string path = Local_Storage::get_game_settings_path() + "controller";
+    std::vector<std::string> paths = Local_Storage::get_filenames_path(path);
+
+    for (auto & p: paths) {
+        size_t length = p.length();
+        if (length < 4) continue;
+        if ( std::toupper(p.back()) != 'T') continue;
+        if ( std::toupper(p[length - 2]) != 'X') continue;
+        if ( std::toupper(p[length - 3]) != 'T') continue;
+        if (p[length - 4] != '.') continue;
+
+        PRINT_DEBUG("controller config %s\n", p.c_str());
+        std::string action_set_name = p.substr(0, length - 4);
+        std::transform(action_set_name.begin(), action_set_name.end(), action_set_name.begin(),[](unsigned char c){ return std::toupper(c); });
+
+        std::string controller_config_path = path + PATH_SEPARATOR + p;
+        std::ifstream input( controller_config_path );
+        if (input.is_open()) {
+            std::map<std::string, std::pair<std::set<std::string>, std::string>> button_pairs;
+
+            for( std::string line; getline( input, line ); ) {
+                if (!line.empty() && line[line.length()-1] == '\n') {
+                    line.pop_back();
+                }
+
+                if (!line.empty() && line[line.length()-1] == '\r') {
+                    line.pop_back();
+                }
+
+                std::string action_name;
+                std::string button_name;
+                std::string source_mode;
+
+                std::size_t deliminator = line.find("=");
+                if (deliminator != 0 && deliminator != std::string::npos && deliminator != line.size()) {
+                    action_name = line.substr(0, deliminator);
+                    std::size_t deliminator2 = line.find("=", deliminator + 1);
+
+                    if (deliminator2 != std::string::npos && deliminator2 != line.size()) {
+                        button_name = line.substr(deliminator + 1, deliminator2 - (deliminator + 1));
+                        source_mode = line.substr(deliminator2 + 1);
+                    } else {
+                        button_name = line.substr(deliminator + 1);
+                        source_mode = "";
+                    }
+                }
+
+                std::transform(action_name.begin(), action_name.end(), action_name.begin(),[](unsigned char c){ return std::toupper(c); });
+                std::transform(button_name.begin(), button_name.end(), button_name.begin(),[](unsigned char c){ return std::toupper(c); });
+                std::pair<std::set<std::string>, std::string> button_config = {{}, source_mode};
+                split_string(button_name, ',', std::inserter(button_config.first, button_config.first.begin()));
+                button_pairs[action_name] = button_config;
+                PRINT_DEBUG("Added %s %s %s\n", action_name.c_str(), button_name.c_str(), source_mode.c_str());
+            }
+
+            settings->controller_settings.action_sets[action_set_name] = button_pairs;
+            PRINT_DEBUG("Added %u action names to %s\n", button_pairs.size(), action_set_name.c_str());
+        }
+    }
+}
 
 uint32 create_localstorage_settings(Settings **settings_client_out, Settings **settings_server_out, Local_Storage **local_storage_out)
 {
@@ -174,6 +247,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     }
 
     bool steam_offline_mode = false;
+    bool disable_networking = false;
     {
         std::string steam_settings_path = Local_Storage::get_game_settings_path();
 
@@ -182,6 +256,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
             PRINT_DEBUG("steam settings path %s\n", p.c_str());
             if (p == "offline.txt") {
                 steam_offline_mode = true;
+            } else if (p == "disable_networking.txt") {
+                disable_networking = true;
             }
         }
     }
@@ -192,6 +268,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     settings_server->set_port(port);
     settings_client->custom_broadcasts = custom_broadcasts;
     settings_server->custom_broadcasts = custom_broadcasts;
+    settings_client->disable_networking = disable_networking;
+    settings_server->disable_networking = disable_networking;
 
     {
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "DLC.txt";
@@ -385,6 +463,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
             } catch (...) {}
         }
     }
+
+    load_gamecontroller_settings(settings_client);
 
     *settings_client_out = settings_client;
     *settings_server_out = settings_server;
