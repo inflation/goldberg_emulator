@@ -83,12 +83,11 @@ Steam_Remote_Storage(class Settings *settings, Local_Storage *local_storage, cla
 bool	FileWrite( const char *pchFile, const void *pvData, int32 cubData )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FileWrite %s %u\n", pchFile, cubData);
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
-
-    if (!pvData || cubData < 0 || cubData > k_unMaxCloudFileChunkSize) {
+    if (!pchFile || cubData <= 0 || cubData > k_unMaxCloudFileChunkSize) {
         return false;
     }
 
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
     int data_stored = local_storage->store_data(REMOTE_STORAGE_FOLDER, pchFile, (char* )pvData, cubData);
     PRINT_DEBUG("Steam_Remote_Storage::Stored %i, %u\n", data_stored, data_stored == cubData);
     return data_stored == cubData;
@@ -108,18 +107,17 @@ STEAM_CALL_RESULT( RemoteStorageFileWriteAsyncComplete_t )
 SteamAPICall_t FileWriteAsync( const char *pchFile, const void *pvData, uint32 cubData )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FileWriteAsync\n");
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
-
-    if (!pvData || cubData > k_unMaxCloudFileChunkSize) {
+    if (!pchFile || cubData > k_unMaxCloudFileChunkSize || cubData == 0) {
         return k_uAPICallInvalid;
     }
 
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
     bool success = local_storage->store_data(REMOTE_STORAGE_FOLDER, pchFile, (char* )pvData, cubData) == cubData;
 
     RemoteStorageFileWriteAsyncComplete_t data;
     data.m_eResult = success ? k_EResultOK : k_EResultFail;
 
-    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data), 0.1);
+    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data), 0.01);
 }
 
 
