@@ -478,7 +478,9 @@ void Steam_Overlay::OverlayProc()
 
         ImGui::PushFont(font_default);
 
-        if (ImGui::Begin("SteamOverlay", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
+        bool show;
+
+        if (ImGui::Begin("SteamOverlay", &show, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
         {
             ImGui::LabelText("##label", "Username: %s(%llu) playing %u",
                 settings->get_local_name(),
@@ -514,6 +516,9 @@ void Steam_Overlay::OverlayProc()
         ImGui::End();
 
         ImGui::PopFont();
+
+        if (!show)
+            ShowOverlay(false);
     }// if(show_overlay)
 }
 
