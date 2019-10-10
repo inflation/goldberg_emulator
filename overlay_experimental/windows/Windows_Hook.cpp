@@ -165,7 +165,6 @@ UINT WINAPI Windows_Hook::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand,
 
     RawMouseEvent(*reinterpret_cast<RAWINPUT*>(pData));
 
-    //memset(pData, 0, *pcbSize);
     *pcbSize = 0;
 
     return 0;

@@ -16,6 +16,7 @@ class Renderer_Detector
 private:
     // Variables
     std::thread* _hook_thread;
+    std::mutex _found_mutex;
     unsigned int _hook_retries;
     bool _renderer_found;       // Is the renderer hooked ?
     bool _dx9_hooked;
@@ -70,6 +71,7 @@ class Renderer_Detector
 {
     // Variables
     std::thread* _hook_thread;
+    std::mutex _found_mutex;
     unsigned int _hook_retries;
     bool _oglx_hooked;
     bool _renderer_found;       // Is the renderer hooked ?

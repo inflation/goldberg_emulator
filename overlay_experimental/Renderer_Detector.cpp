@@ -522,18 +522,24 @@ void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
         std::vector<std::string>::const_iterator it = libraries.begin();
         while (it != libraries.end())
         {
-            it = std::find_if(it, libraries.end(), [](std::string const& name) {
-                auto x = GetModuleHandle(name.c_str());
-                if (x != NULL)
-                    return true;
-                return false;
-                });
+            {
+                std::lock_guard<std::mutex> lock(_this->_found_mutex);
+                if (_this->_renderer_found)
+                    break;
 
-            if (it == libraries.end())
-                break;
+                it = std::find_if(it, libraries.end(), [](std::string const& name) {
+                    auto x = GetModuleHandle(name.c_str());
+                    if (x != NULL)
+                        return true;
+                    return false;
+                    });
 
-            _this->create_hook(it->c_str());
-            ++it;
+                if (it == libraries.end())
+                    break;
+
+                _this->create_hook(it->c_str());
+                ++it;
+            }
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -824,6 +830,7 @@ extern "C" void* dlsym(void* handle, const char* name)
 
 void Renderer_Detector::renderer_found(Base_Hook* hook)
 {
+    std::lock_guard<std::mutex> lock(_found_mutex);
     Hook_Manager& hm = Hook_Manager::Inst();
 
     _renderer_found = true;
