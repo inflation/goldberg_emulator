@@ -249,7 +249,7 @@ bool SetAchievement( const char *pchName )
         auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
             return item["name"].get<std::string>() == pchName;
         });
-        if (it != defined_achievements.end()) {
+        if (it != defined_achievements.end() && user_achievements[pchName]["earned"] == false) {
             user_achievements[pchName]["earned"] = true;
             user_achievements[pchName]["earned_time"] = static_cast<uint32>(std::time(nullptr));
             return true;
