@@ -95,6 +95,25 @@ bool IgnoreMsg(UINT uMsg)
     return false;
 }
 
+void RawMouseEvent(RAWINPUT& raw)
+{
+    if (raw.header.dwType == RIM_TYPEMOUSE)
+    {
+        if (raw.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
+            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_LBUTTONDOWN, 0, 0);
+        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP)
+            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_LBUTTONUP, 0, 0);
+        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
+            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_MBUTTONDOWN, 0, 0);
+        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP)
+            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_MBUTTONUP, 0, 0);
+        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
+            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_RBUTTONDOWN, 0, 0);
+        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
+            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_RBUTTONUP, 0, 0);
+    }
+}
+
 LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Steam_Overlay* overlay = get_steam_client()->steam_overlay;
@@ -108,9 +127,8 @@ LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
             // If Left Shift is pressed
             if (GetAsyncKeyState(VK_LSHIFT) & (1 << 15))
             {
-                overlay->ShowOverlay(!overlay->ShowOverlay());
-                if (overlay->ShowOverlay())
-                    show = true;
+                show = !overlay->ShowOverlay();
+                overlay->ShowOverlay(show);
             }
         }
     }
@@ -128,18 +146,29 @@ LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
 
 UINT WINAPI Windows_Hook::MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader)
 {
-    if (!get_steam_client()->steam_overlay->ShowOverlay())
+    if (pData == nullptr || !get_steam_client()->steam_overlay->ShowOverlay())
         return Windows_Hook::Inst()->GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
 
-    return -1;
+    int num = Windows_Hook::Inst()->GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
+    for (int i = 0; i < num; ++i)
+        RawMouseEvent(pData[i]);
+
+    return 0;
 }
 
 UINT WINAPI Windows_Hook::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader)
 {
-    if (!get_steam_client()->steam_overlay->ShowOverlay())
+    if (pData == nullptr || !get_steam_client()->steam_overlay->ShowOverlay())
         return Windows_Hook::Inst()->GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
 
-    return -1;
+    Windows_Hook::Inst()->GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
+
+    RawMouseEvent(*reinterpret_cast<RAWINPUT*>(pData));
+
+    //memset(pData, 0, *pcbSize);
+    *pcbSize = 0;
+
+    return 0;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 
