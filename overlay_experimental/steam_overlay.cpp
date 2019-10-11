@@ -478,7 +478,7 @@ void Steam_Overlay::OverlayProc()
 
         ImGui::PushFont(font_default);
 
-        bool show;
+        bool show = true;
 
         if (ImGui::Begin("SteamOverlay", &show, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
         {
