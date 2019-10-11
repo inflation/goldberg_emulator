@@ -21,6 +21,7 @@ enum window_state
 
 struct friend_window_state
 {
+    int id;
     uint8 window_state;
     union // The invitation (if any)
     {
@@ -51,6 +52,8 @@ struct Notification
     static constexpr float g = 0.29;
     static constexpr float b = 0.48;
     static constexpr float max_alpha = 0.5f;
+
+    int id;
     std::chrono::seconds start_time;
     std::string message;
 };

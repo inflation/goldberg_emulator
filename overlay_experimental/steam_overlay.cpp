@@ -12,6 +12,53 @@
 
 #include "Renderer_Detector.h"
 
+static constexpr int max_window_id = 10000;
+static constexpr int base_notif_window_id  = 0 * max_window_id;
+static constexpr int base_friend_window_id = 1 * max_window_id;
+static constexpr int base_friend_item_id   = 2 * max_window_id;
+
+int find_free_id(std::vector<int> & ids, int base)
+{
+    std::sort(ids.begin(), ids.end());
+
+    int id = base;
+    for (auto i : ids)
+    {
+        if (id < i)
+            break;
+        id = i + 1;
+    }
+
+    return id > (base+max_window_id) ? 0 : id;
+}
+
+int find_free_friend_id(std::map<Friend, friend_window_state, Friend_Less> const& friend_windows)
+{
+    std::vector<int> ids;
+    ids.reserve(friend_windows.size());
+
+    std::for_each(friend_windows.begin(), friend_windows.end(), [&ids](std::pair<Friend const, friend_window_state> const& i)
+    {
+        ids.emplace_back(i.second.id);
+    });
+    
+    return find_free_id(ids, base_friend_window_id);
+}
+
+int find_free_notification_id(std::vector<Notification> const& notifications)
+{
+    std::vector<int> ids;
+    ids.reserve(notifications.size());
+
+    std::for_each(notifications.begin(), notifications.end(), [&ids](Notification const& i)
+    {
+        ids.emplace_back(i.id);
+    });
+    
+
+    return find_free_id(ids, base_friend_window_id);
+}
+
 #ifdef __WINDOWS__
 #include "windows/Windows_Hook.h"
 #endif
@@ -217,9 +264,16 @@ void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
 void Steam_Overlay::FriendConnect(Friend _friend)
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto& item = friends[_friend];
-    item.window_state = window_state_none;
-    memset(item.chat_input, 0, max_chat_len);
+    int id = find_free_friend_id(friends);
+    if (id != 0)
+    {
+        auto& item = friends[_friend];
+        item.window_state = window_state_none;
+        item.id = id;
+        memset(item.chat_input, 0, max_chat_len);
+    }
+    else
+        PRINT_DEBUG("No more free id to create a friend window\n");
 }
 
 void Steam_Overlay::FriendDisconnect(Friend _friend)
@@ -232,10 +286,17 @@ void Steam_Overlay::FriendDisconnect(Friend _friend)
 
 void Steam_Overlay::AddNotification(std::string const& message)
 {
-    Notification notif;
-    notif.message = message;
-    notif.start_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
-    notifications.emplace_back(notif);
+    int id = find_free_notification_id(notifications);
+    if (id != 0)
+    {
+        Notification notif;
+        notif.id = id;
+        notif.message = message;
+        notif.start_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+        notifications.emplace_back(notif);
+    }
+    else
+        PRINT_DEBUG("No more free id to create a notification window\n");
 }
 
 bool Steam_Overlay::FriendHasLobby(uint64 friend_id)
@@ -267,7 +328,7 @@ bool Steam_Overlay::IHaveLobby()
 
 void Steam_Overlay::BuildContextMenu(Friend const& frd, friend_window_state& state)
 {
-    if (ImGui::BeginPopupContextItem("Friends", 1))
+    if (ImGui::BeginPopupContextItem("Friends_ContextMenu", 1))
     {
         bool close_popup = false;
 
@@ -306,7 +367,17 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
     bool show = true;
     bool send_chat_msg = false;
 
-    if (ImGui::Begin(frd.name().c_str(), &show))
+    float width = ImGui::CalcTextSize("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").x;
+    
+    if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
+    {
+        state.window_state &= ~window_state_need_attention;
+    }
+    ImGui::SetNextWindowSizeConstraints(ImVec2{ width, ImGui::GetFontSize()*8 + ImGui::GetItemsLineHeightWithSpacing()*4 },
+        ImVec2{ std::numeric_limits<float>::max() , std::numeric_limits<float>::max() });
+
+    // Window id is after the ###, the window title is the friend name
+    if (ImGui::Begin((frd.name()+"###"+std::to_string(state.id)).c_str(), &show))
     {
         if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
         {
@@ -329,9 +400,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
             }
         }
 
-        ImGui::PushItemWidth(-1.0f); // Make the chat history widget fill the window
         ImGui::ColoredInputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, 0 }, ImGuiInputTextFlags_ReadOnly);
-        ImGui::PopItemWidth();
 
         // TODO: Fix the layout of the chat line + send button.
         // It should be like this: chat input should fill the window size minus send button size (button size is fixed)
@@ -353,10 +422,16 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
         // | \--------------------------/ |
         // | [__chat line__] [send]       |
         // |------------------------------|
+        float wnd_width = ImGui::GetWindowContentRegionWidth();
+        ImGuiStyle &style = ImGui::GetStyle();
+        wnd_width -= ImGui::CalcTextSize("Send").x + style.FramePadding.x * 2 + style.ItemSpacing.x + 1;
+
+        ImGui::PushItemWidth(wnd_width);
         if (ImGui::InputText("##chat_line", state.chat_input, max_chat_len, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             send_chat_msg = true;
         }
+        ImGui::PopItemWidth();
 
         ImGui::SameLine();
 
@@ -418,7 +493,7 @@ void Steam_Overlay::BuildNotifications(int width, int height)
         
         ImGui::SetNextWindowPos(ImVec2((float)width - width * Notification::width, Notification::height * font_size * i ));
         ImGui::SetNextWindowSize(ImVec2( width * Notification::width, Notification::height * font_size ));
-        ImGui::Begin(std::to_string(10000+i).c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | 
+        ImGui::Begin(std::to_string(it->id).c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | 
             ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMouseInputs);
 
         ImGui::TextWrapped("%s", it->message.c_str());
@@ -498,7 +573,7 @@ void Steam_Overlay::OverlayProc()
                 ImGui::ListBoxHeader("##label", friend_size);
                 std::for_each(friends.begin(), friends.end(), [this](std::pair<Friend const, friend_window_state> &i)
                 {
-                    ImGui::PushID(i.first.id());
+                    ImGui::PushID(i.second.id-base_friend_window_id+base_friend_item_id);
 
                     ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
                     BuildContextMenu(i.first, i.second);
