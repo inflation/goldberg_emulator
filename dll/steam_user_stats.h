@@ -93,7 +93,7 @@ void load_achievements_db()
 
 void load_achievements()
 {
-    local_storage->load_inventory_file(user_achievements, achievements_user_file);
+    local_storage->load_json_file("", achievements_user_file, user_achievements);
 }
 
 public:
@@ -319,7 +319,7 @@ bool StoreStats()
     PRINT_DEBUG("StoreStats\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    local_storage->write_inventory_file(user_achievements, achievements_user_file);
+    local_storage->write_json_file("", achievements_user_file, user_achievements);
 
     UserStatsStored_t data;
     data.m_nGameID = settings->get_local_game_id().ToUint64();

@@ -691,10 +691,17 @@ bool Local_Storage::update_save_filenames(std::string folder)
     return true;
 }
 
-bool Local_Storage::load_inventory_file(nlohmann::json& json, std::string const&file)
+bool Local_Storage::load_json_file(std::string folder, std::string const&file, nlohmann::json& json)
 {
-    std::string inv_path = std::move(save_directory + appid + inventory_storage_folder + PATH_SEPARATOR + file);
-    std::ifstream inventory_file(inv_path);
+    if (!folder.empty() && folder.back() != *PATH_SEPARATOR) {
+        folder.append(PATH_SEPARATOR);
+    }
+    std::string inv_path = std::move(save_directory + appid + folder);
+    std::string full_path = inv_path + file;
+
+    create_directory(inv_path);
+
+    std::ifstream inventory_file(full_path);
     // If there is a file and we opened it
     if (inventory_file)
     {
@@ -709,34 +716,38 @@ bool Local_Storage::load_inventory_file(nlohmann::json& json, std::string const&
 
         try {
             json = std::move(nlohmann::json::parse(buffer));
-            PRINT_DEBUG("Loaded inventory \"%s\". Loaded %u items.\n", inv_path.c_str(), json.size());
+            PRINT_DEBUG("Loaded json \"%s\". Loaded %u items.\n", full_path.c_str(), json.size());
             return true;
         } catch (std::exception& e) {
-            PRINT_DEBUG("Error while parsing \"%s\" inventory json: %s\n", inv_path.c_str(), e.what());
+            PRINT_DEBUG("Error while parsing \"%s\" json: %s\n", full_path.c_str(), e.what());
         }
     }
     else
     {
-        PRINT_DEBUG("Couldn't open file \"%s\" to read inventory\n", inv_path.c_str());
+        PRINT_DEBUG("Couldn't open file \"%s\" to read json\n", full_path.c_str());
     }
 
     return false;
 }
 
-bool Local_Storage::write_inventory_file(nlohmann::json const& json, std::string const&file)
+bool Local_Storage::write_json_file(std::string folder, std::string const&file, nlohmann::json const& json)
 {
-    std::string inv_path = std::move(save_directory + appid + inventory_storage_folder);
+    if (!folder.empty() && folder.back() != *PATH_SEPARATOR) {
+        folder.append(PATH_SEPARATOR);
+    }
+    std::string inv_path = std::move(save_directory + appid + folder);
+    std::string full_path = inv_path + file;
 
     create_directory(inv_path);
 
-    std::ofstream inventory_file(inv_path + PATH_SEPARATOR + file, std::ios::trunc | std::ios::out);
+    std::ofstream inventory_file(full_path, std::ios::trunc | std::ios::out);
     if (inventory_file)
     {
         inventory_file << std::setw(2) << json;
         return true;
     }
     
-    PRINT_DEBUG("Couldn't open file \"%s\" to write inventory\n", inv_path.c_str());
+    PRINT_DEBUG("Couldn't open file \"%s\" to write json\n", full_path.c_str());
 
     return false;
 }

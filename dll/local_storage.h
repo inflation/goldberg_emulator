@@ -63,8 +63,8 @@ public:
 
     bool update_save_filenames(std::string folder);
 
-    bool load_inventory_file(nlohmann::json &json, std::string const&file);
-    bool write_inventory_file(nlohmann::json const& json, std::string const&file);
+    bool load_json_file(std::string folder, std::string const& file, nlohmann::json& json);
+    bool write_json_file(std::string folder, std::string const& file, nlohmann::json const& json);
 };
 
 #endif
