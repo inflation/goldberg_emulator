@@ -124,7 +124,7 @@ void read_items_db()
 void read_inventory_db()
 {
     // If we havn't got any inventory
-    if (!local_storage->load_json_file("inventory", items_user_file, user_items))
+    if (!local_storage->load_json_file("", items_user_file, user_items))
     {
         // Try to load a default one
         std::string items_db_path = Local_Storage::get_game_settings_path() + items_default_file;
