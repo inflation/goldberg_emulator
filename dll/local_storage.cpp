@@ -128,12 +128,12 @@ bool Local_Storage::update_save_filenames(std::string folder)
     return true;
 }
 
-bool Local_Storage::load_inventory_file(nlohmann::json& json, std::string const&file)
+bool Local_Storage::load_json_file(std::string folder, std::string const&file, nlohmann::json& json)
 {
     return true;
 }
 
-bool Local_Storage::write_inventory_file(nlohmann::json const& json, std::string const&file)
+bool Local_Storage::write_json_file(std::string folder, std::string const&file, nlohmann::json const& json)
 {
     return true;
 }
