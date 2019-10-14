@@ -268,6 +268,7 @@ void Steam_Overlay::FriendConnect(Friend _friend)
     if (id != 0)
     {
         auto& item = friends[_friend];
+        item.window_title = std::move(_friend.name() + " playing " + std::to_string(_friend.appid()));
         item.window_state = window_state_none;
         item.id = id;
         memset(item.chat_input, 0, max_chat_len);
@@ -337,19 +338,22 @@ void Steam_Overlay::BuildContextMenu(Friend const& frd, friend_window_state& sta
             state.window_state |= window_state_show;
             close_popup = true;
         }
-        if (IHaveLobby() && ImGui::Button("Invite"))
+        // If we have the same appid, activate the invite/join buttons
+        if (settings->get_local_game_id().AppID() == frd.appid())
         {
-            state.window_state |= window_state_invite;
-            has_friend_action.push(frd);
-            close_popup = true;
+            if (IHaveLobby() && ImGui::Button("Invite"))
+            {
+                state.window_state |= window_state_invite;
+                has_friend_action.push(frd);
+                close_popup = true;
+            }
+            if (FriendHasLobby(frd.id()) && ImGui::Button("Join"))
+            {
+                state.window_state |= window_state_join;
+                has_friend_action.push(frd);
+                close_popup = true;
+            }
         }
-        if (FriendHasLobby(frd.id()) && ImGui::Button("Join"))
-        {
-            state.window_state |= window_state_join;
-            has_friend_action.push(frd);
-            close_popup = true;
-        }
-
         if( close_popup)
         {
             ImGui::CloseCurrentPopup();
@@ -377,7 +381,8 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
         ImVec2{ std::numeric_limits<float>::max() , std::numeric_limits<float>::max() });
 
     // Window id is after the ###, the window title is the friend name
-    if (ImGui::Begin((frd.name()+"###"+std::to_string(state.id)).c_str(), &show))
+    std::string friend_window_id = std::move("###" + std::to_string(state.id));
+    if (ImGui::Begin((state.window_title + friend_window_id).c_str(), &show))
     {
         if (state.window_state & window_state_need_attention && ImGui::IsWindowFocused())
         {
@@ -575,7 +580,7 @@ void Steam_Overlay::OverlayProc()
                 {
                     ImGui::PushID(i.second.id-base_friend_window_id+base_friend_item_id);
 
-                    ImGui::Selectable(i.first.name().c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
+                    ImGui::Selectable(i.second.window_title.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
                     BuildContextMenu(i.first, i.second);
                     if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
                     {

@@ -23,6 +23,7 @@ struct friend_window_state
 {
     int id;
     uint8 window_state;
+    std::string window_title;
     union // The invitation (if any)
     {
         uint64 lobbyId;
