@@ -247,6 +247,13 @@ DX12_Hook::~DX12_Hook()
 
     if (initialized)
     {
+        pSrvDescHeap->Release();
+        for (UINT i = 0; i < bufferCount; ++i)
+            pCmdAlloc[i]->Release();
+        pRtvDescHeap->Release();
+        delete[]pMainRenderTargets;
+        delete[]pCmdAlloc;
+
         ImGui_ImplDX12_InvalidateDeviceObjects();
         ImGui::DestroyContext();
 
