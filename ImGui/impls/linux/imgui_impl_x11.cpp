@@ -151,12 +151,12 @@ static void ImGui_ImplX11_UpdateMousePos()
     ImGuiIO& io = ImGui::GetIO();
 
     // Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
-    //if (io.WantSetMousePos)
-    //{
+    if (io.WantSetMousePos)
+    {
     //    POINT pos = { (int)io.MousePos.x, (int)io.MousePos.y };
     //    ::ClientToScreen(g_hWnd, &pos);
     //    ::SetCursorPos(pos.x, pos.y);
-    //}
+    }
 
     // Set mouse position
     Window unused_window;
@@ -165,8 +165,7 @@ static void ImGui_ImplX11_UpdateMousePos()
 
     XQueryPointer(g_Display, g_Window, &unused_window, &unused_window, &rx, &ry, &x, &y, &mask);
 
-    io.MousePos.x = x;
-    io.MousePos.y = y;
+    io.MousePos = ImVec2((float)x, (float)y);
 }
 
 // Gamepad navigation mapping
