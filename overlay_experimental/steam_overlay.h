@@ -183,8 +183,10 @@ public:
 
     void FriendConnect(Friend _friend) {}
     void FriendDisconnect(Friend _friend) {}
-    
-    void AddNotification(std::string const& message) {}
+
+    void AddMessageNotification(std::string const& message) {}
+    void AddAchievementNotification(nlohmann::json const& ach) {}
+    void AddInviteNotification(std::pair<const Friend, friend_window_state> &wnd_state) {}
 };
 
 #endif
