@@ -77,20 +77,20 @@ bool IgnoreMsg(UINT uMsg)
     switch (uMsg)
     {
         // Mouse Events
-    case WM_MOUSEMOVE:
-    case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
-    case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
-    case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
-    case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
-    case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
-    case WM_MOUSEACTIVATE: case WM_MOUSEHOVER: case WM_MOUSELEAVE:
+        case WM_MOUSEMOVE:
+        case WM_MOUSEWHEEL: case WM_MOUSEHWHEEL:
+        case WM_LBUTTONUP: case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
+        case WM_RBUTTONUP: case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
+        case WM_MBUTTONUP: case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
+        case WM_XBUTTONUP: case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
+        case WM_MOUSEACTIVATE: case WM_MOUSEHOVER: case WM_MOUSELEAVE:
         // Keyboard Events
-    case WM_KEYDOWN: case WM_KEYUP:
-    case WM_SYSKEYDOWN: case WM_SYSKEYUP: case WM_SYSDEADCHAR:
-    case WM_CHAR: case WM_UNICHAR: case WM_DEADCHAR:
+        case WM_KEYDOWN: case WM_KEYUP:
+        case WM_SYSKEYDOWN: case WM_SYSKEYUP: case WM_SYSDEADCHAR:
+        case WM_CHAR: case WM_UNICHAR: case WM_DEADCHAR:
         // Raw Input Events
-    case WM_INPUT:
-        return true;
+        case WM_INPUT:
+            return true;
     }
     return false;
 }
@@ -133,9 +133,9 @@ LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
         }
     }
 
+    ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
     if (show)
     {
-        ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
         if (IgnoreMsg(uMsg))
             return 0;
     }
