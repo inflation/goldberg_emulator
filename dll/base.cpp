@@ -158,17 +158,17 @@ std::string get_lib_path() {
   int i = 0;
   struct dirent *ep;
   dp = opendir (dir.c_str());
-  unsigned long long int p = (unsigned long long int)&get_lib_path;
+  intptr_t p = (intptr_t)&get_lib_path;
 
   if (dp != NULL)
   {
     while ((ep = readdir (dp))) {
       if (memcmp(ep->d_name, ".", 2) != 0 && memcmp(ep->d_name, "..", 3) != 0) {
             char *upper = NULL;
-            unsigned long long int lower_bound = strtoull(ep->d_name, &upper, 16);
+            intptr_t lower_bound = strtoull(ep->d_name, &upper, 16);
             if (lower_bound) {
                 ++upper;
-                unsigned long long int upper_bound = strtoull(upper, &upper, 16);
+                intptr_t upper_bound = strtoull(upper, &upper, 16);
                 if (upper_bound && (lower_bound < p && p < upper_bound)) {
                     std::string path = dir + PATH_SEPARATOR + ep->d_name;
                     char link[PATH_MAX] = {};
