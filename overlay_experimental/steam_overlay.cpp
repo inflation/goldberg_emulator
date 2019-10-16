@@ -166,6 +166,17 @@ void Steam_Overlay::ShowOverlay(bool state)
     if (!Ready() || show_overlay == state)
         return;
 
+    ImGuiIO &io = ImGui::GetIO();
+
+    if(state)
+    {
+        io.MouseDrawCursor = true;
+    }
+    else
+    {
+        io.MouseDrawCursor = false;
+    }
+
 #ifdef __WINDOWS__
     static RECT old_clip;
 
@@ -197,12 +208,10 @@ void Steam_Overlay::ShowOverlay(bool state)
         clipRect.bottom -= borderWidth;
 
         ClipCursor(&clipRect);
-        ImGui::GetIO().MouseDrawCursor = true;
     }
     else
     {
         ClipCursor(&old_clip);
-        ImGui::GetIO().MouseDrawCursor = false;
     }
 
 #else
