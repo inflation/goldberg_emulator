@@ -22,11 +22,12 @@ private:
 
     ID3D12CommandQueue* pCmdQueue;
     UINT bufferCount;
-    D3D12_CPU_DESCRIPTOR_HANDLE* pMainRenderTargets;
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> mainRenderTargets;
     ID3D12CommandAllocator** pCmdAlloc;
     ID3D12DescriptorHeap* pSrvDescHeap;
     ID3D12GraphicsCommandList* pCmdList;
     ID3D12DescriptorHeap* pRtvDescHeap;
+    ID3D12Resource** pBackBuffer;
 
     // Functions
     DX12_Hook();
