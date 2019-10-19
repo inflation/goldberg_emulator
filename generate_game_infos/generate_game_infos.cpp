@@ -352,7 +352,7 @@ static void generate_achievements(CurlEasy &easy)
 
 static void generate_items(CurlEasy& easy)
 {
-    std::string url = "https://api.steampowered.com/IInventoryService/GetItemDefMeta/v1?key=";
+    std::string url = "http://api.steampowered.com/IInventoryService/GetItemDefMeta/v1?key=";
     url += steam_apikey;
     url += "&appid=";
     url += app_id;
@@ -365,7 +365,7 @@ static void generate_items(CurlEasy& easy)
         nlohmann::json json = nlohmann::json::parse(easy.get_answer());
         std::string digest = json["response"]["digest"];
 
-        url = "https://api.steampowered.com/IGameInventory/GetItemDefArchive/v0001?appid=";
+        url = "http://api.steampowered.com/IGameInventory/GetItemDefArchive/v0001?appid=";
         url += app_id;
         url += "&digest=";
         url += digest;
@@ -374,8 +374,12 @@ static void generate_items(CurlEasy& easy)
         easy.perform();
 
         nlohmann::json item_json = nlohmann::json::object();
+        nlohmann::json default_item_json = nlohmann::json::object();
+
         json = nlohmann::json::parse(easy.get_answer());
         std::ofstream items_file("items.json", std::ios::trunc | std::ios::out);
+        std::ofstream default_items_file("default_items.json", std::ios::trunc | std::ios::out);
+
         for (auto &i : json)
         {
             for (auto j = i.begin(); j != i.end(); ++j)
@@ -408,9 +412,11 @@ static void generate_items(CurlEasy& easy)
                 }
             }
             item_json[i["itemdefid"].get<std::string>()] = i;
+            default_item_json[i["itemdefid"].get<std::string>()] = 1;
         }
 
         items_file << std::setw(2) << item_json;
+        default_items_file << std::setw(2) << default_item_json;
     }
     catch (std::exception& e)
     {
