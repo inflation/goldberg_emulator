@@ -232,7 +232,7 @@ bool GetResultItems( SteamInventoryResult_t resultHandle,
         if (request->full_query) {
             *punOutItemsArraySize = user_items.size();
         } else {
-            *punOutItemsArraySize = std::count_if(request->instance_ids.begin(), request->instance_ids.end(), [this](auto item_id){ return user_items.find(std::to_string(item_id)) != user_items.end();});
+            *punOutItemsArraySize = std::count_if(request->instance_ids.begin(), request->instance_ids.end(), [this](SteamItemInstanceID_t item_id){ return user_items.find(std::to_string(item_id)) != user_items.end();});
         }
     }
 
