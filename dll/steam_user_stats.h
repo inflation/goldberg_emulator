@@ -66,34 +66,17 @@ unsigned int find_leaderboard(std::string name)
 void load_achievements_db()
 {
     std::string file_path = Local_Storage::get_game_settings_path() + achievements_user_file;
-    std::ifstream achs_file(file_path);
-
-    if (achs_file)
-    {
-        achs_file.seekg(0, std::ios::end);
-        size_t size = achs_file.tellg();
-        std::string buffer(size, '\0');
-        achs_file.seekg(0);
-        // Read it entirely, if the .json file gets too big,
-        // I should look into this and split reads into smaller parts.
-        achs_file.read(&buffer[0], size);
-        achs_file.close();
-
-        try {
-            defined_achievements = std::move(nlohmann::json::parse(buffer));
-        } catch (std::exception &e) {
-            PRINT_DEBUG("Error while parsing json: \"%s\" : %s\n", file_path.c_str(), e.what());
-        }
-    }
-    else
-    {
-        PRINT_DEBUG("Couldn't open file \"%s\" to read achievements definition\n", file_path.c_str());
-    }
+    local_storage->load_json(file_path, defined_achievements);
 }
 
 void load_achievements()
 {
     local_storage->load_json_file("", achievements_user_file, user_achievements);
+}
+
+void save_achievements()
+{
+    local_storage->write_json_file("", achievements_user_file, user_achievements);
 }
 
 public:
@@ -223,6 +206,7 @@ bool GetAchievement( const char *pchName, bool *pbAchieved )
 {
     PRINT_DEBUG("GetAchievement %s\n", pchName);
     if (pchName == nullptr) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     try {
         auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName]( nlohmann::json &item ) {
@@ -244,16 +228,19 @@ bool SetAchievement( const char *pchName )
 {
     PRINT_DEBUG("SetAchievement %s\n", pchName);
     if (pchName == nullptr) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     try {
         auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
             return item["name"].get<std::string>() == pchName;
         });
         if (it != defined_achievements.end()) {
-            if (user_achievements[pchName]["earned"] == false) {
+            if (user_achievements.find(pchName) == user_achievements.end() || user_achievements[pchName].value("earned", false) == false) {
                 user_achievements[pchName]["earned"] = true;
-                user_achievements[pchName]["earned_time"] = static_cast<uint32>(std::time(nullptr));
+                user_achievements[pchName]["earned_time"] = std::chrono::duration_cast<std::chrono::duration<uint32>>(std::chrono::system_clock::now().time_since_epoch()).count();
+                save_achievements();
             }
+
             return true;
         }
     } catch (...) {}
@@ -265,6 +252,7 @@ bool ClearAchievement( const char *pchName )
 {
     PRINT_DEBUG("ClearAchievement %s\n", pchName);
     if (pchName == nullptr) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     try {
         auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
@@ -273,6 +261,7 @@ bool ClearAchievement( const char *pchName )
         if (it != defined_achievements.end()) {
             user_achievements[pchName]["earned"] = false;
             user_achievements[pchName]["earned_time"] = static_cast<uint32>(0);
+            save_achievements();
             return true;
         }
     } catch (...) {}
@@ -288,6 +277,7 @@ bool GetAchievementAndUnlockTime( const char *pchName, bool *pbAchieved, uint32 
 {
     PRINT_DEBUG("GetAchievementAndUnlockTime\n");
     if (pchName == nullptr) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     try {
         auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
@@ -319,8 +309,6 @@ bool StoreStats()
     PRINT_DEBUG("StoreStats\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    local_storage->write_json_file("", achievements_user_file, user_achievements);
-
     UserStatsStored_t data;
     data.m_nGameID = settings->get_local_game_id().ToUint64();
     data.m_eResult = k_EResultOK;
@@ -339,6 +327,7 @@ int GetAchievementIcon( const char *pchName )
 {
     PRINT_DEBUG("GetAchievementIcon\n");
     if (pchName == nullptr) return 0;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     return 0;
 }
@@ -353,13 +342,17 @@ const char * GetAchievementDisplayAttribute( const char *pchName, const char *pc
     if (pchName == nullptr) return "";
     if (pchKey == nullptr) return "";
 
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
     if (strcmp (pchKey, "name") == 0) {
         try {
             auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
                 return static_cast<std::string const&>(item["name"]) == pchName;
             });
             if (it != defined_achievements.end()) {
-                return it.value()["displayName"].get<std::string>().c_str();
+                static std::string display_name;
+                display_name = it.value()["displayName"].get<std::string>();
+                return display_name.c_str();
             }
         } catch (...) {}
     }
@@ -370,7 +363,9 @@ const char * GetAchievementDisplayAttribute( const char *pchName, const char *pc
                 return static_cast<std::string const&>(item["name"]) == pchName;
             });
             if (it != defined_achievements.end()) {
-                return it.value()["description"].get<std::string>().c_str();
+                static std::string description;
+                description = it.value()["description"].get<std::string>();
+                return description.c_str();
             }
         } catch (...) {}
     }
@@ -381,7 +376,9 @@ const char * GetAchievementDisplayAttribute( const char *pchName, const char *pc
                 return static_cast<std::string const&>(item["name"]) == pchName;
             });
             if (it != defined_achievements.end()) {
-                return it.value()["description"].get<std::string>().c_str();
+                static std::string hidden;
+                hidden = it.value()["hidden"].get<std::string>();
+                return hidden.c_str();
             }
         } catch (...) {}
     }
@@ -396,7 +393,41 @@ bool IndicateAchievementProgress( const char *pchName, uint32 nCurProgress, uint
 {
     PRINT_DEBUG("IndicateAchievementProgress\n");
     if (pchName == nullptr) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
+    try {
+        auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
+            return static_cast<std::string const&>(item["name"]) == pchName;
+        });
+        auto ach = user_achievements.find(pchName);
+        if (it != defined_achievements.end()) {
+            bool achieved = false;
+            if ( ach != user_achievements.end()) {
+                bool achieved = ach->value("earned", false);
+            }
+
+            UserAchievementStored_t data = {};
+            data.m_nGameID = settings->get_local_game_id().ToUint64();
+            data.m_bGroupAchievement = false;
+            strncpy(data.m_rgchAchievementName, pchName, k_cchStatNameMax);
+
+            if (achieved) {
+                data.m_nCurProgress = 0;
+                data.m_nMaxProgress = 0;
+            } else {
+                user_achievements[pchName]["progress"] = nCurProgress;
+                user_achievements[pchName]["max_progress"] = nMaxProgress;
+                data.m_nCurProgress = nCurProgress;
+                data.m_nMaxProgress = nMaxProgress;
+            }
+
+            save_achievements();
+            callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
+            return true;
+        }
+    } catch (...) {}
+
+    return false;
 }
 
 
@@ -405,6 +436,7 @@ bool IndicateAchievementProgress( const char *pchName, uint32 nCurProgress, uint
 uint32 GetNumAchievements()
 {
     PRINT_DEBUG("GetNumAchievements\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
     return defined_achievements.size();
 }
 
@@ -413,7 +445,9 @@ const char * GetAchievementName( uint32 iAchievement )
 {
     PRINT_DEBUG("GetAchievementName\n");
     try {
-        return defined_achievements[iAchievement]["name"].get<std::string>().c_str();
+        static std::string achievement_name;
+        achievement_name = defined_achievements[iAchievement]["name"].get<std::string>();
+        return achievement_name.c_str();
     } catch (...) {}
     return "";
 }
@@ -482,6 +516,7 @@ bool GetUserAchievement( CSteamID steamIDUser, const char *pchName, bool *pbAchi
 {
     PRINT_DEBUG("GetUserAchievement %s\n", pchName);
     if (pchName == nullptr) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     if (steamIDUser == settings->get_local_steam_id()) {
         return GetAchievement(pchName, pbAchieved);
@@ -495,6 +530,7 @@ bool GetUserAchievementAndUnlockTime( CSteamID steamIDUser, const char *pchName,
 {
     PRINT_DEBUG("GetUserAchievementAndUnlockTime %s\n", pchName);
     if (pchName == nullptr) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     if (steamIDUser == settings->get_local_steam_id()) {
         return GetAchievementAndUnlockTime(pchName, pbAchieved, punUnlockTime);
@@ -507,6 +543,7 @@ bool GetUserAchievementAndUnlockTime( CSteamID steamIDUser, const char *pchName,
 bool ResetAllStats( bool bAchievementsToo )
 {
     PRINT_DEBUG("ResetAllStats\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
     //TODO
     if (bAchievementsToo) {
         std::for_each(user_achievements.begin(), user_achievements.end(), [](nlohmann::json& v) {

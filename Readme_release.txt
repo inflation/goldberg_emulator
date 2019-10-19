@@ -75,6 +75,7 @@ An example can be found in steam_settings.EXAMPLE that works with Killing Floor 
 The items.json syntax is simple, you SHOULD validate your .json file before trying to run your game or you won't have any item in your inventory. Just look for "online json validator" on your web brower to valide your file.
 You can use https://steamdb.info/ to list items and attributes they have and put them into your .json.
 Keep in mind that some item are not valid to have in your inventory. For example, in PayDay2 all items below item_id 50000 will make your game crash.
+items.json should contain all the item definitions for the game, default_items.json is the quantity of each item that you want a user to have initially in their inventory. By default the user will have no items.
 
 Leaderboards:
 By default the emulator assumes all leaderboards queried by the game (FindLeaderboard()) exist and creates them with the most common options (sort method descending, display type numeric)

@@ -128,14 +128,19 @@ bool Local_Storage::update_save_filenames(std::string folder)
     return true;
 }
 
+bool Local_Storage::load_json(std::string full_path, nlohmann::json& json)
+{
+    return false;
+}
+
 bool Local_Storage::load_json_file(std::string folder, std::string const&file, nlohmann::json& json)
 {
-    return true;
+    return false;
 }
 
 bool Local_Storage::write_json_file(std::string folder, std::string const&file, nlohmann::json const& json)
 {
-    return true;
+    return false;
 }
 
 std::vector<std::string> Local_Storage::get_filenames_path(std::string path)
@@ -691,16 +696,8 @@ bool Local_Storage::update_save_filenames(std::string folder)
     return true;
 }
 
-bool Local_Storage::load_json_file(std::string folder, std::string const&file, nlohmann::json& json)
+bool Local_Storage::load_json(std::string full_path, nlohmann::json& json)
 {
-    if (!folder.empty() && folder.back() != *PATH_SEPARATOR) {
-        folder.append(PATH_SEPARATOR);
-    }
-    std::string inv_path = std::move(save_directory + appid + folder);
-    std::string full_path = inv_path + file;
-
-    create_directory(inv_path);
-
     std::ifstream inventory_file(full_path);
     // If there is a file and we opened it
     if (inventory_file)
@@ -728,6 +725,17 @@ bool Local_Storage::load_json_file(std::string folder, std::string const&file, n
     }
 
     return false;
+}
+
+bool Local_Storage::load_json_file(std::string folder, std::string const&file, nlohmann::json& json)
+{
+    if (!folder.empty() && folder.back() != *PATH_SEPARATOR) {
+        folder.append(PATH_SEPARATOR);
+    }
+    std::string inv_path = std::move(save_directory + appid + folder);
+    std::string full_path = inv_path + file;
+
+    return load_json(full_path, json);
 }
 
 bool Local_Storage::write_json_file(std::string folder, std::string const&file, nlohmann::json const& json)
