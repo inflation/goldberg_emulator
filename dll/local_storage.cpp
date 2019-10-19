@@ -20,6 +20,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include <iomanip>
 
 struct File_Data {
     std::string name;
@@ -123,6 +124,16 @@ bool Local_Storage::iterate_file(std::string folder, int index, char *output_fil
 }
 
 bool Local_Storage::update_save_filenames(std::string folder)
+{
+    return true;
+}
+
+bool Local_Storage::load_json_file(std::string folder, std::string const&file, nlohmann::json& json)
+{
+    return true;
+}
+
+bool Local_Storage::write_json_file(std::string folder, std::string const&file, nlohmann::json const& json)
 {
     return true;
 }
@@ -378,7 +389,7 @@ std::string Local_Storage::get_program_path()
 
 std::string Local_Storage::get_game_settings_path()
 {
-    return get_program_path().append(GAME_SETTINGS_FOLDER).append(PATH_SEPARATOR);
+    return get_program_path().append(game_settings_folder).append(PATH_SEPARATOR);
 }
 
 #if defined(STEAM_WIN32)
@@ -508,7 +519,7 @@ std::string Local_Storage::get_path(std::string folder)
 
 std::string Local_Storage::get_global_settings_path()
 {
-    return save_directory + SETTINGS_STORAGE_FOLDER + PATH_SEPARATOR;
+    return save_directory + settings_storage_folder + PATH_SEPARATOR;
 }
 
 std::vector<std::string> Local_Storage::get_filenames_path(std::string path)
@@ -678,6 +689,67 @@ bool Local_Storage::update_save_filenames(std::string folder)
     }
 
     return true;
+}
+
+bool Local_Storage::load_json_file(std::string folder, std::string const&file, nlohmann::json& json)
+{
+    if (!folder.empty() && folder.back() != *PATH_SEPARATOR) {
+        folder.append(PATH_SEPARATOR);
+    }
+    std::string inv_path = std::move(save_directory + appid + folder);
+    std::string full_path = inv_path + file;
+
+    create_directory(inv_path);
+
+    std::ifstream inventory_file(full_path);
+    // If there is a file and we opened it
+    if (inventory_file)
+    {
+        inventory_file.seekg(0, std::ios::end);
+        size_t size = inventory_file.tellg();
+        std::string buffer(size, '\0');
+        inventory_file.seekg(0);
+        // Read it entirely, if the .json file gets too big,
+        // I should look into this and split reads into smaller parts.
+        inventory_file.read(&buffer[0], size);
+        inventory_file.close();
+
+        try {
+            json = std::move(nlohmann::json::parse(buffer));
+            PRINT_DEBUG("Loaded json \"%s\". Loaded %u items.\n", full_path.c_str(), json.size());
+            return true;
+        } catch (std::exception& e) {
+            PRINT_DEBUG("Error while parsing \"%s\" json: %s\n", full_path.c_str(), e.what());
+        }
+    }
+    else
+    {
+        PRINT_DEBUG("Couldn't open file \"%s\" to read json\n", full_path.c_str());
+    }
+
+    return false;
+}
+
+bool Local_Storage::write_json_file(std::string folder, std::string const&file, nlohmann::json const& json)
+{
+    if (!folder.empty() && folder.back() != *PATH_SEPARATOR) {
+        folder.append(PATH_SEPARATOR);
+    }
+    std::string inv_path = std::move(save_directory + appid + folder);
+    std::string full_path = inv_path + file;
+
+    create_directory(inv_path);
+
+    std::ofstream inventory_file(full_path, std::ios::trunc | std::ios::out);
+    if (inventory_file)
+    {
+        inventory_file << std::setw(2) << json;
+        return true;
+    }
+    
+    PRINT_DEBUG("Couldn't open file \"%s\" to write json\n", full_path.c_str());
+
+    return false;
 }
 
 #endif

@@ -43,7 +43,6 @@ Steam_Client::Steam_Client()
 {
 
     uint32 appid = create_localstorage_settings(&settings_client, &settings_server, &local_storage);
-    std::string items_db_file_path = (Local_Storage::get_game_settings_path() + "items.json");
 
     network = new Networking(settings_server->get_local_steam_id(), appid, settings_server->get_port(), &(settings_server->custom_broadcasts), settings_server->disable_networking);
 
@@ -72,7 +71,7 @@ Steam_Client::Steam_Client()
     steam_music = new Steam_Music(callbacks_client);
     steam_musicremote = new Steam_MusicRemote();
     steam_HTMLsurface = new Steam_HTMLsurface(settings_client, network, callback_results_client, callbacks_client);
-    steam_inventory = new Steam_Inventory(settings_client, callback_results_client, callbacks_client, run_every_runcb, items_db_file_path);
+    steam_inventory = new Steam_Inventory(settings_client, callback_results_client, callbacks_client, run_every_runcb, local_storage);
     steam_video = new Steam_Video();
     steam_parental = new Steam_Parental();
     steam_networking_sockets = new Steam_Networking_Sockets(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
@@ -90,7 +89,7 @@ Steam_Client::Steam_Client()
     steam_gameserverstats = new Steam_GameServerStats(settings_server, network, callback_results_server, callbacks_server);
     steam_gameserver_networking = new Steam_Networking(settings_server, network, callbacks_server, run_every_runcb);
     steam_gameserver_http = new Steam_HTTP(settings_server, network, callback_results_server, callbacks_server);
-    steam_gameserver_inventory = new Steam_Inventory(settings_server, callback_results_server, callbacks_server, run_every_runcb, items_db_file_path);
+    steam_gameserver_inventory = new Steam_Inventory(settings_server, callback_results_server, callbacks_server, run_every_runcb, local_storage);
     steam_gameserver_ugc = new Steam_UGC(settings_server, callback_results_server, callbacks_server);
     steam_gameserver_apps = new Steam_Apps(settings_server, callback_results_server);
     steam_gameserver_networking_sockets = new Steam_Networking_Sockets(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
