@@ -31,6 +31,7 @@ unsigned int Steam_User_Stats::find_leaderboard(std::string name)
 
 void Steam_User_Stats::load_achievements_db()
 {
+    std::string file_path = Local_Storage::get_game_settings_path() + achievements_user_file;
     local_storage->load_json(file_path, defined_achievements);
 }
 
@@ -39,7 +40,7 @@ void Steam_User_Stats::load_achievements()
     local_storage->load_json_file("", achievements_user_file, user_achievements);
 }
 
-void save_achievements()
+void Steam_User_Stats::save_achievements()
 {
     local_storage->write_json_file("", achievements_user_file, user_achievements);
 }
