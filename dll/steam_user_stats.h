@@ -350,9 +350,7 @@ const char * GetAchievementDisplayAttribute( const char *pchName, const char *pc
                 return static_cast<std::string const&>(item["name"]) == pchName;
             });
             if (it != defined_achievements.end()) {
-                static std::string display_name;
-                display_name = it.value()["displayName"].get<std::string>();
-                return display_name.c_str();
+                return it.value()["displayName"].get_ptr<std::string*>()->c_str();
             }
         } catch (...) {}
     }
@@ -363,9 +361,7 @@ const char * GetAchievementDisplayAttribute( const char *pchName, const char *pc
                 return static_cast<std::string const&>(item["name"]) == pchName;
             });
             if (it != defined_achievements.end()) {
-                static std::string description;
-                description = it.value()["description"].get<std::string>();
-                return description.c_str();
+                return it.value()["description"].get_ptr<std::string*>()->c_str();
             }
         } catch (...) {}
     }
@@ -376,9 +372,7 @@ const char * GetAchievementDisplayAttribute( const char *pchName, const char *pc
                 return static_cast<std::string const&>(item["name"]) == pchName;
             });
             if (it != defined_achievements.end()) {
-                static std::string hidden;
-                hidden = it.value()["hidden"].get<std::string>();
-                return hidden.c_str();
+                return it.value()["hidden"].get_ptr<std::string*>()->c_str();
             }
         } catch (...) {}
     }
