@@ -88,6 +88,7 @@ public ISteamMatchmaking
     std::vector<struct Chat_Entry> chat_entries;
     std::vector<struct Data_Requested> data_requested;
 
+    std::map<uint64, std::map<std::string, std::string>> self_lobby_member_data;
 Lobby *get_lobby(CSteamID id)
 {
     auto lobby = std::find_if(lobbies.begin(), lobbies.end(), [&id](Lobby const& item) { return item.room_id() == id.ConvertToUint64(); });
@@ -239,6 +240,7 @@ void remove_lobbies()
     while (g != std::end(lobbies)) {
         if (g->members().size() == 0 || (g->deleted() && (g->time_deleted() + LOBBY_DELETED_TIMEOUT < current_time))) {
             PRINT_DEBUG("REMOVING LOBBY %llu\n", g->room_id());
+            self_lobby_member_data.erase(g->room_id());
             g = lobbies.erase(g);
         } else {
             ++g;
@@ -846,13 +848,22 @@ const char *GetLobbyMemberData( CSteamID steamIDLobby, CSteamID steamIDUser, con
     struct Lobby_Member *member = get_lobby_member(get_lobby(steamIDLobby), steamIDUser);
     const char *ret = "";
     if (member) {
-        auto result = member->values().find(std::string(pchKey));
-        if (result == member->values().end()) return "";
-        PRINT_DEBUG("GetLobbyMemberData res %s\n", result->second.c_str());
-        ret = result->second.c_str();
+        if (steamIDUser == settings->get_local_steam_id()) {
+            auto result = self_lobby_member_data.find(steamIDLobby.ConvertToUint64());
+            if (result != self_lobby_member_data.end()) {
+                auto value = result->second.find(std::string(pchKey));
+                if (value != result->second.end()) {
+                    ret = value->second.c_str();
+                }
+            }
+        } else {
+            auto result = member->values().find(std::string(pchKey));
+            if (result == member->values().end()) return "";
+            ret = result->second.c_str();
+        }
     }
 
-    
+    PRINT_DEBUG("GetLobbyMemberData res %s\n", ret);
     return ret;
 }
 
@@ -879,6 +890,8 @@ void SetLobbyMemberData( CSteamID steamIDLobby, const char *pchKey, const char *
             (*message->mutable_map())[pchKey] = pchValue;
             send_owner_packet(steamIDLobby, message);
         }
+
+        self_lobby_member_data[steamIDLobby.ConvertToUint64()][pchKey] = pchValue;
     }
 
     
@@ -1343,6 +1356,7 @@ void Callback(Common_Message *msg)
                     Lobby_Member *member = get_lobby_member(lobby, (uint64)msg->source_id());
                     if (member) {
                         for (auto const &p : msg->lobby_messages().map()) {
+                            PRINT_DEBUG("member data %s:%s\n", p.first.c_str(), p.second.c_str());
                             (*member->mutable_values())[p.first] = p.second;
                         }
 
