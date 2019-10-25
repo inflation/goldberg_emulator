@@ -266,7 +266,7 @@ static bool create_directory(std::string const& strPath)
 
 static void generate_achievements(CurlEasy &easy)
 {
-    std::string url = "http://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key=";
+    std::string url = "https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key=";
     url += steam_apikey;
     url += "&appid=";
     url += app_id;
@@ -352,7 +352,7 @@ static void generate_achievements(CurlEasy &easy)
 
 static void generate_items(CurlEasy& easy)
 {
-    std::string url = "http://api.steampowered.com/IInventoryService/GetItemDefMeta/v1?key=";
+    std::string url = "https://api.steampowered.com/IInventoryService/GetItemDefMeta/v1?key=";
     url += steam_apikey;
     url += "&appid=";
     url += app_id;
@@ -365,7 +365,7 @@ static void generate_items(CurlEasy& easy)
         nlohmann::json json = nlohmann::json::parse(easy.get_answer());
         std::string digest = json["response"]["digest"];
 
-        url = "http://api.steampowered.com/IGameInventory/GetItemDefArchive/v0001?appid=";
+        url = "https://api.steampowered.com/IGameInventory/GetItemDefArchive/v0001?appid=";
         url += app_id;
         url += "&digest=";
         url += digest;
@@ -448,6 +448,7 @@ int main()
     CurlEasy easy;
     if (easy.init())
     {
+        easy.skip_verifypeer();
         std::cout << "Enter the game appid: ";
         std::cin >> app_id; 
         std::cout << "Enter your webapi key: ";
