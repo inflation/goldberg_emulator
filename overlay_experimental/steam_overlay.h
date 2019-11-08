@@ -41,10 +41,17 @@ struct Friend_Less
     }
 };
 
+enum notification_type
+{
+    notification_type_message = 0,
+    notification_type_invite,
+    notification_type_achievement,
+};
+
 struct Notification
 {
     static constexpr float width = 0.25;
-    static constexpr float height = 4.0;
+    static constexpr float height = 5.0;
     static constexpr std::chrono::milliseconds fade_in   = std::chrono::milliseconds(2000);
     static constexpr std::chrono::milliseconds fade_out  = std::chrono::milliseconds(2000);
     static constexpr std::chrono::milliseconds show_time = std::chrono::milliseconds(6000) + fade_in + fade_out;
@@ -55,8 +62,10 @@ struct Notification
     static constexpr float max_alpha = 0.5f;
 
     int id;
+    uint8 type;
     std::chrono::seconds start_time;
     std::string message;
+    std::pair<const Friend, friend_window_state>* frd;
 };
 
 #ifndef NO_OVERLAY
@@ -97,7 +106,7 @@ class Steam_Overlay
     bool FriendHasLobby(uint64 friend_id);
     bool IHaveLobby();
 
-    void NotifyUser(friend_window_state& friend_state, std::string const& message);
+    void NotifyUser(friend_window_state& friend_state);
 
     // Right click on friend
     void BuildContextMenu(Friend const& frd, friend_window_state &state);
@@ -136,7 +145,9 @@ public:
     void FriendConnect(Friend _friend);
     void FriendDisconnect(Friend _friend);
 
-    void AddNotification(std::string const& message);
+    void AddMessageNotification(std::string const& message);
+    void AddAchievementNotification(nlohmann::json const& ach);
+    void AddInviteNotification(std::pair<const Friend, friend_window_state> &wnd_state);
 };
 
 #else

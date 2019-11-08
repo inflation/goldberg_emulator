@@ -213,7 +213,7 @@ void Steam_Overlay::ShowOverlay(bool state)
     overlay_state_changed = true;
 }
 
-void Steam_Overlay::NotifyUser(friend_window_state& friend_state, std::string const& message)
+void Steam_Overlay::NotifyUser(friend_window_state& friend_state)
 {
     if (!(friend_state.window_state & window_state_show) || !show_overlay)
     {
@@ -221,7 +221,6 @@ void Steam_Overlay::NotifyUser(friend_window_state& friend_state, std::string co
 #ifdef __WINDOWS__
         PlaySound((LPCSTR)notif_invite_wav, NULL, SND_ASYNC | SND_MEMORY);
 #endif
-        AddNotification(message);
     }
 }
 
@@ -239,7 +238,8 @@ void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
         frd.window_state |= window_state_lobby_invite;
         // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
         frd.window_state &= ~window_state_rich_invite;
-        NotifyUser(i->second, i->first.name() + " invited you to join a game");
+        AddInviteNotification(*i);
+        NotifyUser(i->second);
     }
 }
 
@@ -257,7 +257,8 @@ void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
         frd.window_state |= window_state_rich_invite;
         // Make sure don't have rich presence invite and a lobby invite (it should not happen but who knows)
         frd.window_state &= ~window_state_lobby_invite;
-        NotifyUser(i->second, i->first.name() + " invited you to join a game");
+        AddInviteNotification(*i);
+        NotifyUser(i->second);
     }
 }
 
@@ -285,14 +286,49 @@ void Steam_Overlay::FriendDisconnect(Friend _friend)
         friends.erase(it);
 }
 
-void Steam_Overlay::AddNotification(std::string const& message)
+void Steam_Overlay::AddMessageNotification(std::string const& message)
 {
     int id = find_free_notification_id(notifications);
     if (id != 0)
     {
         Notification notif;
         notif.id = id;
+        notif.type = notification_type_message;
         notif.message = message;
+        notif.start_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+        notifications.emplace_back(notif);
+    }
+    else
+        PRINT_DEBUG("No more free id to create a notification window\n");
+}
+
+void Steam_Overlay::AddAchievementNotification(nlohmann::json const& ach)
+{
+    int id = find_free_notification_id(notifications);
+    if (id != 0)
+    {
+        Notification notif;
+        notif.id = id;
+        notif.type = notification_type_achievement;
+        // Load achievement image
+        notif.message = ach["displayName"].get<std::string>() + "\n" + ach["description"].get<std::string>();
+        notif.start_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
+        notifications.emplace_back(notif);
+    }
+    else
+        PRINT_DEBUG("No more free id to create a notification window\n");
+}
+
+void Steam_Overlay::AddInviteNotification(std::pair<const Friend, friend_window_state>& wnd_state)
+{
+    int id = find_free_notification_id(notifications);
+    if (id != 0)
+    {
+        Notification notif;
+        notif.id = id;
+        notif.type = notification_type_invite;
+        notif.frd = &wnd_state;
+        notif.message = wnd_state.first.name() + " invited you to join a game";
         notif.start_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch());
         notifications.emplace_back(notif);
     }
@@ -341,13 +377,13 @@ void Steam_Overlay::BuildContextMenu(Friend const& frd, friend_window_state& sta
         // If we have the same appid, activate the invite/join buttons
         if (settings->get_local_game_id().AppID() == frd.appid())
         {
-            if (IHaveLobby() && ImGui::Button("Invite"))
+            if (IHaveLobby() && ImGui::Button("Invite###PopupInvite"))
             {
                 state.window_state |= window_state_invite;
                 has_friend_action.push(frd);
                 close_popup = true;
             }
-            if (FriendHasLobby(frd.id()) && ImGui::Button("Join"))
+            if (FriendHasLobby(frd.id()) && ImGui::Button("Join###PopupJoin"))
             {
                 state.window_state |= window_state_join;
                 has_friend_action.push(frd);
@@ -499,9 +535,26 @@ void Steam_Overlay::BuildNotifications(int width, int height)
         ImGui::SetNextWindowPos(ImVec2((float)width - width * Notification::width, Notification::height * font_size * i ));
         ImGui::SetNextWindowSize(ImVec2( width * Notification::width, Notification::height * font_size ));
         ImGui::Begin(std::to_string(it->id).c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | 
-            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMouseInputs);
+            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDecoration);
 
-        ImGui::TextWrapped("%s", it->message.c_str());
+        switch (it->type)
+        {
+            case notification_type_achievement:
+                ImGui::TextWrapped("%s", it->message.c_str());
+                break;
+            case notification_type_invite:
+                {
+                    ImGui::TextWrapped("%s", it->message.c_str());
+                    if (ImGui::Button("Join"))
+                    {
+                        has_friend_action.push(it->frd->first);
+                        it->start_time = std::chrono::seconds(0);
+                    }
+                }
+                break;
+            case notification_type_message:
+                ImGui::TextWrapped("%s", it->message.c_str()); break;
+        }
 
         ImGui::End();
 
@@ -619,7 +672,8 @@ void Steam_Overlay::Callback(Common_Message *msg)
                 friend_info->second.window_state |= window_state_need_attention;
             }
 
-            NotifyUser(friend_info->second, friend_info->first.name() + " says: " + steam_message.message());
+            AddMessageNotification(friend_info->first.name() + " says: " + steam_message.message());
+            NotifyUser(friend_info->second);
         }
     }
 }
