@@ -828,7 +828,7 @@ bool SubmitUpdateProperties( SteamInventoryUpdateHandle_t handle, SteamInventory
 
 void RunCallbacks()
 {
-    if (call_definition_update || inventory_requests.size()) {
+    if (call_definition_update || !inventory_requests.empty()) {
         if (!item_definitions_loaded) {
             read_items_db();
             item_definitions_loaded = true;
@@ -842,7 +842,7 @@ void RunCallbacks()
         call_definition_update = false;
     }
 
-    if (inventory_requests.size() && !inventory_loaded) {
+    if (!inventory_requests.empty() && !inventory_loaded) {
         read_inventory_db();
         inventory_loaded = true;
     }
