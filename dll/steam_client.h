@@ -124,6 +124,7 @@ public:
 
     Steam_Overlay* steam_overlay;
 
+    bool enable_overlay = true;
     bool user_logged_in = false;
     bool server_init = false;
     std::thread background_keepalive;
