@@ -9,9 +9,14 @@
 #include <X11/X.h> // XEvent types
 #include <X11/Xlib.h> // XEvent structure
 
+extern "C" int XEventsQueued(Display *display, int mode);
+extern "C" int XPending(Display *display);
+
 class X11_Hook : public Base_Hook
 {
 public:
+    friend int XEventsQueued(Display *display, int mode);
+    friend int XPending(Display *display);
     static constexpr const char* DLL_NAME = "libX11.so";
 
 private:
@@ -27,8 +32,6 @@ private:
     int check_for_overlay(Display *d, int num_events);
 
     // Hook to X11 window messages
-
-
     decltype(XEventsQueued)* _XEventsQueued;
     decltype(XPeekEvent)* _XPeekEvent;
     decltype(XNextEvent)* _XNextEvent;
@@ -37,12 +40,12 @@ private:
     //decltype(XLookupKeysym)* _XLookupKeysym;
     //decltype(XGetGeometry)* _XGetGeometry;
 
-public:
     static int MyXEventsQueued(Display * display, int mode);
     static int MyXNextEvent(Display* display, XEvent *event);
     static int MyXPeekEvent(Display* display, XEvent *event);
     static int MyXPending(Display* display);
 
+public:
     virtual ~X11_Hook();
 
     void resetRenderState();
@@ -53,16 +56,6 @@ public:
     bool start_hook();
     static X11_Hook* Inst();
     virtual const char* get_lib_name() const;
-
-    inline decltype(XEventsQueued)* get_XEventsQueued() const { return _XEventsQueued; }
-    inline decltype(XPeekEvent)*    get_XPeekEvent()    const { return _XPeekEvent; }
-    inline decltype(XNextEvent)*    get_XNextEvent()    const { return _XNextEvent; }
-    inline decltype(XPending)*      get_XPending()      const { return _XPending; }
-
-    inline void loadXEventsQueued(decltype(XEventsQueued)* pfnXEventsQueued) { _XEventsQueued = pfnXEventsQueued; }
-    inline void loadXPeekEvent(decltype(XPeekEvent)* pfnXPeekEvent) { _XPeekEvent = pfnXPeekEvent; }
-    inline void loadXNextEvent(decltype(XNextEvent)* pfnXNextEvent) { _XNextEvent = pfnXNextEvent; }
-    inline void loadXPending(decltype(XPending)* pfnXPending) { _XPending = pfnXPending; }
 };
 
 #endif//NO_OVERLAY

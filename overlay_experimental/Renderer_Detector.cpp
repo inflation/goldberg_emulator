@@ -153,6 +153,16 @@ BOOL WINAPI Renderer_Detector::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
     return res;
 }
 
+void __stdcall Renderer_Detector::MyvkCmdEndRenderPass(void* commandBuffer)
+{
+    Renderer_Detector& inst = Renderer_Detector::Inst();
+    _vkCmdEndRenderPass(commandBuffer);
+    if (!inst.stop_retry())
+    {
+        Vulkan_Hook::Inst()->start_hook();
+    }
+}
+
 void Renderer_Detector::HookDXGIPresent(IDXGISwapChain* pSwapChain)
 {
     if (!_dxgi_hooked)
@@ -628,98 +638,19 @@ Renderer_Detector::Renderer_Detector():
 #include "linux/X11_Hook.h"
 
 #include <dlfcn.h>
-#include <fstream>
 
 extern "C" void *_dl_sym(void *, const char *, void *);
 
 static decltype(glXGetProcAddress)* real_glXGetProcAddress = nullptr;
 static decltype(glXGetProcAddressARB)* real_glXGetProcAddressARB = nullptr;
 
-/*
-void Renderer_Detector::MyglXSwapBuffers(Display *dpy, GLXDrawable drawable)
-{
-    Renderer_Detector& inst = Renderer_Detector::Inst();
-    Hook_Manager& hm = Hook_Manager::Inst();
-    _glXSwapBuffers(reinterpret_cast<::Display*>(dpy), drawable);
-    if (!inst.stop_retry())
-    {
-        OpenGLX_Hook::Inst()->start_hook();
-    }
-}
-
-void Renderer_Detector::HookglXSwapBuffers(decltype(glXSwapBuffers)* glXSwapBuffers)
-{
-    _glXSwapBuffers = glXSwapBuffers;
-
-    rendererdetect_hook->BeginHook();
-
-    rendererdetect_hook->HookFuncs(
-        std::pair<void**, void*>(&(void*&)_glXSwapBuffers, (void*)MyglXSwapBuffers)
-    );
-
-    rendererdetect_hook->EndHook();
-}
-
-void Renderer_Detector::hook_openglx(const char* libname)
-{
-    if (!_oglx_hooked && !_renderer_found)
-    {
-        void* library = dlopen(libname, RTLD_NOW);
-        decltype(glXSwapBuffers)* glXSwapBuffers = nullptr;
-        if (library != nullptr)
-        {
-            glXSwapBuffers = (decltype(glXSwapBuffers))dlsym(library, "glXSwapBuffers");
-        }
-        if (glXSwapBuffers != nullptr)
-        {
-            PRINT_DEBUG("Hooked glXSwapBuffers to detect OpenGLX\n");
-
-            _oglx_hooked = true;
-            auto h = OpenGLX_Hook::Inst();
-            h->loadFunctions(glXSwapBuffers);
-            Hook_Manager::Inst().AddHook(h);
-            HookglXSwapBuffers(glXSwapBuffers);
-        }
-        else
-        {
-            PRINT_DEBUG("Failed to Hook glXSwapBuffers to detect OpenGLX\n");
-        }
-    }
-}
-
-void Renderer_Detector::create_hook(const char* libname)
-{
-    if (strcasestr(libname, OpenGLX_Hook::DLL_NAME) != nullptr)
-        hook_openglx(libname);
-}
-*/
-
-void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
-{
-    /*
-    _this->rendererdetect_hook = new Base_Hook();
-    Hook_Manager& hm = Hook_Manager::Inst();
-    hm.AddHook(_this->rendererdetect_hook);
-    */
-}
-
-Renderer_Detector::Renderer_Detector():
-    _hook_thread(nullptr),
-    _hook_retries(0),
-    _renderer_found(false),
-    _oglx_hooked(false),
-    rendererdetect_hook(nullptr),
-    game_renderer(nullptr)
-{}
-
 static decltype(dlsym)* real_dlsym = nullptr;
 
-// hook library static loading
 extern "C" int XEventsQueued(Display *display, int mode)
 {
     auto h = X11_Hook::Inst();
-    if( h->get_XEventsQueued() == nullptr )
-        h->loadXEventsQueued((decltype(XEventsQueued)*)real_dlsym(RTLD_NEXT, "XEventsQueued"));
+    if( h->_XEventsQueued == nullptr )
+        h->_XEventsQueued = reinterpret_cast<decltype(XEventsQueued)*>(real_dlsym(RTLD_NEXT, "XEventsQueued"));
 
     return X11_Hook::MyXEventsQueued(display, mode);
 }
@@ -727,26 +658,26 @@ extern "C" int XEventsQueued(Display *display, int mode)
 //extern "C" int XPeekEvent(Display *display, XEvent *event)
 //{
 //    auto h = X11_Hook::Inst();
-//    if( h->get_XPeekEvent() == nullptr )
-//        h->loadXPeekEvent((decltype(XPeekEvent)*)real_dlsym(RTLD_NEXT, "XPeekEvent"));
+//    if( h->_XPeekEvent == nullptr )
+//        h->_XPeekEvent = reinterpret_cast<decltype(XPeekEvent)*>(real_dlsym(RTLD_NEXT, "XPeekEvent"));
 //
-//    return X11_Hook::MyXPeekEvent(display, event);
+//    return X11_Hook::MyXPeekEvent(display, mode);
 //}
 
 //extern "C" int XNextEvent(Display *display, XEvent *event)
 //{
 //    auto h = X11_Hook::Inst();
-//    if( h->get_XNextEvent() == nullptr )
-//        h->loadXNextEvent((decltype(XNextEvent)*)real_dlsym(RTLD_NEXT, "XNextEvent"));
+//    if( h->_XNextEvent == nullptr )
+//        h->_XNextEvent = reinterpret_cast<decltype(XNextEvent)*>(real_dlsym(RTLD_NEXT, "XNextEvent"));
 //
-//    return X11_Hook::MyXNextEvent(display, event);
+//    return X11_Hook::MyXNextEvent(display, mode);
 //}
 
 extern "C" int XPending(Display *display)
 {
     auto h = X11_Hook::Inst();
-    if( h->get_XPending() == nullptr )
-        h->loadXPending((decltype(XPending)*)real_dlsym(RTLD_NEXT, "XPending"));
+    if( h->_XPending == nullptr )
+        h->_XPending = reinterpret_cast<decltype(XPending)*>(real_dlsym(RTLD_NEXT, "XPending"));
 
     return X11_Hook::MyXPending(display);
 }
@@ -784,6 +715,24 @@ extern "C" __GLXextFuncPtr glXGetProcAddressARB (const GLubyte* procName)
 
     return func;
 }
+
+void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
+{
+    /*
+    _this->rendererdetect_hook = new Base_Hook();
+    Hook_Manager& hm = Hook_Manager::Inst();
+    hm.AddHook(_this->rendererdetect_hook);
+    */
+}
+
+Renderer_Detector::Renderer_Detector():
+    _hook_thread(nullptr),
+    _hook_retries(0),
+    _renderer_found(false),
+    _oglx_hooked(false),
+    rendererdetect_hook(nullptr),
+    game_renderer(nullptr)
+{}
 
 extern "C" void* dlsym(void* handle, const char* name)
 {
