@@ -58,8 +58,7 @@ class Steam_Inventory :
     std::string items_db_file;
     std::once_flag load_items_flag;
     bool call_definition_update;
-    bool definition_update_called;
-    bool full_update_called;
+    bool item_definitions_loaded;
 
 struct Steam_Inventory_Requests* new_inventory_result(bool full_query=true, const SteamItemInstanceID_t* pInstanceIDs = NULL, uint32 unCountInstanceIDs = 0)
 {
@@ -89,6 +88,25 @@ struct Steam_Inventory_Requests *get_inventory_result(SteamInventoryResult_t res
     return &(*request);
 }
 
+void read_items_db()
+{
+    std::string items_db_path = Local_Storage::get_game_settings_path() + items_user_file;
+    PRINT_DEBUG("Items file path: %s\n", items_db_path.c_str());
+    local_storage->load_json(items_db_path, defined_items);
+}
+
+void read_inventory_db()
+{
+    // If we havn't got any inventory
+    if (!local_storage->load_json_file("", items_user_file, user_items))
+    {
+        // Try to load a default one
+        std::string items_db_path = Local_Storage::get_game_settings_path() + items_default_file;
+        PRINT_DEBUG("Default items file path: %s\n", items_db_path.c_str());
+        local_storage->load_json(items_db_path, user_items);
+    }
+}
+
 public:
 
 static void run_every_runcb_cb(void *object)
@@ -99,7 +117,17 @@ static void run_every_runcb_cb(void *object)
     obj->RunCallbacks();
 }
 
-Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb, std::string items_db_file_path)
+Steam_Inventory(class Settings *settings, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb, class Local_Storage *local_storage):
+    settings(settings),
+    callback_results(callback_results),
+    callbacks(callbacks),
+    run_every_runcb(run_every_runcb),
+    local_storage(local_storage),
+    defined_items(nlohmann::json::object()),
+    user_items(nlohmann::json::object()),
+    inventory_loaded(false),
+    call_definition_update(false),
+    item_definitions_loaded(false)
 {
     items_db_file = items_db_file_path;
     PRINT_DEBUG("Items file path: %s\n", items_db_file.c_str());
@@ -163,6 +191,7 @@ bool GetResultItems( SteamInventoryResult_t resultHandle,
 
     if (pOutItemsArray != nullptr)
     {
+        SteamItemDetails_t *items_array_base = pOutItemsArray;
         uint32 max_items = *punOutItemsArraySize;
 
         if (request->full_query) {
@@ -175,22 +204,38 @@ bool GetResultItems( SteamInventoryResult_t resultHandle,
                 pOutItemsArray->m_unFlags = k_ESteamItemNoTrade;
                 ++pOutItemsArray;
             }
-            *punOutItemsArraySize = std::min(*punOutItemsArraySize, static_cast<uint32>(items.size()));
         } else {
             for (auto &itemid : request->instance_ids) {
                 if (!max_items) break;
-                pOutItemsArray->m_iDefinition = itemid;
-                pOutItemsArray->m_itemId = itemid;
-                pOutItemsArray->m_unQuantity = 1;
-                pOutItemsArray->m_unFlags = k_ESteamItemNoTrade;
-                ++pOutItemsArray;
-                --max_items;
+                auto it = user_items.find(std::to_string(itemid));
+                if (it != user_items.end()) {
+                    pOutItemsArray->m_iDefinition = itemid;
+                    pOutItemsArray->m_itemId = itemid;
+
+                    try
+                    {
+                        pOutItemsArray->m_unQuantity = it->get<int>();
+                    }
+                    catch (...)
+                    {
+                        pOutItemsArray->m_unQuantity = 0;
+                    }
+                    pOutItemsArray->m_unFlags = k_ESteamItemNoTrade;
+                    ++pOutItemsArray;
+                    --max_items;
+                }
             }
         }
+
+        *punOutItemsArraySize = pOutItemsArray - items_array_base;
     }
     else if (punOutItemsArraySize != nullptr)
     {
-        *punOutItemsArraySize = items.size();
+        if (request->full_query) {
+            *punOutItemsArraySize = user_items.size();
+        } else {
+            *punOutItemsArraySize = std::count_if(request->instance_ids.begin(), request->instance_ids.end(), [this](SteamItemInstanceID_t item_id){ return user_items.find(std::to_string(item_id)) != user_items.end();});
+        }
     }
 
     PRINT_DEBUG("GetResultItems good\n");
@@ -277,8 +322,6 @@ bool GetAllItems( SteamInventoryResult_t *pResultHandle )
     PRINT_DEBUG("GetAllItems\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     struct Steam_Inventory_Requests* request = new_inventory_result();
-
-    if (!definition_update_called) call_definition_update = true;
 
     if (pResultHandle != nullptr)
         *pResultHandle = request->inventory_result;
@@ -531,7 +574,7 @@ bool LoadItemDefinitions()
     PRINT_DEBUG("LoadItemDefinitions\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    if (!definition_update_called)  {
+    if (!item_definitions_loaded)  {
         call_definition_update = true;
     }
 
@@ -619,6 +662,7 @@ bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPrope
             {
                 *punValueBufferSizeOut = 0;
                 PRINT_DEBUG("Attr %s not found for item %d\n", pchPropertyName, iDefinition);
+                return false;
             }
         }
         else // Pass a NULL pointer for pchPropertyName to get a comma - separated list of available property names.
@@ -654,8 +698,11 @@ bool GetItemDefinitionProperty( SteamItemDef_t iDefinition, const char *pchPrope
                 }
             }
         }
+
+        return true;
     }
-    return true;
+
+    return false;
 }
 
 
@@ -782,35 +829,37 @@ bool SubmitUpdateProperties( SteamInventoryUpdateHandle_t handle, SteamInventory
 void RunCallbacks()
 {
     if (call_definition_update || inventory_requests.size()) {
-        std::call_once(load_items_flag, [&]() {
-            std::thread items_load_thread(read_items_db, items_db_file, &items, &items_loaded);
-            items_load_thread.detach();
-        });
-    }
+        if (!item_definitions_loaded) {
+            read_items_db();
+            item_definitions_loaded = true;
 
-    if (items_loaded) {
-        if (call_definition_update) {
+            //only gets called once
+            //also gets called when getting items
             SteamInventoryDefinitionUpdate_t data = {};
             callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-            call_definition_update = false;
-            definition_update_called = true;
         }
 
+        call_definition_update = false;
+    }
+
+    if (inventory_requests.size() && !inventory_loaded) {
+        read_inventory_db();
+        inventory_loaded = true;
+    }
+
+    if (inventory_loaded)
+    {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
         for (auto & r : inventory_requests) {
             if (!r.done && std::chrono::duration_cast<std::chrono::duration<double>>(now - r.time_created).count() > r.timeout) {
                 if (r.full_query) {
-                    if (!full_update_called) {
-                        // SteamInventoryFullUpdate_t callbacks are triggered when GetAllItems
-                        // successfully returns a result which is newer / fresher than the last
-                        // known result.
-                        //TODO: should this always be returned for each get all item calls?
-                        struct SteamInventoryFullUpdate_t data;
-                        data.m_handle = r.inventory_result;
-                        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-                        full_update_called = true;
-                    }
+                    // SteamInventoryFullUpdate_t callbacks are triggered when GetAllItems
+                    // successfully returns a result which is newer / fresher than the last
+                    // known result.
+                    struct SteamInventoryFullUpdate_t data;
+                    data.m_handle = r.inventory_result;
+                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
                 }
 
                 {

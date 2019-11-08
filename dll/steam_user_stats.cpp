@@ -31,7 +31,6 @@ unsigned int Steam_User_Stats::find_leaderboard(std::string name)
 
 void Steam_User_Stats::load_achievements_db()
 {
-    std::string file_path = Local_Storage::get_game_settings_path() + achievements_user_file;
     local_storage->load_json(file_path, defined_achievements);
 }
 
@@ -40,12 +39,12 @@ void Steam_User_Stats::load_achievements()
     local_storage->load_json_file("", achievements_user_file, user_achievements);
 }
 
-void Steam_User_Stats::save_achievements()
+void save_achievements()
 {
     local_storage->write_json_file("", achievements_user_file, user_achievements);
 }
 
-Steam_User_Stats::Steam_User_Stats(Settings* settings, Local_Storage* local_storage, class SteamCallResults* callback_results, class SteamCallBacks* callbacks) :
+Steam_User_Stats::Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCallResults *callback_results, class SteamCallBacks *callbacks):
     settings(settings),
     local_storage(local_storage),
     callback_results(callback_results),
@@ -317,7 +316,7 @@ const char* Steam_User_Stats::GetAchievementDisplayAttribute(const char* pchName
 
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    if (strcmp(pchKey, "name") == 0) {
+    if (strcmp (pchKey, "name") == 0) {
         try {
             auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
                 return static_cast<std::string const&>(item["name"]) == pchName;
@@ -368,7 +367,7 @@ bool Steam_User_Stats::IndicateAchievementProgress(const char* pchName, uint32 n
     try {
         auto it = std::find_if(defined_achievements.begin(), defined_achievements.end(), [pchName](nlohmann::json& item) {
             return static_cast<std::string const&>(item["name"]) == pchName;
-            });
+        });
         auto ach = user_achievements.find(pchName);
         if (it != defined_achievements.end()) {
             bool achieved = false;
