@@ -87,7 +87,10 @@ HRESULT STDMETHODCALLTYPE Renderer_Detector::MyIDXGISwapChain_Present(IDXGISwapC
     if (!inst.stop_retry())
     {
         IUnknown* pDevice = nullptr;
-        _this->GetDevice(IID_PPV_ARGS(reinterpret_cast<ID3D10Device**>(&pDevice)));
+        if (inst._dx12_hooked)
+        {
+            _this->GetDevice(IID_PPV_ARGS(reinterpret_cast<ID3D12Device**>(&pDevice)));
+        }
         if (pDevice)
         {
             DX10_Hook::Inst()->start_hook();
@@ -436,13 +439,13 @@ void Renderer_Detector::hook_dx12()
                 }//if (pDevice != nullptr)
             }//if (D3D12CreateDevice != nullptr)
         }//if (library != nullptr)
-        if (pCommandQueue != nullptr && pCommandList != nullptr && pSwapChain != nullptr)
+        if (pCommandQueue != nullptr && pSwapChain != nullptr)
         {
             PRINT_DEBUG("Hooked IDXGISwapChain::Present to detect DX Version\n");
 
             _dx12_hooked = true;
             auto h = DX12_Hook::Inst();
-            h->loadFunctions(pCommandQueue, pCommandList, pSwapChain);
+            h->loadFunctions(pCommandQueue, pSwapChain);
             Hook_Manager::Inst().AddHook(h);
             HookDXGIPresent(pSwapChain);
         }
