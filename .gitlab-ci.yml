@@ -56,7 +56,7 @@ build_steamos:
 
 build_windows:
   stage: build
-  image: fedora:30
+  image: fedora:29
 
   script:
       - dnf -y install wine wget p7zip sed dos2unix
@@ -107,7 +107,7 @@ build_cmake_linux:
 
 build_cmake_windows:
   stage: build
-  image: fedora:30
+  image: fedora:29
 
   before_script:
     - dnf update -y
