@@ -110,10 +110,7 @@ build_cmake_windows:
   image: fedora:29
 
   before_script:
-    - dnf update -y
-    - dnf install 'dnf-command(config-manager)' -y
-    - dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/30/winehq.repo
-    - dnf install wget p7zip winehq-devel samba-winbind-clients -y
+    - dnf -y install wine wget p7zip sed dos2unix
     - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/48db8f434a193aae872279dc4f5dde6a/sdk_standalone.7z'
     - 7za x sdk_standalone.7z -osdk_standalone
     - wget 'https://github.com/Kitware/CMake/releases/download/v3.15.0-rc1/cmake-3.15.0-rc1-win64-x64.zip'
