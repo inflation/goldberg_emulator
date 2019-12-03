@@ -100,11 +100,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		ExitProcess(NULL);
 	}
 
-	if (ExeFile[0] != NULL && CreateProcessA(ExeFile, ExeCommandLine, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, ExeRunDir, &info, &processInfo))
-	{
-
-	}
-	else
+	if (!ExeFile[0] || !CreateProcessA(ExeFile, ExeCommandLine, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, ExeRunDir, &info, &processInfo))
 	{
 		MessageBoxA(NULL, "Unable to load the requested EXE file.", "ColdClientLoader", MB_ICONERROR);
 		ExitProcess(NULL);
