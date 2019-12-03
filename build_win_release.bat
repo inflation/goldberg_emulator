@@ -2,6 +2,7 @@
 cd /d "%~dp0"
 del /Q /S release\*
 rmdir /S /Q release\experimental
+rmdir /S /Q release\experimental_steamclient
 rmdir /S /Q release\lobby_connect
 rmdir /S /Q release
 mkdir release
@@ -18,5 +19,6 @@ cl /LD /DEMU_RELEASE_BUILD /DNDEBUG /I%PROTOBUF_X64_DIRECTORY%\include\ dll/*.cp
 copy Readme_release.txt release\Readme.txt
 xcopy /s files_example\* release\
 call build_win_release_experimental.bat
+call build_win_release_experimental_steamclient.bat
 call build_win_lobby_connect.bat
 call build_win_find_interfaces.bat
