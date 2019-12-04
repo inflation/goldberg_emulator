@@ -757,7 +757,10 @@ STEAM_CALL_RESULT( SteamInventoryRequestPricesResult_t )
 SteamAPICall_t RequestPrices()
 {
     PRINT_DEBUG("RequestPrices\n");
-    return 0;
+    SteamInventoryRequestPricesResult_t data;
+    data.m_result = k_EResultOK;
+    memcpy(data.m_rgchCurrency, "USD", 4);
+    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data), 0.2);
 }
 
 
@@ -765,6 +768,7 @@ SteamAPICall_t RequestPrices()
 uint32 GetNumItemsWithPrices()
 {
     PRINT_DEBUG("GetNumItemsWithPrices\n");
+    return 0;
 }
 
 bool GetItemsWithPrices( STEAM_ARRAY_COUNT(unArrayLength) STEAM_OUT_ARRAY_COUNT(pArrayItemDefs, Items with prices) SteamItemDef_t *pArrayItemDefs,
@@ -773,6 +777,7 @@ bool GetItemsWithPrices( STEAM_ARRAY_COUNT(unArrayLength) STEAM_OUT_ARRAY_COUNT(
 									 uint32 unArrayLength )
 {
     PRINT_DEBUG("GetItemsWithPrices\n");
+    return false;
 }
 
 // Returns item definition ids and their prices in the user's local currency.
@@ -848,7 +853,7 @@ void RunCallbacks()
             //only gets called once
             //also gets called when getting items
             SteamInventoryDefinitionUpdate_t data = {};
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.05);
         }
 
         call_definition_update = false;
