@@ -423,14 +423,7 @@ public:
 
     void runCallBacks() {
         for (auto & c : callbacks) {
-            std::vector<std::vector<char>> res_back = c.second.results;
             c.second.results.clear();
-            for (auto r : res_back) {
-                for (auto cb: c.second.callbacks) {
-                    //PRINT_DEBUG("Calling callback %i\n", cb->GetICallback());
-                    //cb->Run(&(r[0]));
-                }
-            }
         }
     }
 };
