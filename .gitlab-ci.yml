@@ -115,7 +115,7 @@ build_cmake_windows:
   image: fedora:29
 
   before_script:
-    - dnf -y install wine wget p7zip sed dos2unix
+    - dnf -y install wine wget p7zip sed dos2unix unzip
     - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/48db8f434a193aae872279dc4f5dde6a/sdk_standalone.7z'
     - 7za x sdk_standalone.7z -osdk_standalone
     - wget 'https://github.com/Kitware/CMake/releases/download/v3.15.0-rc1/cmake-3.15.0-rc1-win64-x64.zip'
