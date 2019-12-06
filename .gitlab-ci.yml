@@ -78,6 +78,9 @@ build_windows:
       - wine cmd /c build_win_release.bat
       - mkdir release/debug_experimental
       - mv steam_api.dll steam_api64.dll release/debug_experimental/
+      - wine cmd /c build_win_debug_experimental_steamclient.bat
+      - mkdir release/debug_experimental_steamclient
+      - mv steamclient.dll steamclient64.dll release/debug_experimental_steamclient/
       - cp Readme_debug.txt release/debug_experimental/Readme.txt
   artifacts:
     paths:
