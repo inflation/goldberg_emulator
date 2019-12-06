@@ -69,7 +69,7 @@ Steam_Remote_Storage(class Settings *settings, Local_Storage *local_storage, cla
     this->local_storage = local_storage;
     this->callback_results = callback_results;
     steam_cloud_enabled = true;
-    local_storage->update_save_filenames(REMOTE_STORAGE_FOLDER);
+    local_storage->update_save_filenames(Local_Storage::remote_storage_folder);
 }
 
 // NOTE
@@ -83,8 +83,12 @@ Steam_Remote_Storage(class Settings *settings, Local_Storage *local_storage, cla
 bool	FileWrite( const char *pchFile, const void *pvData, int32 cubData )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FileWrite %s %u\n", pchFile, cubData);
+    if (!pchFile || cubData <= 0 || cubData > k_unMaxCloudFileChunkSize) {
+        return false;
+    }
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    int data_stored = local_storage->store_data(REMOTE_STORAGE_FOLDER, pchFile, (char* )pvData, cubData);
+    int data_stored = local_storage->store_data(Local_Storage::remote_storage_folder, pchFile, (char* )pvData, cubData);
     PRINT_DEBUG("Steam_Remote_Storage::Stored %i, %u\n", data_stored, data_stored == cubData);
     return data_stored == cubData;
 }
@@ -93,7 +97,7 @@ int32	FileRead( const char *pchFile, void *pvData, int32 cubDataToRead )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FileRead %s %i\n", pchFile, cubDataToRead);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    int read_data = local_storage->get_data(REMOTE_STORAGE_FOLDER, pchFile, (char* )pvData, cubDataToRead);
+    int read_data = local_storage->get_data(Local_Storage::remote_storage_folder, pchFile, (char* )pvData, cubDataToRead);
     if (read_data < 0) read_data = 0;
     PRINT_DEBUG("Read %i\n", read_data);
     return read_data;
@@ -103,12 +107,16 @@ STEAM_CALL_RESULT( RemoteStorageFileWriteAsyncComplete_t )
 SteamAPICall_t FileWriteAsync( const char *pchFile, const void *pvData, uint32 cubData )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FileWriteAsync\n");
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    bool success = local_storage->store_data(REMOTE_STORAGE_FOLDER, pchFile, (char* )pvData, cubData) == cubData;
-    RemoteStorageFileWriteAsyncComplete_t data;
-    data.m_eResult = k_EResultOK;
+    if (!pchFile || cubData > k_unMaxCloudFileChunkSize || cubData == 0) {
+        return k_uAPICallInvalid;
+    }
 
-    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    bool success = local_storage->store_data(Local_Storage::remote_storage_folder, pchFile, (char* )pvData, cubData) == cubData;
+    RemoteStorageFileWriteAsyncComplete_t data;
+    data.m_eResult = success ? k_EResultOK : k_EResultFail;
+
+    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data), 0.01);
 }
 
 
@@ -118,7 +126,7 @@ SteamAPICall_t FileReadAsync( const char *pchFile, uint32 nOffset, uint32 cubToR
     PRINT_DEBUG("Steam_Remote_Storage::FileReadAsync\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    unsigned int size = local_storage->file_size(REMOTE_STORAGE_FOLDER, pchFile);
+    unsigned int size = local_storage->file_size(Local_Storage::remote_storage_folder, pchFile);
 
     RemoteStorageFileReadAsyncComplete_t data;
     if (size <= nOffset) {
@@ -153,7 +161,7 @@ bool	FileReadAsyncComplete( SteamAPICall_t hReadCall, void *pvBuffer, uint32 cub
         return false;
 
     char *temp = new char[a_read->size];
-    int read_data = local_storage->get_data(REMOTE_STORAGE_FOLDER, a_read->file_name, (char* )temp, a_read->size);
+    int read_data = local_storage->get_data(Local_Storage::remote_storage_folder, a_read->file_name, (char* )temp, a_read->size);
     if (read_data < a_read->to_read + a_read->offset) {
         delete[] temp;
         return false;
@@ -175,7 +183,7 @@ bool	FileForget( const char *pchFile )
 bool	FileDelete( const char *pchFile )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FileDelete\n");
-    return local_storage->file_delete(REMOTE_STORAGE_FOLDER, pchFile);
+    return local_storage->file_delete(Local_Storage::remote_storage_folder, pchFile);
 }
 
 STEAM_CALL_RESULT( RemoteStorageFileShareResult_t )
@@ -184,7 +192,7 @@ SteamAPICall_t FileShare( const char *pchFile )
     PRINT_DEBUG("Steam_Remote_Storage::FileShare\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     RemoteStorageFileShareResult_t data = {};
-    if (local_storage->file_exists(REMOTE_STORAGE_FOLDER, pchFile)) {
+    if (local_storage->file_exists(Local_Storage::remote_storage_folder, pchFile)) {
         data.m_eResult = k_EResultOK;
         data.m_hFile = generate_steam_api_call_id();
         strncpy(data.m_rgchFilename, pchFile, sizeof(data.m_rgchFilename) - 1);
@@ -237,7 +245,7 @@ bool FileWriteStreamClose( UGCFileWriteStreamHandle_t writeHandle )
     if (stream_writes.end() == request)
         return false;
 
-    local_storage->store_data(REMOTE_STORAGE_FOLDER, request->file_name, request->file_data.data(), request->file_data.size());
+    local_storage->store_data(Local_Storage::remote_storage_folder, request->file_name, request->file_data.data(), request->file_data.size());
     stream_writes.erase(request);
     return true;
 }
@@ -258,25 +266,25 @@ bool FileWriteStreamCancel( UGCFileWriteStreamHandle_t writeHandle )
 bool	FileExists( const char *pchFile )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FileExists %s\n", pchFile);
-    return local_storage->file_exists(REMOTE_STORAGE_FOLDER, pchFile);
+    return local_storage->file_exists(Local_Storage::remote_storage_folder, pchFile);
 }
 
 bool	FilePersisted( const char *pchFile )
 {
     PRINT_DEBUG("Steam_Remote_Storage::FilePersisted\n");
-    return local_storage->file_exists(REMOTE_STORAGE_FOLDER, pchFile);
+    return local_storage->file_exists(Local_Storage::remote_storage_folder, pchFile);
 }
 
 int32	GetFileSize( const char *pchFile )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetFileSize %s\n", pchFile);
-    return local_storage->file_size(REMOTE_STORAGE_FOLDER, pchFile);
+    return local_storage->file_size(Local_Storage::remote_storage_folder, pchFile);
 }
 
 int64	GetFileTimestamp( const char *pchFile )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetFileTimestamp\n");
-    return local_storage->file_timestamp(REMOTE_STORAGE_FOLDER, pchFile);
+    return local_storage->file_timestamp(Local_Storage::remote_storage_folder, pchFile);
 }
 
 ERemoteStoragePlatform GetSyncPlatforms( const char *pchFile )
@@ -290,7 +298,7 @@ ERemoteStoragePlatform GetSyncPlatforms( const char *pchFile )
 int32 GetFileCount()
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetFileCount\n");
-    int32 num = local_storage->count_files(REMOTE_STORAGE_FOLDER);
+    int32 num = local_storage->count_files(Local_Storage::remote_storage_folder);
     PRINT_DEBUG("Steam_Remote_Storage::File count: %i\n", num);
     return num;
 }
@@ -299,7 +307,7 @@ const char *GetFileNameAndSize( int iFile, int32 *pnFileSizeInBytes )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetFileNameAndSize %i\n", iFile);
     static char output_filename[MAX_FILENAME_LENGTH];
-    if (local_storage->iterate_file(REMOTE_STORAGE_FOLDER, iFile, output_filename, pnFileSizeInBytes)) {
+    if (local_storage->iterate_file(Local_Storage::remote_storage_folder, iFile, output_filename, pnFileSizeInBytes)) {
         PRINT_DEBUG("Steam_Remote_Storage::Name: |%s|, size: %i\n", output_filename, pnFileSizeInBytes ? *pnFileSizeInBytes : 0);
         return output_filename;
     } else {
@@ -372,7 +380,7 @@ SteamAPICall_t UGCDownload( UGCHandle_t hContent, uint32 unPriority )
         data.m_eResult = k_EResultOK;
         data.m_hFile = hContent;
         data.m_nAppID = settings->get_local_game_id().AppID();
-        data.m_nSizeInBytes = local_storage->file_size(REMOTE_STORAGE_FOLDER, shared_files[hContent]);
+        data.m_nSizeInBytes = local_storage->file_size(Local_Storage::remote_storage_folder, shared_files[hContent]);
         shared_files[hContent].copy(data.m_pchFileName, sizeof(data.m_pchFileName) - 1);
         data.m_ulSteamIDOwner = settings->get_local_steam_id().ConvertToUint64();
         downloaded_files[hContent].file = shared_files[hContent];
@@ -426,7 +434,7 @@ int32	UGCRead( UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 c
     }
 
     Downloaded_File f = downloaded_files[hContent];
-    int read_data = local_storage->get_data(REMOTE_STORAGE_FOLDER, f.file, (char* )pvData, cubDataToRead, cOffset);
+    int read_data = local_storage->get_data(Local_Storage::remote_storage_folder, f.file, (char* )pvData, cubDataToRead, cOffset);
 
     if (eAction == k_EUGCRead_Close || (eAction == k_EUGCRead_ContinueReadingUntilFinished && (read_data < cubDataToRead || (cOffset + cubDataToRead) >= f.total_size))) {
         downloaded_files.erase(hContent);

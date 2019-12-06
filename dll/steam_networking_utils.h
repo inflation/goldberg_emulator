@@ -28,6 +28,7 @@ public ISteamNetworkingUtils
     class RunEveryRunCB *run_every_runcb;
     std::chrono::time_point<std::chrono::steady_clock> initialized_time = std::chrono::steady_clock::now();
     FSteamNetworkingSocketsDebugOutput debug_function;
+    bool relay_initialized = false;
 
 public:
 static void steam_callback(void *object, Common_Message *msg)
@@ -67,6 +68,7 @@ Steam_Networking_Utils(class Settings *settings, class Networking *network, clas
 bool InitializeRelayAccess()
 {
     PRINT_DEBUG("Steam_Networking_Utils::InitializeRelayAccess\n");
+    relay_initialized = true;
     return true;
 }
 
@@ -80,44 +82,71 @@ bool InitializeRelayAccess()
 /// more details, you can pass a non-NULL value.
 ESteamNetworkingAvailability GetRelayNetworkStatus( SteamRelayNetworkStatus_t *pDetails )
 {
-    PRINT_DEBUG("Steam_Networking_Utils::GetRelayNetworkStatus\n");
+    PRINT_DEBUG("Steam_Networking_Utils::GetRelayNetworkStatus %p\n", pDetails);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
+    //TODO: check if this is how real steam returns it
+    SteamRelayNetworkStatus_t data = {};
+    if (relay_initialized) {
+        data.m_eAvail = k_ESteamNetworkingAvailability_Current;
+        data.m_bPingMeasurementInProgress = 0;
+        data.m_eAvailAnyRelay = k_ESteamNetworkingAvailability_Current;
+        data.m_eAvailNetworkConfig = k_ESteamNetworkingAvailability_Current;
+        strcpy(data.m_debugMsg, "OK");
+    }
+
+    if (pDetails) {
+        *pDetails = data;
+    }
+
     return k_ESteamNetworkingAvailability_Current;
 }
 
 float GetLocalPingLocation( SteamNetworkPingLocation_t &result )
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetLocalPingLocation\n");
+    if (relay_initialized) {
+        result.m_data[2] = 123;
+        result.m_data[8] = 67;
+        return 2.0;
+    }
+
     return -1;
 }
 
 int EstimatePingTimeBetweenTwoLocations( const SteamNetworkPingLocation_t &location1, const SteamNetworkPingLocation_t &location2 )
 {
     PRINT_DEBUG("Steam_Networking_Utils::EstimatePingTimeBetweenTwoLocations\n");
-    return k_nSteamNetworkingPing_Unknown ;
+    //return k_nSteamNetworkingPing_Unknown;
+    return 10;
 }
 
 
 int EstimatePingTimeFromLocalHost( const SteamNetworkPingLocation_t &remoteLocation )
 {
     PRINT_DEBUG("Steam_Networking_Utils::EstimatePingTimeFromLocalHost\n");
+    return 10;
 }
 
 
 void ConvertPingLocationToString( const SteamNetworkPingLocation_t &location, char *pszBuf, int cchBufSize )
 {
     PRINT_DEBUG("Steam_Networking_Utils::ConvertPingLocationToString\n");
+    strncpy(pszBuf, "fra=10+2", cchBufSize);
 }
 
 
 bool ParsePingLocationString( const char *pszString, SteamNetworkPingLocation_t &result )
 {
     PRINT_DEBUG("Steam_Networking_Utils::ParsePingLocationString\n");
+    return true;
 }
 
 
 bool CheckPingDataUpToDate( float flMaxAgeSeconds )
 {
     PRINT_DEBUG("Steam_Networking_Utils::CheckPingDataUpToDate %f\n", flMaxAgeSeconds);
+    relay_initialized = true;
     return true;
 }
 
@@ -125,6 +154,7 @@ bool CheckPingDataUpToDate( float flMaxAgeSeconds )
 bool IsPingMeasurementInProgress()
 {
     PRINT_DEBUG("Steam_Networking_Utils::IsPingMeasurementInProgress\n");
+    return false;
 }
 
 

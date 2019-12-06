@@ -21,18 +21,21 @@
 #ifndef LOCAL_STORAGE_INCLUDE
 #define LOCAL_STORAGE_INCLUDE
 
-#define SETTINGS_STORAGE_FOLDER "settings"
-#define REMOTE_STORAGE_FOLDER "remote"
-#define STATS_STORAGE_FOLDER "stats"
-#define USER_DATA_FOLDER "local"
-
-#define GAME_SETTINGS_FOLDER "steam_settings"
-
 #include <string>
+#include "../json/json.hpp"
 
 #define MAX_FILENAME_LENGTH 300
 
 class Local_Storage {
+public:
+    static constexpr auto inventory_storage_folder = "inventory";
+    static constexpr auto settings_storage_folder  = "settings";
+    static constexpr auto remote_storage_folder    = "remote";
+    static constexpr auto stats_storage_folder     = "stats";
+    static constexpr auto user_data_storage        = "local";
+    static constexpr auto game_settings_folder     = "steam_settings";
+
+private:
     std::string save_directory;
     std::string appid;
 public:

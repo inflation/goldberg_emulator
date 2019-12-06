@@ -20,6 +20,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include <iomanip>
 
 struct File_Data {
     std::string name;
@@ -393,7 +394,7 @@ std::string Local_Storage::get_program_path()
 
 std::string Local_Storage::get_game_settings_path()
 {
-    return get_program_path().append(GAME_SETTINGS_FOLDER).append(PATH_SEPARATOR);
+    return get_program_path().append(game_settings_folder).append(PATH_SEPARATOR);
 }
 
 #if defined(STEAM_WIN32)
@@ -523,7 +524,7 @@ std::string Local_Storage::get_path(std::string folder)
 
 std::string Local_Storage::get_global_settings_path()
 {
-    return save_directory + SETTINGS_STORAGE_FOLDER + PATH_SEPARATOR;
+    return save_directory + settings_storage_folder + PATH_SEPARATOR;
 }
 
 std::vector<std::string> Local_Storage::get_filenames_path(std::string path)

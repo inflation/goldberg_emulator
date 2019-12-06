@@ -1045,6 +1045,7 @@ bool GetHostedDedicatedServerAddress001( SteamDatagramHostedAddress *pRouting )
 ///       directly share it with clients.
 virtual EResult GetHostedDedicatedServerAddress( SteamDatagramHostedAddress *pRouting )
 {
+    PRINT_DEBUG("Steam_Networking_Sockets::GetHostedDedicatedServerAddress %p\n", pRouting);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     pRouting->SetDevAddress(network->getOwnIP(), 27054);
     return k_EResultOK;

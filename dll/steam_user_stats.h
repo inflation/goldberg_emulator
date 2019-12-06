@@ -51,7 +51,7 @@ private:
     SteamCallResults* callback_results;
     class SteamCallBacks* callbacks;
     std::vector<struct Steam_Leaderboard> leaderboards;
-
+    
     nlohmann::json defined_achievements;
     nlohmann::json user_achievements;
 

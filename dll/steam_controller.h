@@ -682,7 +682,8 @@ int GetAnalogActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t ac
             break;
         }
     }
-    return 0;
+
+    return count;
 }
 
     

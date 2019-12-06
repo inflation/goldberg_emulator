@@ -711,18 +711,26 @@ bool Networking::handle_low_level_udp(Common_Message *msg, IP_PORT ip_port)
 
 #define NUM_TCP_WAITING 128
 
-Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::set<uint32_t> *custom_broadcasts)
+Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::set<uint32_t> *custom_broadcasts, bool disable_sockets)
 {
-    run_at_startup();
     tcp_port = udp_port = port;
     own_ip = 0x7F000001;
     alive = true;
     last_run = std::chrono::high_resolution_clock::now();
     this->appid = appid;
+
+    if (disable_sockets) {
+        enabled = false;
+        udp_socket = -1;
+        tcp_socket = -1;
+        return;
+    }
+
     if (custom_broadcasts) {
         std::transform(custom_broadcasts->begin(), custom_broadcasts->end(), std::back_inserter(this->custom_broadcasts), [](uint32 ip) {return htonl(ip);});
     }
 
+    run_at_startup();
     sock_t sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     PRINT_DEBUG("UDP socket: %u\n", sock);
     if (is_socket_valid(sock) && set_socket_nonblocking(sock)) {
@@ -1059,6 +1067,7 @@ void Networking::Run()
 
 void Networking::addListenId(CSteamID id)
 {
+    if (!enabled) return;
     auto i = std::find(ids.begin(), ids.end(), id);
     if (i != ids.end()) {
         return;
@@ -1092,6 +1101,8 @@ bool Networking::sendToIPPort(Common_Message *msg, uint32 ip, uint16 port, bool 
 
 bool Networking::sendTo(Common_Message *msg, bool reliable, Connection *conn)
 {
+    if (!enabled) return false;
+
     bool ret = false;
     CSteamID dest_id((uint64)msg->dest_id());
     if (std::find(ids.begin(), ids.end(), dest_id) != ids.end()) {

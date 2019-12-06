@@ -217,7 +217,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     uint64 steam_id = 0;
     bool generate_new = false;
     //try to load steam id from game specific settings folder first
-    if (local_storage->get_data(SETTINGS_STORAGE_FOLDER, "user_steam_id.txt", array_steam_id, sizeof(array_steam_id) - 1) > 0) {
+    if (local_storage->get_data(Local_Storage::settings_storage_folder, "user_steam_id.txt", array_steam_id, sizeof(array_steam_id) - 1) > 0) {
         user_id = CSteamID((uint64)std::atoll(array_steam_id));
         if (!user_id.IsValid()) {
             generate_new = true;
@@ -247,6 +247,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     }
 
     bool steam_offline_mode = false;
+    bool disable_networking = false;
     {
         std::string steam_settings_path = Local_Storage::get_game_settings_path();
 
@@ -255,6 +256,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
             PRINT_DEBUG("steam settings path %s\n", p.c_str());
             if (p == "offline.txt") {
                 steam_offline_mode = true;
+            } else if (p == "disable_networking.txt") {
+                disable_networking = true;
             }
         }
     }
@@ -265,6 +268,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     settings_server->set_port(port);
     settings_client->custom_broadcasts = custom_broadcasts;
     settings_server->custom_broadcasts = custom_broadcasts;
+    settings_client->disable_networking = disable_networking;
+    settings_server->disable_networking = disable_networking;
 
     {
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "DLC.txt";

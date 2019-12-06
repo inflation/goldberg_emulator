@@ -132,8 +132,12 @@ struct Steam_Call_Result {
         return check_timedout(created, STEAM_CALLRESULT_TIMEOUT);
     }
 
+    bool call_completed() {
+        return (!reserved) && check_timedout(created, run_in);
+    }
+
     bool can_execute() {
-        return (!reserved) && (!to_delete) && check_timedout(created, run_in);
+        return (!to_delete) && call_completed();
     }
 
     bool has_cb() {
@@ -191,14 +195,14 @@ public:
     bool exists(SteamAPICall_t api_call) {
         auto cr = std::find_if(callresults.begin(), callresults.end(), [api_call](struct Steam_Call_Result const& item) { return item.api_call == api_call; });
         if (cr == callresults.end()) return false;
-        if (cr->reserved) return false;
+        if (!cr->call_completed()) return false;
         return true;
     }
 
     bool callback_result(SteamAPICall_t api_call, void *copy_to, unsigned int size) {
         auto cb_result = std::find_if(callresults.begin(), callresults.end(), [api_call](struct Steam_Call_Result const& item) { return item.api_call == api_call; });
         if (cb_result != callresults.end()) {
-            if (cb_result->reserved) return false;
+            if (!cb_result->call_completed()) return false;
             if (cb_result->result.size() > size) return false;
 
             memcpy(copy_to, &(cb_result->result[0]), cb_result->result.size());
