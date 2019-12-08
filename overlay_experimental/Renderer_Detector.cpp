@@ -153,16 +153,6 @@ BOOL WINAPI Renderer_Detector::MywglMakeCurrent(HDC hDC, HGLRC hGLRC)
     return res;
 }
 
-void __stdcall Renderer_Detector::MyvkCmdEndRenderPass(void* commandBuffer)
-{
-    Renderer_Detector& inst = Renderer_Detector::Inst();
-    _vkCmdEndRenderPass(commandBuffer);
-    if (!inst.stop_retry())
-    {
-        Vulkan_Hook::Inst()->start_hook();
-    }
-}
-
 void Renderer_Detector::HookDXGIPresent(IDXGISwapChain* pSwapChain)
 {
     if (!_dxgi_hooked)
