@@ -93,22 +93,28 @@ HRESULT STDMETHODCALLTYPE Renderer_Detector::MyIDXGISwapChain_Present(IDXGISwapC
         }
         if (pDevice)
         {
-            DX10_Hook::Inst()->start_hook();
+            DX12_Hook::Inst()->start_hook();
         }
         else
         {
-            _this->GetDevice(IID_PPV_ARGS(reinterpret_cast<ID3D11Device**>(&pDevice)));
+            if (inst._dx11_hooked)
+            {
+                _this->GetDevice(IID_PPV_ARGS(reinterpret_cast<ID3D11Device**>(&pDevice)));
+            }
             if (pDevice)
             {
                 DX11_Hook::Inst()->start_hook();
             }
             else
             {
-                //_this->GetDevice(IID_PPV_ARGS(reinterpret_cast<ID3D12Device**>(&pDevice)));
-                //if (pDevice)
-                //{
-                //    DX12_Hook::Inst()->start_hook();
-                //}
+                if (inst._dx10_hooked)
+                {
+                    _this->GetDevice(IID_PPV_ARGS(reinterpret_cast<ID3D10Device**>(&pDevice)));
+                }
+                if (pDevice)
+                {
+                    DX10_Hook::Inst()->start_hook();
+                }
             }
         }
         if (pDevice) pDevice->Release();
