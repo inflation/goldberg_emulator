@@ -73,8 +73,10 @@ build_windows:
       - DLL_FILES="$(ls dll/*.cpp | tr "\n" " ")"; sed "s|dll/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls detours/*.cpp | tr "\n" " ")"; sed "s|detours/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls overlay_experimental/*.cpp | tr "\n" " ")"; sed "s|overlay_experimental/\*.cpp|$DLL_FILES|g" -i *.bat
+      - DLL_FILES="$(ls overlay_experimental/windows/*.cpp | tr "\n" " ")"; sed "s|overlay_experimental/windows/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls ImGui/*.cpp | tr "\n" " ")"; sed "s|ImGui/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls ImGui/impls/*.cpp | tr "\n" " ")"; sed "s|ImGui/impls/\*.cpp|$DLL_FILES|g" -i *.bat
+      - DLL_FILES="$(ls ImGui/impls/windows/*.cpp | tr "\n" " ")"; sed "s|ImGui/impls/windows/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls dll/*.proto | tr "\n" " " | sed "s/.proto/.pb.cc/g")"; sed "s|dll/\*.cc|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls steamclient_loader/*.cpp | tr "\n" " ")"; sed "s|steamclient_loader/\*.cpp|$DLL_FILES|g" -i *.bat
       - export WINEDEBUG=-all
