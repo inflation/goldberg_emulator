@@ -208,7 +208,9 @@ bool Steam_User_Stats::SetAchievement(const char* pchName)
             if (user_achievements.find(pchName) == user_achievements.end() || user_achievements[pchName].value("earned", false) == false) {
                 user_achievements[pchName]["earned"] = true;
                 user_achievements[pchName]["earned_time"] = std::chrono::duration_cast<std::chrono::duration<uint32>>(std::chrono::system_clock::now().time_since_epoch()).count();
+#ifndef NO_OVERLAY
                 get_steam_client()->steam_overlay->AddAchievementNotification(it.value());
+#endif
             }
             return true;
         }
