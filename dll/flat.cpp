@@ -54,6 +54,8 @@ STEAMAPI_API class ISteamGameServer * SteamAPI_ISteamClient_GetISteamGameServer(
 
 STEAMAPI_API void SteamAPI_ISteamClient_SetLocalIPBinding(intptr_t instancePtr, uint32 unIP, uint16 usPort)
 {
+    //Note: this function was updated but currently doesn't do anything so I'm just leaving it like this for now.
+    //void SteamAPI_ISteamClient_SetLocalIPBinding(intptr_t instancePtr, const struct SteamIPAddress_t & unIP, uint16 usPort)
     return get_steam_client()->SetLocalIPBinding(unIP, usPort);
 }
 
@@ -1104,6 +1106,18 @@ STEAMAPI_API int SteamAPI_ISteamUtils_FilterText(intptr_t instancePtr, char * pc
     }
 
     return (ptr)->FilterText(pchOutFilteredText, nByteSizeOutFilteredText, pchInputMessage, bLegalOnly);
+}
+
+STEAMAPI_API ESteamIPv6ConnectivityState SteamAPI_ISteamUtils_GetIPv6ConnectivityState(intptr_t instancePtr, ESteamIPv6ConnectivityProtocol eProtocol)
+{
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    auto ptr = get_steam_client()->steam_gameserver_utils;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_utils;
+    }
+
+    return (ptr)->GetIPv6ConnectivityState(eProtocol);
 }
 
 STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetFavoriteGameCount(intptr_t instancePtr)
@@ -2236,7 +2250,7 @@ STEAMAPI_API bool SteamAPI_ISteamNetworking_AllowP2PPacketRelay(intptr_t instanc
     return ((ISteamNetworking *)instancePtr)->AllowP2PPacketRelay(bAllow);
 }
 
-STEAMAPI_API SNetListenSocket_t SteamAPI_ISteamNetworking_CreateListenSocket(intptr_t instancePtr, int nVirtualP2PPort, uint32 nIP, uint16 nPort, bool bAllowUseOfPacketRelay)
+STEAMAPI_API SNetListenSocket_t SteamAPI_ISteamNetworking_CreateListenSocket(intptr_t instancePtr, int nVirtualP2PPort, struct SteamIPAddress_t nIP, uint16 nPort, bool bAllowUseOfPacketRelay)
 {
     return ((ISteamNetworking *)instancePtr)->CreateListenSocket(nVirtualP2PPort, nIP, nPort, bAllowUseOfPacketRelay);
 }
@@ -2246,7 +2260,7 @@ STEAMAPI_API SNetSocket_t SteamAPI_ISteamNetworking_CreateP2PConnectionSocket(in
     return ((ISteamNetworking *)instancePtr)->CreateP2PConnectionSocket(steamIDTarget, nVirtualPort, nTimeoutSec, bAllowUseOfPacketRelay);
 }
 
-STEAMAPI_API SNetSocket_t SteamAPI_ISteamNetworking_CreateConnectionSocket(intptr_t instancePtr, uint32 nIP, uint16 nPort, int nTimeoutSec)
+STEAMAPI_API SNetSocket_t SteamAPI_ISteamNetworking_CreateConnectionSocket(intptr_t instancePtr, struct SteamIPAddress_t nIP, uint16 nPort, int nTimeoutSec)
 {
     return ((ISteamNetworking *)instancePtr)->CreateConnectionSocket(nIP, nPort, nTimeoutSec);
 }
@@ -2286,12 +2300,12 @@ STEAMAPI_API bool SteamAPI_ISteamNetworking_RetrieveData(intptr_t instancePtr, S
     return ((ISteamNetworking *)instancePtr)->RetrieveData(hListenSocket, pubDest, cubDest, pcubMsgSize, phSocket);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_GetSocketInfo(intptr_t instancePtr, SNetSocket_t hSocket, class CSteamID * pSteamIDRemote, int * peSocketStatus, uint32 * punIPRemote, uint16 * punPortRemote)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_GetSocketInfo(intptr_t instancePtr, SNetSocket_t hSocket, class CSteamID * pSteamIDRemote, int * peSocketStatus, struct SteamIPAddress_t * punIPRemote, uint16 * punPortRemote)
 {
     return ((ISteamNetworking *)instancePtr)->GetSocketInfo(hSocket, pSteamIDRemote, peSocketStatus, punIPRemote, punPortRemote);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_GetListenSocketInfo(intptr_t instancePtr, SNetListenSocket_t hListenSocket, uint32 * pnIP, uint16 * pnPort)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_GetListenSocketInfo(intptr_t instancePtr, SNetListenSocket_t hListenSocket, struct SteamIPAddress_t * pnIP, uint16 * pnPort)
 {
     return ((ISteamNetworking *)instancePtr)->GetListenSocketInfo(hListenSocket, pnIP, pnPort);
 }
@@ -2305,6 +2319,7 @@ STEAMAPI_API int SteamAPI_ISteamNetworking_GetMaxPacketSize(intptr_t instancePtr
 {
     return ((ISteamNetworking *)instancePtr)->GetMaxPacketSize(hSocket);
 }
+
 
 STEAMAPI_API ScreenshotHandle SteamAPI_ISteamScreenshots_WriteScreenshot(intptr_t instancePtr, void * pubRGB, uint32 cubRGB, int nWidth, int nHeight)
 {
@@ -3229,6 +3244,19 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTag(intptr_t instancePtr, UGCQue
 
     return (ptr)->AddRequiredTag(handle, pTagName);
 }
+
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTagGroup(intptr_t instancePtr, UGCQueryHandle_t handle, const struct SteamParamStringArray_t * pTagGroups)
+{
+    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    auto ptr = get_steam_client()->steam_gameserver_ugc;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_ugc;
+    }
+
+    return (ptr)->AddRequiredTagGroup(handle, pTagGroups);
+}
+
 
 STEAMAPI_API bool SteamAPI_ISteamUGC_AddExcludedTag(intptr_t instancePtr, UGCQueryHandle_t handle, const char * pTagName)
 {
@@ -4671,29 +4699,34 @@ STEAMAPI_API uint32 SteamAPI_ISteamRemotePlay_GetSessionCount(intptr_t instanceP
     return ((ISteamRemotePlay *)instancePtr)->GetSessionCount();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamRemotePlay_GetSessionID(intptr_t instancePtr, int iSessionIndex)
+STEAMAPI_API RemotePlaySessionID_t SteamAPI_ISteamRemotePlay_GetSessionID(intptr_t instancePtr, int iSessionIndex)
 {
     return ((ISteamRemotePlay *)instancePtr)->GetSessionID(iSessionIndex);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamRemotePlay_GetSessionSteamID(intptr_t instancePtr, uint32 unSessionID)
+STEAMAPI_API uint64 SteamAPI_ISteamRemotePlay_GetSessionSteamID(intptr_t instancePtr, RemotePlaySessionID_t unSessionID)
 {
     return ((ISteamRemotePlay *)instancePtr)->GetSessionSteamID(unSessionID).ConvertToUint64();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamRemotePlay_GetSessionClientName(intptr_t instancePtr, uint32 unSessionID)
+STEAMAPI_API const char * SteamAPI_ISteamRemotePlay_GetSessionClientName(intptr_t instancePtr, RemotePlaySessionID_t unSessionID)
 {
     return ((ISteamRemotePlay *)instancePtr)->GetSessionClientName(unSessionID);
 }
 
-STEAMAPI_API ESteamDeviceFormFactor SteamAPI_ISteamRemotePlay_GetSessionClientFormFactor(intptr_t instancePtr, uint32 unSessionID)
+STEAMAPI_API ESteamDeviceFormFactor SteamAPI_ISteamRemotePlay_GetSessionClientFormFactor(intptr_t instancePtr, RemotePlaySessionID_t unSessionID)
 {
     return ((ISteamRemotePlay *)instancePtr)->GetSessionClientFormFactor(unSessionID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BGetSessionClientResolution(intptr_t instancePtr, uint32 unSessionID, int * pnResolutionX, int * pnResolutionY)
+STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BGetSessionClientResolution(intptr_t instancePtr, RemotePlaySessionID_t unSessionID, int * pnResolutionX, int * pnResolutionY)
 {
     return ((ISteamRemotePlay *)instancePtr)->BGetSessionClientResolution(unSessionID, pnResolutionX, pnResolutionY);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BSendRemotePlayTogetherInvite(intptr_t instancePtr, class CSteamID steamIDFriend)
+{
+    return ((ISteamRemotePlay *)instancePtr)->BSendRemotePlayTogetherInvite(steamIDFriend);
 }
 
 STEAMAPI_API bool SteamAPI_ISteamGameServer_InitGameServer(intptr_t instancePtr, uint32 unIP, uint16 usGamePort, uint16 usQueryPort, uint32 unFlags, AppId_t nGameAppId, const char * pchVersionString)
@@ -4876,8 +4909,9 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_GetServerReputation(intptr
     return ((ISteamGameServer *)instancePtr)->GetServerReputation();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamGameServer_GetPublicIP(intptr_t instancePtr)
+STEAMAPI_API struct SteamIPAddress_t SteamAPI_ISteamGameServer_GetPublicIP(intptr_t instancePtr)
 {
+    //TODO: check if this actually works (ret value changed from uint32 to struct)
     return ((ISteamGameServer *)instancePtr)->GetPublicIP();
 }
 

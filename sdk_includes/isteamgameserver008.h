@@ -90,7 +90,7 @@ public:
 	// Returns the public IP of the server according to Steam, useful when the server is 
 	// behind NAT and you want to advertise its IP in a lobby for other clients to directly
 	// connect to
-    virtual uint32 GetPublicIP() = 0;
+    virtual uint32 GetPublicIP_old() = 0;
 };
 
 #endif // ISTEAMGAMESERVER008_H

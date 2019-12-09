@@ -1,12 +1,13 @@
 
-#ifndef ISTEAMGAMESERVER011_H
-#define ISTEAMGAMESERVER011_H
+#ifndef ISTEAMGAMESERVER012_H
+#define ISTEAMGAMESERVER012_H
 #ifdef STEAM_WIN32
 #pragma once
 #endif
 
-class ISteamGameServer011
+class ISteamGameServer012
 {
+public:
 public:
 
 //
@@ -44,10 +45,7 @@ public:
 	/// @see SteamServersConnected_t
 	/// @see SteamServerConnectFailure_t
 	/// @see SteamServersDisconnected_t
-	virtual void LogOn(
-		const char *pszAccountName,
-		const char *pszPassword
-	) = 0;
+	virtual void LogOn( const char *pszToken ) = 0;
 
 	/// Login to a generic, anonymous account.
 	///
@@ -184,7 +182,8 @@ public:
 	// these two functions s are deprecated, and will not return results
 	// they will be removed in a future version of the SDK
 	virtual void GetGameplayStats( ) = 0;
-	virtual SteamAPICall_t GetServerReputation( ) = 0;
+	STEAM_CALL_RESULT( GSReputation_t )
+	virtual SteamAPICall_t GetServerReputation() = 0;
 
 	// Returns the public IP of the server according to Steam, useful when the server is 
 	// behind NAT and you want to advertise its IP in a lobby for other clients to directly
@@ -231,10 +230,13 @@ public:
 	virtual void ForceHeartbeat() = 0;
 
 	// associate this game server with this clan for the purposes of computing player compat
+	STEAM_CALL_RESULT( AssociateWithClanResult_t )
 	virtual SteamAPICall_t AssociateWithClan( CSteamID steamIDClan ) = 0;
 	
 	// ask if any of the current players dont want to play with this new player - or vice versa
+	STEAM_CALL_RESULT( ComputeNewPlayerCompatibilityResult_t )
 	virtual SteamAPICall_t ComputeNewPlayerCompatibility( CSteamID steamIDNewPlayer ) = 0;
+
 };
 
-#endif // ISTEAMGAMESERVER011_H
+#endif // ISTEAMGAMESERVER012_H

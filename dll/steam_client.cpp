@@ -256,6 +256,8 @@ ISteamGameServer *Steam_Client::GetISteamGameServer( HSteamUser hSteamUser, HSte
         return (ISteamGameServer *)(void *)(ISteamGameServer010 *)steam_gameserver;
     } else if (strcmp(pchVersion, "SteamGameServer011") == 0) {
         return (ISteamGameServer *)(void *)(ISteamGameServer011 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer012") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer012 *)steam_gameserver;
     } else if (strcmp(pchVersion, STEAMGAMESERVER_INTERFACE_VERSION) == 0) {
         return (ISteamGameServer *)(void *)(ISteamGameServer *)steam_gameserver;
     } else {
@@ -269,7 +271,12 @@ ISteamGameServer *Steam_Client::GetISteamGameServer( HSteamUser hSteamUser, HSte
 // this must be set before CreateLocalUser()
 void Steam_Client::SetLocalIPBinding( uint32 unIP, uint16 usPort )
 {
-    PRINT_DEBUG("SetLocalIPBinding %u %hu\n", unIP, usPort);
+    PRINT_DEBUG("SetLocalIPBinding old %u %hu\n", unIP, usPort);
+}
+
+void Steam_Client::SetLocalIPBinding( const SteamIPAddress_t &unIP, uint16 usPort )
+{
+    PRINT_DEBUG("SetLocalIPBinding %i %u %hu\n", unIP.m_eType, unIP.m_unIPv4, usPort);
 }
 
 // returns the ISteamFriends interface
@@ -437,6 +444,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
             return (void *)(ISteamNetworkingSockets001 *) steam_networking_sockets_temp;
         } else if (strcmp(pchVersion, "SteamNetworkingSockets002") == 0) {
             return (void *)(ISteamNetworkingSockets002 *) steam_networking_sockets_temp;
+        } else if (strcmp(pchVersion, "SteamNetworkingSockets003") == 0) {
+            return (void *)(ISteamNetworkingSockets003 *) steam_networking_sockets_temp;
         } else {
             return (void *)(ISteamNetworkingSockets *) steam_networking_sockets_temp;
         }
@@ -452,6 +461,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
     } else if (strstr(pchVersion, "SteamNetworkingUtils") == pchVersion) {
             if (strcmp(pchVersion, "SteamNetworkingUtils001") == 0) {
                 return (void *)(ISteamNetworkingUtils001 *)steam_networking_utils;
+            } else if (strcmp(pchVersion, "SteamNetworkingUtils002") == 0) {
+                return (void *)(ISteamNetworkingUtils002 *)steam_networking_utils;
             } else if (strcmp(pchVersion, STEAMNETWORKINGUTILS_INTERFACE_VERSION) == 0) {
                 return (void *)(ISteamNetworkingUtils *)steam_networking_utils;
             } else {
@@ -599,6 +610,8 @@ ISteamNetworking *Steam_Client::GetISteamNetworking( HSteamUser hSteamUser, HSte
         return (ISteamNetworking *)(void *)(ISteamNetworking003 *)steam_networking_temp;
     } else if (strcmp(pchVersion, "SteamNetworking004") == 0) {
         return (ISteamNetworking *)(void *)(ISteamNetworking004 *)steam_networking_temp;
+    } else if (strcmp(pchVersion, "SteamNetworking005") == 0) {
+        return (ISteamNetworking *)(void *)(ISteamNetworking005 *)steam_networking_temp;
     } else if (strcmp(pchVersion, STEAMUGC_INTERFACE_VERSION) == 0) {
         return (ISteamNetworking *)(void *)(ISteamNetworking *)steam_networking_temp;
     } else {
@@ -786,6 +799,8 @@ ISteamUGC *Steam_Client::GetISteamUGC( HSteamUser hSteamUser, HSteamPipe hSteamP
         return (ISteamUGC *)(void *)(ISteamUGC012 *)steam_ugc_temp;
     } else if (strcmp(pchVersion, "STEAMUGC_INTERFACE_VERSION012") == 0) {
         return (ISteamUGC *)(void *)(ISteamUGC012 *)steam_ugc_temp;
+    } else if (strcmp(pchVersion, "STEAMUGC_INTERFACE_VERSION013") == 0) {
+        return (ISteamUGC *)(void *)(ISteamUGC013 *)steam_ugc_temp;
     } else if (strcmp(pchVersion, STEAMUGC_INTERFACE_VERSION) == 0) {
         return (ISteamUGC *)(void *)(ISteamUGC *)steam_ugc_temp;
     } else {
@@ -1454,4 +1469,9 @@ void Steam_Client::RunCallbacks(bool runClientCB, bool runGameserverCB)
     callbacks_client->runCallBacks();
     PRINT_DEBUG("Steam_Client::RunCallbacks done\n");
     
+}
+
+void Steam_Client::DestroyAllInterfaces()
+{
+    PRINT_DEBUG("Steam_Client::DestroyAllInterfaces\n");
 }

@@ -274,6 +274,11 @@ bool AddRequiredTag( UGCQueryHandle_t handle, const char *pTagName )
     return true;
 }
 
+bool AddRequiredTagGroup( UGCQueryHandle_t handle, const SteamParamStringArray_t *pTagGroups )
+{
+    PRINT_DEBUG("Steam_UGC::AddRequiredTagGroup\n");
+    return true;
+}
 
 bool AddExcludedTag( UGCQueryHandle_t handle, const char *pTagName )
 {

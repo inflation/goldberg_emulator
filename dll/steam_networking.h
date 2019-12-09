@@ -480,7 +480,7 @@ SNetListenSocket_t socket_number = 0;
 //		pass in 0 if you don't want users to be able to connect via IP/Port, but expect to be always peer-to-peer connections only
 SNetListenSocket_t CreateListenSocket( int nVirtualP2PPort, uint32 nIP, uint16 nPort, bool bAllowUseOfPacketRelay )
 {
-    PRINT_DEBUG("Steam_Networking::CreateListenSocket %i %u %hu %u\n", nVirtualP2PPort, nIP, nPort, bAllowUseOfPacketRelay);
+    PRINT_DEBUG("Steam_Networking::CreateListenSocket old %i %u %hu %u\n", nVirtualP2PPort, nIP, nPort, bAllowUseOfPacketRelay);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     for (auto & c : listen_sockets) {
         if (c.nVirtualP2PPort == nVirtualP2PPort || c.nPort == nPort)
@@ -497,6 +497,13 @@ SNetListenSocket_t CreateListenSocket( int nVirtualP2PPort, uint32 nIP, uint16 n
     socket.nPort = nPort;
     listen_sockets.push_back(socket);
     return socket.id;
+}
+
+SNetListenSocket_t CreateListenSocket( int nVirtualP2PPort, SteamIPAddress_t nIP, uint16 nPort, bool bAllowUseOfPacketRelay )
+{
+    PRINT_DEBUG("Steam_Networking::CreateListenSocket %i %i %u %hu %u\n", nVirtualP2PPort, nIP.m_eType, nIP.m_unIPv4, nPort, bAllowUseOfPacketRelay);
+    //TODO: ipv6
+    return CreateListenSocket(nVirtualP2PPort, nIP.m_unIPv4, nPort, bAllowUseOfPacketRelay);
 }
 
 SNetListenSocket_t CreateListenSocket( int nVirtualP2PPort, uint32 nIP, uint16 nPort )
@@ -525,12 +532,18 @@ SNetSocket_t CreateP2PConnectionSocket( CSteamID steamIDTarget, int nVirtualPort
 
 SNetSocket_t CreateConnectionSocket( uint32 nIP, uint16 nPort, int nTimeoutSec )
 {
-    PRINT_DEBUG("Steam_Networking::CreateConnectionSocket %u %hu %i\n", nIP, nPort, nTimeoutSec);
+    PRINT_DEBUG("Steam_Networking::CreateConnectionSocket_old %u %hu %i\n", nIP, nPort, nTimeoutSec);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     //TODO: nTimeoutSec
     return create_connection_socket((uint64)0, 0, nIP, nPort);
 }
 
+SNetSocket_t CreateConnectionSocket( SteamIPAddress_t nIP, uint16 nPort, int nTimeoutSec )
+{
+    PRINT_DEBUG("Steam_Networking::CreateConnectionSocket %i %u %hu %i\n", nIP.m_eType, nIP.m_unIPv4, nPort, nTimeoutSec);
+    //TODO: ipv6
+    return CreateConnectionSocket(nIP.m_unIPv4, nPort, nTimeoutSec);
+}
 
 // disconnects the connection to the socket, if any, and invalidates the handle
 // any unread data on the socket will be thrown away
@@ -692,7 +705,7 @@ bool RetrieveData( SNetListenSocket_t hListenSocket, void *pubDest, uint32 cubDe
 // returns information about the specified socket, filling out the contents of the pointers
 bool GetSocketInfo( SNetSocket_t hSocket, CSteamID *pSteamIDRemote, int *peSocketStatus, uint32 *punIPRemote, uint16 *punPortRemote )
 {
-    PRINT_DEBUG("Steam_Networking::GetSocketInfo\n");
+    PRINT_DEBUG("Steam_Networking::GetSocketInfo_old\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     struct steam_connection_socket *socket = get_connection_socket(hSocket);
     if (!socket) return false;
@@ -717,12 +730,28 @@ bool GetSocketInfo( SNetSocket_t hSocket, CSteamID *pSteamIDRemote, int *peSocke
     return true;
 }
 
+bool GetSocketInfo( SNetSocket_t hSocket, CSteamID *pSteamIDRemote, int *peSocketStatus, SteamIPAddress_t *punIPRemote, uint16 *punPortRemote )
+{
+    PRINT_DEBUG("Steam_Networking::GetSocketInfo\n");
+    //TODO: ipv6
+    uint32 *ip_remote = NULL;
+    if (punIPRemote) {
+        ip_remote = &(punIPRemote->m_unIPv4);
+    }
+
+    bool ret = GetSocketInfo(hSocket, pSteamIDRemote, peSocketStatus, ip_remote, punPortRemote );
+    if (punIPRemote && ret) {
+        punIPRemote->m_eType = k_ESteamIPTypeIPv4;
+    }
+
+    return ret;
+}
 
 // returns which local port the listen socket is bound to
 // *pnIP and *pnPort will be 0 if the socket is set to listen for P2P connections only
 bool GetListenSocketInfo( SNetListenSocket_t hListenSocket, uint32 *pnIP, uint16 *pnPort )
 {
-    PRINT_DEBUG("Steam_Networking::GetListenSocketInfo\n");
+    PRINT_DEBUG("Steam_Networking::GetListenSocketInfo_old\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     auto conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&hListenSocket](struct steam_listen_socket const& conn) { return conn.id == hListenSocket;});
     if (conn == listen_sockets.end()) return false;
@@ -731,6 +760,22 @@ bool GetListenSocketInfo( SNetListenSocket_t hListenSocket, uint32 *pnIP, uint16
     return true;
 }
 
+bool GetListenSocketInfo( SNetListenSocket_t hListenSocket, SteamIPAddress_t *pnIP, uint16 *pnPort )
+{
+    PRINT_DEBUG("Steam_Networking::GetListenSocketInfo\n");
+    //TODO: ipv6
+    uint32 *ip = NULL;
+    if (pnIP) {
+        ip = &(pnIP->m_unIPv4);
+    }
+
+    bool ret = GetListenSocketInfo(hListenSocket, ip, pnPort );
+    if (pnIP && ret) {
+        pnIP->m_eType = k_ESteamIPTypeIPv4;
+    }
+
+    return ret;
+}
 
 // returns true to describe how the socket ended up connecting
 ESNetSocketConnectionType GetSocketConnectionType( SNetSocket_t hSocket )

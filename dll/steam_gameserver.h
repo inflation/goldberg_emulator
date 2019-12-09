@@ -275,7 +275,8 @@ public:
 	// Returns the public IP of the server according to Steam, useful when the server is 
 	// behind NAT and you want to advertise its IP in a lobby for other clients to directly
 	// connect to
-	uint32 GetPublicIP();
+	uint32 GetPublicIP_old();
+	SteamIPAddress_t GetPublicIP();
 
 // These are in GameSocketShare mode, where instead of ISteamGameServer creating its own
 // socket to talk to the master server on, it lets the game use its socket to forward messages

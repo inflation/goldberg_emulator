@@ -162,6 +162,8 @@ static void *create_client_interface(const char *ver)
             steam_client = (ISteamClient017 *)get_steam_client();
         } else if (strcmp(ver, "SteamClient018") == 0) {
             steam_client = (ISteamClient018 *)get_steam_client();
+        } else if (strcmp(ver, "SteamClient019") == 0) {
+            steam_client = (ISteamClient019 *)get_steam_client();
         } else if (strcmp(ver, STEAMCLIENT_INTERFACE_VERSION) == 0) {
             steam_client = (ISteamClient *)get_steam_client();
         } else {

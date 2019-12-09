@@ -126,27 +126,27 @@ static unsigned generate_account_id()
 
 CSteamID generate_steam_id_user()
 {
-    return CSteamID(generate_account_id(), k_unSteamUserDesktopInstance, k_EUniversePublic, k_EAccountTypeIndividual);
+    return CSteamID(generate_account_id(), k_unSteamUserDefaultInstance, k_EUniversePublic, k_EAccountTypeIndividual);
 }
 
 static CSteamID generate_steam_anon_user()
 {
-    return CSteamID(generate_account_id(), k_unSteamUserDesktopInstance, k_EUniversePublic, k_EAccountTypeAnonUser);
+    return CSteamID(generate_account_id(), k_unSteamUserDefaultInstance, k_EUniversePublic, k_EAccountTypeAnonUser);
 }
 
 CSteamID generate_steam_id_server()
 {
-    return CSteamID(generate_account_id(), k_unSteamUserDesktopInstance, k_EUniversePublic, k_EAccountTypeGameServer);
+    return CSteamID(generate_account_id(), k_unSteamUserDefaultInstance, k_EUniversePublic, k_EAccountTypeGameServer);
 }
 
 CSteamID generate_steam_id_anonserver()
 {
-    return CSteamID(generate_account_id(), k_unSteamUserDesktopInstance, k_EUniversePublic, k_EAccountTypeAnonGameServer);
+    return CSteamID(generate_account_id(), k_unSteamUserDefaultInstance, k_EUniversePublic, k_EAccountTypeAnonGameServer);
 }
 
 CSteamID generate_steam_id_lobby()
 {
-    return CSteamID(generate_account_id(), k_unSteamUserDesktopInstance | k_EChatInstanceFlagLobby, k_EUniversePublic, k_EAccountTypeChat);
+    return CSteamID(generate_account_id(), k_unSteamUserDefaultInstance | k_EChatInstanceFlagLobby, k_EUniversePublic, k_EAccountTypeChat);
 }
 
 #ifndef STEAM_WIN32

@@ -56,7 +56,7 @@ public:
 
 	// set the local IP and Port to bind to
 	// this must be set before CreateLocalUser()
-	virtual void SetLocalIPBinding( uint32 unIP, uint16 usPort ) = 0; 
+	virtual void SetLocalIPBinding( const SteamIPAddress_t &unIP, uint16 usPort ) = 0; 
 
 	// returns the ISteamFriends interface
 	virtual ISteamFriends *GetISteamFriends( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
@@ -159,8 +159,10 @@ public:
 	// Steam Remote Play interface
 	virtual ISteamRemotePlay *GetISteamRemotePlay( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
+	STEAM_PRIVATE_API( virtual void DestroyAllInterfaces() = 0; )
+
 };
-#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient019"
+#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient020"
 
 #ifndef STEAM_API_EXPORTS
 
