@@ -79,11 +79,23 @@ file(GLOB DETOURS_SRC_SHARED
 	detours/*.cpp
 )
 
-file(GLOB OVERLAY_EXPERIMENTAL_SRC_SHARED
-	overlay_experimental/*.cpp
-	ImGui/*.cpp
-	ImGui/impls/*.cpp
-)
+if(WIN32)
+  file(GLOB OVERLAY_EXPERIMENTAL_SRC_SHARED
+    overlay_experimental/*.cpp
+    overlay_experimental/windows/*.cpp
+    ImGui/*.cpp
+    ImGui/impls/*.cpp
+    ImGui/impls/windows/*.cpp
+  )
+elseif(UNIX)
+  file(GLOB OVERLAY_EXPERIMENTAL_SRC_SHARED
+    overlay_experimental/*.cpp
+    overlay_experimental/linux/*.cpp
+    ImGui/*.cpp
+    ImGui/impls/*.cpp
+    ImGui/impls/linux/*.cpp
+  )
+endif()
 
 ###################################################
 # Setup for the steam_api(64).dll / libsteam_api.so
