@@ -760,7 +760,15 @@ void Steam_Overlay::RunCallbacks()
                     FriendGameInfo_t friend_game_info = {};
                     steamFriends->GetFriendGamePlayed(friend_id, &friend_game_info);
                     if (friend_game_info.m_steamIDLobby.IsValid())
+                    {
+                        // TODO: Look if thats really JoinLobby ?
+                        // I saw on steamdev that overlay sends a GameLobbyJoinRequested_t
+                        //GameLobbyJoinRequested_t data;
+                        //data.m_steamIDLobby.SetFromUint64(friend_info->second.lobbyId);
+                        //data.m_steamIDFriend.SetFromUint64(friend_id);
+                        //callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
                         steamMatchmaking->JoinLobby(friend_game_info.m_steamIDLobby);
+                    }
                 }
 
                 friend_info->second.window_state &= ~window_state_join;
