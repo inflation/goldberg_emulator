@@ -135,6 +135,7 @@ public:
 
     //controller
     struct Controller_Settings controller_settings;
+    std::string glyphs_directory;
 
     //networking
     bool disable_networking = false;
