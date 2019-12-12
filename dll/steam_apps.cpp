@@ -213,9 +213,8 @@ uint32 Steam_Apps::GetInstalledDepots( AppId_t appID, DepotId_t *pvecDepots, uin
 // returns current app install folder for AppID, returns folder name length
 uint32 Steam_Apps::GetAppInstallDir( AppId_t appID, char *pchFolder, uint32 cchFolderBufferSize )
 {
-    PRINT_DEBUG("GetAppInstallDir %u %u\n", appID, cchFolderBufferSize);
+    PRINT_DEBUG("GetAppInstallDir %u %p %u\n", appID, pchFolder, cchFolderBufferSize);
     //TODO return real path instead of dll path
-    if (!pchFolder || !cchFolderBufferSize) return 0;
     std::string installed_path = settings->getAppInstallPath(appID);
 
     if (installed_path.size() == 0) {
@@ -232,8 +231,11 @@ uint32 Steam_Apps::GetAppInstallDir( AppId_t appID, char *pchFolder, uint32 cchF
     }
 
     PRINT_DEBUG("path %s\n", installed_path.c_str());
-    snprintf(pchFolder, cchFolderBufferSize, "%s", installed_path.c_str());
-    return strlen(pchFolder);
+    if (cchFolderBufferSize && pchFolder) {
+        snprintf(pchFolder, cchFolderBufferSize, "%s", installed_path.c_str());
+    }
+
+    return installed_path.length(); //Real steam always returns the actual path length, not the copied one.
 }
 
 // returns true if that app is installed (not necessarily owned)
