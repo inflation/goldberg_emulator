@@ -49,6 +49,7 @@ struct Connect_Socket {
 class Steam_Networking_Sockets :
 public ISteamNetworkingSockets001,
 public ISteamNetworkingSockets002,
+public ISteamNetworkingSockets003,
 public ISteamNetworkingSockets
 {
     class Settings *settings;

@@ -19,6 +19,7 @@
 
 class Steam_Networking_Utils :
 public ISteamNetworkingUtils001,
+public ISteamNetworkingUtils002,
 public ISteamNetworkingUtils
 {
     class Settings *settings;

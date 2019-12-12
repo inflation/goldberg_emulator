@@ -68,6 +68,7 @@ public ISteamClient015,
 public ISteamClient016,
 public ISteamClient017,
 public ISteamClient018,
+public ISteamClient019,
 public ISteamClient
 {
 public:

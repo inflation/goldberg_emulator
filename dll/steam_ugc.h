@@ -37,6 +37,7 @@ public ISteamUGC008,
 public ISteamUGC009,
 public ISteamUGC010,
 public ISteamUGC012,
+public ISteamUGC013,
 public ISteamUGC
 {
     class Settings *settings;

@@ -34,6 +34,7 @@ public ISteamGameServer008,
 public ISteamGameServer009,
 public ISteamGameServer010,
 public ISteamGameServer011,
+public ISteamGameServer012,
 public ISteamGameServer
 {
     class Settings *settings;

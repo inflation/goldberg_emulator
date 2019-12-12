@@ -59,6 +59,7 @@ public ISteamNetworking001,
 public ISteamNetworking002,
 public ISteamNetworking003,
 public ISteamNetworking004,
+public ISteamNetworking005,
 public ISteamNetworking
 {
     class Settings *settings;
