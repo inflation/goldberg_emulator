@@ -221,6 +221,11 @@ static void run_at_startup()
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR)
         return;
+
+    for (int i = 0; i < 10; ++i) {
+        //hack: the game Full Mojo Rampage calls WSACleanup on startup so we call WSAStartup a few times so it doesn't get deallocated.
+        WSAStartup(MAKEWORD(2, 2), &wsaData);
+    }
 #else
 
 #endif
