@@ -162,6 +162,7 @@ HSteamPipe Steam_Client::CreateSteamPipe()
 bool Steam_Client::BReleaseSteamPipe( HSteamPipe hSteamPipe )
 {
     PRINT_DEBUG("BReleaseSteamPipe\n");
+    return true;
 }
 
 // connects to an existing global user, failing if none exists
