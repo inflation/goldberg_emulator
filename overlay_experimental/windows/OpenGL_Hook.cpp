@@ -83,16 +83,18 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
 
         initialized = true;
     }
-    ImGui_ImplOpenGL3_NewFrame();
-    Windows_Hook::Inst()->prepareForOverlay(hWnd);
+    if (ImGui_ImplOpenGL3_NewFrame())
+    {
+        Windows_Hook::Inst()->prepareForOverlay(hWnd);
 
-    ImGui::NewFrame();
+        ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc();
+        get_steam_client()->steam_overlay->OverlayProc();
 
-    ImGui::Render();
+        ImGui::Render();
 
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
 }
 
 BOOL WINAPI OpenGL_Hook::MywglSwapBuffers(HDC hDC)

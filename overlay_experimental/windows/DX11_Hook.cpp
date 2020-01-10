@@ -92,17 +92,19 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         initialized = true;
     }
 
-    ImGui_ImplDX11_NewFrame();
-    Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
+    if (ImGui_ImplDX11_NewFrame())
+    {
+        Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
 
-    ImGui::NewFrame();
+        ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc();
+        get_steam_client()->steam_overlay->OverlayProc();
 
-    ImGui::Render();
+        ImGui::Render();
 
-    pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    }
 }
 
 HRESULT STDMETHODCALLTYPE DX11_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)

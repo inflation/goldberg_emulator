@@ -80,17 +80,19 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         initialized = true;
     }
 
-    ImGui_ImplDX10_NewFrame();
-    Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
+    if (ImGui_ImplDX10_NewFrame())
+    {
+        Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
 
-    ImGui::NewFrame();
+        ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc();
+        get_steam_client()->steam_overlay->OverlayProc();
 
-    ImGui::Render();
+        ImGui::Render();
 
-    pDevice->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
-    ImGui_ImplDX10_RenderDrawData(ImGui::GetDrawData());
+        pDevice->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+        ImGui_ImplDX10_RenderDrawData(ImGui::GetDrawData());
+    }
 }
 
 HRESULT STDMETHODCALLTYPE DX10_Hook::MyPresent(IDXGISwapChain *_this, UINT SyncInterval, UINT Flags)

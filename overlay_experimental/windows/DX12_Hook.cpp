@@ -176,39 +176,40 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         pDevice->Release();
     }
     
-    ImGui_ImplDX12_NewFrame();
-    Windows_Hook::Inst()->prepareForOverlay(sc_desc.OutputWindow);
+    if (ImGui_ImplDX12_NewFrame())
+    {
+        Windows_Hook::Inst()->prepareForOverlay(sc_desc.OutputWindow);
 
-    ImGui::NewFrame();
+        ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc();
-    
-    UINT bufferIndex = pSwapChain3->GetCurrentBackBufferIndex();
+        get_steam_client()->steam_overlay->OverlayProc();
 
-    D3D12_RESOURCE_BARRIER barrier = {};
-    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    barrier.Transition.pResource = pBackBuffer[bufferIndex];
-    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        UINT bufferIndex = pSwapChain3->GetCurrentBackBufferIndex();
 
-    pCmdAlloc[bufferIndex]->Reset();
-    pCmdList->Reset(pCmdAlloc[bufferIndex], NULL);
-    pCmdList->ResourceBarrier(1, &barrier);
-    pCmdList->OMSetRenderTargets(1, &mainRenderTargets[bufferIndex], FALSE, NULL);
-    pCmdList->SetDescriptorHeaps(1, &pSrvDescHeap);
+        D3D12_RESOURCE_BARRIER barrier = {};
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        barrier.Transition.pResource = pBackBuffer[bufferIndex];
+        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    ImGui::Render();
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pCmdList);
+        pCmdAlloc[bufferIndex]->Reset();
+        pCmdList->Reset(pCmdAlloc[bufferIndex], NULL);
+        pCmdList->ResourceBarrier(1, &barrier);
+        pCmdList->OMSetRenderTargets(1, &mainRenderTargets[bufferIndex], FALSE, NULL);
+        pCmdList->SetDescriptorHeaps(1, &pSrvDescHeap);
 
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-    pCmdList->ResourceBarrier(1, &barrier);
-    pCmdList->Close();
+        ImGui::Render();
+        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pCmdList);
 
-    pCmdQueue->ExecuteCommandLists(1, (ID3D12CommandList**)&pCmdList);
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+        pCmdList->ResourceBarrier(1, &barrier);
+        pCmdList->Close();
 
+        pCmdQueue->ExecuteCommandLists(1, (ID3D12CommandList**)&pCmdList);
+    }
     pSwapChain3->Release();
 }
 

@@ -75,16 +75,18 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
         initialized = true;
     }
     
-    ImGui_ImplDX9_NewFrame();
-    Windows_Hook::Inst()->prepareForOverlay(param.hFocusWindow);
+    if (ImGui_ImplDX9_NewFrame())
+    {
+        Windows_Hook::Inst()->prepareForOverlay(param.hFocusWindow);
 
-    ImGui::NewFrame();
+        ImGui::NewFrame();
 
-    get_steam_client()->steam_overlay->OverlayProc();
+        get_steam_client()->steam_overlay->OverlayProc();
 
-    ImGui::Render();
+        ImGui::Render();
 
-    ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+    }
 }
 
 HRESULT STDMETHODCALLTYPE DX9_Hook::MyReset(IDirect3DDevice9* _this, D3DPRESENT_PARAMETERS* pPresentationParameters)
