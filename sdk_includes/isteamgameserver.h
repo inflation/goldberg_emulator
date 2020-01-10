@@ -199,7 +199,7 @@ public:
 	// Returns the public IP of the server according to Steam, useful when the server is 
 	// behind NAT and you want to advertise its IP in a lobby for other clients to directly
 	// connect to
-	virtual uint32 GetPublicIP() = 0;
+	virtual SteamIPAddress_t GetPublicIP() = 0;
 
 // These are in GameSocketShare mode, where instead of ISteamGameServer creating its own
 // socket to talk to the master server on, it lets the game use its socket to forward messages
@@ -250,7 +250,7 @@ public:
 
 };
 
-#define STEAMGAMESERVER_INTERFACE_VERSION "SteamGameServer012"
+#define STEAMGAMESERVER_INTERFACE_VERSION "SteamGameServer013"
 
 #ifndef STEAM_API_EXPORTS
 // Global accessor

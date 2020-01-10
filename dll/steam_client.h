@@ -70,6 +70,7 @@ public ISteamClient015,
 public ISteamClient016,
 public ISteamClient017,
 public ISteamClient018,
+public ISteamClient019,
 public ISteamClient
 {
 public:
@@ -162,6 +163,7 @@ public:
 	// set the local IP and Port to bind to
 	// this must be set before CreateLocalUser()
 	void SetLocalIPBinding( uint32 unIP, uint16 usPort ); 
+    void SetLocalIPBinding( const SteamIPAddress_t &unIP, uint16 usPort );
 
 	// returns the ISteamFriends interface
 	ISteamFriends *GetISteamFriends( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion );
@@ -286,4 +288,6 @@ public:
     void clientShutdown();
     bool IsServerInit();
     bool IsUserLogIn();
+
+    void DestroyAllInterfaces();
 };

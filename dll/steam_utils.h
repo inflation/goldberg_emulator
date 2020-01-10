@@ -373,4 +373,12 @@ int FilterText( char* pchOutFilteredText, uint32 nByteSizeOutFilteredText, const
     return 0;
 }
 
+// Return what we believe your current ipv6 connectivity to "the internet" is on the specified protocol.
+// This does NOT tell you if the Steam client is currently connected to Steam via ipv6.
+ESteamIPv6ConnectivityState GetIPv6ConnectivityState( ESteamIPv6ConnectivityProtocol eProtocol )
+{
+    PRINT_DEBUG("GetIPv6ConnectivityState\n");
+    return k_ESteamIPv6ConnectivityState_Unknown;
+}
+
 };

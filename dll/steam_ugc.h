@@ -37,6 +37,7 @@ public ISteamUGC008,
 public ISteamUGC009,
 public ISteamUGC010,
 public ISteamUGC012,
+public ISteamUGC013,
 public ISteamUGC
 {
     class Settings *settings;
@@ -274,6 +275,11 @@ bool AddRequiredTag( UGCQueryHandle_t handle, const char *pTagName )
     return true;
 }
 
+bool AddRequiredTagGroup( UGCQueryHandle_t handle, const SteamParamStringArray_t *pTagGroups )
+{
+    PRINT_DEBUG("Steam_UGC::AddRequiredTagGroup\n");
+    return true;
+}
 
 bool AddExcludedTag( UGCQueryHandle_t handle, const char *pTagName )
 {

@@ -120,6 +120,9 @@ If you look at: steamcontrollerconfigdetails, you will see something like: 17796
 1779660455 refers to a file id that you can dl using your favorite steam workshop downloader site.
 The url would be: https://steamcommunity.com/sharedfiles/filedetails/?id=1779660455
 
+The glyphs directory contains some glyphs for the controller buttons for the games that use the GetGlyphForActionOrigin function.
+If you want to use the real steam glyphs instead of the free ones in the example directory copy them from: <Steam Directory>\tenfoot\resource\images\library\controller\api folder.
+
 Valid digital button names:
 DUP
 DDOWN

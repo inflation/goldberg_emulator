@@ -47,7 +47,7 @@ enum EUGCMatchingUGCType
 	k_EUGCMatchingUGCType_UsableInGame		 = 10,		// ready-to-use items and integrated guides
 	k_EUGCMatchingUGCType_ControllerBindings = 11,
 	k_EUGCMatchingUGCType_GameManagedItems	 = 12,		// game managed items (not managed by users)
-	k_EUGCMatchingUGCType_All				 = ~0,		// return everything
+	k_EUGCMatchingUGCType_All				 = ~0,		// @note: will only be valid for CreateQueryUserUGCRequest requests
 };
 
 // Different lists of published UGC for a user.
@@ -234,6 +234,7 @@ public:
 
 	// Options to set for querying UGC
 	virtual bool AddRequiredTag( UGCQueryHandle_t handle, const char *pTagName ) = 0;
+	virtual bool AddRequiredTagGroup( UGCQueryHandle_t handle, const SteamParamStringArray_t *pTagGroups ) = 0; // match any of the tags in this group
 	virtual bool AddExcludedTag( UGCQueryHandle_t handle, const char *pTagName ) = 0;
 	virtual bool SetReturnOnlyIDs( UGCQueryHandle_t handle, bool bReturnOnlyIDs ) = 0;
 	virtual bool SetReturnKeyValueTags( UGCQueryHandle_t handle, bool bReturnKeyValueTags ) = 0;
@@ -353,7 +354,7 @@ public:
 	virtual SteamAPICall_t DeleteItem( PublishedFileId_t nPublishedFileID ) = 0;
 };
 
-#define STEAMUGC_INTERFACE_VERSION "STEAMUGC_INTERFACE_VERSION013"
+#define STEAMUGC_INTERFACE_VERSION "STEAMUGC_INTERFACE_VERSION014"
 
 #ifndef STEAM_API_EXPORTS
 // Global interface accessor

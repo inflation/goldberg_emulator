@@ -104,6 +104,8 @@ static void load_gamecontroller_settings(Settings *settings)
             PRINT_DEBUG("Added %u action names to %s\n", button_pairs.size(), action_set_name.c_str());
         }
     }
+
+    settings->glyphs_directory = path + (PATH_SEPARATOR "glyphs" PATH_SEPARATOR);
 }
 
 uint32 create_localstorage_settings(Settings **settings_client_out, Settings **settings_server_out, Local_Storage **local_storage_out)

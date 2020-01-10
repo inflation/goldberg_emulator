@@ -45,6 +45,45 @@ static IP_PORT broadcasts[MAX_BROADCASTS];
 
 #include <iphlpapi.h>
 
+//windows xp support
+static int
+inet_pton4(const char *src, uint32_t *dst)
+{
+	static const char digits[] = "0123456789";
+	int saw_digit, octets, ch;
+	u_char tmp[sizeof(uint32_t)], *tp;
+
+	saw_digit = 0;
+	octets = 0;
+	*(tp = tmp) = 0;
+	while ((ch = *src++) != '\0') {
+		const char *pch;
+
+		if ((pch = strchr(digits, ch)) != NULL) {
+			size_t nx = *tp * 10 + (pch - digits);
+
+			if (nx > 255)
+				return (0);
+			*tp = (u_char) nx;
+			if (! saw_digit) {
+				if (++octets > 4)
+					return (0);
+				saw_digit = 1;
+			}
+		} else if (ch == '.' && saw_digit) {
+			if (octets == 4)
+				return (0);
+			*++tp = 0;
+			saw_digit = 0;
+		} else
+			return (0);
+	}
+	if (octets < 4)
+		return (0);
+	memcpy(dst, tmp, sizeof(uint32_t));
+	return (1);
+}
+
 static void get_broadcast_info(uint16 port)
 {
     number_broadcasts = 0;
@@ -71,13 +110,11 @@ static void get_broadcast_info(uint16 port)
         IP_ADAPTER_INFO *pAdapter = pAdapterInfo;
 
         while (pAdapter) {
-            unsigned long iface_ip = 0, subnet_mask = 0;
+            uint32_t iface_ip = 0, subnet_mask = 0;
 
-            
-            if (inet_pton(AF_INET, pAdapter->IpAddressList.IpMask.String, &subnet_mask) == 1
-                    && inet_pton(AF_INET, pAdapter->IpAddressList.IpAddress.String, &iface_ip) == 1) {
+            if (inet_pton4(pAdapter->IpAddressList.IpMask.String, &subnet_mask) == 1
+                    && inet_pton4(pAdapter->IpAddressList.IpAddress.String, &iface_ip) == 1) {
                     IP_PORT *ip_port = &broadcasts[number_broadcasts];
-                    //ip_port->ip.family = AF_INET;
                     uint32 broadcast_ip = iface_ip | ~subnet_mask;
                     ip_port->ip = broadcast_ip;
                     ip_port->port = port;
@@ -221,6 +258,11 @@ static void run_at_startup()
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR)
         return;
+
+    for (int i = 0; i < 10; ++i) {
+        //hack: the game Full Mojo Rampage calls WSACleanup on startup so we call WSAStartup a few times so it doesn't get deallocated.
+        WSAStartup(MAKEWORD(2, 2), &wsaData);
+    }
 #else
 
 #endif

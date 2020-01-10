@@ -1353,7 +1353,7 @@ void Callback(Common_Message *msg)
                 if (msg->lobby_messages().type() == Lobby_Messages::JOIN) {
                     PRINT_DEBUG("LOBBY MESSAGE: JOIN\n");
                     enter_lobby(lobby, (uint64)msg->source_id());
-                    trigger_lobby_member_join_leave((uint64)lobby->room_id(), (uint64)msg->source_id(), false, true);
+                    trigger_lobby_member_join_leave((uint64)lobby->room_id(), (uint64)msg->source_id(), false, true, 0.01);
                 }
 
                 if (msg->lobby_messages().type() == Lobby_Messages::MEMBER_DATA) {

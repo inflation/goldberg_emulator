@@ -49,6 +49,7 @@ struct Connect_Socket {
 class Steam_Networking_Sockets :
 public ISteamNetworkingSockets001,
 public ISteamNetworkingSockets002,
+public ISteamNetworkingSockets003,
 public ISteamNetworkingSockets
 {
     class Settings *settings;
@@ -239,6 +240,11 @@ HSteamListenSocket CreateListenSocket( int nSteamConnectVirtualPort, uint32 nIP,
 /// will be posted.  The connection will be in the connecting state.
 HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddress )
 {
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP old\n");
+}
+
+HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddress, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP\n");
 }
 
@@ -262,6 +268,11 @@ HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddre
 /// man-in-the-middle attacks.
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address )
 {
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress old\n");
+}
+
+HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress\n");
 }
 
@@ -277,7 +288,15 @@ HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address )
 /// when your app initializes
 HSteamListenSocket CreateListenSocketP2P( int nVirtualPort )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketP2P %i\n", nVirtualPort);
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketP2P old %i\n", nVirtualPort);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    return new_listen_socket(nVirtualPort);
+}
+
+HSteamListenSocket CreateListenSocketP2P( int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketP2P old %i\n", nVirtualPort);
+    //TODO config options
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     return new_listen_socket(nVirtualPort);
 }
@@ -295,7 +314,7 @@ HSteamListenSocket CreateListenSocketP2P( int nVirtualPort )
 /// when your app initializes
 HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, int nVirtualPort )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2P %u\n", nVirtualPort);
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2P old %i\n", nVirtualPort);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     const SteamNetworkingIPAddr *ip = identityRemote.GetIPAddr();
@@ -313,6 +332,13 @@ HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, i
     HSteamNetConnection socket = new_connect_socket(identityRemote, nVirtualPort);
     send_packet_new_connection(socket);
     return socket;
+}
+
+HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2P %i\n", nVirtualPort);
+    //TODO config options
+    return ConnectP2P(identityRemote, nVirtualPort);
 }
 
 /// Creates a connection and begins talking to a remote destination.  The remote host
@@ -567,6 +593,9 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
 /// sockets that does not write excessively small chunks will 
 /// work without any changes. 
 ///
+/// The pOutMessageNumber is an optional pointer to receive the
+/// message number assigned to the message, if sending was successful.
+///
 /// Returns:
 /// - k_EResultInvalidParam: invalid connection handle, or the individual message is too big.
 ///   (See k_cbMaxSteamNetworkingSocketsMessageSizeSend)
@@ -576,7 +605,7 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
 ///   we were not ready to send it.
 /// - k_EResultLimitExceeded: there was already too much data queued to be sent.
 ///   (See k_ESteamNetworkingConfig_SendBufferSize)
-virtual EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, uint32 cbData, int nSendFlags )
+EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, uint32 cbData, int nSendFlags, int64 *pOutMessageNumber )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SendMessageToConnection %u, len %u, flags %i\n", hConn, cbData, nSendFlags);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
@@ -602,6 +631,50 @@ virtual EResult SendMessageToConnection( HSteamNetConnection hConn, const void *
     if (network->sendTo(&msg, reliable)) return k_EResultOK;
     return k_EResultFail;
 }
+
+EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, uint32 cbData, int nSendFlags )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::SendMessageToConnection old %u, len %u, flags %i\n", hConn, cbData, nSendFlags);
+    return SendMessageToConnection(hConn, pData, cbData, nSendFlags, NULL);
+}
+
+/// Send one or more messages without copying the message payload.
+/// This is the most efficient way to send messages. To use this
+/// function, you must first allocate a message object using
+/// ISteamNetworkingUtils::AllocateMessage.  (Do not declare one
+/// on the stack or allocate your own.)
+///
+/// You should fill in the message payload.  You can either let
+/// it allocate the buffer for you and then fill in the payload,
+/// or if you already have a buffer allocated, you can just point
+/// m_pData at your buffer and set the callback to the appropriate function
+/// to free it.  Note that if you use your own buffer, it MUST remain valid
+/// until the callback is executed.  And also note that your callback can be
+/// invoked at ant time from any thread (perhaps even before SendMessages
+/// returns!), so it MUST be fast and threadsafe.
+///
+/// You MUST also fill in:
+/// - m_conn - the handle of the connection to send the message to
+/// - m_nFlags - bitmask of k_nSteamNetworkingSend_xxx flags.
+///
+/// All other fields are currently reserved and should not be modified.
+///
+/// The library will take ownership of the message structures.  They may
+/// be modified or become invalid at any time, so you must not read them
+/// after passing them to this function.
+///
+/// pOutMessageNumberOrResult is an optional array that will receive,
+/// for each message, the message number that was assigned to the message
+/// if sending was successful.  If sending failed, then a negative EResult
+/// valid is placed into the array.  For example, the array will hold
+/// -k_EResultInvalidState if the connection was in an invalid state.
+/// See ISteamNetworkingSockets::SendMessageToConnection for possible
+/// failure codes.
+void SendMessages( int nMessages, SteamNetworkingMessage_t *const *pMessages, int64 *pOutMessageNumberOrResult )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::SendMessages\n");
+}
+
 
 /// If Nagle is enabled (its on by default) then when calling 
 /// SendMessageToConnection the message will be queued up the Nagle time
@@ -637,7 +710,7 @@ SteamNetworkingMessage_t *get_steam_message_connection(HSteamNetConnection hConn
     pMsg->m_cbSize = size;
     memcpy(pMsg->m_pData, connect_socket->second.data.front().data(), size);
     pMsg->m_conn = hConn;
-    pMsg->m_sender = connect_socket->second.remote_identity;
+    pMsg->m_identityPeer = connect_socket->second.remote_identity;
     pMsg->m_nConnUserData = connect_socket->second.user_data;
     //TODO
     //pMsg->m_usecTimeReceived =
@@ -957,7 +1030,7 @@ int FindRelayAuthTicketForServer( const SteamNetworkingIdentity &identityGameSer
 /// when your app initializes
 HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentity &identityTarget, int nVirtualPort )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer\n");
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer old\n");
 }
 
 /// Client call to connect to a server hosted in a Valve data center, on the specified virtual
@@ -968,9 +1041,13 @@ HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentit
 /// connection to Steam or the central backend, or the app is restarted or crashes, etc.
 HSteamNetConnection ConnectToHostedDedicatedServer( CSteamID steamIDTarget, int nVirtualPort )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer old\n");
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer older\n");
 }
 
+HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentity &identityTarget, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer\n");
+}
 
 //
 // Servers hosted in Valve data centers
@@ -1058,7 +1135,24 @@ virtual EResult GetHostedDedicatedServerAddress( SteamDatagramHostedAddress *pRo
 /// Note that this call MUST be made through the SteamNetworkingSocketsGameServer() interface
 HSteamListenSocket CreateHostedDedicatedServerListenSocket( int nVirtualPort )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::CreateHostedDedicatedServerListenSocket %i\n", nVirtualPort);
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateHostedDedicatedServerListenSocket old %i\n", nVirtualPort);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    return new_listen_socket(nVirtualPort);
+}
+
+/// Create a listen socket on the specified virtual port.  The physical UDP port to use
+/// will be determined by the SDR_LISTEN_PORT environment variable.  If a UDP port is not
+/// configured, this call will fail.
+///
+/// Note that this call MUST be made through the SteamGameServerNetworkingSockets() interface
+///
+/// If you need to set any initial config options, pass them here.  See
+/// SteamNetworkingConfigValue_t for more about why this is preferable to
+/// setting the options "immediately" after creation.
+HSteamListenSocket CreateHostedDedicatedServerListenSocket( int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateHostedDedicatedServerListenSocket old %i\n", nVirtualPort);
+    //TODO config options
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     return new_listen_socket(nVirtualPort);
 }
@@ -1170,6 +1264,85 @@ bool SetConnectionConfigurationValue( HSteamNetConnection hConn, ESteamNetworkin
 EResult GetGameCoordinatorServerLogin( SteamDatagramGameCoordinatorServerLogin *pLoginInfo, int *pcbSignedBlob, void *pBlob )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetGameCoordinatorServerLogin\n");
+}
+
+//
+// Relayed connections using custom signaling protocol
+//
+// This is used if you have your own method of sending out-of-band
+// signaling / rendezvous messages through a mutually trusted channel.
+//
+
+/// Create a P2P "client" connection that does signaling over a custom
+/// rendezvous/signaling channel.
+///
+/// pSignaling points to a new object that you create just for this connection.
+/// It must stay valid until Release() is called.  Once you pass the
+/// object to this function, it assumes ownership.  Release() will be called
+/// from within the function call if the call fails.  Furthermore, until Release()
+/// is called, you should be prepared for methods to be invoked on your
+/// object from any thread!  You need to make sure your object is threadsafe!
+/// Furthermore, you should make sure that dispatching the methods is done
+/// as quickly as possible.
+///
+/// This function will immediately construct a connection in the "connecting"
+/// state.  Soon after (perhaps before this function returns, perhaps in another thread),
+/// the connection will begin sending signaling messages by calling
+/// ISteamNetworkingConnectionCustomSignaling::SendSignal.
+///
+/// When the remote peer accepts the connection (See
+/// ISteamNetworkingCustomSignalingRecvContext::OnConnectRequest),
+/// it will begin sending signaling messages.  When these messages are received,
+/// you can pass them to the connection using ReceivedP2PCustomSignal.
+///
+/// If you know the identity of the peer that you expect to be on the other end,
+/// you can pass their identity to improve debug output or just detect bugs.
+/// If you don't know their identity yet, you can pass NULL, and their
+/// identity will be established in the connection handshake.  
+///
+/// If you use this, you probably want to call ISteamNetworkingUtils::InitRelayNetworkAccess()
+/// when your app initializes
+///
+/// If you need to set any initial config options, pass them here.  See
+/// SteamNetworkingConfigValue_t for more about why this is preferable to
+/// setting the options "immediately" after creation.
+HSteamNetConnection ConnectP2PCustomSignaling( ISteamNetworkingConnectionCustomSignaling *pSignaling, const SteamNetworkingIdentity *pPeerIdentity, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2PCustomSignaling\n");
+}
+
+/// Called when custom signaling has received a message.  When your
+/// signaling channel receives a message, it should save off whatever
+/// routing information was in the envelope into the context object,
+/// and then pass the payload to this function.
+///
+/// A few different things can happen next, depending on the message:
+///
+/// - If the signal is associated with existing connection, it is dealt
+///   with immediately.  If any replies need to be sent, they will be
+///   dispatched using the ISteamNetworkingConnectionCustomSignaling
+///   associated with the connection.
+/// - If the message represents a connection request (and the request
+///   is not redundant for an existing connection), a new connection
+///   will be created, and ReceivedConnectRequest will be called on your
+///   context object to determine how to proceed.
+/// - Otherwise, the message is for a connection that does not
+///   exist (anymore).  In this case, we *may* call SendRejectionReply
+///   on your context object.
+///
+/// In any case, we will not save off pContext or access it after this
+/// function returns.
+///
+/// Returns true if the message was parsed and dispatched without anything
+/// unusual or suspicious happening.  Returns false if there was some problem
+/// with the message that prevented ordinary handling.  (Debug output will
+/// usually have more information.)
+///
+/// If you expect to be using relayed connections, then you probably want
+/// to call ISteamNetworkingUtils::InitRelayNetworkAccess() when your app initializes
+bool ReceivedP2PCustomSignal( const void *pMsg, int cbMsg, ISteamNetworkingCustomSignalingRecvContext *pContext )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ReceivedP2PCustomSignal\n");
 }
 
 // TEMP KLUDGE Call to invoke all queued callbacks.

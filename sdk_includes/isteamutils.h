@@ -160,10 +160,10 @@ public:
 	// ask SteamUI to create and render its OpenVR dashboard
 	virtual void StartVRDashboard() = 0;
 
-	// Returns true if the HMD content will be streamed via Steam In-Home Streaming
+	// Returns true if the HMD content will be streamed via Steam Remote Play
 	virtual bool IsVRHeadsetStreamingEnabled() = 0;
 
-	// Set whether the HMD content will be streamed via Steam In-Home Streaming
+	// Set whether the HMD content will be streamed via Steam Remote Play
 	// If this is set to true, then the scene in the HMD headset will be streamed, and remote input will not be allowed.
 	// If this is set to false, then the application window will be streamed instead, and remote input will be allowed.
 	// The default is true unless "VRHeadsetStreaming" "0" is in the extended appinfo for a game.
@@ -184,6 +184,10 @@ public:
 	//   bLegalOnly should be false if you want profanity and legally required filtering (where required) and true if you want legally required filtering only
 	//   Returns the number of characters (not bytes) filtered.
 	virtual int FilterText( char* pchOutFilteredText, uint32 nByteSizeOutFilteredText, const char * pchInputMessage, bool bLegalOnly ) = 0;
+
+	// Return what we believe your current ipv6 connectivity to "the internet" is on the specified protocol.
+	// This does NOT tell you if the Steam client is currently connected to Steam via ipv6.
+	virtual ESteamIPv6ConnectivityState GetIPv6ConnectivityState( ESteamIPv6ConnectivityProtocol eProtocol ) = 0;
 };
 
 #define STEAMUTILS_INTERFACE_VERSION "SteamUtils009"

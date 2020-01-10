@@ -541,15 +541,22 @@ SteamAPICall_t Steam_GameServer::GetServerReputation()
 // Returns the public IP of the server according to Steam, useful when the server is 
 // behind NAT and you want to advertise its IP in a lobby for other clients to directly
 // connect to
-uint32 Steam_GameServer::GetPublicIP()
+uint32 Steam_GameServer::GetPublicIP_old()
 {
-    PRINT_DEBUG("GetPublicIP\n");
+    PRINT_DEBUG("GetPublicIP_old\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     uint32 ip = network->getOwnIP();
     PRINT_DEBUG("%X\n", ip);
     return ip;
 }
 
+SteamIPAddress_t Steam_GameServer::GetPublicIP()
+{
+    PRINT_DEBUG("GetPublicIP\n");
+    SteamIPAddress_t ip = SteamIPAddress_t::IPv4Any();
+    ip.m_unIPv4 = GetPublicIP_old();
+    return ip;
+}
 
 // These are in GameSocketShare mode, where instead of ISteamGameServer creating its own
 // socket to talk to the master server on, it lets the game use its socket to forward messages

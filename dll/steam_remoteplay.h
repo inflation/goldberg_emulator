@@ -105,6 +105,14 @@ bool BGetSessionClientResolution( uint32 unSessionID, int *pnResolutionX, int *p
     return false;
 }
 
+// Invite a friend to Remote Play Together
+// This returns false if the invite can't be sent
+bool BSendRemotePlayTogetherInvite( CSteamID steamIDFriend )
+{
+    PRINT_DEBUG("Steam_RemotePlay::BSendRemotePlayTogetherInvite\n");
+    return false;
+}
+
 void RunCallbacks()
 {
 }
