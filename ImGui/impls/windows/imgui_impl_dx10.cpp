@@ -548,8 +548,10 @@ void ImGui_ImplDX10_Shutdown()
     if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
 }
 
-void ImGui_ImplDX10_NewFrame()
+bool ImGui_ImplDX10_NewFrame()
 {
     if (!g_pFontSampler)
-        ImGui_ImplDX10_CreateDeviceObjects();
+        return ImGui_ImplDX10_CreateDeviceObjects();
+
+    return true;
 }

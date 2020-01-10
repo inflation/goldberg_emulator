@@ -277,8 +277,10 @@ void ImGui_ImplDX9_InvalidateDeviceObjects()
     if (g_FontTexture) { g_FontTexture->Release(); g_FontTexture = NULL; ImGui::GetIO().Fonts->TexID = NULL; } // We copied g_pFontTextureView to io.Fonts->TexID so let's clear that as well.
 }
 
-void ImGui_ImplDX9_NewFrame()
+bool ImGui_ImplDX9_NewFrame()
 {
     if (!g_FontTexture)
-        ImGui_ImplDX9_CreateDeviceObjects();
+        return ImGui_ImplDX9_CreateDeviceObjects();
+
+    return true;
 }

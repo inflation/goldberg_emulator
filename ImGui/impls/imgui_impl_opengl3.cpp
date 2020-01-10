@@ -63,7 +63,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "imgui.h"
+#include "../imgui.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
@@ -162,10 +162,12 @@ void    ImGui_ImplOpenGL3_Shutdown()
     ImGui_ImplOpenGL3_DestroyDeviceObjects();
 }
 
-void    ImGui_ImplOpenGL3_NewFrame()
+bool    ImGui_ImplOpenGL3_NewFrame()
 {
     if (!g_FontTexture)
-        ImGui_ImplOpenGL3_CreateDeviceObjects();
+        return ImGui_ImplOpenGL3_CreateDeviceObjects();
+
+    return true;
 }
 
 static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height, GLuint vertex_array_object)
