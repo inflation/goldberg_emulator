@@ -382,23 +382,71 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         const char* target;
         switch (g_pd3dDevice->GetFeatureLevel())
         {
-            case D3D_FEATURE_LEVEL_9_1: target = "vs_4_0_level_9_1"; break;
-            case D3D_FEATURE_LEVEL_9_2: target = "vs_4_0_level_9_2"; break;
-            case D3D_FEATURE_LEVEL_9_3: target = "vs_4_0_level_9_3"; break;
-            case D3D_FEATURE_LEVEL_10_0: target = "vs_4_0_level_10_0"; break;
-            case D3D_FEATURE_LEVEL_10_1: target = "vs_4_0_level_10_1"; break;
-            case D3D_FEATURE_LEVEL_11_0: target = "vs_4_0_level_11_0"; break;
-            case D3D_FEATURE_LEVEL_11_1: target = "vs_4_0_level_11_1"; break;
-            default: target = "vs_4_0";
+        case D3D_FEATURE_LEVEL_9_1: target = "vs_4_0_level_9_1"; break;
+        case D3D_FEATURE_LEVEL_9_2: target = "vs_4_0_level_9_2"; break;
+        case D3D_FEATURE_LEVEL_9_3: target = "vs_4_0_level_9_3"; break;
+        case D3D_FEATURE_LEVEL_10_0: target = "vs_4_0"; break;
+        case D3D_FEATURE_LEVEL_10_1: target = "vs_4_1"; break;
+        case D3D_FEATURE_LEVEL_11_0: target = "vs_5_0"; break;
+        case D3D_FEATURE_LEVEL_11_1: target = "vs_5_0"; break;
+        default: target = "vs_4_0";
         }
 
         D3DCompile(vertexShader, strlen(vertexShader), NULL, NULL, NULL, "main", target, 0, 0, &g_pVertexShaderBlob, NULL);
+
         if (g_pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
             return false;
         if (g_pd3dDevice->CreateVertexShader((DWORD*)g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), NULL, &g_pVertexShader) != S_OK)
             return false;
 #else
-        if (g_pd3dDevice->CreateVertexShader(ImGui_vertexShaderDX11, ImGui_vertexShaderDX11_len, NULL, &g_pVertexShader) != S_OK)
+
+        unsigned char* byteCode;
+        SIZE_T byteCodeSize;
+
+        switch (g_pd3dDevice->GetFeatureLevel())
+        {
+        case D3D_FEATURE_LEVEL_9_1:
+            byteCode = ImGui_vertexShaderDX11_9_1;
+            byteCodeSize = ImGui_vertexShaderDX11_9_1_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_9_2:
+            byteCode = ImGui_vertexShaderDX11_9_2;
+            byteCodeSize = ImGui_vertexShaderDX11_9_2_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_9_3:
+            byteCode = ImGui_vertexShaderDX11_9_3;
+            byteCodeSize = ImGui_vertexShaderDX11_9_3_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_10_0:
+            byteCode = ImGui_vertexShaderDX11_10_0;
+            byteCodeSize = ImGui_vertexShaderDX11_10_0_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_10_1:
+            byteCode = ImGui_vertexShaderDX11_10_1;
+            byteCodeSize = ImGui_vertexShaderDX11_10_1_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_11_0:
+            byteCode = ImGui_vertexShaderDX11_11_0;
+            byteCodeSize = ImGui_vertexShaderDX11_11_0_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_11_1:
+            byteCode = ImGui_vertexShaderDX11_11_1;
+            byteCodeSize = ImGui_vertexShaderDX11_11_1_len;
+            break;
+
+        default:
+            byteCode = ImGui_vertexShaderDX11;
+            byteCodeSize = ImGui_vertexShaderDX11_len;
+        }
+
+        auto x = g_pd3dDevice->CreateVertexShader(byteCode, byteCodeSize, NULL, &g_pVertexShader);
+        if (x != S_OK)
             return false;
 #endif
 
@@ -451,14 +499,14 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
         const char* target;
         switch (g_pd3dDevice->GetFeatureLevel())
         {
-            case D3D_FEATURE_LEVEL_9_1: target = "ps_4_0_level_9_1"; break;
-            case D3D_FEATURE_LEVEL_9_2: target = "ps_4_0_level_9_2"; break;
-            case D3D_FEATURE_LEVEL_9_3: target = "ps_4_0_level_9_3"; break;
-            case D3D_FEATURE_LEVEL_10_0: target = "ps_4_0_level_10_0"; break;
-            case D3D_FEATURE_LEVEL_10_1: target = "ps_4_0_level_10_1"; break;
-            case D3D_FEATURE_LEVEL_11_0: target = "ps_4_0_level_11_0"; break;
-            case D3D_FEATURE_LEVEL_11_1: target = "ps_4_0_level_11_1"; break;
-            default: target = "ps_4_0";
+        case D3D_FEATURE_LEVEL_9_1: target = "ps_4_0_level_9_1"; break;
+        case D3D_FEATURE_LEVEL_9_2: target = "ps_4_0_level_9_2"; break;
+        case D3D_FEATURE_LEVEL_9_3: target = "ps_4_0_level_9_3"; break;
+        case D3D_FEATURE_LEVEL_10_0: target = "ps_4_0"; break;
+        case D3D_FEATURE_LEVEL_10_1: target = "ps_4_1"; break;
+        case D3D_FEATURE_LEVEL_11_0: target = "ps_5_0"; break;
+        case D3D_FEATURE_LEVEL_11_1: target = "ps_5_0"; break;
+        default: target = "ps_4_0";
         }
 
         D3DCompile(pixelShader, strlen(pixelShader), NULL, NULL, NULL, "main", target, 0, 0, &g_pPixelShaderBlob, NULL);
@@ -468,7 +516,52 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
             return false;
 #else
 
-        if (g_pd3dDevice->CreatePixelShader(ImGui_pixelShaderDX11, ImGui_pixelShaderDX11_len, NULL, &g_pPixelShader) != S_OK)
+        unsigned char* byteCode;
+        SIZE_T byteCodeSize;
+
+        switch (g_pd3dDevice->GetFeatureLevel())
+        {
+        case D3D_FEATURE_LEVEL_9_1:
+            byteCode = ImGui_pixelShaderDX11_9_1;
+            byteCodeSize = ImGui_pixelShaderDX11_9_1_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_9_2:
+            byteCode = ImGui_pixelShaderDX11_9_2;
+            byteCodeSize = ImGui_pixelShaderDX11_9_2_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_9_3:
+            byteCode = ImGui_pixelShaderDX11_9_3;
+            byteCodeSize = ImGui_pixelShaderDX11_9_3_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_10_0:
+            byteCode = ImGui_pixelShaderDX11_10_0;
+            byteCodeSize = ImGui_pixelShaderDX11_10_0_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_10_1:
+            byteCode = ImGui_pixelShaderDX11_10_1;
+            byteCodeSize = ImGui_pixelShaderDX11_10_1_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_11_0:
+            byteCode = ImGui_pixelShaderDX11_11_0;
+            byteCodeSize = ImGui_pixelShaderDX11_11_0_len;
+            break;
+
+        case D3D_FEATURE_LEVEL_11_1:
+            byteCode = ImGui_pixelShaderDX11_11_1;
+            byteCodeSize = ImGui_pixelShaderDX11_11_1_len;
+            break;
+
+        default:
+            byteCode = ImGui_pixelShaderDX11;
+            byteCodeSize = ImGui_pixelShaderDX11_len;
+        }
+
+        if (g_pd3dDevice->CreatePixelShader(byteCode, byteCodeSize, NULL, &g_pPixelShader) != S_OK)
             return false;
 #endif
     }
