@@ -232,8 +232,9 @@ GAMEPAD_API GAMEPAD_BOOL GamepadTriggerReleased(GAMEPAD_DEVICE device, GAMEPAD_T
  * \param device The device to update.
  * \param left Left motor strengh (0 to 1).
  * \param right Right motor strengh (0 to 1).
+ * \param rumble_length_ms rumble time in ms (0 = unlimited).
  */
-GAMEPAD_API void GamepadSetRumble(GAMEPAD_DEVICE device, float left, float right);
+GAMEPAD_API void GamepadSetRumble(GAMEPAD_DEVICE device, float left, float right,  unsigned int rumble_length_ms);
 
 /**
  * Query the position of an analog stick as raw values.

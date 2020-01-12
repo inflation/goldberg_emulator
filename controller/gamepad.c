@@ -25,7 +25,9 @@
 #	include <stdio.h>
 #	include <fcntl.h>
 #	include <unistd.h>
-#	include <libudev.h>
+#	include <dirent.h>
+#	include <sys/stat.h>
+#	include <time.h>
 #else
 #	error "Unknown platform in gamepad.c"
 #endif
@@ -60,6 +62,8 @@ struct GAMEPAD_STATE {
 	char* device;
 	int fd;
 	int effect;
+	double axis_min[ABS_MAX];
+	double axis_max[ABS_MAX];
 #endif
 };
 
@@ -126,7 +130,8 @@ void GamepadShutdown(void) {
 	/* no Win32 shutdown required */
 }
 
-void GamepadSetRumble(GAMEPAD_DEVICE gamepad, float left, float right) {
+void GamepadSetRumble(GAMEPAD_DEVICE gamepad, float left, float right, unsigned int rumble_length_ms) {
+	//TODO: rumble_length_ms
 	if ((STATE[gamepad].flags & FLAG_RUMBLE) != 0) {
 		XINPUT_VIBRATION vib;
 		ZeroMemory(&vib, sizeof(vib));
@@ -137,13 +142,102 @@ void GamepadSetRumble(GAMEPAD_DEVICE gamepad, float left, float right) {
 }
 
 #elif defined(__linux__)
+#define test_bit(nr, addr) \
+	(((1UL << ((nr) % (sizeof(long) * 8))) & ((addr)[(nr) / (sizeof(long) * 8)])) != 0)
+#define NBITS(x) ((((x)-1)/(sizeof(long) * 8))+1)
 
-/* UDev handles */
-static struct udev* UDEV = NULL;
-static struct udev_monitor* MON = NULL;
+
+static int IsGamepad(int fd, char *namebuf, const size_t namebuflen)
+{
+	struct input_id inpid;
+	//uint16_t *guid16 = (uint16_t *)guid->data;
+
+	/* When udev is enabled we only get joystick devices here, so there's no need to test them */
+	unsigned long evbit[NBITS(EV_MAX)] = { 0 };
+	unsigned long keybit[NBITS(KEY_MAX)] = { 0 };
+	unsigned long absbit[NBITS(ABS_MAX)] = { 0 };
+
+	if ((ioctl(fd, EVIOCGBIT(0, sizeof(evbit)), evbit) < 0) ||
+		(ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) < 0) ||
+		(ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(absbit)), absbit) < 0)) {
+		return (0);
+	}
+
+	if (!(test_bit(EV_KEY, evbit) && test_bit(EV_ABS, evbit) &&
+		  test_bit(ABS_X, absbit) && test_bit(ABS_Y, absbit))) {
+		return 0;
+	}
+
+	if (ioctl(fd, EVIOCGNAME(namebuflen), namebuf) < 0) {
+		return 0;
+	}
+
+	if (ioctl(fd, EVIOCGID, &inpid) < 0) {
+		return 0;
+	}
+
+	//printf("Joystick: %s, bustype = %d, vendor = 0x%.4x, product = 0x%.4x, version = %d\n", namebuf, inpid.bustype, inpid.vendor, inpid.product, inpid.version);
+
+	//memset(guid->data, 0, sizeof(guid->data));
+
+	/* We only need 16 bits for each of these; space them out to fill 128. */
+	/* Byteswap so devices get same GUID on little/big endian platforms. */
+/*
+	*guid16++ = SDL_SwapLE16(inpid.bustype);
+	*guid16++ = 0;
+
+	if (inpid.vendor && inpid.product) {
+		*guid16++ = SDL_SwapLE16(inpid.vendor);
+		*guid16++ = 0;
+		*guid16++ = SDL_SwapLE16(inpid.product);
+		*guid16++ = 0;
+		*guid16++ = SDL_SwapLE16(inpid.version);
+		*guid16++ = 0;
+	} else {
+		strlcpy((char*)guid16, namebuf, sizeof(guid->data) - 4);
+	}
+
+	if (SDL_ShouldIgnoreJoystick(namebuf, *guid)) {
+		return 0;
+	}
+*/
+	return 1;
+}
 
 static void GamepadAddDevice(const char* devPath);
 static void GamepadRemoveDevice(const char* devPath);
+
+static void GamepadDetect()
+{
+	DIR *folder;
+	struct dirent *dent;
+
+	folder = opendir("/dev/input");
+	if (folder) {
+		while ((dent = readdir(folder))) {
+			int len = strlen(dent->d_name);
+			if (len > 5 && strncmp(dent->d_name, "event", 5) == 0) {
+				char path[PATH_MAX];
+				snprintf(path, sizeof(path), "/dev/input/%s", dent->d_name);
+				GamepadAddDevice(path);
+			}
+		}
+
+		closedir(folder);
+	}
+
+	for (int i = 0; i != GAMEPAD_COUNT; ++i) {
+		if ((STATE[i].flags & FLAG_CONNECTED) && STATE[i].device) {
+			struct stat sb;
+			//printf("%s\n", STATE[i].device);
+			if (stat(STATE[i].device, &sb) == -1) {
+				GamepadRemoveDevice(STATE[i].device);
+			}
+		}
+	}
+}
+
+
 
 /* Helper to add a new device */
 static void GamepadAddDevice(const char* devPath) {
@@ -154,8 +248,22 @@ static void GamepadAddDevice(const char* devPath) {
 		if ((STATE[i].flags & FLAG_CONNECTED) == 0) {
 			break;
 		}
+
+		if (STATE[i].device && strcmp(devPath, STATE[i].device) == 0) {
+			return;
+		}
 	}
+
 	if (i == GAMEPAD_COUNT) {
+		return;
+	}
+
+	int fd = open(devPath, O_RDWR, 0);
+	if (fd < 0) return;
+	char namebuf[128];
+	int is_gamepad = IsGamepad(fd, namebuf, sizeof (namebuf));
+	if (!is_gamepad) {
+		close(fd);
 		return;
 	}
 
@@ -168,25 +276,87 @@ static void GamepadAddDevice(const char* devPath) {
 	/* reset device state */
 	GamepadResetState((GAMEPAD_DEVICE)i);
 
-	/* attempt to open the device in read-write mode, which we need fo rumble */
-	STATE[i].fd = open(STATE[i].device, O_RDWR|O_NONBLOCK);
-	if (STATE[i].fd != -1) {
-		STATE[i].flags = FLAG_CONNECTED|FLAG_RUMBLE;
-		return;
-	}
+	fcntl(fd, F_SETFL, O_NONBLOCK);
+	STATE[i].fd = fd;
+	STATE[i].flags |= FLAG_CONNECTED;
 
-	/* attempt to open in read-only mode if access was denied */
-	if (errno == EACCES) {
-		STATE[i].fd = open(STATE[i].device, O_RDONLY|O_NONBLOCK);
-		if (STATE[i].fd != -1) {
-			STATE[i].flags = FLAG_CONNECTED;
-			return;
+	int controller = i;
+	{
+	int i, t;
+	unsigned long keybit[NBITS(KEY_MAX)] = { 0 };
+	unsigned long absbit[NBITS(ABS_MAX)] = { 0 };
+	unsigned long relbit[NBITS(REL_MAX)] = { 0 };
+	unsigned long ffbit[NBITS(FF_MAX)] = { 0 };
+
+	/* See if this device uses the new unified event API */
+	if ((ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) >= 0) &&
+		(ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(absbit)), absbit) >= 0) &&
+		(ioctl(fd, EVIOCGBIT(EV_REL, sizeof(relbit)), relbit) >= 0)) {
+
+		/* Get the number of buttons, axes, and other thingamajigs */
+		for (i = BTN_JOYSTICK; i < KEY_MAX; ++i) {
+			if (test_bit(i, keybit)) {
+				//printf("Joystick has button: 0x%x\n", i);
+			}
+		}
+		for (i = 0; i < BTN_JOYSTICK; ++i) {
+			if (test_bit(i, keybit)) {
+				//printf("Joystick has button: 0x%x\n", i);
+			}
+		}
+		for (i = 0; i < ABS_MAX; ++i) {
+			/* Skip hats */
+			if (i == ABS_HAT0X) {
+				i = ABS_HAT3Y;
+				continue;
+			}
+			if (test_bit(i, absbit)) {
+				struct input_absinfo absinfo;
+
+				if (ioctl(fd, EVIOCGABS(i), &absinfo) < 0) {
+					continue;
+				}
+/*
+				printf("Joystick has absolute axis: 0x%.2x\n", i);
+				printf("Values = { %d, %d, %d, %d, %d }\n",
+					   absinfo.value, absinfo.minimum, absinfo.maximum,
+					   absinfo.fuzz, absinfo.flat);
+*/
+				STATE[controller].axis_min[i] = absinfo.minimum;
+				STATE[controller].axis_max[i] = absinfo.maximum;
+			}
+		}
+		for (i = ABS_HAT0X; i <= ABS_HAT3Y; i += 2) {
+			if (test_bit(i, absbit) || test_bit(i + 1, absbit)) {
+				struct input_absinfo absinfo;
+				int hat_index = (i - ABS_HAT0X) / 2;
+
+				if (ioctl(fd, EVIOCGABS(i), &absinfo) < 0) {
+					continue;
+				}
+/*
+				printf("Joystick has hat %d\n", hat_index);
+				printf("Values = { %d, %d, %d, %d, %d }\n",
+					   absinfo.value, absinfo.minimum, absinfo.maximum,
+					   absinfo.fuzz, absinfo.flat);
+*/
+				//joystick->hwdata->hats_indices[joystick->nhats++] = hat_index;
+			}
+		}
+		if (test_bit(REL_X, relbit) || test_bit(REL_Y, relbit)) {
+			//++joystick->nballs;
 		}
 	}
 
-	/* could not open the device at all */
-	free(STATE[i].device);
-	STATE[i].device = NULL;
+	if (ioctl(fd, EVIOCGBIT(EV_FF, sizeof(ffbit)), ffbit) >= 0) {
+		if (test_bit(FF_RUMBLE, ffbit)) {
+			STATE[controller].flags |= FLAG_RUMBLE;
+		}
+		if (test_bit(FF_SINE, ffbit)) {
+			//printf("sine\n");
+		}
+	}
+	}
 }
 
 /* Helper to remove a device */
@@ -218,158 +388,144 @@ void GamepadInit(void) {
 		STATE[i].fd = STATE[i].effect = -1;
 	}
 
-	/* open the udev handle */
-	UDEV = udev_new();
-	if (UDEV == NULL) {
-		/* FIXME: flag error? */
-		return;
-	}
-	
-	/* open monitoring device (safe to fail) */
-	MON = udev_monitor_new_from_netlink(UDEV, "udev");
-	/* FIXME: flag error if hot-plugging can't be supported? */
-	if (MON != NULL) {
-		udev_monitor_enable_receiving(MON);
-		udev_monitor_filter_add_match_subsystem_devtype(MON, "input", NULL);
-	}
-
-	/* enumerate joypad devices */
-	enu = udev_enumerate_new(UDEV);
-	udev_enumerate_add_match_subsystem(enu, "input");
-	udev_enumerate_scan_devices(enu);
-	devices = udev_enumerate_get_list_entry(enu);
-
-	udev_list_entry_foreach(item, devices) {
-		const char* name;
-		const char* sysPath;
-		const char* devPath;
-		struct udev_device* dev;
-
-		name = udev_list_entry_get_name(item);
-		dev = udev_device_new_from_syspath(UDEV, name);
-		sysPath = udev_device_get_syspath(dev);
-		devPath = udev_device_get_devnode(dev);
-
-		if (sysPath != NULL && devPath != NULL && strstr(sysPath, "/js") != 0) {
-			GamepadAddDevice(devPath);
-		}
-
-		udev_device_unref(dev);
-	}
-
-	/* cleanup */
-	udev_enumerate_unref(enu);
+	GamepadDetect();
 }
 
 void GamepadUpdate(void) {
-	if (MON != NULL) {
-		fd_set r;
-		struct timeval tv;
-		int fd = udev_monitor_get_fd(MON);
+	static unsigned long last = 0;
+	unsigned long cur = time(NULL);
 
-		/* set up a poll on the udev device */
-		FD_ZERO(&r);
-		FD_SET(fd, &r);
-
-		tv.tv_sec = 0;
-		tv.tv_usec = 0;
-
-		select(fd + 1, &r, 0, 0, &tv);
-
-		/* test if we have a device change */
-		if (FD_ISSET(fd, &r)) {
-			struct udev_device* dev = udev_monitor_receive_device(MON);
-			if (dev) {
-				const char* devNode = udev_device_get_devnode(dev);
-				const char* sysPath = udev_device_get_syspath(dev);
-				const char* action = udev_device_get_action(dev);
-				sysPath = udev_device_get_syspath(dev);
-				action = udev_device_get_action(dev);
-
-				if (strstr(sysPath, "/js") != 0) {
-					if (strcmp(action, "remove") == 0) {
-						GamepadRemoveDevice(devNode);
-					} else if (strcmp(action, "add") == 0) {
-						GamepadAddDevice(devNode);
-					}
-				}
-
-				udev_device_unref(dev);
-			}
-		}
+	if (last + 2 < cur) {
+		GamepadDetect();
+		last = cur;
 	}
 
 	GamepadUpdateCommon();
 }
 
+static int adjust_values_trigger(double min, double max, double value)
+{
+	return (((value + (0 - min)) / (max - min)) * 255.0);
+}
+
+static int adjust_values_stick(double min, double max, double value)
+{
+	return (((value + (0 - min)) / (max - min)) * (65535.0)) - 32768.0;
+}
+
 static void GamepadUpdateDevice(GAMEPAD_DEVICE gamepad) {
 	if (STATE[gamepad].flags & FLAG_CONNECTED) {
-		struct js_event je;
-		while (read(STATE[gamepad].fd, &je, sizeof(je)) > 0) {
-			int button;
-			switch (je.type) {
-			case JS_EVENT_BUTTON:
-				/* determine which button the event is for */
-				switch (je.number) {
-				case 0: button = BUTTON_A; break;
-				case 1: button = BUTTON_B; break;
-				case 2: button = BUTTON_X; break;
-				case 3: button = BUTTON_Y; break;
-				case 4: button = BUTTON_LEFT_SHOULDER; break;
-				case 5: button = BUTTON_RIGHT_SHOULDER; break;
-				case 6: button = BUTTON_BACK; break;
-				case 7: button = BUTTON_START; break;
-				case 8: button = 0; break; /* XBOX button  */
-				case 9: button = BUTTON_LEFT_THUMB; break;
-				case 10: button = BUTTON_RIGHT_THUMB; break;
-				default: button = 0; break;
-				}
+		struct input_event events[32];
+		int i, len;
+		int code;
 
-				/* set or unset the button */
-				if (je.value) {
-					STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(button);
-				} else {
-					STATE[gamepad].bCurrent ^= BUTTON_TO_FLAG(button);
-				}
-					
-				break;
-			case JS_EVENT_AXIS:
-				/* normalize and store the axis */
-				switch (je.number) {
-				case 0:	STATE[gamepad].stick[STICK_LEFT].x = je.value; break;
-				case 1:	STATE[gamepad].stick[STICK_LEFT].y = -je.value; break;
-				case 2:	STATE[gamepad].trigger[TRIGGER_LEFT].value = (je.value + 32768) >> 8; break;
-				case 3:	STATE[gamepad].stick[STICK_RIGHT].x = je.value; break;
-				case 4:	STATE[gamepad].stick[STICK_RIGHT].y = -je.value; break;
-				case 5:	STATE[gamepad].trigger[TRIGGER_RIGHT].value = (je.value + 32768) >> 8; break;
-				case 6:
-					if (je.value == -32767) {
-						STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_LEFT);
-						STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_RIGHT);
-					} else if (je.value == 32767) {
-						STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_RIGHT);
-						STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_LEFT);
+		while ((len = read(STATE[gamepad].fd, events, (sizeof events))) > 0) {
+			len /= sizeof(events[0]);
+			for (i = 0; i < len; ++i) {
+				int button = 0;
+				code = events[i].code;
+				switch (events[i].type) {
+				case EV_KEY:
+					//printf("EV_KEY %i\n", code);
+					switch (code) {
+					case BTN_SOUTH: button = BUTTON_A; break;
+					case BTN_EAST: button = BUTTON_B; break;
+					case BTN_NORTH: button = BUTTON_X; break;
+					case BTN_WEST: button = BUTTON_Y; break;
+					case BTN_TL: button = BUTTON_LEFT_SHOULDER; break;
+					case BTN_TR: button = BUTTON_RIGHT_SHOULDER; break;
+					case BTN_SELECT: button = BUTTON_BACK; break;
+					case BTN_START: button = BUTTON_START; break;
+					case BTN_MODE: button = 0; break; /* XBOX button  */
+					case BTN_THUMBL: button = BUTTON_LEFT_THUMB; break;
+					case BTN_THUMBR: button = BUTTON_RIGHT_THUMB; break;
+					default: button = 0; break;
+					}
+					if (events[i].value) {
+						STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(button);
 					} else {
-						STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_LEFT) & ~BUTTON_TO_FLAG(BUTTON_DPAD_RIGHT);
+						STATE[gamepad].bCurrent ^= BUTTON_TO_FLAG(button);
 					}
 					break;
-				case 7:
-					if (je.value == -32767) {
-						STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_UP);
-						STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_DOWN);
-					} else if (je.value == 32767) {
-						STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_DOWN);
-						STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_UP);
-					} else {
-						STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_UP) & ~BUTTON_TO_FLAG(BUTTON_DPAD_DOWN);
+				case EV_ABS:
+					switch (code) {
+					case ABS_HAT0X:
+					case ABS_HAT0Y:
+					case ABS_HAT1X:
+					case ABS_HAT1Y:
+					case ABS_HAT2X:
+					case ABS_HAT2Y:
+					case ABS_HAT3X:
+					case ABS_HAT3Y:
+						//code -= ABS_HAT0X;
+						//printf("ABS_HAT %i\n", code);
+						switch(code) {
+							case ABS_HAT0X:
+								if (events[i].value < 0) {
+									STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_LEFT);
+									STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_RIGHT);
+								} else if (events[i].value > 0) {
+									STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_RIGHT);
+									STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_LEFT);
+								} else {
+									STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_LEFT) & ~BUTTON_TO_FLAG(BUTTON_DPAD_RIGHT);
+								}
+								break;
+							case ABS_HAT0Y:
+								if (events[i].value < 0) {
+									STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_UP);
+									STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_DOWN);
+								} else if (events[i].value > 0) {
+									STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(BUTTON_DPAD_DOWN);
+									STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_UP);
+								} else {
+									STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(BUTTON_DPAD_UP) & ~BUTTON_TO_FLAG(BUTTON_DPAD_DOWN);
+								}
+								break;
+						}
+						break;
+					default:
+						//printf("EV_ABS %i %i\n", code, events[i].value);
+						if (code == ABS_Z || code == ABS_RZ) {
+							int value = adjust_values_trigger(STATE[gamepad].axis_min[code], STATE[gamepad].axis_max[code], events[i].value);
+							switch(code) {
+								case ABS_Z :	STATE[gamepad].trigger[TRIGGER_LEFT].value = value; break;
+								case ABS_RZ:	STATE[gamepad].trigger[TRIGGER_RIGHT].value = value; break;
+							}
+						} else {
+							int value = adjust_values_stick(STATE[gamepad].axis_min[code], STATE[gamepad].axis_max[code], events[i].value);
+							switch(code) {
+								case ABS_X :	STATE[gamepad].stick[STICK_LEFT].x = value; break;
+								case ABS_Y :	STATE[gamepad].stick[STICK_LEFT].y = -value; break;
+								case ABS_RX:	STATE[gamepad].stick[STICK_RIGHT].x = value; break;
+								case ABS_RY:	STATE[gamepad].stick[STICK_RIGHT].y = -value; break;
+							}
+						}
+						break;
 					}
 					break;
-				default: break;
+				case EV_REL:
+					switch (code) {
+					case REL_X:
+					case REL_Y:
+						code -= REL_X;
+						//printf("EV_REL %i %i\n", code, events[i].value);
+						break;
+					default:
+						break;
+					}
+					break;
+				case EV_SYN:
+					switch (code) {
+					case SYN_DROPPED :
+						//printf("Event SYN_DROPPED detected\n");
+						break;
+					default:
+						break;
+					}
+				default:
+					break;
 				}
-
-				break;
-			default:
-				break;
 			}
 		}
 	}
@@ -377,10 +533,6 @@ static void GamepadUpdateDevice(GAMEPAD_DEVICE gamepad) {
 
 void GamepadShutdown(void) {
 	int i;
-
-	/* cleanup udev */
-	udev_monitor_unref(MON);
-	udev_unref(UDEV);
 
 	/* cleanup devices */
 	for (i = 0; i != GAMEPAD_COUNT; ++i) {
@@ -394,47 +546,30 @@ void GamepadShutdown(void) {
 	}
 }
 
-void GamepadSetRumble(GAMEPAD_DEVICE gamepad, float left, float right) {
+void GamepadSetRumble(GAMEPAD_DEVICE gamepad, float left, float right, unsigned int rumble_length_ms) {
 	if (STATE[gamepad].fd != -1) {
 		struct input_event play;
+		struct ff_effect ff;
 
-		/* delete any existing effect */
-		if (STATE[gamepad].effect != -1) {
-			/* stop the effect */
-			play.type = EV_FF;
-			play.code = STATE[gamepad].effect;
-			play.value = 0;
+		/* define an effect for this rumble setting */
+		ff.type = FF_RUMBLE;
+		ff.id = STATE[gamepad].effect;
+		ff.u.rumble.strong_magnitude = (unsigned short)(left * 65535);
+		ff.u.rumble.weak_magnitude = (unsigned short)(right * 65535);
+		ff.replay.length = rumble_length_ms;
+		ff.replay.delay = 0;
 
-			write(STATE[gamepad].fd, (const void*)&play, sizeof(play));
-
-			/* delete the effect */
-			ioctl(STATE[gamepad].fd, EVIOCRMFF, STATE[gamepad].effect);
+		/* upload the effect */
+		if (ioctl(STATE[gamepad].fd, EVIOCSFF, &ff) != -1) {
+			STATE[gamepad].effect = ff.id;
 		}
 
-		/* if rumble parameters are non-zero, start the new effect */
-		if (left != 0.f || right != 0.f) {
-			struct ff_effect ff;
+		/* play the effect */
+		play.type = EV_FF;
+		play.code = STATE[gamepad].effect;
+		play.value = 1;
 
-			/* define an effect for this rumble setting */
-			ff.type = FF_RUMBLE;
-			ff.id = -1;
-			ff.u.rumble.strong_magnitude = (unsigned short)(left * 65535);
-			ff.u.rumble.weak_magnitude = (unsigned short)(right * 65535);
-			ff.replay.length = 5;
-			ff.replay.delay = 0;
-
-			/* upload the effect */
-			if (ioctl(STATE[gamepad].fd, EVIOCSFF, &ff) != -1) {
-				STATE[gamepad].effect = ff.id;
-			}
-
-			/* play the effect */
-			play.type = EV_FF;
-			play.code = STATE[gamepad].effect;
-			play.value = 1;
-
-			write(STATE[gamepad].fd, (const void*)&play, sizeof(play));
-		}
+		write(STATE[gamepad].fd, (const void*)&play, sizeof(play));
 	}
 }
 

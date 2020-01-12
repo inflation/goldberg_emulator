@@ -692,7 +692,7 @@ int GetAnalogActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t ac
     
 void StopAnalogActionMomentum( ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t eAction )
 {
-    PRINT_DEBUG("Steam_Controller::StopAnalogActionMomentum\n");
+    PRINT_DEBUG("Steam_Controller::StopAnalogActionMomentum %llu %llu\n", controllerHandle, eAction);
 }
 
 
@@ -723,7 +723,12 @@ void TriggerVibration( ControllerHandle_t controllerHandle, unsigned short usLef
     auto controller = controllers.find(controllerHandle);
     if (controller == controllers.end()) return;
 
-    GamepadSetRumble((GAMEPAD_DEVICE)(controllerHandle - 1), ((double)usLeftSpeed) / 65535.0, ((double)usRightSpeed) / 65535.0);
+    unsigned int rumble_length_ms = 0;
+#if defined(__linux__)
+    //FIXME: shadow of the tomb raider on linux doesn't seem to turn off the rumble so I made it expire after 100ms. Need to check if this is how linux steam actually behaves.
+    rumble_length_ms = 100;
+#endif
+    GamepadSetRumble((GAMEPAD_DEVICE)(controllerHandle - 1), ((double)usLeftSpeed) / 65535.0, ((double)usRightSpeed) / 65535.0, rumble_length_ms);
 }
 
 
