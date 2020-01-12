@@ -661,8 +661,8 @@ int GetAnalogActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t ac
     if (a == map->second.active_analog.end()) return 0;
 
     int count = 0;
-    for (auto a: a->second.first) {
-        switch (a) {
+    for (auto b: a->second.first) {
+        switch (b) {
             case TRIGGER_LEFT:
                 originsOut[count] = k_EInputActionOrigin_XBox360_LeftTrigger_Pull;
                 break;
