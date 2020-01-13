@@ -193,6 +193,15 @@ std::string get_lib_path() {
 
 std::string get_full_program_path()
 {
+    std::string env_program_path = get_env_variable("SteamAppPath");
+    if (env_program_path.length()) {
+        if (env_program_path.back() != PATH_SEPARATOR[0]) {
+            env_program_path = env_program_path.append(PATH_SEPARATOR);
+        }
+
+        return env_program_path;
+    }
+
     std::string program_path;
 #if defined(STEAM_WIN32)
     char   DllPath[MAX_PATH] = {0};
