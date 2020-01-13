@@ -18,16 +18,21 @@
 #include "steam_client.h"
 #include "settings_parser.h"
 
-
+static bool kill_background_thread;
 static void background_thread(Steam_Client *client)
 {
     PRINT_DEBUG("background thread starting\n");
     while (1) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         global_mutex.lock();
-        if (!client->network->isAlive()) {
+        bool net_alive = client->network->isAlive();
+        if (!net_alive || kill_background_thread) {
             global_mutex.unlock();
-            //delete network;
+            if (!net_alive) {
+                //delete network;
+            }
+
+            kill_background_thread = false;
             PRINT_DEBUG("background thread exit\n");
             return;
         }
@@ -701,6 +706,7 @@ void Steam_Client::SetWarningMessageHook( SteamAPIWarningMessageHook_t pFunction
 bool Steam_Client::BShutdownIfAllPipesClosed()
 {
     PRINT_DEBUG("BShutdownIfAllPipesClosed\n");
+    kill_background_thread = true;
     return true;
 }
 
