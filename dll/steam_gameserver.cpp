@@ -177,7 +177,7 @@ bool Steam_GameServer::BSecure()
     PRINT_DEBUG("BSecure\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (!policy_response_called) return false;
-    return flags == eServerModeAuthenticationAndSecure;
+    return !!(flags & k_unServerFlagSecure);
 }
  
 CSteamID Steam_GameServer::GetSteamID()
@@ -414,6 +414,7 @@ bool Steam_GameServer::BSetServerType( uint32 unServerFlags, uint32 unGameIP, ui
     version.erase(std::remove(version.begin(), version.end(), ' '), version.end());
     version.erase(std::remove(version.begin(), version.end(), '.'), version.end());
     server_data.set_version(stoi(version));
+    flags = unServerFlags;
 
     //TODO?
     return true;
@@ -662,7 +663,7 @@ void Steam_GameServer::RunCallbacks()
     if (logged_in && !policy_response_called) {
         PRINT_DEBUG("Steam_GameServer::GSPolicyResponse_t\n");
         GSPolicyResponse_t data;
-        data.m_bSecure = flags == eServerModeAuthenticationAndSecure;
+        data.m_bSecure = !!(flags & k_unServerFlagSecure);
         callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.11);
         policy_response_called = true;
     }

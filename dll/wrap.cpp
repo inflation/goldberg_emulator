@@ -15,6 +15,7 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#define STEAM_API_FUNCTIONS_IMPL
 #include "base.h"
 #include "dll.h"
 
