@@ -18,25 +18,25 @@
 #include "steam_client.h"
 #include "settings_parser.h"
 
-static bool kill_background_thread;
+#include <condition_variable>
+
+static std::condition_variable kill_background_thread_cv;
+static std::atomic_bool kill_background_thread;
 static void background_thread(Steam_Client *client)
 {
     PRINT_DEBUG("background thread starting\n");
-    while (1) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        global_mutex.lock();
-        bool net_alive = client->network->isAlive();
-        if (!net_alive || kill_background_thread) {
-            global_mutex.unlock();
-            if (!net_alive) {
-                //delete network;
-            }
+    std::mutex mtx;
+    std::unique_lock<std::mutex> lck(mtx);
 
-            kill_background_thread = false;
-            PRINT_DEBUG("background thread exit\n");
-            return;
+    while (1) {
+        if (kill_background_thread || kill_background_thread_cv.wait_for(lck, std::chrono::seconds(1)) != std::cv_status::timeout) {
+            if (kill_background_thread) {
+                PRINT_DEBUG("background thread exit\n");
+                return;
+            }
         }
 
+        global_mutex.lock();
         PRINT_DEBUG("background thread run\n");
         client->network->Run();
         client->steam_matchmaking->RunBackground();
@@ -730,8 +730,18 @@ void Steam_Client::SetWarningMessageHook( SteamAPIWarningMessageHook_t pFunction
 bool Steam_Client::BShutdownIfAllPipesClosed()
 {
     PRINT_DEBUG("BShutdownIfAllPipesClosed\n");
-    kill_background_thread = true;
-    return true;
+    if (!steam_pipes.size()) {
+        if (background_keepalive.joinable()) {
+            kill_background_thread = true;
+            kill_background_thread_cv.notify_one();
+            background_keepalive.join();
+        }
+
+        PRINT_DEBUG("all pipes closed\n");
+        return true;
+    }
+
+    return false;
 }
 
 // Expose HTTP interface
