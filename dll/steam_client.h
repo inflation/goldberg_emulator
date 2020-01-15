@@ -55,6 +55,12 @@
 
 #include <thread>
 
+enum Steam_Pipe {
+    NO_USER,
+    CLIENT,
+    SERVER
+};
+
 class Steam_Client :
 public ISteamClient007,
 public ISteamClient008,
@@ -124,6 +130,10 @@ public:
     bool user_logged_in = false;
     bool server_init = false;
     std::thread background_keepalive;
+    bool steamclient_server_inited = false;
+
+    unsigned steam_pipe_counter = 2;
+    std::map<HSteamPipe, enum Steam_Pipe> steam_pipes;
 
     Steam_Client();
     ~Steam_Client();

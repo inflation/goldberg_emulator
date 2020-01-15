@@ -39,8 +39,16 @@
 	#endif // STEAM_API_EXPORTS
 #endif
 
+#ifdef STEAM_API_EXPORTS
+#ifdef STEAM_API_FUNCTIONS_IMPL
 #ifdef STEAMCLIENT_DLL
 #define S_API static
+#else
+#define S_API S_API_EXPORT
+#endif
+#else
+#define S_API
+#endif
 #else
 #define S_API S_API_EXPORT
 #endif
