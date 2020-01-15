@@ -155,7 +155,7 @@ deploy_all:
     - ls -lah
     - mkdir -p release/source_code
     - git bundle create release/source_code/source_code.bundle --all
-    - echo 'This is a git bundle of the full repo, to use: git clone source_code.bundle --branch master' > release/source_code/Readme.txt
+    - echo "This is a git bundle of the full repo, to use: git clone source_code.bundle --branch master" > release/source_code/Readme.txt
     - mv linux release/
     - shopt -s extglob
     - rm -rf .g*
