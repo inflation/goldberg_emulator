@@ -15,6 +15,7 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#include "base.h"
 #include "dll.h"
 
 #ifdef STEAM_WIN32
@@ -32,169 +33,462 @@
 #include <unistd.h>
 #include <utime.h>
 
-STEAMAPI_API FILE *__wrap_freopen(const char *pathname, const char *mode, FILE *stream)
+#define PATH_SEPARATOR_CHAR '/'
+#define STEAM_PATH_CACHE_SIZE 4096
+
+const char *STEAM_PATH;
+size_t STEAM_PATH_SIZE;
+
+const char *get_steam_path()
 {
-  return freopen(pathname, mode, stream);
+    char *home_path = getenv("HOME");
+    char steam_path[STEAM_PATH_CACHE_SIZE];
+    char *steam_realpath = nullptr;
+
+    // Build steam_path from home
+    int required_size = snprintf(steam_path, STEAM_PATH_CACHE_SIZE, "%s/.steam/steam", home_path);
+
+    // Allocate more space for steam_path if needed (required_size does not count terminator)
+    if (required_size > 0 && required_size >= STEAM_PATH_CACHE_SIZE) {
+        char *large_steam_path = (char *)malloc(sizeof(char) * (required_size + 1));
+        int check_size = snprintf(steam_path, required_size + 1, "%s/.steam/steam", home_path);
+        // Check that path fits this time
+        if (check_size == required_size) {
+            steam_realpath = realpath(large_steam_path, nullptr);
+        }
+        free(large_steam_path);
+    } else {
+        steam_realpath = realpath(steam_path, nullptr);
+    }
+
+    // Terminate path with a file separator
+    if (steam_realpath && *steam_realpath) {
+        size_t path_size = strlen(steam_realpath);
+        if (steam_realpath[path_size - 1] != PATH_SEPARATOR_CHAR) {
+            steam_realpath = (char *)realloc(steam_realpath, path_size + 2);
+            steam_realpath[path_size] = PATH_SEPARATOR_CHAR;
+            steam_realpath[path_size + 1] = 0;
+        }
+    } else {
+        // Failsafe to root
+        steam_realpath = strdup("/");
+    }
+
+    return steam_realpath;
 }
 
-STEAMAPI_API FILE *__wrap_fopen(const char *filename, const char *mode)
+
+bool match_path(char *path, int start, bool accept_same_case)
 {
-  return fopen(filename, mode);
+    if (!path[start + 1]) {
+        return true;
+    }
+
+    // Snap to the next separator in path
+    int separator = start + 1;
+    while (path[separator] != PATH_SEPARATOR_CHAR && path[separator]) {
+        separator++;
+    }
+
+    bool is_last_component = path[separator] != PATH_SEPARATOR_CHAR;
+
+    char stored_char = path[separator];
+    path[separator] = 0;
+    bool path_accessible = access(path, 0) == 0;
+    path[separator] = stored_char;
+
+    if (!path_accessible || !is_last_component && !match_path(path, separator, accept_same_case)) {
+        DIR *current_directory = nullptr;
+        int component = start + 1;
+
+        if (start) {
+            stored_char = path[start];
+            path[start] = 0;
+            current_directory = opendir(path);
+            path[start] = stored_char;
+            component = start + 1;
+        } else {
+            if (*path == PATH_SEPARATOR_CHAR) {
+                component = start + 1;
+                current_directory = opendir("/");
+            } else {
+                component = start;
+                current_directory = opendir(".");
+            }
+        }
+
+        //        0123456789012345678901234567890123456789
+        // path = /this/is/a/sample/path/to/file.txt
+        //                  ^^     ^
+        //                  ab     c
+        // a. start = 10
+        // b. component = 11
+        // c. separator = 17
+        // current_directory = /this/is/a/
+
+        if (current_directory) {
+            dirent64 *entry = (dirent64 *)readdir64(current_directory);
+            while (entry) {
+                const char *entry_name = entry->d_name;
+                stored_char = path[separator];
+                path[separator] = 0;
+
+                // Fix current component if entry with similar name exists
+                if (!strcasecmp(&path[component], entry_name)) {
+                    bool case_differs = strcmp(&path[component], entry_name) != 0;
+                    path[separator] = stored_char;
+                    if (case_differs) {
+                        char *iterator = &path[component];
+                        // Replace with entry name
+                        while (*entry_name != PATH_SEPARATOR_CHAR && *entry_name) {
+                            *(iterator++) = *(entry_name++);
+                        }
+                        // Fix next component
+                        if (is_last_component || match_path(path, separator, accept_same_case)) {
+                            closedir(current_directory);
+                            return true;
+                        }
+                    }
+                } else {
+                    path[separator] = stored_char;
+                }
+                entry = (dirent64 *)readdir64(current_directory);
+            }
+        }
+
+        if (current_directory) {
+            closedir(current_directory);
+        }
+
+        return accept_same_case && is_last_component;
+    }
+
+    return true;
 }
 
-STEAMAPI_API FILE *__wrap_fopen64(const char *filename, const char *mode)
+const char *lowercase_path(const char *path, bool accept_same_case, bool stop_at_separator)
 {
-  return fopen64(filename, mode);
+    std::locale loc;
+    char *path_lowercased = nullptr;
+
+    if (path && *path) {
+        if (access(path, 0)) {
+            // Make a copy of the path on which to work on
+            path_lowercased = strdup(path);
+            if (!path_lowercased) {
+                return nullptr;
+            }
+            // Load steam path if not done already
+            if (!STEAM_PATH) {
+                STEAM_PATH = get_steam_path();
+                STEAM_PATH_SIZE = strlen(STEAM_PATH);
+            }
+
+            char *lowercase_iterator = path_lowercased;
+            // Lowercase whole steam path if possible
+            if (!strncasecmp(path_lowercased, STEAM_PATH, STEAM_PATH_SIZE)) {
+                memcpy(path_lowercased, STEAM_PATH, STEAM_PATH_SIZE);
+                lowercase_iterator = &path_lowercased[STEAM_PATH_SIZE - 1];
+            }
+            // Lowercase rest of the path
+            char *iterator = lowercase_iterator;
+            while ((!stop_at_separator || *iterator != PATH_SEPARATOR_CHAR) && *iterator) {
+                *iterator = std::tolower(*iterator, loc);
+                iterator++;
+            }
+
+            // Check if we can access the lowered-case path
+            int error = access(path_lowercased, 0);
+            if (!error) {
+                // The new path is valid
+                return path_lowercased;
+            } else {
+                if (accept_same_case) {
+                    const char *name_iterator = &path[lowercase_iterator - path_lowercased];
+                    while (*lowercase_iterator) {
+                        *(lowercase_iterator++) = *(name_iterator++);
+                    }
+                }
+                // Retry accesing the file again and tweak the path if needed
+                if (match_path(path_lowercased, STEAM_PATH_SIZE - 1, accept_same_case)) {
+                    return path_lowercased;
+                }
+            }
+        }
+    }
+
+    return path;
 }
 
-STEAMAPI_API int __wrap_open(const char *pathname, int flags, mode_t mode)
+STEAMAPI_API FILE *__wrap_freopen(const char *path, const char *modes, FILE *stream)
 {
-  return open(pathname, flags, mode);
+    bool is_writable = strpbrk(modes, "wa+") != 0;
+    const char *path_lowercased = lowercase_path(path, is_writable, true);
+    FILE *result = freopen(path_lowercased, modes, stream);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API int __wrap_open64(const char *pathname, int flags, mode_t mode)
+STEAMAPI_API FILE *__wrap_fopen(const char *path, const char *modes)
 {
-  return open64(pathname, flags, mode);
+    bool is_writable = strpbrk(modes, "wa+") != 0;
+    const char *path_lowercased = lowercase_path(path, is_writable, true);
+    FILE *result = fopen(path_lowercased, modes);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API int __wrap_access(const char *pathname, int mode)
+STEAMAPI_API FILE *__wrap_fopen64(const char *path, const char *modes)
 {
-  return access(pathname, mode);
+    bool is_writable = strpbrk(modes, "wa+") != 0;
+    const char *path_lowercased = lowercase_path(path, is_writable, true);
+    FILE *result = fopen64(path_lowercased, modes);
+    free((void *)path_lowercased);
+    return result;
+}
+
+STEAMAPI_API int __wrap_open(const char *path, int flags, mode_t mode)
+{
+    bool is_writable = flags & 3;
+    const char *path_lowercased = lowercase_path(path, is_writable, true);
+    int result = open(path_lowercased, flags, mode);
+    free((void *)path_lowercased);
+    return result;
+}
+
+STEAMAPI_API int __wrap_open64(const char *path, int flags, mode_t mode)
+{
+    bool is_writable = flags & 3;
+    const char *path_lowercased = lowercase_path(path, is_writable, true);
+    int result = open64(path_lowercased, flags, mode);
+    free((void *)path_lowercased);
+    return result;
+}
+
+STEAMAPI_API int __wrap_access(const char *path, int mode)
+{
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = access(path_lowercased, mode);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap___xstat(int ver, const char * path, struct stat * stat_buf)
 {
-  return __xstat(ver, path, stat_buf);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = __xstat(ver, path_lowercased, stat_buf);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_stat(const char * path, struct stat * stat_buf)
 {
-  return __wrap___xstat(3, path, stat_buf);
+    return __wrap___xstat(3, path, stat_buf);
 }
 
 STEAMAPI_API int __wrap___lxstat(int ver, const char * path, struct stat * stat_buf)
 {
-  return __lxstat(ver, path, stat_buf);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = __lxstat(ver, path_lowercased, stat_buf);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_lstat(const char * path, struct stat * stat_buf)
 {
-  return __wrap___lxstat(3, path, stat_buf);
+    return __wrap___lxstat(3, path, stat_buf);
 }
 
-STEAMAPI_API int __wrap_scandir(const char *dir, struct dirent ***namelist, int (*sel)(const struct dirent *), int (*compar)(const struct dirent **, const struct dirent **))
+STEAMAPI_API int __wrap_scandir(const char *path, struct dirent ***namelist, int (*sel)(const struct dirent *), int (*compar)(const struct dirent **, const struct dirent **))
 {
-  return scandir(dir, namelist, sel, compar);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = scandir(path_lowercased, namelist, sel, compar);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API int __wrap_scandir64(const char *dir, struct dirent64 ***namelist, int (*sel)(const struct dirent64 *), int (*compar)(const struct dirent64 **, const struct dirent64 **))
+STEAMAPI_API int __wrap_scandir64(const char *path, struct dirent64 ***namelist, int (*sel)(const struct dirent64 *), int (*compar)(const struct dirent64 **, const struct dirent64 **))
 {
-  return scandir64(dir, namelist, sel, compar);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = scandir64(path_lowercased, namelist, sel, compar);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API DIR *__wrap_opendir(const char *name)
+STEAMAPI_API DIR *__wrap_opendir(const char *path)
 {
-  return opendir(name);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    DIR *result = opendir(path_lowercased);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API int __wrap___xstat64(int vers, const char *name, struct stat64 *buf)
+STEAMAPI_API int __wrap___xstat64(int ver, const char *path, struct stat64 *stat_buf)
 {
-  return __xstat64(vers, name, buf);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = __xstat64(ver, path_lowercased, stat_buf);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API int __wrap___lxstat64(int vers, const char *name, struct stat64 *buf)
+STEAMAPI_API int __wrap___lxstat64(int ver, const char *path, struct stat64 *stat_buf)
 {
-  return __lxstat64(vers, name, buf);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = __lxstat64(ver, path_lowercased, stat_buf);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_statvfs(const char *path, struct statvfs *buf)
 {
-  return statvfs(path, buf);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = statvfs(path_lowercased, buf);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_statvfs64(const char *path, struct statvfs64 *buf)
 {
-  return statvfs64(path, buf);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = statvfs64(path_lowercased, buf);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API int __wrap_chmod(const char *pathname, mode_t mode)
+STEAMAPI_API int __wrap_chmod(const char *path, mode_t mode)
 {
-  return chmod(pathname, mode);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = chmod(path_lowercased, mode);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_chown(const char *path, uid_t owner, gid_t group)
 {
-  return chown(path, owner, group);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = chown(path_lowercased, owner, group);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_lchown(const char *path, uid_t owner, gid_t group)
 {
-  return lchown(path, owner, group);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = lchown(path_lowercased, owner, group);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_symlink(const char *path1, const char *path2)
 {
-  return symlink(path1, path2);
+    const char *path_lowercased1 = lowercase_path(path1, true, true);
+    const char *path_lowercased2 = lowercase_path(path2, false, false);
+    int result = symlink(path_lowercased1, path_lowercased2);
+    free((void *)path_lowercased1);
+    free((void *)path_lowercased2);
+    return result;
 }
 
 STEAMAPI_API int __wrap_link(const char *path1, const char *path2)
 {
-  return link(path1, path2);
+    const char *path_lowercased1 = lowercase_path(path1, true, true);
+    const char *path_lowercased2 = lowercase_path(path2, false, false);
+    int result = link(path_lowercased1, path_lowercased2);
+    free((void *)path_lowercased1);
+    free((void *)path_lowercased2);
+    return result;
 }
 
 STEAMAPI_API int __wrap_mknod(const char *path, mode_t mode, dev_t dev)
 {
-  return __xmknod(1, path, mode, &dev);
+    const char *path_lowercased = lowercase_path(path, true, true);
+    int result = __xmknod(1, path_lowercased, mode, &dev);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data)
 {
-  return mount(source, target, filesystemtype, mountflags, data);
+    const char *source_lowercased = lowercase_path(source, false, false);
+    const char *target_lowercased = lowercase_path(target, false, false);
+    int result = mount(source_lowercased, target_lowercased, filesystemtype, mountflags, data);
+    free((void *)source_lowercased);
+    free((void *)target_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_unlink(const char *path)
 {
-  return unlink(path);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = unlink(path);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_mkfifo(const char *path, mode_t mode)
 {
-  return mkfifo(path, mode);
+    const char *path_lowercased = lowercase_path(path, true, true);
+    int result = mkfifo(path, mode);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_rename(const char *old_name, const char *new_name)
 {
-  return rename(old_name, new_name);
+    const char *old_name_lowercased = lowercase_path(old_name, true, true);
+    const char *new_name_lowercased = lowercase_path(new_name, false, false);
+    int result = rename(old_name_lowercased, new_name_lowercased);
+    free((void *)old_name_lowercased);
+    free((void *)new_name_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_utime(const char *path, const struct utimbuf *times)
 {
-  return utime(path, times);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = utime(path_lowercased, times);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_utimes(const char *path, const struct timeval times[2])
 {
-  return utimes(path, times);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = utimes(path_lowercased, times);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_mkdir(const char *path, mode_t mode)
 {
-  return mkdir(path, mode);
+    const char *path_lowercased = lowercase_path(path, true, true);
+    int result = mkdir(path_lowercased, mode);
+    free((void *)path_lowercased);
+    return result;
 }
 
 STEAMAPI_API int __wrap_rmdir(const char *path)
 {
-  return rmdir(path);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    int result = rmdir(path_lowercased);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API void * __wrap_dlopen(const char *file, int mode)
+STEAMAPI_API void *__wrap_dlopen(const char *path, int mode)
 {
-  return dlopen(file, mode);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    void * result = dlopen(path_lowercased, mode);
+    free((void *)path_lowercased);
+    return result;
 }
 
-STEAMAPI_API void * __wrap_dlmopen(Lmid_t lmid, const char *filename, int flags)
+STEAMAPI_API void *__wrap_dlmopen(Lmid_t lmid, const char *path, int flags)
 {
-  return dlmopen(lmid, filename, flags);
+    const char *path_lowercased = lowercase_path(path, false, false);
+    void * result = dlmopen(lmid, path_lowercased, flags);
+    free((void *)path_lowercased);
+    return result;
 }
 
 #endif
