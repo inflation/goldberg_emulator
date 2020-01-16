@@ -21,7 +21,7 @@
 #define STEAMAPI_API static
 #define STEAMCLIENT_API S_API_EXPORT
 #else
-#define STEAMAPI_API S_API
+#define STEAMAPI_API S_API_EXPORT
 #define STEAMCLIENT_API static
 #endif
 
