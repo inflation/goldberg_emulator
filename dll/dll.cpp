@@ -304,7 +304,7 @@ STEAMAPI_API void S_CALLTYPE SteamAPI_RunCallbacks()
 {
     PRINT_DEBUG("SteamAPI_RunCallbacks\n");
     get_steam_client()->RunCallbacks(true, false);
-    std::this_thread::sleep_for(std::chrono::microseconds(1)); //fixes resident evil revelations lagging.
+    //std::this_thread::sleep_for(std::chrono::microseconds(1)); //fixes resident evil revelations lagging. (Seems to work fine without this right now, commenting out)
 }
 
 
