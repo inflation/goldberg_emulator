@@ -68,6 +68,7 @@ public ISteamNetworking
     class SteamCallBacks *callbacks;
     class RunEveryRunCB *run_every_runcb;
 
+    std::recursive_mutex messages_mutex;
     std::vector<Common_Message> messages;
     std::vector<struct Steam_Networking_Connection> connections;
 
@@ -108,12 +109,15 @@ void remove_connection(CSteamID id)
     }
 
     //pretty sure steam also clears the entire queue of messages for that connection
-    auto msg = std::begin(messages);
-    while (msg != std::end(messages)) {
-        if (msg->source_id() == id.ConvertToUint64()) {
-            msg = messages.erase(msg);
-        } else {
-            ++msg;
+    {
+        std::lock_guard<std::recursive_mutex> lock(messages_mutex);
+        auto msg = std::begin(messages);
+        while (msg != std::end(messages)) {
+            if (msg->source_id() == id.ConvertToUint64()) {
+                msg = messages.erase(msg);
+            } else {
+                ++msg;
+            }
         }
     }
 }
@@ -278,7 +282,7 @@ bool SendP2PPacket( CSteamID steamIDRemote, const void *pubData, uint32 cubData,
 bool IsP2PPacketAvailable( uint32 *pcubMsgSize, int nChannel)
 {
     PRINT_DEBUG("Steam_Networking::IsP2PPacketAvailable channel: %i\n", nChannel);
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(messages_mutex);
     //Not sure if this should be here because it slightly screws up games that don't like such low "pings"
     //Commenting it out for now because it looks like it causes a bug where 20xx gets stuck in an infinite receive packet loop
     //this->network->Run();
@@ -312,7 +316,7 @@ bool IsP2PPacketAvailable( uint32 *pcubMsgSize)
 bool ReadP2PPacket( void *pubDest, uint32 cubDest, uint32 *pcubMsgSize, CSteamID *psteamIDRemote, int nChannel)
 {
     PRINT_DEBUG("Steam_Networking::ReadP2PPacket %u %i\n", cubDest, nChannel);
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(messages_mutex);
     //Not sure if this should be here because it slightly screws up games that don't like such low "pings"
     //Commenting it out for now because it looks like it causes a bug where 20xx gets stuck in an infinite receive packet loop
     //this->network->Run();
@@ -800,6 +804,9 @@ void RunCallbacks()
 {
     uint64 current_time = std::chrono::duration_cast<std::chrono::duration<uint64>>(std::chrono::system_clock::now().time_since_epoch()).count();
 
+    {
+    std::lock_guard<std::recursive_mutex> lock(messages_mutex);
+
     for (auto &msg : messages) {
         CSteamID source_id((uint64)msg.source_id());
         if (!msg.network().processed()) {
@@ -839,6 +846,8 @@ void RunCallbacks()
         }
     }
 
+    }
+
     //TODO: not sure if sockets should be wiped right away
     remove_killed_connection_sockets();
 
@@ -862,6 +871,7 @@ void Callback(Common_Message *msg)
         }PRINT_DEBUG("\n");
 #endif
 
+        std::lock_guard<std::recursive_mutex> lock(messages_mutex);
         if (msg->network().type() == Network::DATA) {
             messages.push_back(Common_Message(*msg));
         }
