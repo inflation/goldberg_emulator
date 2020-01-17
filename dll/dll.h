@@ -26,3 +26,4 @@
 #endif
 
 Steam_Client *get_steam_client();
+bool steamclient_has_ipv6_functions();

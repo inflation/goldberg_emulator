@@ -4909,10 +4909,14 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_GetServerReputation(intptr
     return ((ISteamGameServer *)instancePtr)->GetServerReputation();
 }
 
-STEAMAPI_API struct SteamIPAddress_t SteamAPI_ISteamGameServer_GetPublicIP(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamGameServer_GetPublicIP(intptr_t instancePtr, void *instancePtr_possible)
 {
     //TODO: check if this actually works (ret value changed from uint32 to struct)
-    return ((ISteamGameServer *)instancePtr)->GetPublicIP();
+    if (steamclient_has_ipv6_functions()) {
+        return ((ISteamGameServer012 *)instancePtr_possible)->GetPublicIP_old();
+    } else {
+        return ((ISteamGameServer012 *)instancePtr)->GetPublicIP_old();
+    }
 }
 
 STEAMAPI_API bool SteamAPI_ISteamGameServer_HandleIncomingPacket(intptr_t instancePtr, const void * pData, int cbData, uint32 srcIP, uint16 srcPort)

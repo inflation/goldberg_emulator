@@ -134,6 +134,12 @@ Steam_Client *get_steam_clientserver_old()
     return get_steam_client();
 }
 
+static bool steamclient_has_ipv6_functions_flag;
+bool steamclient_has_ipv6_functions()
+{
+    return steamclient_has_ipv6_functions_flag;
+}
+
 static void *create_client_interface(const char *ver)
 {
     if (strstr(ver, "SteamClient") == ver) {
@@ -167,8 +173,10 @@ static void *create_client_interface(const char *ver)
             steam_client = (ISteamClient019 *)get_steam_client();
         } else if (strcmp(ver, STEAMCLIENT_INTERFACE_VERSION) == 0) {
             steam_client = (ISteamClient *)get_steam_client();
+            steamclient_has_ipv6_functions_flag = true;
         } else {
             steam_client = (ISteamClient *)get_steam_client();
+            steamclient_has_ipv6_functions_flag = true;
         }
 
         return steam_client;
