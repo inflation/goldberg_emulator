@@ -70,6 +70,8 @@ public ISteamNetworking
 
     std::recursive_mutex messages_mutex;
     std::vector<Common_Message> messages;
+
+    std::recursive_mutex connections_edit_mutex;
     std::vector<struct Steam_Networking_Connection> connections;
 
     std::vector<struct steam_listen_socket> listen_sockets;
@@ -79,11 +81,13 @@ public ISteamNetworking
 
 bool connection_exists(CSteamID id)
 {
+    std::lock_guard<std::recursive_mutex> lock(connections_edit_mutex);
     return std::find_if(connections.begin(), connections.end(), [&id](struct Steam_Networking_Connection const& conn) { return conn.remote == id;}) != connections.end();
 }
 
 struct Steam_Networking_Connection *get_or_create_connection(CSteamID id)
 {
+    std::lock_guard<std::recursive_mutex> lock(connections_edit_mutex);
     auto conn = std::find_if(connections.begin(), connections.end(), [&id](struct Steam_Networking_Connection const& conn) { return conn.remote == id;});
 
     if (connections.end() == conn) {
@@ -98,13 +102,16 @@ struct Steam_Networking_Connection *get_or_create_connection(CSteamID id)
 
 void remove_connection(CSteamID id)
 {
-    auto conn = std::begin(connections);
-    while (conn != std::end(connections)) {
-        if (conn->remote == id) {
+    {
+        std::lock_guard<std::recursive_mutex> lock(connections_edit_mutex);
+        auto conn = std::begin(connections);
+        while (conn != std::end(connections)) {
+            if (conn->remote == id) {
 
-            conn = connections.erase(conn);
-        } else {
-            ++conn;
+                conn = connections.erase(conn);
+            } else {
+                ++conn;
+            }
         }
     }
 
