@@ -89,6 +89,7 @@ public:
 };
 
 #define STEAM_CALLRESULT_TIMEOUT 120.0
+#define STEAM_CALLRESULT_WAIT_FOR_CB 0.05
 struct Steam_Call_Result {
     Steam_Call_Result(SteamAPICall_t a, int icb, void *r, unsigned int s, double r_in, bool run_cc_cb) {
         api_call = a;
@@ -115,7 +116,7 @@ struct Steam_Call_Result {
     }
 
     bool can_execute() {
-        return (!to_delete) && call_completed();
+        return (!to_delete) && call_completed() && (has_cb() || check_timedout(created, STEAM_CALLRESULT_WAIT_FOR_CB));
     }
 
     bool has_cb() {
