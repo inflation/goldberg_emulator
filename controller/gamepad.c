@@ -444,7 +444,7 @@ static void GamepadUpdateDevice(GAMEPAD_DEVICE gamepad) {
 					if (events[i].value) {
 						STATE[gamepad].bCurrent |= BUTTON_TO_FLAG(button);
 					} else {
-						STATE[gamepad].bCurrent ^= BUTTON_TO_FLAG(button);
+						STATE[gamepad].bCurrent &= ~BUTTON_TO_FLAG(button);
 					}
 					break;
 				case EV_ABS:

@@ -133,6 +133,7 @@ public ISteamInput
     std::map<EControllerActionOrigin, std::string> steamcontroller_glyphs;
 
     bool disabled;
+    bool initialized;
 
     void set_handles(std::map<std::string, std::map<std::string, std::pair<std::set<std::string>, std::string>>> action_sets) {
         uint64 handle_num = 1;
@@ -214,6 +215,7 @@ Steam_Controller(class Settings *settings, class SteamCallResults *callback_resu
 
     set_handles(settings->controller_settings.action_sets);
     disabled = !action_handles.size();
+    initialized = false;
 }
 
 ~Steam_Controller()
@@ -245,6 +247,7 @@ bool Init()
         controllers.insert(std::pair<ControllerHandle_t, struct Controller_Action>(i, cont_action));
     }
 
+    initialized = true;
     return true;
 }
 
@@ -277,7 +280,7 @@ void SetOverrideMode( const char *pchMode )
 void RunFrame()
 {
     PRINT_DEBUG("Steam_Controller::RunFrame()\n");
-    if (disabled) {
+    if (disabled || !initialized) {
         return;
     }
 
