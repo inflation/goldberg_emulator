@@ -1,7 +1,7 @@
 #ifndef __INCLUDED_BASE_HOOK_H__
 #define __INCLUDED_BASE_HOOK_H__
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <vector>
 #include <utility>
@@ -45,6 +45,6 @@ public:
     }
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 
 #endif//__INCLUDED_BASE_HOOK_H__

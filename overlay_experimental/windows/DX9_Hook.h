@@ -2,7 +2,7 @@
 #define __INCLUDED_DX9_HOOK_H__
 
 #include "../Base_Hook.h"
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <d3d9.h>
 #include "DirectX_VTables.h"
@@ -47,6 +47,6 @@ public:
     void loadFunctions(IDirect3DDevice9 *pDevice, bool ex);
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 
 #endif//__INCLUDED_DX9_HOOK_H__

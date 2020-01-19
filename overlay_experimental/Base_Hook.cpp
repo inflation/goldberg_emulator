@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 #ifdef STEAM_WIN32
 
 #include "../detours/detours.h"
@@ -85,4 +85,4 @@ void Base_Hook::UnhookAll()
 
 #endif
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY

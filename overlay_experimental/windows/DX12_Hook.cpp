@@ -3,7 +3,7 @@
 #include "../Renderer_Detector.h"
 #include "../../dll/dll.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <imgui.h>
 #include <impls/windows/imgui_impl_dx12.h>
@@ -316,4 +316,4 @@ void DX12_Hook::loadFunctions(ID3D12CommandQueue* pCommandQueue, IDXGISwapChain 
 #undef LOAD_FUNC
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY

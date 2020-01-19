@@ -4,7 +4,7 @@
 #include "../dll/dll.h"
 
 #ifdef __LINUX__
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <imgui.h>
 #include <impls/imgui_impl_opengl3.h>
@@ -171,5 +171,5 @@ void OpenGLX_Hook::loadFunctions(decltype(glXSwapBuffers)* pfnglXSwapBuffers)
     _glXSwapBuffers = pfnglXSwapBuffers;
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//__LINUX__

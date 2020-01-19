@@ -3,7 +3,7 @@
 
 #include "Base_Hook.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <set>
 
@@ -24,6 +24,6 @@ public:
     void RemoveHook(Base_Hook* hook);
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 
 #endif//__INCLUDED_HOOK_BASE_H__

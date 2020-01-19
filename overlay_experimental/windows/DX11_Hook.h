@@ -2,7 +2,7 @@
 #define __INCLUDED_DX11_HOOK_H__
 
 #include "../Base_Hook.h"
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <d3d11.h>
 #include "DirectX_VTables.h"
@@ -46,6 +46,6 @@ public:
     void loadFunctions(IDXGISwapChain *pSwapChain);
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 
 #endif//__INCLUDED_DX11_HOOK_H__

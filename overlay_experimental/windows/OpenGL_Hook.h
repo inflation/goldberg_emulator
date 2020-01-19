@@ -2,7 +2,7 @@
 #define __INCLUDED_OPENGL_HOOK_H__
 
 #include "../Base_Hook.h"
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 class OpenGL_Hook : public Base_Hook
 {
@@ -38,5 +38,5 @@ public:
     void loadFunctions(wglSwapBuffers_t pfnwglSwapBuffers);
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//__INCLUDED_OPENGL_HOOK_H__

@@ -139,6 +139,9 @@ public:
 
     //networking
     bool disable_networking = false;
+
+    //overlay
+    bool disable_overlay = false;
 };
 
 #endif

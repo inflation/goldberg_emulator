@@ -4,7 +4,7 @@
 #include "../Base_Hook.h"
 
 #ifdef __LINUX__
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 #include <GL/glew.h>
 #include <GL/glx.h>
 
@@ -44,6 +44,6 @@ public:
     void loadFunctions(decltype(glXSwapBuffers)* pfnglXSwapBuffers);
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//__LINUX__
 #endif//__INCLUDED_OPENGLX_HOOK_H__

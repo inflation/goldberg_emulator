@@ -68,7 +68,7 @@ struct Notification
     std::pair<const Friend, friend_window_state>* frd;
 };
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 class Steam_Overlay
 {

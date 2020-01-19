@@ -1,7 +1,7 @@
 #include "../dll/dll.h"
 #include "Hook_Manager.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 Hook_Manager::Hook_Manager()
 {}
@@ -33,4 +33,4 @@ void Hook_Manager::RemoveHook(Base_Hook* hook)
     }
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY

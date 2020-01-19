@@ -3,7 +3,7 @@
 #include "../dll/dll.h"
 
 #ifdef __LINUX__
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <imgui.h>
 #include <impls/linux/imgui_impl_x11.h>
@@ -201,5 +201,5 @@ const char* X11_Hook::get_lib_name() const
     return DLL_NAME;
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//#__LINUX__

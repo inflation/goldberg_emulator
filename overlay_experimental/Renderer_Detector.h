@@ -4,7 +4,7 @@
 #include "Base_Hook.h"
 #include <thread>
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 #ifdef __WINDOWS__
 
 struct IDXGISwapChain;
@@ -101,5 +101,5 @@ public:
 };
 
 #endif//__WINDOWS__
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//__INCLUDED_RENDERER_DETECTOR_H__

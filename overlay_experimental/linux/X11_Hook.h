@@ -4,7 +4,7 @@
 #include "../Base_Hook.h"
 
 #ifdef __LINUX__
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <X11/X.h> // XEvent types
 #include <X11/Xlib.h> // XEvent structure
@@ -58,6 +58,6 @@ public:
     virtual const char* get_lib_name() const;
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//__LINUX__
 #endif//__INCLUDED_X11_HOOK_H__

@@ -250,6 +250,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
 
     bool steam_offline_mode = false;
     bool disable_networking = false;
+    bool disable_overlay = false;
     {
         std::string steam_settings_path = Local_Storage::get_game_settings_path();
 
@@ -260,6 +261,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
                 steam_offline_mode = true;
             } else if (p == "disable_networking.txt") {
                 disable_networking = true;
+            } else if (p == "disable_overlay.txt") {
+                disable_overlay = true;
             }
         }
     }
@@ -272,6 +275,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     settings_server->custom_broadcasts = custom_broadcasts;
     settings_client->disable_networking = disable_networking;
     settings_server->disable_networking = disable_networking;
+    settings_client->disable_overlay = disable_overlay;
+    settings_server->disable_overlay = disable_overlay;
 
     {
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "DLC.txt";

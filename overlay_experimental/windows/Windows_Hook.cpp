@@ -2,7 +2,7 @@
 #include "../Renderer_Detector.h"
 #include "../../dll/dll.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <imgui.h>
 #include <impls/windows/imgui_impl_win32.h>
@@ -206,4 +206,4 @@ const char* Windows_Hook::get_lib_name() const
     return DLL_NAME;
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY

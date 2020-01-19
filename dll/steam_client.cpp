@@ -48,11 +48,6 @@ Steam_Client::Steam_Client()
 {
     uint32 appid = create_localstorage_settings(&settings_client, &settings_server, &local_storage);
 
-    {
-        std::ifstream chk_ovlay(Local_Storage::get_program_path() + PATH_SEPARATOR + "disable_overlay.txt", std::ios::in);
-        if (chk_ovlay)
-            enable_overlay = false;
-    }
     network = new Networking(settings_server->get_local_steam_id(), appid, settings_server->get_port(), &(settings_server->custom_broadcasts), settings_server->disable_networking);
 
     callback_results_client = new SteamCallResults();
@@ -71,7 +66,7 @@ Steam_Client::Steam_Client()
 
     steam_matchmaking = new Steam_Matchmaking(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_matchmaking_servers = new Steam_Matchmaking_Servers(settings_client, network);
-    steam_user_stats = new Steam_User_Stats(settings_client, local_storage, callback_results_client, callbacks_client);
+    steam_user_stats = new Steam_User_Stats(settings_client, local_storage, callback_results_client, callbacks_client, steam_overlay);
     steam_apps = new Steam_Apps(settings_client, callback_results_client);
     steam_networking = new Steam_Networking(settings_client, network, callbacks_client, run_every_runcb);
     steam_remote_storage = new Steam_Remote_Storage(settings_client, local_storage, callback_results_client);
@@ -197,6 +192,10 @@ HSteamUser Steam_Client::ConnectToGlobalUser( HSteamPipe hSteamPipe )
     }
 
     userLogIn();
+#ifdef EMU_OVERLAY
+    if(!settings_client->disable_overlay)
+        steam_overlay->SetupOverlay();
+#endif
     steam_pipes[hSteamPipe] = Steam_Pipe::CLIENT;
     return CLIENT_HSTEAMUSER;
 }
@@ -711,7 +710,7 @@ ISteamScreenshots *Steam_Client::GetISteamScreenshots( HSteamUser hSteamuser, HS
 // Deprecated. Applications should use SteamAPI_RunCallbacks() or SteamGameServer_RunCallbacks() instead.
 void Steam_Client::RunFrame()
 {
-    PRINT_DEBUG("RunFrame\n");
+    PRINT_DEBUG("Steam_Client::RunFrame\n");
 }
 
 // returns the number of IPC calls made since the last time this function was called

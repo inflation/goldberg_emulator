@@ -4,7 +4,7 @@
 #include "../Base_Hook.h"
 
 #ifdef __WINDOWS__
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 class Windows_Hook : public Base_Hook
 {
@@ -45,6 +45,6 @@ public:
     virtual const char* get_lib_name() const;
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//__WINDOWS__
 #endif//__INCLUDED_WINDOWS_HOOK_H__

@@ -1,6 +1,6 @@
 #include "steam_overlay.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <thread>
 #include <string>

@@ -211,7 +211,7 @@ message Common_Message {
         Friend_Messages friend_messages = 11;
         Network_Old network_old = 12;
         Networking_Sockets networking_sockets = 13;
-		Steam_Messages steam_messages = 14;
+        Steam_Messages steam_messages = 14;
     }
 
     uint32 source_ip = 128;

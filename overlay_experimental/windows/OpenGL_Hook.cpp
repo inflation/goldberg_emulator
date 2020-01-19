@@ -3,7 +3,7 @@
 #include "../Renderer_Detector.h"
 #include "../../dll/dll.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <imgui.h>
 #include <impls/imgui_impl_opengl3.h>
@@ -144,4 +144,4 @@ void OpenGL_Hook::loadFunctions(wglSwapBuffers_t pfnwglSwapBuffers)
     wglSwapBuffers = pfnwglSwapBuffers;
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY

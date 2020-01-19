@@ -3,7 +3,7 @@
 #include "../Renderer_Detector.h"
 #include "../../dll/dll.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <imgui.h>
 #include <impls/windows/imgui_impl_dx9.h>
@@ -169,4 +169,4 @@ void DX9_Hook::loadFunctions(IDirect3DDevice9* pDevice, bool ex)
 #undef LOAD_FUNC
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY

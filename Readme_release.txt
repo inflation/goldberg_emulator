@@ -102,8 +102,10 @@ You must all be on the same LAN for it to work.
 IMPORTANT:
 Do not run more than one steam game with the same appid at the same time on the same computer with my emu or there might be network issues (dedicated servers should be fine though).
 
+Overlay (Note: at the moment this feature is only enabled in the windows experimental builds):
+The overlay can be disabled by putting a file named disable_overlay.txt in the steam_settings folder. This is for games that depend on the steam overlay to let people join multiplayer games.
 
-Controller (Note: at the moment this feature is only enabled in the windows experimental builds):
+Controller (Note: at the moment this feature is only enabled in the windows experimental builds and the linux builds):
 SteamController/SteamInput support is limited to XInput controllers. If your controller is not XInput, there are many tools (at least for windows) that you can use to make it emulate an XInput one.
 Steam uses things called action sets for controller configuration. An action set is a group of action names. Action names are bound to buttons, triggers or joysticks.
 The emulator needs to know for each action set, which button is linked to which action name. Create a ACTION_SET_NAME.txt file in the steam_settings\controller folder for every action set the game uses.

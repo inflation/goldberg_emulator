@@ -2,7 +2,7 @@
 #define __INCLUDED_DX12_HOOK_H__
 
 #include "../Base_Hook.h"
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -56,5 +56,5 @@ public:
     void loadFunctions(ID3D12CommandQueue* pCommandQueue, IDXGISwapChain* pSwapChain);
 };
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
 #endif//__INCLUDED_DX12_HOOK_H__

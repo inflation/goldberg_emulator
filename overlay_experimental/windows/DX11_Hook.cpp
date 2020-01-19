@@ -3,7 +3,7 @@
 #include "../Renderer_Detector.h"
 #include "../../dll/dll.h"
 
-#ifndef NO_OVERLAY
+#ifdef EMU_OVERLAY
 
 #include <imgui.h>
 #include <impls/windows/imgui_impl_dx11.h>
@@ -183,4 +183,4 @@ void DX11_Hook::loadFunctions(IDXGISwapChain *pSwapChain)
 #undef LOAD_FUNC
 }
 
-#endif//NO_OVERLAY
+#endif//EMU_OVERLAY
