@@ -185,6 +185,17 @@ message Friend_Messages {
     }
 }
 
+message Steam_Messages {
+	enum Types {
+		FRIEND_CHAT = 0;
+	}
+
+	Types type = 1;
+	oneof message_data {
+		bytes message = 2;
+	}
+}
+
 message Common_Message {
     uint64 source_id = 1;
     uint64 dest_id = 2;
@@ -200,6 +211,7 @@ message Common_Message {
         Friend_Messages friend_messages = 11;
         Network_Old network_old = 12;
         Networking_Sockets networking_sockets = 13;
+		Steam_Messages steam_messages = 14;
     }
 
     uint32 source_ip = 128;

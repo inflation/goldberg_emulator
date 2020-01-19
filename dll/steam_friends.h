@@ -15,7 +15,11 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef __INCLUDED_STEAM_FRIENDS_H__
+#define __INCLUDED_STEAM_FRIENDS_H__
+
 #include "base.h"
+#include "../overlay_experimental/steam_overlay.h"
 
 #define SEND_FRIEND_RATE 4.0
 
@@ -46,6 +50,7 @@ public ISteamFriends
     class SteamCallBacks *callbacks;
     class SteamCallResults *callback_results;
     class RunEveryRunCB *run_every_runcb;
+    class Steam_Overlay* overlay;
 
     Friend us;
     bool modified;
@@ -128,13 +133,14 @@ static void steam_friends_run_every_runcb(void *object)
     steam_friends->RunCallbacks();
 }
 
-Steam_Friends(class Settings *settings, class Networking *network, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb)
+Steam_Friends(Settings* settings, Networking* network, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Steam_Overlay* overlay):
+    settings(settings),
+    network(network),
+    callbacks(callbacks),
+    callback_results(callback_results),
+    run_every_runcb(run_every_runcb),
+    overlay(overlay)
 {
-    this->settings = settings;
-    this->network = network;
-    this->callbacks = callbacks;
-    this->callback_results = callback_results;
-    this->run_every_runcb = run_every_runcb;
     this->network->setCallback(CALLBACK_ID_FRIEND, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);
     this->network->setCallback(CALLBACK_ID_FRIEND_MESSAGES, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);
     this->network->setCallback(CALLBACK_ID_USER_STATUS, settings->get_local_steam_id(), &Steam_Friends::steam_friends_callback, this);
@@ -518,6 +524,7 @@ void SetInGameVoiceSpeaking( CSteamID steamIDUser, bool bSpeaking )
 void ActivateGameOverlay( const char *pchDialog )
 {
     PRINT_DEBUG("Steam_Friends::ActivateGameOverlay %s\n", pchDialog);
+    overlay->OpenOverlay(pchDialog);
 }
 
 
@@ -574,7 +581,7 @@ void SetPlayedWith( CSteamID steamIDUserPlayedWith )
 void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby )
 {
     PRINT_DEBUG("Steam_Friends::ActivateGameOverlayInviteDialog\n");
-    // TODO: Here open the overlay
+    overlay->OpenOverlayInvite(steamIDLobby);
 }
 
 // gets the small (32x32) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
@@ -1014,6 +1021,7 @@ void Callback(Common_Message *msg)
             auto f = std::find_if(friends.begin(), friends.end(), [&id](Friend const& item) { return item.id() == id; });
             if (friends.end() != f) {
                 persona_change((uint64)f->id(), k_EPersonaChangeStatus);
+                overlay->FriendDisconnect(*f);
                 friends.erase(f);
             }
         }
@@ -1039,6 +1047,7 @@ void Callback(Common_Message *msg)
         if (!f) {
             if (msg->friend_().id() != settings->get_local_steam_id().ConvertToUint64()) {
                 friends.push_back(msg->friend_());
+                overlay->FriendConnect(msg->friend_());
                 persona_change((uint64)msg->friend_().id(), k_EPersonaChangeName);
             }
         } else {
@@ -1059,23 +1068,41 @@ void Callback(Common_Message *msg)
     if (msg->has_friend_messages()) {
         if (msg->friend_messages().type() == Friend_Messages::LOBBY_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Lobby Invite\n");
-            //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
-            GameLobbyJoinRequested_t data;
-            data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
-            data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            if (overlay->Ready())
+            {
+                //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
+                // Then we will handle it !
+                overlay->SetLobbyInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().lobby_id());
+            }
+            else
+            {
+                GameLobbyJoinRequested_t data;
+                data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
+                data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            }
         }
 
         if (msg->friend_messages().type() == Friend_Messages::GAME_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Game Invite\n");
             //TODO: I'm pretty sure that the user should accept the invite before this is posted but we do like above
-            std::string const& connect_str = msg->friend_messages().connect_str();
-            GameRichPresenceJoinRequested_t data = {};
-            data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
-            strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength - 1);
-            callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            if (overlay->Ready())
+            {
+                // Then we will handle it !
+                overlay->SetRichInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().connect_str().c_str());
+            }
+            else
+            {
+                std::string const& connect_str = msg->friend_messages().connect_str();
+                GameRichPresenceJoinRequested_t data = {};
+                data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+                strncpy(data.m_rgchConnect, connect_str.c_str(), k_cchMaxRichPresenceValueLength - 1);
+                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+            }
         }
     }
 }
 
 };
+
+#endif//__INCLUDED_STEAM_FRIENDS_H__

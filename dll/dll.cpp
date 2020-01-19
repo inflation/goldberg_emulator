@@ -223,6 +223,12 @@ STEAMAPI_API bool S_CALLTYPE SteamAPI_Init()
     load_old_interface_versions();
     user_steam_pipe = get_steam_client()->CreateSteamPipe();
     get_steam_client()->ConnectToGlobalUser(user_steam_pipe);
+
+    Steam_Client* client = get_steam_client();
+#ifndef NO_OVERLAY
+    if( client->enable_overlay )
+        client->steam_overlay->SetupOverlay();
+#endif
     return true;
 }
 

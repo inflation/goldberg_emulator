@@ -50,12 +50,14 @@ if(WIN32)
 	  set(LIB_STEAMNETWORKINGSOCKETS steamnetworkingsockets64)
 	  set(BIN_LOBBY_CONNECT lobby_connect64)
 	  set(BIN_GENERATE_INTERFACES_FILE generate_interfaces_file64)
+	  link_directories(glew/lib/Release/x64)
   else()
     set(LIB_STEAM_API steam_api)
 	  set(LIB_STEAMCLIENT steamclient)
 	  set(LIB_STEAMNETWORKINGSOCKETS steamnetworkingsockets)
 	  set(BIN_LOBBY_CONNECT lobby_connect)
 	  set(BIN_GENERATE_INTERFACES_FILE generate_interfaces_file)
+	  link_directories(glew/lib/Release/Win32)
   endif()
 elseif(UNIX AND NOT APPLE)
   set(LIB_STEAM_API steam_api)
@@ -77,6 +79,24 @@ file(GLOB DETOURS_SRC_SHARED
 	detours/*.cpp
 )
 
+if(WIN32)
+  file(GLOB OVERLAY_EXPERIMENTAL_SRC_SHARED
+    overlay_experimental/*.cpp
+    overlay_experimental/windows/*.cpp
+    ImGui/*.cpp
+    ImGui/impls/*.cpp
+    ImGui/impls/windows/*.cpp
+  )
+elseif(UNIX)
+  file(GLOB OVERLAY_EXPERIMENTAL_SRC_SHARED
+    overlay_experimental/*.cpp
+    overlay_experimental/linux/*.cpp
+    ImGui/*.cpp
+    ImGui/impls/*.cpp
+    ImGui/impls/linux/*.cpp
+  )
+endif()
+
 ###################################################
 # Setup for the steam_api(64).dll / libsteam_api.so
 ###################################################
@@ -85,6 +105,7 @@ file(GLOB DETOURS_SRC_SHARED
 add_library(${LIB_STEAM_API}
   SHARED
 	$<$<BOOL:${EMU_EXPERIMENTAL_BUILD}>:${DETOURS_SRC_SHARED}>
+	$<$<AND:$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:${OVERLAY_EXPERIMENTAL_SRC_SHARED}>
   ${DLL_SRC_SHARED}
   ${PROTO_SRCS}
   ${PROTO_HDRS}
@@ -95,6 +116,8 @@ target_include_directories(${LIB_STEAM_API}
   PRIVATE
   ${PROTOBUF_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/ImGui
+  ${CMAKE_CURRENT_SOURCE_DIR}/glew/include
 )
 
 # Link the required libraries
@@ -103,6 +126,9 @@ target_link_libraries(${LIB_STEAM_API}
 	protobuf::libprotobuf
 	$<$<BOOL:${WIN32}>:ws2_32>
 	$<$<BOOL:${WIN32}>:iphlpapi>
+	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:glew32s.lib>
+	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:opengl32.lib>
+	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:Winmm.lib>
 )
 
 # Add target compile definitions
@@ -113,6 +139,8 @@ target_compile_definitions(${LIB_STEAM_API}
 	$<$<CONFIG:RelWithDebInfo>:EMU_RELEASE_BUILD>
 	$<$<CONFIG:MinSizeRel>:EMU_RELEASE_BUILD>
 	$<$<BOOL:${EMU_EXPERIMENTAL_BUILD}>:EMU_EXPERIMENTAL_BUILD>
+	$<$<BOOL:${NO_OVERLAY}>:NO_OVERLAY>
+	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<NOT:$<BOOL:${NO_OVERLAY}>>>:GLEW_STATIC>
 )
 
 # Install the target
@@ -237,6 +265,7 @@ target_link_libraries(${BIN_LOBBY_CONNECT}
 target_compile_definitions(${BIN_LOBBY_CONNECT}
 	PRIVATE
 	NO_DISK_WRITES
+	NO_OVERLAY
 	LOBBY_CONNECT
 	$<$<CONFIG:>:EMU_RELEASE_BUILD>
   $<$<CONFIG:Release>:EMU_RELEASE_BUILD>

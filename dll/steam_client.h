@@ -53,6 +53,8 @@
 #include "steam_gameserverstats.h"
 #include "steam_masterserver_updater.h"
 
+#include "../overlay_experimental/steam_overlay.h"
+
 #include <thread>
 
 enum Steam_Pipe {
@@ -127,6 +129,9 @@ public:
     Steam_Game_Coordinator *steam_gameserver_game_coordinator;
     Steam_Masterserver_Updater *steam_masterserver_updater;
 
+    Steam_Overlay* steam_overlay;
+
+    bool enable_overlay = true;
     bool user_logged_in = false;
     bool server_init = false;
     std::thread background_keepalive;

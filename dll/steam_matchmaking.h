@@ -1268,7 +1268,7 @@ void Callback(Common_Message *msg)
         if (msg->lobby().owner() != settings->get_local_steam_id().ConvertToUint64() && msg->lobby().appid() == settings->get_local_game_id().AppID()) {
             Lobby *lobby = get_lobby((uint64)msg->lobby().room_id());
             if (!lobby) {
-                unsigned int old_size = lobbies.size();
+                size_t old_size = lobbies.size();
                 lobbies.resize(old_size + 1);
                 lobbies[old_size].set_room_id(msg->lobby().room_id());
                 lobby = &(lobbies[old_size]);

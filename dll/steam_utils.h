@@ -17,6 +17,7 @@
 
 #include "base.h"
 #include "local_storage.h"
+#include "../overlay_experimental/steam_overlay.h"
 
 static std::chrono::time_point<std::chrono::steady_clock> app_initialized_time = std::chrono::steady_clock::now();
 
@@ -34,13 +35,14 @@ public ISteamUtils
 private:
     Settings *settings;
     class SteamCallResults *callback_results;
+    Steam_Overlay* overlay;
 
 public:
-Steam_Utils(Settings *settings, class SteamCallResults *callback_results)
-{
-    this->settings = settings;
-    this->callback_results = callback_results;
-}
+Steam_Utils(Settings *settings, class SteamCallResults *callback_results, Steam_Overlay *overlay):
+    settings(settings),
+    callback_results(callback_results),
+    overlay(overlay)
+{}
 
 // return the number of seconds since the user 
 uint32 GetSecondsSinceAppActive()
@@ -144,6 +146,7 @@ uint32 GetAppID()
 void SetOverlayNotificationPosition( ENotificationPosition eNotificationPosition )
 {
     PRINT_DEBUG("SetOverlayNotificationPosition\n");
+    overlay->SetNotificationPosition(eNotificationPosition);
 }
 
 
@@ -218,8 +221,7 @@ void SetWarningMessageHook( SteamAPIWarningMessageHook_t pFunction )
 bool IsOverlayEnabled()
 {
     PRINT_DEBUG("IsOverlayEnabled\n");
-    //TODO
-    return false;
+    return overlay->Ready();
 }
 
 
@@ -235,7 +237,7 @@ bool IsOverlayEnabled()
 bool BOverlayNeedsPresent()
 {
     PRINT_DEBUG("BOverlayNeedsPresent\n");
-    return false;
+    return overlay->NeedPresent();
 }
 
 
@@ -305,6 +307,7 @@ bool IsSteamRunningInVR()
 void SetOverlayNotificationInset( int nHorizontalInset, int nVerticalInset )
 {
     PRINT_DEBUG("SetOverlayNotificationInset\n");
+    overlay->SetNotificationInset(nHorizontalInset, nVerticalInset);
 }
 
 
