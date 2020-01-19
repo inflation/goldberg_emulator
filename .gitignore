@@ -15,4 +15,3 @@ rtlgenrandom*
 steamclient.exp
 steamclient.lib
 out/*
-glew
