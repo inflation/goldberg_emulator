@@ -1,4 +1,4 @@
-@ecbo off
+@echo off
 cd /d "%~dp0"
 mkdir release\tools
 del /Q release\tools\*

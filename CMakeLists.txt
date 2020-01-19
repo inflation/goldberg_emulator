@@ -50,14 +50,12 @@ if(WIN32)
 	  set(LIB_STEAMNETWORKINGSOCKETS steamnetworkingsockets64)
 	  set(BIN_LOBBY_CONNECT lobby_connect64)
 	  set(BIN_GENERATE_INTERFACES_FILE generate_interfaces_file64)
-	  link_directories(glew/lib/Release/x64)
   else()
     set(LIB_STEAM_API steam_api)
 	  set(LIB_STEAMCLIENT steamclient)
 	  set(LIB_STEAMNETWORKINGSOCKETS steamnetworkingsockets)
 	  set(BIN_LOBBY_CONNECT lobby_connect)
 	  set(BIN_GENERATE_INTERFACES_FILE generate_interfaces_file)
-	  link_directories(glew/lib/Release/Win32)
   endif()
 elseif(UNIX AND NOT APPLE)
   set(LIB_STEAM_API steam_api)
@@ -86,6 +84,7 @@ if(WIN32)
     ImGui/*.cpp
     ImGui/impls/*.cpp
     ImGui/impls/windows/*.cpp
+    glew/glew.c
   )
 elseif(UNIX)
   file(GLOB OVERLAY_EXPERIMENTAL_SRC_SHARED
@@ -94,6 +93,7 @@ elseif(UNIX)
     ImGui/*.cpp
     ImGui/impls/*.cpp
     ImGui/impls/linux/*.cpp
+    glew/glew.c
   )
 endif()
 
@@ -126,7 +126,6 @@ target_link_libraries(${LIB_STEAM_API}
 	protobuf::libprotobuf
 	$<$<BOOL:${WIN32}>:ws2_32>
 	$<$<BOOL:${WIN32}>:iphlpapi>
-	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<BOOL:${EMU_OVERLAY}>>:glew32s.lib>
 	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<BOOL:${EMU_OVERLAY}>>:opengl32.lib>
 	$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${EMU_EXPERIMENTAL_BUILD}>,$<BOOL:${EMU_OVERLAY}>>:Winmm.lib>
 )
