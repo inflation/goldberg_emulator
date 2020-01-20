@@ -123,7 +123,7 @@ void Steam_Overlay::SetNotificationInset(int nHorizontalInset, int nVerticalInse
 
 void Steam_Overlay::SetupOverlay()
 {
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     if (!setup_overlay_called)
     {
         setup_overlay_called = true;
@@ -238,7 +238,7 @@ void Steam_Overlay::SetLobbyInvite(Friend friendId, uint64 lobbyId)
     if (!Ready())
         return;
 
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     auto i = friends.find(friendId);
     if (i != friends.end())
     {
@@ -257,7 +257,7 @@ void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
     if (!Ready())
         return;
 
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     auto i = friends.find(friendId);
     if (i != friends.end())
     {
@@ -273,7 +273,7 @@ void Steam_Overlay::SetRichInvite(Friend friendId, const char* connect_str)
 
 void Steam_Overlay::FriendConnect(Friend _friend)
 {
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     int id = find_free_friend_id(friends);
     if (id != 0)
     {
@@ -289,7 +289,7 @@ void Steam_Overlay::FriendConnect(Friend _friend)
 
 void Steam_Overlay::FriendDisconnect(Friend _friend)
 {
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     auto it = friends.find(_friend);
     if (it != friends.end())
         friends.erase(it);
@@ -297,6 +297,7 @@ void Steam_Overlay::FriendDisconnect(Friend _friend)
 
 void Steam_Overlay::AddMessageNotification(std::string const& message)
 {
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     int id = find_free_notification_id(notifications);
     if (id != 0)
     {
@@ -313,6 +314,7 @@ void Steam_Overlay::AddMessageNotification(std::string const& message)
 
 void Steam_Overlay::AddAchievementNotification(nlohmann::json const& ach)
 {
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     int id = find_free_notification_id(notifications);
     if (id != 0)
     {
@@ -330,6 +332,7 @@ void Steam_Overlay::AddAchievementNotification(nlohmann::json const& ach)
 
 void Steam_Overlay::AddInviteNotification(std::pair<const Friend, friend_window_state>& wnd_state)
 {
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     int id = find_free_notification_id(notifications);
     if (id != 0)
     {
@@ -596,7 +599,7 @@ void Steam_Overlay::CreateFonts()
 // Try to make this function as short as possible or it might affect game's fps.
 void Steam_Overlay::OverlayProc()
 {
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
 
     if (!Ready())
         return;
@@ -666,6 +669,7 @@ void Steam_Overlay::OverlayProc()
 
 void Steam_Overlay::Callback(Common_Message *msg)
 {
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     if (msg->has_steam_messages())
     {
         Friend frd;
@@ -689,6 +693,7 @@ void Steam_Overlay::Callback(Common_Message *msg)
 
 void Steam_Overlay::RunCallbacks()
 {
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     if (overlay_state_changed)
     {
         GameOverlayActivated_t data = { 0 };

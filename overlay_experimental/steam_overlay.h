@@ -92,6 +92,8 @@ class Steam_Overlay
     std::vector<Notification> notifications;
     bool overlay_state_changed;
 
+    std::recursive_mutex overlay_mutex;
+
     Steam_Overlay(Steam_Overlay const&) = delete;
     Steam_Overlay(Steam_Overlay&&) = delete;
     Steam_Overlay& operator=(Steam_Overlay const&) = delete;
