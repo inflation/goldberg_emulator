@@ -189,7 +189,7 @@ bool GetAPICallResult( SteamAPICall_t hSteamAPICall, void *pCallback, int cubCal
 // Deprecated. Applications should use SteamAPI_RunCallbacks() instead. Game servers do not need to call this function.
 STEAM_PRIVATE_API( void RunFrame()
 {
-    PRINT_DEBUG("RunFrame\n");
+    PRINT_DEBUG("Steam_Utils::RunFrame\n");
 }
  )
 

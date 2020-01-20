@@ -481,7 +481,7 @@ SteamAPICall_t DownloadClanActivityCounts( STEAM_ARRAY_COUNT(cClansToRequest) CS
 // steamIDSource can be the steamID of a group, game server, lobby or chat room
 int GetFriendCountFromSource( CSteamID steamIDSource )
 {
-    PRINT_DEBUG("Steam_Friends::GetFriendCountFromSource\n");
+    PRINT_DEBUG("Steam_Friends::GetFriendCountFromSource %llu\n", steamIDSource.ConvertToUint64());
     //TODO
     return 0;
 }
@@ -866,8 +866,13 @@ AppId_t GetFriendCoplayGame( CSteamID steamIDFriend )
 STEAM_CALL_RESULT( JoinClanChatRoomCompletionResult_t )
 SteamAPICall_t JoinClanChatRoom( CSteamID steamIDClan )
 {
-    PRINT_DEBUG("Steam_Friends::JoinClanChatRoom\n");
-    return 0;
+    PRINT_DEBUG("Steam_Friends::JoinClanChatRoom %llu\n", steamIDClan.ConvertToUint64());
+    //TODO actually join a room
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    JoinClanChatRoomCompletionResult_t data;
+    data.m_steamIDClanChat = steamIDClan;
+    data.m_eChatRoomEnterResponse = k_EChatRoomEnterResponseSuccess;
+    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
 }
 
 bool LeaveClanChatRoom( CSteamID steamIDClan )

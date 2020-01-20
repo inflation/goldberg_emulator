@@ -591,7 +591,7 @@ bool GetItemDefinitionIDs(
             STEAM_OUT_ARRAY_COUNT(punItemDefIDsArraySize,List of item definition IDs) SteamItemDef_t *pItemDefIDs,
             STEAM_DESC(Size of array is passed in and actual size used is returned in this param) uint32 *punItemDefIDsArraySize )
 {
-    PRINT_DEBUG("GetItemDefinitionIDs\n");
+    PRINT_DEBUG("GetItemDefinitionIDs %p\n", pItemDefIDs);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (!punItemDefIDsArraySize)
         return false;
