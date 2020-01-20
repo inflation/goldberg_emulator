@@ -271,7 +271,7 @@ void Renderer_Detector::hook_dx9()
 
 void Renderer_Detector::hook_dx10()
 {
-    if (!_dxgi_hooked && !_renderer_found)
+    if (!_dx10_hooked && !_renderer_found)
     {
         create_hwnd();
         if (dummy_hWnd == nullptr)
@@ -324,7 +324,7 @@ void Renderer_Detector::hook_dx10()
 
 void Renderer_Detector::hook_dx11()
 {
-    if (!_dxgi_hooked && !_renderer_found)
+    if (!_dx11_hooked && !_renderer_found)
     {
         create_hwnd();
         if (dummy_hWnd == nullptr)
@@ -378,7 +378,7 @@ void Renderer_Detector::hook_dx11()
 
 void Renderer_Detector::hook_dx12()
 {
-    if (!_dxgi_hooked && !_renderer_found)
+    if (!_dx12_hooked && !_renderer_found)
     {
         create_hwnd();
         if (dummy_hWnd == nullptr)
