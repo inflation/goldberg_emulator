@@ -193,17 +193,17 @@ STEAMAPI_API void * S_CALLTYPE SteamInternal_CreateInterface( const char *ver )
     return create_client_interface(ver);
 }
 
+static uintp global_counter;
 struct ContextInitData { void (*pFn)(void* pCtx); uintp counter; CSteamAPIContext ctx; };
 
 STEAMAPI_API void * S_CALLTYPE SteamInternal_ContextInit( void *pContextInitData )
 {
     //PRINT_DEBUG("SteamInternal_ContextInit\n");
     struct ContextInitData *contextInitData = (struct ContextInitData *)pContextInitData;
-    if (!contextInitData->counter) {
+    if (contextInitData->counter != global_counter) {
         PRINT_DEBUG("SteamInternal_ContextInit initializing\n");
         contextInitData->pFn(&contextInitData->ctx);
-        //this is hackish but whatever.
-        if (contextInitData->ctx.SteamUser()) contextInitData->counter = 1;
+        contextInitData->counter = global_counter;
     }
 
     return &contextInitData->ctx;
@@ -224,6 +224,7 @@ STEAMAPI_API bool S_CALLTYPE SteamAPI_Init()
     Steam_Client* client = get_steam_client();
     user_steam_pipe = client->CreateSteamPipe();
     client->ConnectToGlobalUser(user_steam_pipe);
+    global_counter++;
     return true;
 }
 
@@ -263,6 +264,7 @@ STEAMAPI_API void S_CALLTYPE SteamAPI_Shutdown()
     get_steam_client()->clientShutdown();
     get_steam_client()->BReleaseSteamPipe(user_steam_pipe);
     user_steam_pipe = 0;
+    --global_counter;
     old_user_instance = NULL;
     old_friends_interface = NULL;
     old_utils_interface = NULL;
@@ -594,6 +596,7 @@ STEAMAPI_API bool S_CALLTYPE SteamInternal_GameServer_Init( uint32 unIP, uint16 
     PRINT_DEBUG("SteamInternal_GameServer_Init %u %hu %hu %hu %u %s\n", unIP, usPort, usGamePort, usQueryPort, eServerMode, pchVersionString);
     load_old_interface_versions();
     get_steam_client()->CreateLocalUser(&server_steam_pipe, k_EAccountTypeGameServer);
+    ++global_counter;
     //g_pSteamClientGameServer is only used in pre 1.37 (where the interface versions are not provided by the game)
     g_pSteamClientGameServer = SteamGameServerClient();
     uint32 unFlags = 0;
@@ -650,6 +653,7 @@ STEAMAPI_API void SteamGameServer_Shutdown()
     get_steam_client()->serverShutdown();
     get_steam_client()->BReleaseSteamPipe(server_steam_pipe);
     server_steam_pipe = 0;
+    --global_counter;
     g_pSteamClientGameServer = NULL; //TODO: check if this actually gets nulled when SteamGameServer_Shutdown is called
     old_gameserver_instance = NULL;
     old_gamserver_utils_instance = NULL;
