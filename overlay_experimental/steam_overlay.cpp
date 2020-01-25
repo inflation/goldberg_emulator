@@ -123,6 +123,7 @@ void Steam_Overlay::SetNotificationInset(int nHorizontalInset, int nVerticalInse
 
 void Steam_Overlay::SetupOverlay()
 {
+    PRINT_DEBUG("%s\n", __FUNCTION__);
     std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     if (!setup_overlay_called)
     {
@@ -599,19 +600,20 @@ void Steam_Overlay::CreateFonts()
 // Try to make this function as short as possible or it might affect game's fps.
 void Steam_Overlay::OverlayProc()
 {
-    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
-
     if (!Ready())
         return;
 
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui::PushFont(font_notif);
+    overlay_mutex.lock();
     BuildNotifications(io.DisplaySize.x, io.DisplaySize.y);
+    overlay_mutex.unlock();
     ImGui::PopFont();
 
     if (show_overlay)
     {
+        std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
         int friend_size = friends.size();
 
         // Set the overlay windows to the size of the game window
@@ -693,7 +695,6 @@ void Steam_Overlay::Callback(Common_Message *msg)
 
 void Steam_Overlay::RunCallbacks()
 {
-    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     if (overlay_state_changed)
     {
         GameOverlayActivated_t data = { 0 };
@@ -706,6 +707,7 @@ void Steam_Overlay::RunCallbacks()
     Steam_Friends* steamFriends = get_steam_client()->steam_friends;
     Steam_Matchmaking* steamMatchmaking = get_steam_client()->steam_matchmaking;
 
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     while (!has_friend_action.empty())
     {
         auto friend_info = friends.find(has_friend_action.front());
