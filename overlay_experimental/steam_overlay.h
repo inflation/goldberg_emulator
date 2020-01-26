@@ -92,6 +92,8 @@ class Steam_Overlay
     // Callback infos
     std::queue<Friend> has_friend_action;
     std::vector<Notification> notifications;
+    std::recursive_mutex notifications_mutex;
+
     bool overlay_state_changed;
 
     std::recursive_mutex overlay_mutex;

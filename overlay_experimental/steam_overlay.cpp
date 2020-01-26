@@ -300,7 +300,7 @@ void Steam_Overlay::FriendDisconnect(Friend _friend)
 
 void Steam_Overlay::AddMessageNotification(std::string const& message)
 {
-    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
+    std::lock_guard<std::recursive_mutex> lock(notifications_mutex);
     int id = find_free_notification_id(notifications);
     if (id != 0)
     {
@@ -317,7 +317,7 @@ void Steam_Overlay::AddMessageNotification(std::string const& message)
 
 void Steam_Overlay::AddAchievementNotification(nlohmann::json const& ach)
 {
-    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
+    std::lock_guard<std::recursive_mutex> lock(notifications_mutex);
     int id = find_free_notification_id(notifications);
     if (id != 0)
     {
@@ -335,7 +335,7 @@ void Steam_Overlay::AddAchievementNotification(nlohmann::json const& ach)
 
 void Steam_Overlay::AddInviteNotification(std::pair<const Friend, friend_window_state>& wnd_state)
 {
-    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
+    std::lock_guard<std::recursive_mutex> lock(notifications_mutex);
     int id = find_free_notification_id(notifications);
     if (id != 0)
     {
@@ -522,64 +522,76 @@ void Steam_Overlay::BuildNotifications(int width, int height)
 
     int font_size = ImGui::GetFontSize();
 
-    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
+    std::queue<Friend> friend_actions_temp;
 
-    for (auto it = notifications.begin(); it != notifications.end(); ++it, ++i)
     {
-        auto elapsed_notif = now - it->start_time;
+        std::lock_guard<std::recursive_mutex> lock(notifications_mutex);
 
-        if ( elapsed_notif < Notification::fade_in)
+        for (auto it = notifications.begin(); it != notifications.end(); ++it, ++i)
         {
-            float alpha = Notification::max_alpha * (elapsed_notif.count() / static_cast<float>(Notification::fade_in.count()));
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, alpha));
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, alpha));
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, alpha*2));
-        }
-        else if ( elapsed_notif > Notification::fade_out_start)
-        {
-            float alpha = Notification::max_alpha * ((Notification::show_time - elapsed_notif).count() / static_cast<float>(Notification::fade_out.count()));
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, alpha));
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, alpha));
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, alpha*2));
-        }
-        else
-        {
-            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, Notification::max_alpha));
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, Notification::max_alpha));
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, Notification::max_alpha*2));
-        }
-        
-        ImGui::SetNextWindowPos(ImVec2((float)width - width * Notification::width, Notification::height * font_size * i ));
-        ImGui::SetNextWindowSize(ImVec2( width * Notification::width, Notification::height * font_size ));
-        ImGui::Begin(std::to_string(it->id).c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | 
-            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDecoration);
+            auto elapsed_notif = now - it->start_time;
 
-        switch (it->type)
-        {
-            case notification_type_achievement:
-                ImGui::TextWrapped("%s", it->message.c_str());
-                break;
-            case notification_type_invite:
-                {
+            if ( elapsed_notif < Notification::fade_in)
+            {
+                float alpha = Notification::max_alpha * (elapsed_notif.count() / static_cast<float>(Notification::fade_in.count()));
+                ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, alpha));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, alpha));
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, alpha*2));
+            }
+            else if ( elapsed_notif > Notification::fade_out_start)
+            {
+                float alpha = Notification::max_alpha * ((Notification::show_time - elapsed_notif).count() / static_cast<float>(Notification::fade_out.count()));
+                ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, alpha));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, alpha));
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, alpha*2));
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, Notification::max_alpha));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(Notification::r, Notification::g, Notification::b, Notification::max_alpha));
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 255, Notification::max_alpha*2));
+            }
+            
+            ImGui::SetNextWindowPos(ImVec2((float)width - width * Notification::width, Notification::height * font_size * i ));
+            ImGui::SetNextWindowSize(ImVec2( width * Notification::width, Notification::height * font_size ));
+            ImGui::Begin(std::to_string(it->id).c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | 
+                ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDecoration);
+
+            switch (it->type)
+            {
+                case notification_type_achievement:
                     ImGui::TextWrapped("%s", it->message.c_str());
-                    if (ImGui::Button("Join"))
+                    break;
+                case notification_type_invite:
                     {
-                        has_friend_action.push(it->frd->first);
-                        it->start_time = std::chrono::seconds(0);
+                        ImGui::TextWrapped("%s", it->message.c_str());
+                        if (ImGui::Button("Join"))
+                        {
+                            friend_actions_temp.push(it->frd->first);
+                            it->start_time = std::chrono::seconds(0);
+                        }
                     }
-                }
-                break;
-            case notification_type_message:
-                ImGui::TextWrapped("%s", it->message.c_str()); break;
+                    break;
+                case notification_type_message:
+                    ImGui::TextWrapped("%s", it->message.c_str()); break;
+            }
+
+            ImGui::End();
+
+            ImGui::PopStyleColor(3);
         }
-
-        ImGui::End();
-
-        ImGui::PopStyleColor(3);
+        notifications.erase(std::remove_if(notifications.begin(), notifications.end(), [&now](Notification &item) {
+            return (now - item.start_time) > Notification::show_time;
+        }), notifications.end());
     }
-    notifications.erase(std::remove_if(notifications.begin(), notifications.end(), [&now](Notification &item) {
-        return (now - item.start_time) > Notification::show_time;
-    }), notifications.end());
+
+    if (!friend_actions_temp.empty()) {
+        std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
+        while (!friend_actions_temp.empty()) {
+            has_friend_action.push(friend_actions_temp.front());
+            friend_actions_temp.pop();
+        }
+    }
 }
 
 void Steam_Overlay::CreateFonts()
