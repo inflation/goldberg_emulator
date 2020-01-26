@@ -89,7 +89,8 @@ Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_resu
     notif_position(ENotificationPosition::k_EPositionBottomLeft),
     h_inset(0),
     v_inset(0),
-    overlay_state_changed(false)
+    overlay_state_changed(false),
+    i_have_lobby(false)
 {
     run_every_runcb->add(&Steam_Overlay::steam_overlay_run_every_runcb, this);
     this->network->setCallback(CALLBACK_ID_STEAM_MESSAGES, settings->get_local_steam_id(), &Steam_Overlay::steam_overlay_callback, this);
@@ -283,6 +284,7 @@ void Steam_Overlay::FriendConnect(Friend _friend)
         item.window_state = window_state_none;
         item.id = id;
         memset(item.chat_input, 0, max_chat_len);
+        item.has_lobby = false;
     }
     else
         PRINT_DEBUG("No more free id to create a friend window\n");
@@ -390,13 +392,13 @@ void Steam_Overlay::BuildContextMenu(Friend const& frd, friend_window_state& sta
         // If we have the same appid, activate the invite/join buttons
         if (settings->get_local_game_id().AppID() == frd.appid())
         {
-            if (IHaveLobby() && ImGui::Button("Invite###PopupInvite"))
+            if (i_have_lobby && ImGui::Button("Invite###PopupInvite"))
             {
                 state.window_state |= window_state_invite;
                 has_friend_action.push(frd);
                 close_popup = true;
             }
-            if (FriendHasLobby(frd.id()) && ImGui::Button("Join###PopupJoin"))
+            if (state.has_lobby && ImGui::Button("Join###PopupJoin"))
             {
                 state.window_state |= window_state_join;
                 has_friend_action.push(frd);
@@ -520,6 +522,8 @@ void Steam_Overlay::BuildNotifications(int width, int height)
 
     int font_size = ImGui::GetFontSize();
 
+    std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
+
     for (auto it = notifications.begin(); it != notifications.end(); ++it, ++i)
     {
         auto elapsed_notif = now - it->start_time;
@@ -606,16 +610,11 @@ void Steam_Overlay::OverlayProc()
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui::PushFont(font_notif);
-    overlay_mutex.lock();
     BuildNotifications(io.DisplaySize.x, io.DisplaySize.y);
-    overlay_mutex.unlock();
     ImGui::PopFont();
 
     if (show_overlay)
     {
-        std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
-        int friend_size = friends.size();
-
         // Set the overlay windows to the size of the game window
         ImGui::SetNextWindowPos({ 0,0 });
         ImGui::SetNextWindowSize({ static_cast<float>(io.DisplaySize.x),
@@ -640,9 +639,11 @@ void Steam_Overlay::OverlayProc()
             ImGui::Spacing();
 
             ImGui::LabelText("##label", "Friends");
+
+            std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
             if (!friends.empty())
             {
-                ImGui::ListBoxHeader("##label", friend_size);
+                ImGui::ListBoxHeader("##label", friends.size());
                 std::for_each(friends.begin(), friends.end(), [this](std::pair<Friend const, friend_window_state> &i)
                 {
                     ImGui::PushID(i.second.id-base_friend_window_id+base_friend_item_id);
@@ -707,7 +708,13 @@ void Steam_Overlay::RunCallbacks()
     Steam_Friends* steamFriends = get_steam_client()->steam_friends;
     Steam_Matchmaking* steamMatchmaking = get_steam_client()->steam_matchmaking;
 
+    i_have_lobby = IHaveLobby();
     std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
+    std::for_each(friends.begin(), friends.end(), [this](std::pair<Friend const, friend_window_state> &i)
+    {
+        i.second.has_lobby = FriendHasLobby(i.first.id());
+    });
+
     while (!has_friend_action.empty())
     {
         auto friend_info = friends.find(has_friend_action.front());

@@ -31,6 +31,8 @@ struct friend_window_state
     };
     std::string chat_history;
     char chat_input[max_chat_len];
+
+    bool has_lobby;
 };
 
 struct Friend_Less
@@ -93,6 +95,7 @@ class Steam_Overlay
     bool overlay_state_changed;
 
     std::recursive_mutex overlay_mutex;
+    std::atomic<bool> i_have_lobby;
 
     Steam_Overlay(Steam_Overlay const&) = delete;
     Steam_Overlay(Steam_Overlay&&) = delete;
