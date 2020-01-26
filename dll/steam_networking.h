@@ -21,6 +21,9 @@
 #define ORPHANED_PACKET_TIMEOUT (20)
 #define NEW_CONNECTION_TIMEOUT (20.0)
 
+//kingdom 2 crowns doesn't work with a 0.3 delay or lower
+#define NEW_CONNECTION_DELAY (0.4)
+
 #define OLD_CHANNEL_NUMBER 1
 
 struct Steam_Networking_Connection {
@@ -78,6 +81,7 @@ public ISteamNetworking
     std::vector<struct steam_connection_socket> connection_sockets;
 
     std::map<CSteamID, std::chrono::high_resolution_clock::time_point> new_connection_times;
+    std::queue<CSteamID> new_connections_to_call_cb;
 
 bool connection_exists(CSteamID id)
 {
@@ -819,10 +823,7 @@ void RunCallbacks()
         if (!msg.network().processed()) {
             if (!connection_exists(source_id)) {
                 if (new_connection_times.find(source_id) == new_connection_times.end()) {
-                    P2PSessionRequest_t data;
-                    memset(&data, 0, sizeof(data));
-                    data.m_steamIDRemote = CSteamID(source_id);
-                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.1);
+                    new_connections_to_call_cb.push(source_id);
                     new_connection_times[source_id] = std::chrono::high_resolution_clock::now();
                 }
             } else {
@@ -853,6 +854,25 @@ void RunCallbacks()
         }
     }
 
+    }
+
+    while (!new_connections_to_call_cb.empty()) {
+        CSteamID source_id = new_connections_to_call_cb.front();
+        auto t = new_connection_times.find(source_id);
+        if (t == new_connection_times.end()) {
+            new_connections_to_call_cb.pop();
+            continue;
+        }
+
+        if (!check_timedout(t->second, NEW_CONNECTION_DELAY)) {
+            break;
+        }
+
+        P2PSessionRequest_t data;
+        memset(&data, 0, sizeof(data));
+        data.m_steamIDRemote = source_id;
+        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+        new_connections_to_call_cb.pop();
     }
 
     //TODO: not sure if sockets should be wiped right away
