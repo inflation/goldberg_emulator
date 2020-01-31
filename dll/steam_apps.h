@@ -1,6 +1,13 @@
 #include "base.h"
 
-class Steam_Apps : public ISteamApps
+class Steam_Apps :
+public ISteamApps002,
+public ISteamApps003,
+public ISteamApps004,
+public ISteamApps005,
+public ISteamApps006,
+public ISteamApps007,
+public ISteamApps
 {
     Settings *settings;
     class SteamCallResults *callback_results;
@@ -49,6 +56,7 @@ public:
 	bool GetCurrentBetaName( char *pchName, int cchNameBufferSize ); // returns current beta branch name, 'public' is the default branch
 	bool MarkContentCorrupt( bool bMissingFilesOnly ); // signal Steam that game files seems corrupt or missing
 	uint32 GetInstalledDepots( AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots ); // return installed depots in mount order
+	uint32 GetInstalledDepots( DepotId_t *pvecDepots, uint32 cMaxDepots );
 
 	// returns current app install folder for AppID, returns folder name length
 	uint32 GetAppInstallDir( AppId_t appID, char *pchFolder, uint32 cchFolderBufferSize );

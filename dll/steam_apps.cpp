@@ -191,6 +191,10 @@ uint32 Steam_Apps::GetInstalledDepots( AppId_t appID, DepotId_t *pvecDepots, uin
     return count;
 }
 
+uint32 Steam_Apps::GetInstalledDepots( DepotId_t *pvecDepots, uint32 cMaxDepots )
+{
+    PRINT_DEBUG("GetInstalledDepots old %u\n", appID);
+    return GetInstalledDepots( settings->get_local_game_id().AppID(), pvecDepots, cMaxDepots );
 }
 
 // returns current app install folder for AppID, returns folder name length

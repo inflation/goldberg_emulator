@@ -617,8 +617,30 @@ ISteamApps *Steam_Client::GetISteamApps( HSteamUser hSteamUser, HSteamPipe hStea
 {
     PRINT_DEBUG("GetISteamApps %s\n", pchVersion);
     if (!steam_pipes.count(hSteamPipe) || !hSteamUser) return NULL;
+
+    Steam_Apps *steam_apps_temp;
+
     if (hSteamUser == SERVER_HSTEAMUSER) {
-        return steam_gameserver_apps;
+        steam_apps_temp = steam_gameserver_apps;
+    } else {
+        steam_apps_temp = steam_apps;
+    }
+    if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION002") == 0) {
+        return (ISteamApps *)(void *)(ISteamApps002 *)steam_apps_temp;
+    } else if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION003") == 0) {
+        return (ISteamApps *)(void *)(ISteamApps003 *)steam_apps_temp;
+    } else if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION004") == 0) {
+        return (ISteamApps *)(void *)(ISteamApps004 *)steam_apps_temp;
+    } else if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION005") == 0) {
+        return (ISteamApps *)(void *)(ISteamApps005 *)steam_apps_temp;
+    } else if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION006") == 0) {
+        return (ISteamApps *)(void *)(ISteamApps006 *)steam_apps_temp;
+    } else if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION007") == 0) {
+        return (ISteamApps *)(void *)(ISteamApps007 *)steam_apps_temp;
+    } else if (strcmp(pchVersion, STEAMAPPS_INTERFACE_VERSION) == 0) {
+        return (ISteamApps *)(void *)(ISteamApps *)steam_apps_temp;
+    } else {
+        return (ISteamApps *)(void *)(ISteamApps *)steam_apps_temp;
     }
 
     return steam_apps;
