@@ -193,7 +193,7 @@ uint32 Steam_Apps::GetInstalledDepots( AppId_t appID, DepotId_t *pvecDepots, uin
 
 uint32 Steam_Apps::GetInstalledDepots( DepotId_t *pvecDepots, uint32 cMaxDepots )
 {
-    PRINT_DEBUG("GetInstalledDepots old %u\n", appID);
+    PRINT_DEBUG("GetInstalledDepots old\n");
     return GetInstalledDepots( settings->get_local_game_id().AppID(), pvecDepots, cMaxDepots );
 }
 
