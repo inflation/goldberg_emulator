@@ -181,33 +181,16 @@ bool Steam_Apps::MarkContentCorrupt( bool bMissingFilesOnly )
 // return installed depots in mount order
 uint32 Steam_Apps::GetInstalledDepots( AppId_t appID, DepotId_t *pvecDepots, uint32 cMaxDepots )
 {
-    PRINT_DEBUG("GetInstalledDepots %u\n", appID);
+    PRINT_DEBUG("GetInstalledDepots %u, %u\n", appID, cMaxDepots);
     //TODO not sure about the behavior of this function, I didn't actually test this.
     if (!pvecDepots) return 0;
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    unsigned int count = settings->depots.size();
+    if (cMaxDepots < count) count = cMaxDepots;
+    std::copy(settings->depots.begin(), settings->depots.begin() + count, pvecDepots);
+    return count;
+}
 
-    if (appID == settings->get_local_game_id().AppID()) {
-        unsigned int count = settings->DLCCount();
-        if (cMaxDepots < count) count = cMaxDepots;
-
-        for (int i = 0; i < count; ++i) {
-            AppId_t appid;
-            bool available;
-            std::string name;
-            if (settings->getDLC(i, appid, available, name)) {
-                pvecDepots[i] = appid;
-            }
-        }
-
-        return count;
-    } else {
-        if (cMaxDepots) {
-            *pvecDepots = appID;
-            return 1;
-        }
-    }
-
-    return 0;
 }
 
 // returns current app install folder for AppID, returns folder name length

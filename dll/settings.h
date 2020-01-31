@@ -106,6 +106,9 @@ public:
     bool hasDLC(AppId_t appID);
     bool getDLC(unsigned int index, AppId_t &appID, bool &available, std::string &name);
 
+    //Depots
+    std::vector<DepotId_t> depots;
+
     //App Install paths
     void setAppInstallPath(AppId_t appID, std::string path);
     std::string getAppInstallPath(AppId_t appID);

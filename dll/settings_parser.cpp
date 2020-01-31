@@ -459,6 +459,27 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     }
 
     {
+        std::string depots_config_path = Local_Storage::get_game_settings_path() + "depots.txt";
+        std::ifstream input( depots_config_path );
+        if (input.is_open()) {
+            for( std::string line; getline( input, line ); ) {
+                if (!line.empty() && line[line.length()-1] == '\n') {
+                    line.pop_back();
+                }
+
+                if (!line.empty() && line[line.length()-1] == '\r') {
+                    line.pop_back();
+                }
+
+                DepotId_t depot_id = stoul(line);
+                settings_client->depots.push_back(depot_id);
+                settings_server->depots.push_back(depot_id);
+                PRINT_DEBUG("Added depot %u\n", depot_id);
+            }
+        }
+    }
+
+    {
         std::string mod_path = Local_Storage::get_game_settings_path() + "mods";
         std::vector<std::string> paths = Local_Storage::get_filenames_path(mod_path);
         for (auto & p: paths) {

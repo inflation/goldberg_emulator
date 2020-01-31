@@ -41,6 +41,10 @@ If the DLC file is present, the emulator will only unlock the DLCs in that file.
 The contents of this file are: appid=DLC name
 See the steam_settings.EXAMPLE folder for an example.
 
+Depots:
+This is pretty rare but some games might use depot ids to see if dlcs are installed. You can provide a list of installed depots to the game with a steam_settings\depots.txt file.
+See the steam_settings.EXAMPLE folder for an example.
+
 App paths:
 Some rare games might need to be provided one or more paths to app ids. For example the path to where a dlc is installed. This sets the paths returned by the Steam_Apps::GetAppInstallDir function.
 See steam_settings.EXAMPLE\app_paths.EXAMPLE.txt for an example.
