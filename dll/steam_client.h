@@ -136,7 +136,7 @@ public:
     std::thread background_keepalive;
     bool steamclient_server_inited = false;
 
-    unsigned steam_pipe_counter = 2;
+    unsigned steam_pipe_counter = 1;
     std::map<HSteamPipe, enum Steam_Pipe> steam_pipes;
 
     Steam_Client();

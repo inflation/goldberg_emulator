@@ -1,6 +1,6 @@
 //TODO: put these in a common .h
-#define CLIENT_HSTEAMUSER 12
-#define SERVER_HSTEAMUSER 13
+#define CLIENT_HSTEAMUSER 1
+#define SERVER_HSTEAMUSER 1
 
 #define DEFAULT_NAME "Goldberg"
 #define PROGRAM_NAME "Goldberg SteamEmu"
