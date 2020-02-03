@@ -32,7 +32,7 @@ struct friend_window_state
     std::string chat_history;
     char chat_input[max_chat_len];
 
-    bool has_lobby;
+    bool joinable;
 };
 
 struct Friend_Less
@@ -110,7 +110,7 @@ class Steam_Overlay
     void Callback(Common_Message* msg);
     void RunCallbacks();
 
-    bool FriendHasLobby(uint64 friend_id);
+    bool FriendJoinable(std::pair<const Friend, friend_window_state> &f);
     bool IHaveLobby();
 
     void NotifyUser(friend_window_state& friend_state);

@@ -284,7 +284,7 @@ void Steam_Overlay::FriendConnect(Friend _friend)
         item.window_state = window_state_none;
         item.id = id;
         memset(item.chat_input, 0, max_chat_len);
-        item.has_lobby = false;
+        item.joinable = false;
     }
     else
         PRINT_DEBUG("No more free id to create a friend window\n");
@@ -351,16 +351,16 @@ void Steam_Overlay::AddInviteNotification(std::pair<const Friend, friend_window_
         PRINT_DEBUG("No more free id to create a notification window\n");
 }
 
-bool Steam_Overlay::FriendHasLobby(uint64 friend_id)
+bool Steam_Overlay::FriendJoinable(std::pair<const Friend, friend_window_state> &f)
 {
     Steam_Friends* steamFriends = get_steam_client()->steam_friends;
 
-    if( std::string(steamFriends->GetFriendRichPresence(friend_id, "connect")).length() > 0 )
+    if( std::string(steamFriends->GetFriendRichPresence(f.first.id(), "connect")).length() > 0 )
         return true;
 
     FriendGameInfo_t friend_game_info = {};
-    steamFriends->GetFriendGamePlayed(friend_id, &friend_game_info);
-    if (friend_game_info.m_steamIDLobby.IsValid())
+    steamFriends->GetFriendGamePlayed(f.first.id(), &friend_game_info);
+    if (friend_game_info.m_steamIDLobby.IsValid() && (f.second.window_state & window_state_lobby_invite))
         return true;
 
     return false;
@@ -398,7 +398,7 @@ void Steam_Overlay::BuildContextMenu(Friend const& frd, friend_window_state& sta
                 has_friend_action.push(frd);
                 close_popup = true;
             }
-            if (state.has_lobby && ImGui::Button("Join###PopupJoin"))
+            if (state.joinable && ImGui::Button("Join###PopupJoin"))
             {
                 state.window_state |= window_state_join;
                 has_friend_action.push(frd);
@@ -447,6 +447,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
             ImGui::SameLine();
             if (ImGui::Button("Accept"))
             {
+                state.window_state |= window_state_join;
                 this->has_friend_action.push(frd);
             }
             ImGui::SameLine();
@@ -567,6 +568,7 @@ void Steam_Overlay::BuildNotifications(int width, int height)
                         ImGui::TextWrapped("%s", it->message.c_str());
                         if (ImGui::Button("Join"))
                         {
+                            it->frd->second.window_state |= window_state_join;
                             friend_actions_temp.push(it->frd->first);
                             it->start_time = std::chrono::seconds(0);
                         }
@@ -724,7 +726,7 @@ void Steam_Overlay::RunCallbacks()
     std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
     std::for_each(friends.begin(), friends.end(), [this](std::pair<Friend const, friend_window_state> &i)
     {
-        i.second.has_lobby = FriendHasLobby(i.first.id());
+        i.second.joinable = FriendJoinable(i);
     });
 
     while (!has_friend_action.empty())
@@ -774,50 +776,34 @@ void Steam_Overlay::RunCallbacks()
             if (friend_info->second.window_state & window_state_join)
             {
                 std::string connect = steamFriends->GetFriendRichPresence(friend_id, "connect");
-                if (connect.length() > 0)
+                // The user got a lobby invite and accepted it
+                if (friend_info->second.window_state & window_state_lobby_invite)
+                {
+                    GameLobbyJoinRequested_t data;
+                    data.m_steamIDLobby.SetFromUint64(friend_info->second.lobbyId);
+                    data.m_steamIDFriend.SetFromUint64(friend_id);
+                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+
+                    friend_info->second.window_state &= ~window_state_lobby_invite;
+                } else
+                // The user got a rich presence invite and accepted it
+                if (friend_info->second.window_state & window_state_rich_invite)
+                {
+                    GameRichPresenceJoinRequested_t data = {};
+                    data.m_steamIDFriend.SetFromUint64(friend_id);
+                    strncpy(data.m_rgchConnect, friend_info->second.connect, k_cchMaxRichPresenceValueLength - 1);
+                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+
+                    friend_info->second.window_state &= ~window_state_rich_invite;
+                } else if (connect.length() > 0)
                 {
                     GameRichPresenceJoinRequested_t data = {};
                     data.m_steamIDFriend.SetFromUint64(friend_id);
                     strncpy(data.m_rgchConnect, connect.c_str(), k_cchMaxRichPresenceValueLength - 1);
                     callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
                 }
-                else
-                {
-                    FriendGameInfo_t friend_game_info = {};
-                    steamFriends->GetFriendGamePlayed(friend_id, &friend_game_info);
-                    if (friend_game_info.m_steamIDLobby.IsValid())
-                    {
-                        // TODO: Look if thats really JoinLobby ?
-                        // I saw on steamdev that overlay sends a GameLobbyJoinRequested_t
-                        //GameLobbyJoinRequested_t data;
-                        //data.m_steamIDLobby.SetFromUint64(friend_info->second.lobbyId);
-                        //data.m_steamIDFriend.SetFromUint64(friend_id);
-                        //callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-                        steamMatchmaking->JoinLobby(friend_game_info.m_steamIDLobby);
-                    }
-                }
 
                 friend_info->second.window_state &= ~window_state_join;
-            }
-            // The user got a lobby invite and accepted it
-            if (friend_info->second.window_state & window_state_lobby_invite)
-            {
-                GameLobbyJoinRequested_t data;
-                data.m_steamIDLobby.SetFromUint64(friend_info->second.lobbyId);
-                data.m_steamIDFriend.SetFromUint64(friend_id);
-                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-
-                friend_info->second.window_state &= ~window_state_lobby_invite;
-            }
-            // The user got a rich presence invite and accepted it
-            if (friend_info->second.window_state & window_state_rich_invite)
-            {
-                GameRichPresenceJoinRequested_t data = {};
-                data.m_steamIDFriend.SetFromUint64(friend_id);
-                strncpy(data.m_rgchConnect, friend_info->second.connect, k_cchMaxRichPresenceValueLength - 1);
-                callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-
-                friend_info->second.window_state &= ~window_state_rich_invite;
             }
         }
         has_friend_action.pop();
