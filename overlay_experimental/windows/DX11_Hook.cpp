@@ -50,7 +50,11 @@ void DX11_Hook::resetRenderState()
 {
     if (initialized)
     {
-        mainRenderTargetView->Release();
+        if (mainRenderTargetView) {
+            mainRenderTargetView->Release();
+            mainRenderTargetView = NULL;
+        }
+
         pContext->Release();
 
         ImGui_ImplDX11_Shutdown();
@@ -78,9 +82,34 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         io.IniFilename = NULL;
 
         ID3D11Texture2D* pBackBuffer;
-
         pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-        pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
+
+        ID3D11RenderTargetView *get_targets[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
+        pContext->OMGetRenderTargets(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, get_targets, NULL);
+        bool bind_target = true;
+
+        for (unsigned i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
+            if (get_targets[i]) {
+                ID3D11Resource *res = NULL;
+                get_targets[i]->GetResource(&res);
+                if (res) {
+                    if (res == (ID3D11Resource*)pBackBuffer) {
+                        bind_target = false;
+                    }
+
+                    res->Release();
+                }
+
+                get_targets[i]->Release();
+            } else {
+                break;
+            }
+        }
+
+        if (bind_target) {
+            pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
+        }
+
         pBackBuffer->Release();
 
         ImGui_ImplDX11_Init(pDevice, pContext);
@@ -102,7 +131,10 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
 
         ImGui::Render();
 
-        pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+        if (mainRenderTargetView) {
+            pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+        }
+
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     }
 }
@@ -144,7 +176,11 @@ DX11_Hook::~DX11_Hook()
 
     if (initialized)
     {
-        mainRenderTargetView->Release();
+        if (mainRenderTargetView) {
+            mainRenderTargetView->Release();
+            mainRenderTargetView = NULL;
+        }
+
         pContext->Release();
 
         ImGui_ImplDX11_InvalidateDeviceObjects();
