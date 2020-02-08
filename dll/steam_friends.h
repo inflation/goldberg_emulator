@@ -1073,18 +1073,27 @@ void Callback(Common_Message *msg)
     if (msg->has_friend_messages()) {
         if (msg->friend_messages().type() == Friend_Messages::LOBBY_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Lobby Invite\n");
-            if (overlay->Ready())
-            {
-                //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
-                // Then we will handle it !
-                overlay->SetLobbyInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().lobby_id());
-            }
-            else
-            {
-                GameLobbyJoinRequested_t data;
-                data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
-                data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+            Friend *f = find_friend(msg->source_id());
+            if (f) {
+                LobbyInvite_t data;
+                data.m_ulSteamIDUser = msg->source_id();
+                data.m_ulSteamIDLobby = msg->friend_messages().lobby_id();
+                data.m_ulGameID = f->appid();
                 callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+
+                if (overlay->Ready())
+                {
+                    //TODO: the user should accept the invite first but we auto accept it because there's no gui yet
+                    // Then we will handle it !
+                    overlay->SetLobbyInvite(*find_friend(static_cast<uint64>(msg->source_id())), msg->friend_messages().lobby_id());
+                }
+                else
+                {
+                    GameLobbyJoinRequested_t data;
+                    data.m_steamIDLobby = CSteamID((uint64)msg->friend_messages().lobby_id());
+                    data.m_steamIDFriend = CSteamID((uint64)msg->source_id());
+                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                }
             }
         }
 
