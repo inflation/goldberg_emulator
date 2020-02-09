@@ -1073,7 +1073,7 @@ void Callback(Common_Message *msg)
     if (msg->has_friend_messages()) {
         if (msg->friend_messages().type() == Friend_Messages::LOBBY_INVITE) {
             PRINT_DEBUG("Steam_Friends Got Lobby Invite\n");
-            Friend *f = find_friend(msg->source_id());
+            Friend *f = find_friend((uint64)msg->source_id());
             if (f) {
                 LobbyInvite_t data;
                 data.m_ulSteamIDUser = msg->source_id();
