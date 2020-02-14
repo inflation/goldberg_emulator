@@ -111,7 +111,7 @@ public:
 };
 
 #define STEAM_CALLRESULT_TIMEOUT 120.0
-#define STEAM_CALLRESULT_WAIT_FOR_CB 0.05
+#define STEAM_CALLRESULT_WAIT_FOR_CB 0.01
 struct Steam_Call_Result {
     Steam_Call_Result(SteamAPICall_t a, int icb, void *r, unsigned int s, double r_in, bool run_cc_cb) {
         api_call = a;
@@ -243,9 +243,11 @@ public:
         auto cb_result = std::find_if(callresults.begin(), callresults.end(), [api_call](struct Steam_Call_Result const& item) { return item.api_call == api_call; });
         if (cb_result != callresults.end()) {
             if (cb_result->reserved) {
+                std::chrono::high_resolution_clock::time_point created = cb_result->created;
                 std::vector<class CCallbackBase *> temp_cbs = cb_result->callbacks;
                 *cb_result = Steam_Call_Result(api_call, iCallback, result, size, timeout, run_call_completed_cb);
                 cb_result->callbacks = temp_cbs;
+                cb_result->created = created;
                 return cb_result->api_call;
             }
         } else {
