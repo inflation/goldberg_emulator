@@ -36,11 +36,15 @@ static void background_thread(Steam_Client *client)
             }
         }
 
-        global_mutex.lock();
-        PRINT_DEBUG("background thread run\n");
-        client->network->Run();
-        client->steam_matchmaking->RunBackground();
-        global_mutex.unlock();
+        unsigned long long time = std::chrono::duration_cast<std::chrono::duration<unsigned long long>>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        if (time > client->last_cb_run + 1) {
+            global_mutex.lock();
+            PRINT_DEBUG("background thread run\n");
+            client->network->Run();
+            client->steam_matchmaking->RunBackground();
+            global_mutex.unlock();
+        }
     }
 }
 
@@ -104,6 +108,7 @@ Steam_Client::Steam_Client()
     steam_gameserver_game_coordinator = new Steam_Game_Coordinator(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
     steam_masterserver_updater = new Steam_Masterserver_Updater(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
 
+    last_cb_run = 0;
     PRINT_DEBUG("client init end\n");
 }
 
@@ -1536,8 +1541,8 @@ void Steam_Client::RunCallbacks(bool runClientCB, bool runGameserverCB)
     callbacks_server->runCallBacks();
     PRINT_DEBUG("Steam_Client::RunCallbacks callbacks_client\n");
     callbacks_client->runCallBacks();
+    last_cb_run = std::chrono::duration_cast<std::chrono::duration<unsigned long long>>(std::chrono::system_clock::now().time_since_epoch()).count();
     PRINT_DEBUG("Steam_Client::RunCallbacks done\n");
-    
 }
 
 void Steam_Client::DestroyAllInterfaces()

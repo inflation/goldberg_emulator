@@ -135,6 +135,7 @@ public:
     bool server_init = false;
     std::thread background_keepalive;
     bool steamclient_server_inited = false;
+    std::atomic<unsigned long long> last_cb_run;
 
     unsigned steam_pipe_counter = 1;
     std::map<HSteamPipe, enum Steam_Pipe> steam_pipes;
