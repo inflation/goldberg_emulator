@@ -113,7 +113,7 @@ void send_lobby_data()
     }
 }
 
-void trigger_lobby_dataupdate(CSteamID lobby, CSteamID member, bool success, double cb_timeout=0.0)
+void trigger_lobby_dataupdate(CSteamID lobby, CSteamID member, bool success, double cb_timeout=0.0, bool send_changed_lobby=true)
 {
     PRINT_DEBUG("Lobby dataupdate %llu %llu\n", lobby.ConvertToUint64(), member.ConvertToUint64());
     LobbyDataUpdate_t data;
@@ -132,10 +132,12 @@ void trigger_lobby_dataupdate(CSteamID lobby, CSteamID member, bool success, dou
 
     Lobby *l = get_lobby(lobby);
     if (l && l->owner() == settings->get_local_steam_id().ConvertToUint64()) {
-        Common_Message msg = Common_Message();
-        msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
-        msg.set_allocated_lobby(new Lobby(*l));
-        network->sendToAllIndividuals(&msg, true);
+        if (send_changed_lobby) {
+            Common_Message msg = Common_Message();
+            msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
+            msg.set_allocated_lobby(new Lobby(*l));
+            network->sendToAllIndividuals(&msg, true);
+        }
     }
 }
 
@@ -774,10 +776,9 @@ bool SetLobbyData( CSteamID steamIDLobby, const char *pchKey, const char *pchVal
     }
 
     auto result = lobby->values().find(pchKey);
-    if (result == lobby->values().end() || result->second != std::string(pchValue)) {
-        (*lobby->mutable_values())[pchKey] = pchValue;
-        trigger_lobby_dataupdate(steamIDLobby, steamIDLobby, true);
-    }
+    bool changed = (result == lobby->values().end()) || (result->second != std::string(pchValue));
+    (*lobby->mutable_values())[pchKey] = pchValue;
+    trigger_lobby_dataupdate(steamIDLobby, steamIDLobby, true, 0.0, changed);
 
     return true;
 }
