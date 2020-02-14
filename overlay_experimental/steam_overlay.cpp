@@ -629,6 +629,7 @@ void Steam_Overlay::OverlayProc()
 
     if (show_overlay)
     {
+        io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
         // Set the overlay windows to the size of the game window
         ImGui::SetNextWindowPos({ 0,0 });
         ImGui::SetNextWindowSize({ static_cast<float>(io.DisplaySize.x),
@@ -681,7 +682,9 @@ void Steam_Overlay::OverlayProc()
 
         if (!show)
             ShowOverlay(false);
-    }// if(show_overlay)
+    } else {
+        io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+    }
 }
 
 void Steam_Overlay::Callback(Common_Message *msg)
