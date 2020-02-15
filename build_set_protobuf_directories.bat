@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
-SET PROTOBUF_X86_DIRECTORY=..\vcpkg\installed\protobuf_x86-windows-static
-SET PROTOBUF_X64_DIRECTORY=..\vcpkg\installed\protobuf_x64-windows-static
+SET PROTOBUF_X86_DIRECTORY=..\vcpkg\installed\x86-windows-static
+SET PROTOBUF_X64_DIRECTORY=..\vcpkg\installed\x64-windows-static
 
 rem location of protoc in protobuf directories:
 SET PROTOC_X86_EXE=%PROTOBUF_X86_DIRECTORY%\tools\protobuf\protoc.exe
