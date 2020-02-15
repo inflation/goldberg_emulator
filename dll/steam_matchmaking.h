@@ -381,8 +381,7 @@ bool RemoveFavoriteGame( AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQ
     }
 */
 // 
-#define LOBBY_SEARCH_TIMEOUT 3.0 //defined by steam as being 20 seconds max and 3 seconds typically (Should be no less than 3 because or else SGZH doesn't work). 
-                                 //Sanctum 2 needs this to be 2 seconds for the game to appear in the list though.
+#define LOBBY_SEARCH_TIMEOUT 0.2 //Tested on real steam
 STEAM_CALL_RESULT( LobbyMatchList_t )
 SteamAPICall_t RequestLobbyList()
 {
@@ -457,7 +456,7 @@ void AddRequestLobbyListFilterSlotsAvailable( int nSlotsAvailable )
 // sets the distance for which we should search for lobbies (based on users IP address to location map on the Steam backed)
 void AddRequestLobbyListDistanceFilter( ELobbyDistanceFilter eLobbyDistanceFilter )
 {
-    PRINT_DEBUG("AddRequestLobbyListDistanceFilter\n");
+    PRINT_DEBUG("AddRequestLobbyListDistanceFilter %i\n", eLobbyDistanceFilter);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     
@@ -652,6 +651,7 @@ void LeaveLobby( CSteamID steamIDLobby )
     if (lobbies.end() != lobby) {
         if (!lobby->deleted()) {
             on_self_enter_leave_lobby((uint64)lobby->room_id(), lobby->type(), true);
+            self_lobby_member_data.erase(lobby->room_id());
             if (lobby->owner() != settings->get_local_steam_id().ConvertToUint64()) {
                 PRINT_DEBUG("LeaveLobby not owner\n");
                 leave_lobby(&(*lobby), settings->get_local_steam_id());
