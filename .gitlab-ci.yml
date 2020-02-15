@@ -62,7 +62,7 @@ build_windows:
       - dnf -y install wine wget p7zip sed dos2unix
       - unix2dos *.txt
       - unix2dos files_example/*.txt files_example/*/*.txt
-      - sed -i 's/..\\vcpkg\\installed\\/.\\/g' build_set_protobuf_directories.bat
+      - sed -i 's/..\\vcpkg\\installed\\/.\\protobuf_/g' build_set_protobuf_directories.bat
       - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/48db8f434a193aae872279dc4f5dde6a/sdk_standalone.7z'
       - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/0119304e030098b4821d73170fe52084/protobuf_x64-windows-static.7z'
       - wget 'https://gitlab.com/Mr_Goldberg/goldberg_emulator/uploads/4185a97ab363ddc1859127e59ec68581/protobuf_x86-windows-static.7z'
