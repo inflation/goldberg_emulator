@@ -8,6 +8,7 @@
 
 #include <curl/curl.h>
 #include <json/json.hpp>
+#include <json/fifo_map.hpp>
 
 class CurlGlobal
 {
@@ -230,6 +231,7 @@ public:
 
 std::string steam_apikey;
 std::string app_id;
+std::string output_path;
 
 #if defined(WIN32) || defined(_WIN32)
 #include <windows.h>
@@ -274,7 +276,7 @@ static void generate_achievements(CurlEasy &easy)
     easy.perform();
     try
     {
-        std::ofstream ach_file("achievements.json", std::ios::trunc | std::ios::out);
+        std::ofstream ach_file(output_path + "/achievements.json", std::ios::trunc | std::ios::out);
         nlohmann::json json = nlohmann::json::parse(easy.get_answer());
         nlohmann::json output_json = nlohmann::json::array();
 
@@ -299,7 +301,7 @@ static void generate_achievements(CurlEasy &easy)
             
             {
                 std::string icon_path = "images/" + item.value()["name"].get<std::string>() + ".jpg";
-                std::ofstream achievement_icon(icon_path, std::ios::out | std::ios::trunc | std::ios::binary);
+                std::ofstream achievement_icon(output_path + "/" + icon_path, std::ios::out | std::ios::trunc | std::ios::binary);
                 if (!achievement_icon)
                 {
                     std::cerr << "Cannot create achievement icon \"" << icon_path << "\"" << std::endl;
@@ -316,7 +318,7 @@ static void generate_achievements(CurlEasy &easy)
             }
             {
                 std::string icon_path = "images/" + item.value()["name"].get<std::string>() + "_gray.jpg";
-                std::ofstream achievement_icon(icon_path, std::ios::out | std::ios::trunc | std::ios::binary);
+                std::ofstream achievement_icon(output_path + "/" + icon_path, std::ios::out | std::ios::trunc | std::ios::binary);
                 if (!achievement_icon)
                 {
                     std::cerr << "Cannot create achievement icon \"" << icon_path << "\"" << std::endl;
@@ -350,6 +352,11 @@ static void generate_achievements(CurlEasy &easy)
     }
 }
 
+template<class K, class V, class dummy_compare, class A>
+using my_workaround_fifo_map = nlohmann::fifo_map<K, V, nlohmann::fifo_map_compare<K>, A>;
+using fifo_json = nlohmann::basic_json<my_workaround_fifo_map>;
+
+
 static void generate_items(CurlEasy& easy)
 {
     std::string url = "https://api.steampowered.com/IInventoryService/GetItemDefMeta/v1?key=";
@@ -373,12 +380,12 @@ static void generate_items(CurlEasy& easy)
         easy.set_url(url);
         easy.perform();
 
-        nlohmann::json item_json = nlohmann::json::object();
-        nlohmann::json default_item_json = nlohmann::json::object();
+        fifo_json item_json;
+        fifo_json default_item_json;
 
         json = nlohmann::json::parse(easy.get_answer());
-        std::ofstream items_file("items.json", std::ios::trunc | std::ios::out);
-        std::ofstream default_items_file("default_items.json", std::ios::trunc | std::ios::out);
+        std::ofstream items_file(output_path + "/items.json", std::ios::trunc | std::ios::out);
+        std::ofstream default_items_file(output_path + "/default_items.json", std::ios::trunc | std::ios::out);
 
         for (auto &i : json)
         {
@@ -434,14 +441,99 @@ static void generate_items(CurlEasy& easy)
     }
 }
 
-int main()
+static std::string get_appid_name(CurlEasy& easy, uint32_t appid)
 {
-    if (!create_directory("images"))
-    {
-        std::cerr << "Cannot create directory \"images\"" << std::endl;
-        return -1;
+    static std::map<uint32_t, std::string> appid_names;
+    static bool done;
+
+    if (!done) {
+        std::string url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
+        std::cout << "getting app list" << std::endl;
+        easy.set_url(url);
+        easy.perform();
+        try
+        {
+            nlohmann::json json = nlohmann::json::parse(easy.get_answer());
+            for (auto &app : json["applist"]["apps"]) {
+                appid_names[app["appid"].get<uint32_t>()] = app["name"].get<std::string>();
+            }
+
+            done = true;
+        }
+        catch (std::exception& e)
+        {
+            std::cerr << "Failed to get infos: ";
+            long code;
+            if (easy.get_html_code(code) == CURLE_OK && code == 403)
+            {
+                std::cerr << "Error 403 while getting app list";
+            }
+            else
+            {
+                std::cerr << "Error while parsing json. With " << url << "";
+            }
+            std::cerr << std::endl;
+        }
     }
 
+    if (done) {
+        if (!appid_names.count(appid)) {
+            std::cout << "getting app name: " << appid << std::endl;
+            std::string s_appid = std::to_string(appid);
+            std::string url = "https://store.steampowered.com/api/appdetails/?appids=" + s_appid;
+            easy.set_url(url);
+            easy.perform();
+            nlohmann::json json = nlohmann::json::parse(easy.get_answer());
+            appid_names[appid] = json[s_appid]["data"]["name"].get<std::string>();
+        }
+
+        return appid_names[appid];
+    }
+
+    return "";
+}
+
+static void generate_dlcs(CurlEasy& easy)
+{
+    std::string base_url = "https://store.steampowered.com/api/appdetails/?appids=";
+    std::string url = base_url + app_id;
+    easy.set_url(url);
+    easy.perform();
+
+    try
+    {
+        nlohmann::json json = nlohmann::json::parse(easy.get_answer());
+        std::list<uint32_t> dlcs;
+        std::map<uint32_t, std::string> dlc_names;
+
+        for (auto& dlc : json[app_id]["data"]["dlc"])
+        {
+            dlcs.push_back(dlc.get<uint32_t>());
+        }
+
+        std::ofstream dlc_file(output_path + "/DLC.txt", std::ios::trunc | std::ios::out);
+        for (auto &dlc: dlcs) {
+            dlc_file << dlc << "=" << get_appid_name(easy, dlc) << std::endl;
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Failed to get infos: ";
+        long code;
+        if (easy.get_html_code(code) == CURLE_OK && code == 403)
+        {
+            std::cerr << "Error 403 while getting dlcs";
+        }
+        else
+        {
+            std::cerr << "Error while parsing json. With " << url << "";
+        }
+        std::cerr << std::endl;
+    }
+}
+
+int main(int argc, char **argv)
+{
     CurlGlobal& cglobal = CurlGlobal::Inst();
     cglobal.init();
 
@@ -449,15 +541,50 @@ int main()
     if (easy.init())
     {
         easy.skip_verifypeer();
-        std::cout << "Enter the game appid: ";
-        std::cin >> app_id; 
-        std::cout << "Enter your webapi key: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin >> steam_apikey;
 
+        if (argc > 2) {
+            app_id = argv[2];
+            steam_apikey = argv[1];
+        } else {
+            std::cout << "Usage: " << argv[0] << " steam_api_key app_id <output_path (default is folder with app_id/steam_settings)>" << std::endl;
+            std::cout << "Enter the game appid: ";
+            std::cin >> app_id;
+            std::cout << "Enter your webapi key: ";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin >> steam_apikey;
+        }
+
+        if (argc > 3) {
+            output_path = argv[3];
+        } else {
+            output_path = app_id;
+            create_directory(output_path);
+            output_path += "/steam_settings";
+        }
+
+        if (!create_directory(output_path))
+        {
+            std::cerr << "Cannot create directory: " << output_path << std::endl;
+            return -1;
+        }
+
+        if (!create_directory(output_path + "/images"))
+        {
+            std::cerr << "Cannot create directory \"images\"" << std::endl;
+            return -1;
+        }
+
+        {
+            std::ofstream appid_file(output_path + "/steam_appid.txt", std::ios::trunc | std::ios::out);
+            appid_file << app_id;
+        }
+
+        std::cout << "Generating DLC.txt" << std::endl;
+        generate_dlcs(easy);
+        std::cout << "Generating achievements" << std::endl;
         generate_achievements(easy);
+        std::cout << "Generating items" << std::endl;
         generate_items(easy);
     }
 }
-    
