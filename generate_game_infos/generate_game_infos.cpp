@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
+#include <list>
 
 #include <curl/curl.h>
 #include <json/json.hpp>
