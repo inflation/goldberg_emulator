@@ -18,12 +18,14 @@
 #include "base.h"
 
 #define SERVER_TIMEOUT 10.0
+#define DIRECT_IP_DELAY 0.05
 
 struct Steam_Matchmaking_Servers_Direct_IP_Request {
 	HServerQuery id;
 	uint32 ip;
 	uint16 port;
 
+	std::chrono::high_resolution_clock::time_point created;
 	ISteamMatchmakingRulesResponse *rules_response = NULL;
 	ISteamMatchmakingPlayersResponse *players_response = NULL;
 	ISteamMatchmakingPingResponse *ping_response = NULL;

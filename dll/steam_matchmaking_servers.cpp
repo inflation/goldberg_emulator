@@ -338,6 +338,7 @@ HServerQuery Steam_Matchmaking_Servers::PingServer( uint32 unIP, uint16 usPort, 
     r.ip = unIP;
     r.port = usPort;
     r.ping_response = pRequestServersResponse;
+    r.created = std::chrono::high_resolution_clock::now();
     direct_ip_requests.push_back(r);
     return r.id;
 }
@@ -352,6 +353,7 @@ HServerQuery Steam_Matchmaking_Servers::PlayerDetails( uint32 unIP, uint16 usPor
     r.ip = unIP;
     r.port = usPort;
     r.players_response = pRequestServersResponse;
+    r.created = std::chrono::high_resolution_clock::now();
     direct_ip_requests.push_back(r);
     return r.id;
 }
@@ -367,6 +369,7 @@ HServerQuery Steam_Matchmaking_Servers::ServerRules( uint32 unIP, uint16 usPort,
     r.ip = unIP;
     r.port = usPort;
     r.rules_response = pRequestServersResponse;
+    r.created = std::chrono::high_resolution_clock::now();
     direct_ip_requests.push_back(r);
     return r.id;
 }
@@ -439,8 +442,16 @@ void Steam_Matchmaking_Servers::RunCallbacks()
         }
     }
 
-    std::vector <struct Steam_Matchmaking_Servers_Direct_IP_Request> direct_ip_requests_temp = direct_ip_requests;
-    direct_ip_requests.clear();
+    std::vector <struct Steam_Matchmaking_Servers_Direct_IP_Request> direct_ip_requests_temp;
+    auto dip = std::begin(direct_ip_requests);
+    while (dip != std::end(direct_ip_requests)) {
+        if (check_timedout(dip->created, DIRECT_IP_DELAY)) {
+            direct_ip_requests_temp.push_back(*dip);
+            dip = direct_ip_requests.erase(dip);
+        } else {
+            ++dip;
+        }
+    }
 
     for (auto &r : direct_ip_requests_temp) {
         PRINT_DEBUG("dip request: %lu:%hu\n", r.ip, r.port);
@@ -486,6 +497,7 @@ void Steam_Matchmaking_Servers::RunCallbacks()
 void Steam_Matchmaking_Servers::Callback(Common_Message *msg)
 {
     if (msg->has_gameserver()) {
+        PRINT_DEBUG("got SERVER %llu, offline:%u\n", msg->gameserver().id(), msg->gameserver().offline());
         if (msg->gameserver().offline()) {
             for (auto &g : gameservers) {
                 if (g.server.id() == msg->gameserver().id()) {
