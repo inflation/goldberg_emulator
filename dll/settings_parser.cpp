@@ -21,10 +21,22 @@
 #include <sstream>
 #include <iterator>
 
+static void consume_bom(std::ifstream &input)
+{
+    int bom[3];
+    bom[0] = input.get();
+    bom[1] = input.get();
+    bom[2] = input.get();
+    if (bom[0] != 0xEF || bom[1] != 0xBB || bom[2] != 0xBF) {
+        input.seekg(0);
+    }
+}
+
 static void load_custom_broadcasts(std::string broadcasts_filepath, std::set<uint32> &custom_broadcasts)
 {
-    std::ifstream broadcasts_file(broadcasts_filepath);
     PRINT_DEBUG("Broadcasts file path: %s\n", broadcasts_filepath.c_str());
+    std::ifstream broadcasts_file(broadcasts_filepath);
+    consume_bom(broadcasts_file);
     if (broadcasts_file.is_open()) {
         std::string line;
         while (std::getline(broadcasts_file, line)) {
@@ -63,6 +75,7 @@ static void load_gamecontroller_settings(Settings *settings)
         std::string controller_config_path = path + PATH_SEPARATOR + p;
         std::ifstream input( controller_config_path );
         if (input.is_open()) {
+            consume_bom(input);
             std::map<std::string, std::pair<std::set<std::string>, std::string>> button_pairs;
 
             for( std::string line; getline( input, line ); ) {
@@ -282,6 +295,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "DLC.txt";
         std::ifstream input( dlc_config_path );
         if (input.is_open()) {
+            consume_bom(input);
             settings_client->unlockAllDLC(false);
             settings_server->unlockAllDLC(false);
             PRINT_DEBUG("Locking all DLC\n");
@@ -322,7 +336,9 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     {
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "app_paths.txt";
         std::ifstream input( dlc_config_path );
+
         if (input.is_open()) {
+            consume_bom(input);
             for( std::string line; getline( input, line ); ) {
                 if (!line.empty() && line[line.length()-1] == '\n') {
                     line.pop_back();
@@ -356,6 +372,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "leaderboards.txt";
         std::ifstream input( dlc_config_path );
         if (input.is_open()) {
+            consume_bom(input);
             settings_client->setCreateUnknownLeaderboards(false);
             settings_server->setCreateUnknownLeaderboards(false);
 
@@ -397,7 +414,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
         std::string stats_config_path = Local_Storage::get_game_settings_path() + "stats.txt";
         std::ifstream input( stats_config_path );
         if (input.is_open()) {
-
+            consume_bom(input);
             for( std::string line; getline( input, line ); ) {
                 if (!line.empty() && line[line.length()-1] == '\n') {
                     line.pop_back();
@@ -462,6 +479,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
         std::string depots_config_path = Local_Storage::get_game_settings_path() + "depots.txt";
         std::ifstream input( depots_config_path );
         if (input.is_open()) {
+            consume_bom(input);
             for( std::string line; getline( input, line ); ) {
                 if (!line.empty() && line[line.length()-1] == '\n') {
                     line.pop_back();
