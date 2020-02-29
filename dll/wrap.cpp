@@ -40,6 +40,8 @@
 const char *STEAM_PATH;
 size_t STEAM_PATH_SIZE;
 
+// Returns a '/' terminated absolute path to the steam folder in user's home,
+// root is returned if env home is not set
 const char *get_steam_path()
 {
     char *home_path = getenv("HOME");
@@ -52,7 +54,7 @@ const char *get_steam_path()
     // Allocate more space for steam_path if needed (required_size does not count terminator)
     if (required_size > 0 && required_size >= STEAM_PATH_CACHE_SIZE) {
         char *large_steam_path = (char *)malloc(sizeof(char) * (required_size + 1));
-        int check_size = snprintf(steam_path, required_size + 1, "%s/.steam/steam", home_path);
+        int check_size = snprintf(large_steam_path, required_size + 1, "%s/.steam/steam", home_path);
         // Check that path fits this time
         if (check_size == required_size) {
             steam_realpath = realpath(large_steam_path, nullptr);
@@ -78,7 +80,8 @@ const char *get_steam_path()
     return steam_realpath;
 }
 
-
+// Fixes given path by navigating filesystem and lowering case to match
+// existing entries on disk
 bool match_path(char *path, int start, bool accept_same_case)
 {
     if (!path[start + 1]) {
@@ -95,7 +98,7 @@ bool match_path(char *path, int start, bool accept_same_case)
 
     char stored_char = path[separator];
     path[separator] = 0;
-    bool path_accessible = access(path, 0) == 0;
+    bool path_accessible = access(path, F_OK) == 0;
     path[separator] = stored_char;
 
     if (!path_accessible || (!is_last_component && !match_path(path, separator, accept_same_case))) {
@@ -167,13 +170,15 @@ bool match_path(char *path, int start, bool accept_same_case)
     return true;
 }
 
+// Tries to convert the given path to the preferred lower-cased version
 const char *lowercase_path(const char *path, bool accept_same_case, bool stop_at_separator)
 {
     std::locale loc;
     char *path_lowercased = nullptr;
 
     if (path && *path) {
-        if (access(path, 0)) {
+        // If file does not exist
+        if (access(path, F_OK)) {
             // Make a copy of the path on which to work on
             path_lowercased = strdup(path);
             if (!path_lowercased) {
@@ -187,9 +192,11 @@ const char *lowercase_path(const char *path, bool accept_same_case, bool stop_at
 
             char *lowercase_iterator = path_lowercased;
             // Lowercase whole steam path if possible
+            bool has_steam_root = false;
             if (!strncasecmp(path_lowercased, STEAM_PATH, STEAM_PATH_SIZE)) {
                 memcpy(path_lowercased, STEAM_PATH, STEAM_PATH_SIZE);
                 lowercase_iterator = &path_lowercased[STEAM_PATH_SIZE - 1];
+                has_steam_root = true;
             }
             // Lowercase rest of the path
             char *iterator = lowercase_iterator;
@@ -199,7 +206,7 @@ const char *lowercase_path(const char *path, bool accept_same_case, bool stop_at
             }
 
             // Check if we can access the lowered-case path
-            int error = access(path_lowercased, 0);
+            int error = access(path_lowercased, F_OK);
             if (!error) {
                 // The new path is valid
                 return path_lowercased;
@@ -211,7 +218,7 @@ const char *lowercase_path(const char *path, bool accept_same_case, bool stop_at
                     }
                 }
                 // Retry accesing the file again and tweak the path if needed
-                if (match_path(path_lowercased, STEAM_PATH_SIZE - 1, accept_same_case)) {
+                if (match_path(path_lowercased, has_steam_root? STEAM_PATH_SIZE - 1 : 0, accept_same_case)) {
                     return path_lowercased;
                 }
             }
@@ -256,7 +263,7 @@ STEAMAPI_API FILE *__wrap_fopen64(const char *path, const char *modes)
 
 STEAMAPI_API int __wrap_open(const char *path, int flags, mode_t mode)
 {
-    bool is_writable = flags & 3;
+    bool is_writable = flags & (X_OK | W_OK);
     const char *path_lowercased = lowercase_path(path, is_writable, true);
     int result = open(path_lowercased, flags, mode);
     if (path_lowercased != path) {
@@ -267,7 +274,7 @@ STEAMAPI_API int __wrap_open(const char *path, int flags, mode_t mode)
 
 STEAMAPI_API int __wrap_open64(const char *path, int flags, mode_t mode)
 {
-    bool is_writable = flags & 3;
+    bool is_writable = flags & (X_OK | W_OK);
     const char *path_lowercased = lowercase_path(path, is_writable, true);
     int result = open64(path_lowercased, flags, mode);
     if (path_lowercased != path) {
