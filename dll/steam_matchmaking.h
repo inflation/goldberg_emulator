@@ -113,7 +113,7 @@ void send_lobby_data()
     }
 }
 
-void trigger_lobby_dataupdate(CSteamID lobby, CSteamID member, bool success, double cb_timeout=0.0, bool send_changed_lobby=true)
+void trigger_lobby_dataupdate(CSteamID lobby, CSteamID member, bool success, double cb_timeout=0.005, bool send_changed_lobby=true)
 {
     PRINT_DEBUG("Lobby dataupdate %llu %llu\n", lobby.ConvertToUint64(), member.ConvertToUint64());
     LobbyDataUpdate_t data;
@@ -1092,9 +1092,12 @@ CSteamID GetLobbyOwner( CSteamID steamIDLobby )
     PRINT_DEBUG("GetLobbyOwner %llu\n", steamIDLobby.ConvertToUint64());
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     Lobby *lobby = get_lobby(steamIDLobby);
+    if (!lobby || lobby->deleted()) return k_steamIDNil;
+
+    Lobby_Member *member = get_lobby_member(lobby, settings->get_local_steam_id());
     CSteamID id = k_steamIDNil;
-    if (lobby) id = (uint64)lobby->owner();
-    
+    if (member) id = (uint64)lobby->owner();
+
     return id;
 }
 

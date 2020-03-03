@@ -135,6 +135,7 @@ public:
     bool sendToIPPort(Common_Message *msg, uint32 ip, uint16 port, bool reliable);
 
     bool setCallback(Callback_Ids id, CSteamID steam_id, void (*message_callback)(void *object, Common_Message *msg), void *object);
+    uint32 getIP(CSteamID id);
     uint32 getOwnIP();
 
     void shutDown();

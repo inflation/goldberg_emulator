@@ -1141,6 +1141,16 @@ bool Networking::sendToIPPort(Common_Message *msg, uint32 ip, uint16 port, bool 
     return true;
 }
 
+uint32 Networking::getIP(CSteamID id)
+{
+    Connection *conn = find_connection(id, this->appid);
+    if (conn) {
+        return ntohl(conn->tcp_ip_port.ip);
+    }
+
+    return 0;
+}
+
 bool Networking::sendTo(Common_Message *msg, bool reliable, Connection *conn)
 {
     if (!enabled) return false;

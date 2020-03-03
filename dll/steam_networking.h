@@ -453,9 +453,8 @@ bool GetP2PSessionState( CSteamID steamIDRemote, P2PSessionState_t *pConnectionS
         pConnectionState->m_bUsingRelay = false;
         pConnectionState->m_nBytesQueuedForSend = 0;
         pConnectionState->m_nPacketsQueuedForSend = 0;
-        //TODO ip?
-        pConnectionState->m_nRemoteIP = 0;
-        pConnectionState->m_nRemotePort = 0;
+        pConnectionState->m_nRemoteIP = network->getIP(steamIDRemote);
+        pConnectionState->m_nRemotePort = 12345;
     }
 
     PRINT_DEBUG("Connection\n");
@@ -470,7 +469,7 @@ bool GetP2PSessionState( CSteamID steamIDRemote, P2PSessionState_t *pConnectionS
 // P2P packet relay is allowed by default
 bool AllowP2PPacketRelay( bool bAllow )
 {
-    PRINT_DEBUG("Steam_Networking::AllowP2PPacketRelay\n");
+    PRINT_DEBUG("Steam_Networking::AllowP2PPacketRelay %u\n", bAllow);
     return true;
 }
 
