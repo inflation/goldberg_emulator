@@ -1,44 +1,9 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
-//
-// Networking API similar to Berkeley sockets, but for games.
-// - connection-oriented API (like TCP, not UDP)
-// - but unlike TCP, it's message-oriented, not stream-oriented
-// - mix of reliable and unreliable messages
-// - fragmentation and reassembly
-// - Supports connectivity over plain UDPv4
-// - Also supports SDR ("Steam Datagram Relay") connections, which are
-//   addressed by SteamID.  There is a "P2P" use case and also a "hosted
-//   dedicated server" use case.
-//
-//=============================================================================
 
-#ifndef ISTEAMNETWORKINGSOCKETS
-#define ISTEAMNETWORKINGSOCKETS
-#ifdef STEAM_WIN32
-#pragma once
-#endif
+#ifndef ISTEAMNETWORKINGSOCKETS006
+#define ISTEAMNETWORKINGSOCKETS006
 
-#include "steamnetworkingtypes.h"
 
-class ISteamNetworkingSocketsCallbacks;
-struct SteamNetAuthenticationStatus_t;
-class ISteamNetworkingConnectionCustomSignaling;
-class ISteamNetworkingCustomSignalingRecvContext;
-
-//-----------------------------------------------------------------------------
-/// Lower level networking interface that more closely mirrors the standard
-/// Berkeley sockets model.  Sockets are hard!  You should probably only use
-/// this interface under the existing circumstances:
-///
-/// - You have an existing socket-based codebase you want to port, or coexist with.
-/// - You want to be able to connect based on IP address, rather than (just) Steam ID.
-/// - You need low-level control of bandwidth utilization, when to drop packets, etc.
-///
-/// Note that neither of the terms "connection" and "socket" will correspond
-/// one-to-one with an underlying UDP socket.  An attempt has been made to
-/// keep the semantics as similar to the standard socket model when appropriate,
-/// but some deviations do exist.
-class ISteamNetworkingSockets
+class ISteamNetworkingSockets006
 {
 public:
 
@@ -271,7 +236,7 @@ public:
 	/// pOutMessageNumberOrResult is an optional array that will receive,
 	/// for each message, the message number that was assigned to the message
 	/// if sending was successful.  If sending failed, then a negative EResult
-	/// value is placed into the array.  For example, the array will hold
+	/// valid is placed into the array.  For example, the array will hold
 	/// -k_EResultInvalidState if the connection was in an invalid state.
 	/// See ISteamNetworkingSockets::SendMessageToConnection for possible
 	/// failure codes.
@@ -300,7 +265,7 @@ public:
 	/// Reliable messages will be received in the order they were sent (and with the
 	/// same sizes --- see SendMessageToConnection for on this subtle difference from a stream socket).
 	///
-	/// Unreliable messages may be dropped, or delivered out of order with respect to
+	/// Unreliable messages may be dropped, or delivered out of order withrespect to
 	/// each other or with respect to reliable messages.  The same unreliable message
 	/// may be received multiple times.
 	///
@@ -308,6 +273,16 @@ public:
 	/// of them free up resources after you are done.  It is safe to keep the object alive for
 	/// a little while (put it into some queue, etc), and you may call Release() from any thread.
 	virtual int ReceiveMessagesOnConnection( HSteamNetConnection hConn, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages ) = 0; 
+
+	/// Same as ReceiveMessagesOnConnection, but will return the next message available
+	/// on any connection that was accepted through the specified listen socket.  Examine
+	/// SteamNetworkingMessage_t::m_conn to know which client connection.
+	///
+	/// Delivery order of messages among different clients is not defined.  They may
+	/// be returned in an order different from what they were actually received.  (Delivery
+	/// order of messages from the same client is well defined, and thus the order of the
+	/// messages is relevant!)
+	virtual int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages ) = 0; 
 
 	/// Returns basic information about the high-level state of the connection.
 	virtual bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pInfo ) = 0;
@@ -395,57 +370,6 @@ public:
 	/// details, pass non-NULL to receive them.
 	virtual ESteamNetworkingAvailability GetAuthenticationStatus( SteamNetAuthenticationStatus_t *pDetails ) = 0;
 
-	//
-	// Poll groups.  A poll group is a set of connections that can be polled efficiently.
-	// (In our API, to "poll" a connection means to retrieve all pending messages.  We
-	// actually don't have an API to "poll" the connection *state*, like BSD sockets.)
-	//
-
-	/// Create a new poll group.
-	///
-	/// You should destroy the poll group when you are done using DestroyPollGroup
-	virtual HSteamNetPollGroup CreatePollGroup() = 0;
-
-	/// Destroy a poll group created with CreatePollGroup().
-	///
-	/// If there are any connections in the poll group, they are removed from the group,
-	/// and left in a state where they are not part of any poll group.
-	/// Returns false if passed an invalid poll group handle.
-	virtual bool DestroyPollGroup( HSteamNetPollGroup hPollGroup ) = 0;
-
-	/// Assign a connection to a poll group.  Note that a connection may only belong to a
-	/// single poll group.  Adding a connection to a poll group implicitly removes it from
-	/// any other poll group it is in.
-	///
-	/// You can pass k_HSteamNetPollGroup_Invalid to remove a connection from its current
-	/// poll group without adding it to a new poll group.
-	///
-	/// If there are received messages currently pending on the connection, an attempt
-	/// is made to add them to the queue of messages for the poll group in approximately
-	/// the order that would have applied if the connection was already part of the poll
-	/// group at the time that the messages were received.
-	///
-	/// Returns false if the connection handle is invalid, or if the poll group handle
-	/// is invalid (and not k_HSteamNetPollGroup_Invalid).
-	virtual bool SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPollGroup ) = 0;
-
-	/// Same as ReceiveMessagesOnConnection, but will return the next messages available
-	/// on any connection in the poll group.  Examine SteamNetworkingMessage_t::m_conn
-	/// to know which connection.  (SteamNetworkingMessage_t::m_nConnUserData might also
-	/// be useful.)
-	///
-	/// Delivery order of messages among different connections will usually match the
-	/// order that the last packet was received which completed the message.  But this
-	/// is not a strong guarantee, especially for packets received right as a connection
-	/// is being assigned to poll group.
-	///
-	/// Delivery order of messages on the same connection is well defined and the
-	/// same guarantees are present as mentioned in ReceiveMessagesOnConnection.
-	/// (But the messages are not grouped by connection, so they will not necessarily
-	/// appear consecutively in the list; they may be interleaved with messages for
-	/// other connections.)
-	virtual int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages ) = 0; 
-
 #ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 
 	//
@@ -496,7 +420,7 @@ public:
 	virtual uint16 GetHostedDedicatedServerPort() = 0;
 
 	/// Returns 0 if SDR_LISTEN_PORT is not set.  Otherwise, returns the data center the server
-	/// is running in.  This will be k_SteamDatagramPOPID_dev in non-production environment.
+	/// is running in.  This will be k_SteamDatagramPOPID_dev in non-production envirionment.
 	virtual SteamNetworkingPOPID GetHostedDedicatedServerPOPID() = 0;
 
 	/// Return info about the hosted server.  This contains the PoPID of the server,
@@ -645,10 +569,8 @@ public:
 	virtual bool ReceivedP2PCustomSignal( const void *pMsg, int cbMsg, ISteamNetworkingCustomSignalingRecvContext *pContext ) = 0;
 #endif // #ifndef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 
-//
-// Certificate provision by the application.  On Steam, we normally handle all this automatically
-// and you will not need to use these advanced functions.
-//
+/// Certificate provision by the application.  (On Steam, Steam will handle all this automatically)
+#ifndef STEAMNETWORKINGSOCKETS_STEAM
 
 	/// Get blob that describes a certificate request.  You can send this to your game coordinator.
 	/// Upon entry, *pcbBlob should contain the size of the buffer.  On successful exit, it will
@@ -661,6 +583,7 @@ public:
 	/// Set the certificate.  The certificate blob should be the output of
 	/// SteamDatagram_CreateCert.
 	virtual bool SetCertificate( const void *pCertificate, int cbCertificate, SteamNetworkingErrMsg &errMsg ) = 0;
+#endif
 
 	// Invoke all callbacks queued for this interface.
 	// On Steam, callbacks are dispatched via the ordinary Steamworks callbacks mechanism.
@@ -672,188 +595,5 @@ public:
 protected:
 //	~ISteamNetworkingSockets(); // Silence some warnings
 };
-#define STEAMNETWORKINGSOCKETS_INTERFACE_VERSION "SteamNetworkingSockets008"
 
-/// Interface used to send signaling messages for a particular connection.
-/// You will need to construct one of these per connection.
-///
-/// - For connections initiated locally, you will construct it and pass
-///   it to ISteamNetworkingSockets::ConnectP2PCustomSignaling.
-/// - For connections initiated remotely and "accepted" locally, you
-///   will return it from ISteamNetworkingCustomSignalingRecvContext::OnConnectRequest
-class ISteamNetworkingConnectionCustomSignaling
-{
-public:
-	/// Called to send a rendezvous message to the remote peer.  This may be called
-	/// from any thread, at any time, so you need to be thread-safe!  Don't take
-	/// any locks that might hold while calling into SteamNetworkingSockets functions,
-	/// because this could lead to deadlocks.
-	///
-	/// Note that when initiating a connection, we may not know the identity
-	/// of the peer, if you did not specify it in ConnectP2PCustomSignaling.
-	///
-	/// Return true if a best-effort attempt was made to deliver the message.
-	/// If you return false, it is assumed that the situation is fatal;
-	/// the connection will be closed, and Release() will be called
-	/// eventually.
-	///
-	/// Signaling objects will not be shared between connections.
-	/// You can assume that the same value of hConn will be used
-	/// every time.
-	virtual bool SendSignal( HSteamNetConnection hConn, const SteamNetConnectionInfo_t &info, const void *pMsg, int cbMsg ) = 0;
-
-	/// Called when the connection no longer needs to send signals.
-	/// Note that this happens eventually (but not immediately) after
-	/// the connection is closed.  Signals may need to be sent for a brief
-	/// time after the connection is closed, to clean up the connection.
-	virtual void Release() = 0;
-};
-
-/// Interface used when a custom signal is received.
-/// See ISteamNetworkingSockets::ReceivedP2PCustomSignal
-class ISteamNetworkingCustomSignalingRecvContext
-{
-public:
-
-	/// Called when the signal represents a request for a new connection.
-	///
-	/// If you want to ignore the request, just return NULL.  In this case,
-	/// the peer will NOT receive any reply.  You should consider ignoring
-	/// requests rather than actively rejecting them, as a security measure.
-	/// If you actively reject requests, then this makes it possible to detect
-	/// if a user is online or not, just by sending them a request.
-	///
-	/// If you wish to send back a rejection, then use
-	/// ISteamNetworkingSockets::CloseConnection() and then return NULL.
-	/// We will marshal a properly formatted rejection signal and
-	/// call SendRejectionSignal() so you can send it to them.
-	///
-	/// If you return a signaling object, the connection is NOT immediately
-	/// accepted by default.  Instead, it stays in the "connecting" state,
-	/// and the usual callback is posted, and your app can accept the
-	/// connection using ISteamNetworkingSockets::AcceptConnection.  This
-	/// may be useful so that these sorts of connections can be more similar
-	/// to your application code as other types of connections accepted on
-	/// a listen socket.  If this is not useful and you want to skip this
-	/// callback process and immediately accept the connection, call
-	/// ISteamNetworkingSockets::AcceptConnection before returning the
-	/// signaling object.
-	///
-	/// After accepting a connection (through either means), the connection
-	/// will transition into the "finding route" state.
-	virtual ISteamNetworkingConnectionCustomSignaling *OnConnectRequest( HSteamNetConnection hConn, const SteamNetworkingIdentity &identityPeer ) = 0;
-
-	/// This is called actively communication rejection or failure
-	/// to the incoming message.  If you intend to ignore all incoming requests
-	/// that you do not wish to accept, then it's not strictly necessary to
-	/// implement this.
-	virtual void SendRejectionSignal( const SteamNetworkingIdentity &identityPeer, const void *pMsg, int cbMsg ) = 0;
-};
-
-
-// Global accessor.
-#if defined( STEAMNETWORKINGSOCKETS_PARTNER )
-
-	// Standalone lib.  Use different symbol name, so that we can dynamically switch between steamclient.dll
-	// and the standalone lib
-	STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingSockets *SteamNetworkingSockets_Lib();
-	STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingSockets *SteamGameServerNetworkingSockets_Lib();
-	inline ISteamNetworkingSockets *SteamNetworkingSockets() { return SteamNetworkingSockets_Lib(); }
-	inline ISteamNetworkingSockets *SteamGameServerNetworkingSockets() { return SteamGameServerNetworkingSockets_Lib(); }
-
-#elif defined( STEAMNETWORKINGSOCKETS_OPENSOURCE ) || defined( STEAMNETWORKINGSOCKETS_STREAMINGCLIENT )
-
-	// Opensource GameNetworkingSockets
-	STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingSockets *SteamNetworkingSockets();
-
-#else
-#ifndef NETWORKSOCKETS_DLL
-	// Steamworks SDK
-	inline ISteamNetworkingSockets *SteamNetworkingSockets();
-	STEAM_DEFINE_USER_INTERFACE_ACCESSOR( ISteamNetworkingSockets *, SteamNetworkingSockets, STEAMNETWORKINGSOCKETS_INTERFACE_VERSION );
-	inline ISteamNetworkingSockets *SteamGameServerNetworkingSockets();
-	STEAM_DEFINE_GAMESERVER_INTERFACE_ACCESSOR( ISteamNetworkingSockets *, SteamGameServerNetworkingSockets, STEAMNETWORKINGSOCKETS_INTERFACE_VERSION );
-#endif
-#endif
-
-/// Callback struct used to notify when a connection has changed state
-#if defined( VALVE_CALLBACK_PACK_SMALL )
-#pragma pack( push, 4 )
-#elif defined( VALVE_CALLBACK_PACK_LARGE )
-#pragma pack( push, 8 )
-#else
-#error "Must define VALVE_CALLBACK_PACK_SMALL or VALVE_CALLBACK_PACK_LARGE"
-#endif
-
-/// This callback is posted whenever a connection is created, destroyed, or changes state.
-/// The m_info field will contain a complete description of the connection at the time the
-/// change occurred and the callback was posted.  In particular, m_eState will have the
-/// new connection state.
-///
-/// You will usually need to listen for this callback to know when:
-/// - A new connection arrives on a listen socket.
-///   m_info.m_hListenSocket will be set, m_eOldState = k_ESteamNetworkingConnectionState_None,
-///   and m_info.m_eState = k_ESteamNetworkingConnectionState_Connecting.
-///   See ISteamNetworkigSockets::AcceptConnection.
-/// - A connection you initiated has been accepted by the remote host.
-///   m_eOldState = k_ESteamNetworkingConnectionState_Connecting, and
-///   m_info.m_eState = k_ESteamNetworkingConnectionState_Connected.
-///   Some connections might transition to k_ESteamNetworkingConnectionState_FindingRoute first.
-/// - A connection has been actively rejected or closed by the remote host.
-///   m_eOldState = k_ESteamNetworkingConnectionState_Connecting or k_ESteamNetworkingConnectionState_Connected,
-///   and m_info.m_eState = k_ESteamNetworkingConnectionState_ClosedByPeer.  m_info.m_eEndReason
-///   and m_info.m_szEndDebug will have for more details.
-///   NOTE: upon receiving this callback, you must still destroy the connection using
-///   ISteamNetworkingSockets::CloseConnection to free up local resources.  (The details
-///   passed to the function are not used in this case, since the connection is already closed.)
-/// - A problem was detected with the connection, and it has been closed by the local host.
-///   The most common failure is timeout, but other configuration or authentication failures
-///   can cause this.  m_eOldState = k_ESteamNetworkingConnectionState_Connecting or
-///   k_ESteamNetworkingConnectionState_Connected, and m_info.m_eState = k_ESteamNetworkingConnectionState_ProblemDetectedLocally.
-///   m_info.m_eEndReason and m_info.m_szEndDebug will have for more details.
-///   NOTE: upon receiving this callback, you must still destroy the connection using
-///   ISteamNetworkingSockets::CloseConnection to free up local resources.  (The details
-///   passed to the function are not used in this case, since the connection is already closed.)
-///
-/// Remember that callbacks are posted to a queue, and networking connections can
-/// change at any time.  It is possible that the connection has already changed
-/// state by the time you process this callback.
-///
-/// Also note that callbacks will be posted when connections are created and destroyed by your own API calls.
-struct SteamNetConnectionStatusChangedCallback_t
-{ 
-	enum { k_iCallback = k_iSteamNetworkingSocketsCallbacks + 1 };
-
-	/// Connection handle
-	HSteamNetConnection m_hConn;
-
-	/// Full connection info
-	SteamNetConnectionInfo_t m_info;
-
-	/// Previous state.  (Current state is in m_info.m_eState)
-	ESteamNetworkingConnectionState m_eOldState;
-};
-
-/// A struct used to describe our readiness to participate in authenticated,
-/// encrypted communication.  In order to do this we need:
-///
-/// - The list of trusted CA certificates that might be relevant for this
-///   app.
-/// - A valid certificate issued by a CA.
-///
-/// This callback is posted whenever the state of our readiness changes.
-struct SteamNetAuthenticationStatus_t
-{ 
-	enum { k_iCallback = k_iSteamNetworkingSocketsCallbacks + 2 };
-
-	/// Status
-	ESteamNetworkingAvailability m_eAvail;
-
-	/// Non-localized English language status.  For diagnostic/debugging
-	/// purposes only.
-	char m_debugMsg[ 256 ];
-};
-
-#pragma pack( pop )
-
-#endif // ISTEAMNETWORKINGSOCKETS
+#endif // ISTEAMNETWORKINGSOCKETS006

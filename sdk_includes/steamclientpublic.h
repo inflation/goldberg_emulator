@@ -139,6 +139,8 @@ enum EResult
 	k_EResultAccountNotFriends = 111,			// the user is not mutually friends
 	k_EResultLimitedUserAccount = 112,			// the user is limited
 	k_EResultCantRemoveItem = 113,				// item can't be removed
+	k_EResultAccountDeleted = 114,				// account has been deleted
+	k_EResultExistingUserCancelledLicense = 115,	// A license for this already exists, but cancelled
 };
 
 // Error codes for use with the voice functions
@@ -524,6 +526,7 @@ enum EVRHMDType
 	k_eEVRHMDType_Oculus_DK2 = 22, // Oculus DK2
 	k_eEVRHMDType_Oculus_Rift = 23, // Oculus Rift
 	k_eEVRHMDType_Oculus_RiftS = 24, // Oculus Rift S
+	k_eEVRHMDType_Oculus_Quest = 25, // Oculus Quest
 
 	k_eEVRHMDType_Oculus_Unknown = 40, // // Oculus unknown HMD
 
@@ -563,7 +566,7 @@ enum EVRHMDType
 //-----------------------------------------------------------------------------
 static inline bool BIsOculusHMD( EVRHMDType eType )
 {
-	return eType == k_eEVRHMDType_Oculus_DK1 || eType == k_eEVRHMDType_Oculus_DK2 || eType == k_eEVRHMDType_Oculus_Rift || eType == k_eEVRHMDType_Oculus_RiftS || eType == k_eEVRHMDType_Oculus_Unknown;
+	return eType == k_eEVRHMDType_Oculus_DK1 || eType == k_eEVRHMDType_Oculus_DK2 || eType == k_eEVRHMDType_Oculus_Rift || eType == k_eEVRHMDType_Oculus_RiftS || eType == k_eEVRHMDType_Oculus_Quest || eType == k_eEVRHMDType_Oculus_Unknown;
 }
 
 

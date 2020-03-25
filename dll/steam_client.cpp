@@ -93,6 +93,7 @@ Steam_Client::Steam_Client()
     steam_game_search = new Steam_Game_Search(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_parties = new Steam_Parties(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_remoteplay = new Steam_RemotePlay(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
+    steam_tv = new Steam_TV(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
 
     PRINT_DEBUG("client init gameserver\n");
     steam_gameserver = new Steam_GameServer(settings_server, network, callbacks_server);
@@ -487,6 +488,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
             return (void *)(ISteamNetworkingSockets002 *) steam_networking_sockets_temp;
         } else if (strcmp(pchVersion, "SteamNetworkingSockets003") == 0) {
             return (void *)(ISteamNetworkingSockets003 *) steam_networking_sockets_temp;
+        } else if (strcmp(pchVersion, "SteamNetworkingSockets006") == 0) {
+            return (void *)(ISteamNetworkingSockets006 *) steam_networking_sockets_temp;
         } else {
             return (void *)(ISteamNetworkingSockets *) steam_networking_sockets_temp;
         }
@@ -499,6 +502,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
         }
 
         return (void *)(ISteamGameCoordinator *)steam_game_coordinator_temp;
+    } else if (strstr(pchVersion, STEAMTV_INTERFACE_VERSION) == pchVersion) {
+        return (void *)(ISteamTV *)steam_tv;
     } else if (strstr(pchVersion, "SteamNetworkingUtils") == pchVersion) {
             if (strcmp(pchVersion, "SteamNetworkingUtils001") == 0) {
                 return (void *)(ISteamNetworkingUtils001 *)steam_networking_utils;
@@ -675,7 +680,7 @@ ISteamNetworking *Steam_Client::GetISteamNetworking( HSteamUser hSteamUser, HSte
         return (ISteamNetworking *)(void *)(ISteamNetworking004 *)steam_networking_temp;
     } else if (strcmp(pchVersion, "SteamNetworking005") == 0) {
         return (ISteamNetworking *)(void *)(ISteamNetworking005 *)steam_networking_temp;
-    } else if (strcmp(pchVersion, STEAMUGC_INTERFACE_VERSION) == 0) {
+    } else if (strcmp(pchVersion, STEAMNETWORKING_INTERFACE_VERSION) == 0) {
         return (ISteamNetworking *)(void *)(ISteamNetworking *)steam_networking_temp;
     } else {
         return (ISteamNetworking *)(void *)(ISteamNetworking *)steam_networking_temp;

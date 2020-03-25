@@ -40,11 +40,6 @@ public:
 	/// If cbAllocateBuffer=0, then no buffer is allocated.  m_pData will be NULL,
 	/// m_cbSize will be zero, and m_pfnFreeData will be NULL.  You will need to
 	/// set each of these.
-	///
-	/// You can use SteamNetworkingMessage_t::Release to free up the message
-	/// bookkeeping object and any associated buffer.  See
-	/// ISteamNetworkingSockets::SendMessages for details on reference
-	/// counting and ownership.
 	virtual SteamNetworkingMessage_t *AllocateMessage( int cbAllocateBuffer ) = 0;
 
 	//
@@ -57,11 +52,17 @@ public:
 	// Initialization and status check
 	//
 
-	/// If you know that you are going to be using the relay network, call
-	/// this to initialize the relay network or check if that initialization
-	/// has completed.  If you do not call this, the initialization will
-	/// happen the first time you use a feature that requires access to the
-	/// relay network, and that use will be delayed.
+	/// If you know that you are going to be using the relay network (for example,
+	/// because you anticipate making P2P connections), call this to initialize the
+	/// relay network.  If you do not call this, the initialization will
+	/// be delayed until the first time you use a feature that requires access
+	/// to the relay network, which will delay that first access.
+	///
+	/// You can also call this to force a retry if the previous attempt has failed.
+	/// Performing any action that requires access to the relay network will also
+	/// trigger a retry, and so calling this function is never strictly necessary,
+	/// but it can be useful to call it a program launch time, if access to the
+	/// relay network is anticipated.
 	///
 	/// Use GetRelayNetworkStatus or listen for SteamRelayNetworkStatus_t
 	/// callbacks to know when initialization has completed.
@@ -317,7 +318,6 @@ protected:
 #ifdef NETWORKSOCKETS_DLL
 #define SteamNetworkingUtils() SteamNetworkingUtilsX()
 #endif
-#ifndef STEAM_API_EXPORTS
 	// Steamworks SDK
 	inline ISteamNetworkingUtils *SteamNetworkingUtils();
 	STEAM_DEFINE_INTERFACE_ACCESSOR( ISteamNetworkingUtils *, SteamNetworkingUtils,
@@ -325,11 +325,10 @@ protected:
 		gameserver one.  Yes, this is a completely terrible hack */
 		SteamInternal_FindOrCreateUserInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION ) ?
 		SteamInternal_FindOrCreateUserInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION ) :
-		SteamInternal_FindOrCreateGameServerInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION )
+		SteamInternal_FindOrCreateGameServerInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION ),
+		"global",
+		STEAMNETWORKINGUTILS_INTERFACE_VERSION
 	)
-#else
-inline ISteamNetworkingUtils *SteamNetworkingUtils() { return (ISteamNetworkingUtils *)SteamInternal_FindOrCreateUserInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION );}
-#endif
 #endif
 
 /// A struct used to describe our readiness to use the relay network.

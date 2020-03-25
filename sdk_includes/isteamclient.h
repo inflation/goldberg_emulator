@@ -168,7 +168,7 @@ public:
 
 // Global ISteamClient interface accessor
 inline ISteamClient *SteamClient();
-STEAM_DEFINE_INTERFACE_ACCESSOR( ISteamClient *, SteamClient, SteamInternal_CreateInterface( STEAMCLIENT_INTERFACE_VERSION ) );
+STEAM_DEFINE_INTERFACE_ACCESSOR( ISteamClient *, SteamClient, SteamInternal_CreateInterface( STEAMCLIENT_INTERFACE_VERSION ), "global", STEAMCLIENT_INTERFACE_VERSION );
 
 // The internal ISteamClient used for the gameserver interface.
 // (This is actually the same thing.  You really shouldn't need to access any of this stuff directly.)

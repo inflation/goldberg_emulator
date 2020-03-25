@@ -254,7 +254,9 @@ public:
 	virtual const char *GetClanTag( CSteamID steamIDClan ) = 0;
 	// returns the most recent information we have about what's happening in a clan
 	virtual bool GetClanActivityCounts( CSteamID steamIDClan, int *pnOnline, int *pnInGame, int *pnChatting ) = 0;
+
 	// for clans a user is a member of, they will have reasonably up-to-date information, but for others you'll have to download the info to have the latest
+	STEAM_CALL_RESULT( DownloadClanActivityCountsResult_t )
 	virtual SteamAPICall_t DownloadClanActivityCounts( STEAM_ARRAY_COUNT(cClansToRequest) CSteamID *psteamIDClans, int cClansToRequest ) = 0;
 
 	// iterators for getting users in a chat room, lobby, game server or clan
@@ -420,6 +422,9 @@ public:
 	/// You can register for UnreadChatMessagesChanged_t callbacks to know when this
 	/// has potentially changed.
 	virtual int GetNumChatsWithUnreadPriorityMessages() = 0;
+
+	// activates game overlay to open the remote play together invite dialog. Invitations will be sent for remote play together
+	virtual void ActivateGameOverlayRemotePlayTogetherInviteDialog( CSteamID steamIDLobby ) = 0;
 };
 
 #define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends017"

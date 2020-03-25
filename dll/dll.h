@@ -27,3 +27,8 @@
 
 Steam_Client *get_steam_client();
 bool steamclient_has_ipv6_functions();
+
+HSteamUser flat_hsteamuser();
+HSteamPipe flat_hsteampipe();
+HSteamUser flat_gs_hsteamuser();
+HSteamPipe flat_gs_hsteampipe();

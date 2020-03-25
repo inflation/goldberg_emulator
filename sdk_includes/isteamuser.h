@@ -12,25 +12,6 @@
 
 #include "steam_api_common.h"
 
-// structure that contains client callback data
-// see callbacks documentation for more details
-#if defined( VALVE_CALLBACK_PACK_SMALL )
-#pragma pack( push, 4 )
-#elif defined( VALVE_CALLBACK_PACK_LARGE )
-#pragma pack( push, 8 )
-#else
-#error steam_api_common.h should define VALVE_CALLBACK_PACK_xxx
-#endif 
-struct CallbackMsg_t
-{
-	HSteamUser m_hSteamUser;
-	int m_iCallback;
-	uint8 *m_pubParam;
-	int m_cubParam;
-};
-#pragma pack( pop )
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Functions for accessing and manipulating a steam account
 //			associated with one client instance

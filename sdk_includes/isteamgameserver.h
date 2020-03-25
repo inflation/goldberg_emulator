@@ -27,7 +27,7 @@ public:
 //
 
 	/// This is called by SteamGameServer_Init, and you will usually not need to call it directly
-	virtual bool InitGameServer( uint32 unIP, uint16 usGamePort, uint16 usQueryPort, uint32 unFlags, AppId_t nGameAppId, const char *pchVersionString ) = 0;
+	STEAM_PRIVATE_API( virtual bool InitGameServer( uint32 unIP, uint16 usGamePort, uint16 usQueryPort, uint32 unFlags, AppId_t nGameAppId, const char *pchVersionString ) = 0; )
 
 	/// Game product identifier.  This is currently used by the master server for version checking purposes.
 	/// It's a required field, but will eventually will go away, and the AppID will be used for this purpose.

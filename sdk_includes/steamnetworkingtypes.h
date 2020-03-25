@@ -47,9 +47,16 @@ struct SteamRelayNetworkStatus_t;
 typedef uint32 HSteamNetConnection;
 const HSteamNetConnection k_HSteamNetConnection_Invalid = 0;
 
-/// Handle used to identify a "listen socket".
+/// Handle used to identify a "listen socket".  Unlike traditional
+/// Berkeley sockets, a listen socket and a connection are two
+/// different abstractions.
 typedef uint32 HSteamListenSocket;
 const HSteamListenSocket k_HSteamListenSocket_Invalid = 0;
+
+/// Handle used to identify a poll group, used to query many
+/// connections at once efficiently.
+typedef uint32 HSteamNetPollGroup;
+const HSteamNetPollGroup k_HSteamNetPollGroup_Invalid = 0;
 
 /// Max length of diagnostic error message
 const int k_cchMaxSteamNetworkingErrMsg = 1024;
@@ -66,7 +73,7 @@ typedef uint32 SteamNetworkingPOPID;
 /// microseconds.  This is guaranteed to increase over time during the lifetime
 /// of a process, but not globally across runs.  You don't need to worry about
 /// the value wrapping around.  Note that the underlying clock might not actually have
-/// microsecond *resolution*.
+/// microsecond resolution.
 typedef int64 SteamNetworkingMicroseconds;
 
 /// Describe the status of a particular network resource
@@ -182,6 +189,7 @@ struct SteamNetworkingIPAddr
 	union
 	{
 		uint8 m_ipv6[ 16 ];
+		#ifndef API_GEN // API generator doesn't understand this.  The bindings will just use the accessors
 		struct // IPv4 "mapped address" (rfc4038 section 4.2)
 		{
 			uint64 m_8zeros;
@@ -189,6 +197,7 @@ struct SteamNetworkingIPAddr
 			uint16 m_ffff;
 			uint8 m_ip[ 4 ]; // NOTE: As bytes, i.e. network byte order
 		} m_ipv4;
+		#endif
 	};
 	uint16 m_port; // Host byte order
 
@@ -761,6 +770,7 @@ struct SteamNetworkingMessage_t
 	inline void Release();
 
 	// For code compatibility, some accessors
+#ifndef API_GEN
 	inline uint32 GetSize() const { return m_cbSize; }
 	inline const void *GetData() const { return m_pData; }
 	inline int GetChannel() const { return m_nChannel; }
@@ -768,6 +778,7 @@ struct SteamNetworkingMessage_t
 	inline int64 GetConnectionUserData() const { return m_nConnUserData; }
 	inline SteamNetworkingMicroseconds GetTimeReceived() const { return m_usecTimeReceived; }
 	inline int64 GetMessageNumber() const { return m_nMessageNumber; }
+#endif
 protected:
 	// Declare destructor protected.  You should never need to declare a message
 	// object on the stack or create one yourself.
@@ -1220,6 +1231,7 @@ const SteamNetworkingPOPID k_SteamDatagramPOPID_dev = ( (uint32)'d' << 16U ) | (
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Internal stuff
+#ifndef API_GEN
 
 // For code compatibility
 typedef SteamNetworkingMessage_t ISteamNetworkingMessage;
@@ -1265,5 +1277,7 @@ inline bool SteamNetworkingIPAddr::ParseString( const char *pszStr ) { return St
 inline void SteamNetworkingIdentity::ToString( char *buf, size_t cbBuf ) const { SteamAPI_SteamNetworkingIdentity_ToString( *this, buf, cbBuf ); }
 inline bool SteamNetworkingIdentity::ParseString( const char *pszStr ) { return SteamAPI_SteamNetworkingIdentity_ParseString( this, sizeof(*this), pszStr ); }
 #endif
+
+#endif // #ifndef API_GEN
 
 #endif // #ifndef STEAMNETWORKINGTYPES

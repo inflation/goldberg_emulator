@@ -50,6 +50,7 @@ class Steam_Networking_Sockets :
 public ISteamNetworkingSockets001,
 public ISteamNetworkingSockets002,
 public ISteamNetworkingSockets003,
+public ISteamNetworkingSockets006,
 public ISteamNetworkingSockets
 {
     class Settings *settings;
@@ -980,6 +981,64 @@ ESteamNetworkingAvailability GetAuthenticationStatus( SteamNetAuthenticationStat
     PRINT_DEBUG("Steam_Networking_Sockets::GetAuthenticationStatus\n");
 }
 
+/// Create a new poll group.
+///
+/// You should destroy the poll group when you are done using DestroyPollGroup
+HSteamNetPollGroup CreatePollGroup()
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::CreatePollGroup\n");
+}
+
+/// Destroy a poll group created with CreatePollGroup().
+///
+/// If there are any connections in the poll group, they are removed from the group,
+/// and left in a state where they are not part of any poll group.
+/// Returns false if passed an invalid poll group handle.
+bool DestroyPollGroup( HSteamNetPollGroup hPollGroup )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::DestroyPollGroup\n");
+}
+
+/// Assign a connection to a poll group.  Note that a connection may only belong to a
+/// single poll group.  Adding a connection to a poll group implicitly removes it from
+/// any other poll group it is in.
+///
+/// You can pass k_HSteamNetPollGroup_Invalid to remove a connection from its current
+/// poll group without adding it to a new poll group.
+///
+/// If there are received messages currently pending on the connection, an attempt
+/// is made to add them to the queue of messages for the poll group in approximately
+/// the order that would have applied if the connection was already part of the poll
+/// group at the time that the messages were received.
+///
+/// Returns false if the connection handle is invalid, or if the poll group handle
+/// is invalid (and not k_HSteamNetPollGroup_Invalid).
+bool SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPollGroup )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::SetConnectionPollGroup\n");
+}
+
+/// Same as ReceiveMessagesOnConnection, but will return the next messages available
+/// on any connection in the poll group.  Examine SteamNetworkingMessage_t::m_conn
+/// to know which connection.  (SteamNetworkingMessage_t::m_nConnUserData might also
+/// be useful.)
+///
+/// Delivery order of messages among different connections will usually match the
+/// order that the last packet was received which completed the message.  But this
+/// is not a strong guarantee, especially for packets received right as a connection
+/// is being assigned to poll group.
+///
+/// Delivery order of messages on the same connection is well defined and the
+/// same guarantees are present as mentioned in ReceiveMessagesOnConnection.
+/// (But the messages are not grouped by connection, so they will not necessarily
+/// appear consecutively in the list; they may be interleaved with messages for
+/// other connections.)
+int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnPollGroup\n");
+}
+
+
 //#ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
 
 //
@@ -1343,6 +1402,29 @@ HSteamNetConnection ConnectP2PCustomSignaling( ISteamNetworkingConnectionCustomS
 bool ReceivedP2PCustomSignal( const void *pMsg, int cbMsg, ISteamNetworkingCustomSignalingRecvContext *pContext )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ReceivedP2PCustomSignal\n");
+}
+
+//
+// Certificate provision by the application.  On Steam, we normally handle all this automatically
+// and you will not need to use these advanced functions.
+//
+
+/// Get blob that describes a certificate request.  You can send this to your game coordinator.
+/// Upon entry, *pcbBlob should contain the size of the buffer.  On successful exit, it will
+/// return the number of bytes that were populated.  You can pass pBlob=NULL to query for the required
+/// size.  (256 bytes is a very conservative estimate.)
+///
+/// Pass this blob to your game coordinator and call SteamDatagram_CreateCert.
+bool GetCertificateRequest( int *pcbBlob, void *pBlob, SteamNetworkingErrMsg &errMsg )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::GetCertificateRequest\n");
+}
+
+/// Set the certificate.  The certificate blob should be the output of
+/// SteamDatagram_CreateCert.
+bool SetCertificate( const void *pCertificate, int cbCertificate, SteamNetworkingErrMsg &errMsg )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::SetCertificate\n");
 }
 
 // TEMP KLUDGE Call to invoke all queued callbacks.

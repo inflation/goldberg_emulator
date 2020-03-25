@@ -15,128 +15,132 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef STEAMCLIENT_DLL
+#define STEAM_API_FUNCTIONS_IMPL
 #include "dll.h"
+#include "../sdk_includes/steam_api_flat.h"
+#include <stdint.h>
 
-STEAMAPI_API HSteamPipe SteamAPI_ISteamClient_CreateSteamPipe(intptr_t instancePtr)
+STEAMAPI_API HSteamPipe SteamAPI_ISteamClient_CreateSteamPipe( ISteamClient* self )
 {
     return get_steam_client()->CreateSteamPipe();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamClient_BReleaseSteamPipe(intptr_t instancePtr, HSteamPipe hSteamPipe)
+STEAMAPI_API bool SteamAPI_ISteamClient_BReleaseSteamPipe( ISteamClient* self, HSteamPipe hSteamPipe )
 {
     return get_steam_client()->BReleaseSteamPipe(hSteamPipe);
 }
 
-STEAMAPI_API HSteamUser SteamAPI_ISteamClient_ConnectToGlobalUser(intptr_t instancePtr, HSteamPipe hSteamPipe)
+STEAMAPI_API HSteamUser SteamAPI_ISteamClient_ConnectToGlobalUser( ISteamClient* self, HSteamPipe hSteamPipe )
 {
     return get_steam_client()->ConnectToGlobalUser(hSteamPipe);
 }
 
-STEAMAPI_API HSteamUser SteamAPI_ISteamClient_CreateLocalUser(intptr_t instancePtr, HSteamPipe * phSteamPipe, EAccountType eAccountType)
+STEAMAPI_API HSteamUser SteamAPI_ISteamClient_CreateLocalUser( ISteamClient* self, HSteamPipe * phSteamPipe, EAccountType eAccountType )
 {
     return get_steam_client()->CreateLocalUser(phSteamPipe, eAccountType);
 }
 
-STEAMAPI_API void SteamAPI_ISteamClient_ReleaseUser(intptr_t instancePtr, HSteamPipe hSteamPipe, HSteamUser hUser)
+STEAMAPI_API void SteamAPI_ISteamClient_ReleaseUser( ISteamClient* self, HSteamPipe hSteamPipe, HSteamUser hUser )
 {
     return get_steam_client()->ReleaseUser(hSteamPipe, hUser);
 }
 
-STEAMAPI_API class ISteamUser * SteamAPI_ISteamClient_GetISteamUser(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamUser * SteamAPI_ISteamClient_GetISteamUser( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamUser(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamGameServer * SteamAPI_ISteamClient_GetISteamGameServer(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamGameServer * SteamAPI_ISteamClient_GetISteamGameServer( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamGameServer(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API void SteamAPI_ISteamClient_SetLocalIPBinding(intptr_t instancePtr, uint32 unIP, uint16 usPort)
+STEAMAPI_API void SteamAPI_ISteamClient_SetLocalIPBinding( ISteamClient* self, const SteamIPAddress_t & unIP, uint16 usPort )
 {
     //Note: this function was updated but currently doesn't do anything so I'm just leaving it like this for now.
     //void SteamAPI_ISteamClient_SetLocalIPBinding(intptr_t instancePtr, const struct SteamIPAddress_t & unIP, uint16 usPort)
     return get_steam_client()->SetLocalIPBinding(unIP, usPort);
 }
 
-STEAMAPI_API class ISteamFriends * SteamAPI_ISteamClient_GetISteamFriends(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamFriends * SteamAPI_ISteamClient_GetISteamFriends( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamFriends(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamUtils * SteamAPI_ISteamClient_GetISteamUtils(intptr_t instancePtr, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamUtils * SteamAPI_ISteamClient_GetISteamUtils( ISteamClient* self, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamUtils(hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamMatchmaking * SteamAPI_ISteamClient_GetISteamMatchmaking(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamMatchmaking * SteamAPI_ISteamClient_GetISteamMatchmaking( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamMatchmaking(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamMatchmakingServers * SteamAPI_ISteamClient_GetISteamMatchmakingServers(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamMatchmakingServers * SteamAPI_ISteamClient_GetISteamMatchmakingServers( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamMatchmakingServers(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API void * SteamAPI_ISteamClient_GetISteamGenericInterface(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API void * SteamAPI_ISteamClient_GetISteamGenericInterface( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamGenericInterface(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamUserStats * SteamAPI_ISteamClient_GetISteamUserStats(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamUserStats * SteamAPI_ISteamClient_GetISteamUserStats( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamUserStats(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamGameServerStats * SteamAPI_ISteamClient_GetISteamGameServerStats(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamGameServerStats * SteamAPI_ISteamClient_GetISteamGameServerStats( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamGameServerStats(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamApps * SteamAPI_ISteamClient_GetISteamApps(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamApps * SteamAPI_ISteamClient_GetISteamApps( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamApps(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamNetworking * SteamAPI_ISteamClient_GetISteamNetworking(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamNetworking * SteamAPI_ISteamClient_GetISteamNetworking( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamNetworking(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamRemoteStorage * SteamAPI_ISteamClient_GetISteamRemoteStorage(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamRemoteStorage * SteamAPI_ISteamClient_GetISteamRemoteStorage( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamRemoteStorage(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamScreenshots * SteamAPI_ISteamClient_GetISteamScreenshots(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamScreenshots * SteamAPI_ISteamClient_GetISteamScreenshots( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamScreenshots(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamGameSearch * SteamAPI_ISteamClient_GetISteamGameSearch(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamGameSearch * SteamAPI_ISteamClient_GetISteamGameSearch( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamGameSearch(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamClient_GetIPCCallCount(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamClient_GetIPCCallCount( ISteamClient* self )
 {
     return get_steam_client()->GetIPCCallCount();
 }
 
-STEAMAPI_API void SteamAPI_ISteamClient_SetWarningMessageHook(intptr_t instancePtr, SteamAPIWarningMessageHook_t pFunction)
+STEAMAPI_API void SteamAPI_ISteamClient_SetWarningMessageHook( ISteamClient* self, SteamAPIWarningMessageHook_t pFunction )
 {
     return get_steam_client()->SetWarningMessageHook(pFunction);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamClient_BShutdownIfAllPipesClosed(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamClient_BShutdownIfAllPipesClosed( ISteamClient* self )
 {
     return get_steam_client()->BShutdownIfAllPipesClosed();
 }
 
-STEAMAPI_API class ISteamHTTP * SteamAPI_ISteamClient_GetISteamHTTP(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamHTTP * SteamAPI_ISteamClient_GetISteamHTTP( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
-    return get_steam_client()->GetISteamHTTP(hSteamuser,hSteamPipe,pchVersion);
+    return get_steam_client()->GetISteamHTTP(hSteamuser, hSteamPipe, pchVersion);
 }
 
 STEAMAPI_API void *SteamAPI_ISteamClient_GetISteamUnifiedMessages(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
@@ -144,590 +148,615 @@ STEAMAPI_API void *SteamAPI_ISteamClient_GetISteamUnifiedMessages(intptr_t insta
     return get_steam_client()->DEPRECATED_GetISteamUnifiedMessages(hSteamuser,hSteamPipe,pchVersion);
 }
 
-STEAMAPI_API class ISteamController * SteamAPI_ISteamClient_GetISteamController(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamController * SteamAPI_ISteamClient_GetISteamController( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamController(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamUGC * SteamAPI_ISteamClient_GetISteamUGC(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamUGC * SteamAPI_ISteamClient_GetISteamUGC( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamUGC(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamAppList * SteamAPI_ISteamClient_GetISteamAppList(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamAppList * SteamAPI_ISteamClient_GetISteamAppList( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamAppList(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamMusic * SteamAPI_ISteamClient_GetISteamMusic(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamMusic * SteamAPI_ISteamClient_GetISteamMusic( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamMusic(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamMusicRemote * SteamAPI_ISteamClient_GetISteamMusicRemote(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamMusicRemote * SteamAPI_ISteamClient_GetISteamMusicRemote( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamMusicRemote(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamHTMLSurface * SteamAPI_ISteamClient_GetISteamHTMLSurface(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamHTMLSurface * SteamAPI_ISteamClient_GetISteamHTMLSurface( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamHTMLSurface(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamInventory * SteamAPI_ISteamClient_GetISteamInventory(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamInventory * SteamAPI_ISteamClient_GetISteamInventory( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamInventory(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamVideo * SteamAPI_ISteamClient_GetISteamVideo(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamVideo * SteamAPI_ISteamClient_GetISteamVideo( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamVideo(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamParentalSettings * SteamAPI_ISteamClient_GetISteamParentalSettings(intptr_t instancePtr, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamParentalSettings * SteamAPI_ISteamClient_GetISteamParentalSettings( ISteamClient* self, HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamParentalSettings(hSteamuser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamInput * SteamAPI_ISteamClient_GetISteamInput(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamInput * SteamAPI_ISteamClient_GetISteamInput( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamInput(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamParties * SteamAPI_ISteamClient_GetISteamParties(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamParties * SteamAPI_ISteamClient_GetISteamParties( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamParties(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API class ISteamRemotePlay * SteamAPI_ISteamClient_GetISteamRemotePlay(intptr_t instancePtr, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion)
+STEAMAPI_API ISteamRemotePlay * SteamAPI_ISteamClient_GetISteamRemotePlay( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion )
 {
     return get_steam_client()->GetISteamRemotePlay(hSteamUser, hSteamPipe, pchVersion);
 }
 
-STEAMAPI_API HSteamUser SteamAPI_ISteamUser_GetHSteamUser(intptr_t instancePtr)
+STEAMAPI_API ISteamUser *SteamAPI_SteamUser_v020()
+{
+    return get_steam_client()->GetISteamUser(flat_hsteamuser(), flat_hsteampipe(), "SteamUser020");
+}
+
+STEAMAPI_API HSteamUser SteamAPI_ISteamUser_GetHSteamUser( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->GetHSteamUser();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_BLoggedOn(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUser_BLoggedOn( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->BLoggedOn();
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamUser_GetSteamID(intptr_t instancePtr)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamUser_GetSteamID( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->GetSteamID().ConvertToUint64();
 }
 
-STEAMAPI_API int SteamAPI_ISteamUser_InitiateGameConnection(intptr_t instancePtr, void * pAuthBlob, int cbMaxAuthBlob, class CSteamID steamIDGameServer, uint32 unIPServer, uint16 usPortServer, bool bSecure)
+STEAMAPI_API int SteamAPI_ISteamUser_InitiateGameConnection( ISteamUser* self, void * pAuthBlob, int cbMaxAuthBlob, uint64_steamid steamIDGameServer, uint32 unIPServer, uint16 usPortServer, bool bSecure )
 {
     return (get_steam_client()->steam_user)->InitiateGameConnection(pAuthBlob, cbMaxAuthBlob, steamIDGameServer, unIPServer, usPortServer, bSecure);
 }
 
-STEAMAPI_API void SteamAPI_ISteamUser_TerminateGameConnection(intptr_t instancePtr, uint32 unIPServer, uint16 usPortServer)
+STEAMAPI_API void SteamAPI_ISteamUser_TerminateGameConnection( ISteamUser* self, uint32 unIPServer, uint16 usPortServer )
 {
     return (get_steam_client()->steam_user)->TerminateGameConnection(unIPServer, usPortServer);
 }
 
-STEAMAPI_API void SteamAPI_ISteamUser_TrackAppUsageEvent(intptr_t instancePtr, class CGameID gameID, int eAppUsageEvent, const char * pchExtraInfo)
+STEAMAPI_API void SteamAPI_ISteamUser_TrackAppUsageEvent( ISteamUser* self, uint64_gameid gameID, int eAppUsageEvent, const char * pchExtraInfo )
 {
-    return (get_steam_client()->steam_user)->TrackAppUsageEvent(gameID, eAppUsageEvent, pchExtraInfo);
+    return (get_steam_client()->steam_user)->TrackAppUsageEvent(CGameID(gameID), eAppUsageEvent, pchExtraInfo);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_GetUserDataFolder(intptr_t instancePtr, char * pchBuffer, int cubBuffer)
+STEAMAPI_API bool SteamAPI_ISteamUser_GetUserDataFolder( ISteamUser* self, char * pchBuffer, int cubBuffer )
 {
     return (get_steam_client()->steam_user)->GetUserDataFolder(pchBuffer, cubBuffer);
 }
 
-STEAMAPI_API void SteamAPI_ISteamUser_StartVoiceRecording(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamUser_StartVoiceRecording( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->StartVoiceRecording();
 }
 
-STEAMAPI_API void SteamAPI_ISteamUser_StopVoiceRecording(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamUser_StopVoiceRecording( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->StopVoiceRecording();
 }
 
-STEAMAPI_API EVoiceResult SteamAPI_ISteamUser_GetAvailableVoice(intptr_t instancePtr, uint32 * pcbCompressed, uint32 * pcbUncompressed_Deprecated, uint32 nUncompressedVoiceDesiredSampleRate_Deprecated)
+STEAMAPI_API EVoiceResult SteamAPI_ISteamUser_GetAvailableVoice( ISteamUser* self, uint32 * pcbCompressed, uint32 * pcbUncompressed_Deprecated, uint32 nUncompressedVoiceDesiredSampleRate_Deprecated )
 {
     return (get_steam_client()->steam_user)->GetAvailableVoice(pcbCompressed, pcbUncompressed_Deprecated, nUncompressedVoiceDesiredSampleRate_Deprecated);
 }
 
-STEAMAPI_API EVoiceResult SteamAPI_ISteamUser_GetVoice(intptr_t instancePtr, bool bWantCompressed, void * pDestBuffer, uint32 cbDestBufferSize, uint32 * nBytesWritten, bool bWantUncompressed_Deprecated, void * pUncompressedDestBuffer_Deprecated, uint32 cbUncompressedDestBufferSize_Deprecated, uint32 * nUncompressBytesWritten_Deprecated, uint32 nUncompressedVoiceDesiredSampleRate_Deprecated)
+STEAMAPI_API EVoiceResult SteamAPI_ISteamUser_GetVoice( ISteamUser* self, bool bWantCompressed, void * pDestBuffer, uint32 cbDestBufferSize, uint32 * nBytesWritten, bool bWantUncompressed_Deprecated, void * pUncompressedDestBuffer_Deprecated, uint32 cbUncompressedDestBufferSize_Deprecated, uint32 * nUncompressBytesWritten_Deprecated, uint32 nUncompressedVoiceDesiredSampleRate_Deprecated )
 {
     return (get_steam_client()->steam_user)->GetVoice(bWantCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, bWantUncompressed_Deprecated, pUncompressedDestBuffer_Deprecated, cbUncompressedDestBufferSize_Deprecated, nUncompressBytesWritten_Deprecated, nUncompressedVoiceDesiredSampleRate_Deprecated);
 }
 
-STEAMAPI_API EVoiceResult SteamAPI_ISteamUser_DecompressVoice(intptr_t instancePtr, const void * pCompressed, uint32 cbCompressed, void * pDestBuffer, uint32 cbDestBufferSize, uint32 * nBytesWritten, uint32 nDesiredSampleRate)
+STEAMAPI_API EVoiceResult SteamAPI_ISteamUser_DecompressVoice( ISteamUser* self, const void * pCompressed, uint32 cbCompressed, void * pDestBuffer, uint32 cbDestBufferSize, uint32 * nBytesWritten, uint32 nDesiredSampleRate )
 {
     return (get_steam_client()->steam_user)->DecompressVoice(pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, nDesiredSampleRate);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUser_GetVoiceOptimalSampleRate(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUser_GetVoiceOptimalSampleRate( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->GetVoiceOptimalSampleRate();
 }
 
-STEAMAPI_API HAuthTicket SteamAPI_ISteamUser_GetAuthSessionTicket(intptr_t instancePtr, void * pTicket, int cbMaxTicket, uint32 * pcbTicket)
+STEAMAPI_API HAuthTicket SteamAPI_ISteamUser_GetAuthSessionTicket( ISteamUser* self, void * pTicket, int cbMaxTicket, uint32 * pcbTicket )
 {
     return (get_steam_client()->steam_user)->GetAuthSessionTicket(pTicket, cbMaxTicket, pcbTicket);
 }
 
-STEAMAPI_API EBeginAuthSessionResult SteamAPI_ISteamUser_BeginAuthSession(intptr_t instancePtr, const void * pAuthTicket, int cbAuthTicket, class CSteamID steamID)
+STEAMAPI_API EBeginAuthSessionResult SteamAPI_ISteamUser_BeginAuthSession( ISteamUser* self, const void * pAuthTicket, int cbAuthTicket, uint64_steamid steamID )
 {
     return (get_steam_client()->steam_user)->BeginAuthSession(pAuthTicket, cbAuthTicket, steamID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamUser_EndAuthSession(intptr_t instancePtr, class CSteamID steamID)
+STEAMAPI_API void SteamAPI_ISteamUser_EndAuthSession( ISteamUser* self, uint64_steamid steamID )
 {
     return (get_steam_client()->steam_user)->EndAuthSession(steamID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamUser_CancelAuthTicket(intptr_t instancePtr, HAuthTicket hAuthTicket)
+STEAMAPI_API void SteamAPI_ISteamUser_CancelAuthTicket( ISteamUser* self, HAuthTicket hAuthTicket )
 {
     return (get_steam_client()->steam_user)->CancelAuthTicket(hAuthTicket);
 }
 
-STEAMAPI_API EUserHasLicenseForAppResult SteamAPI_ISteamUser_UserHasLicenseForApp(intptr_t instancePtr, class CSteamID steamID, AppId_t appID)
+STEAMAPI_API EUserHasLicenseForAppResult SteamAPI_ISteamUser_UserHasLicenseForApp( ISteamUser* self, uint64_steamid steamID, AppId_t appID )
 {
     return (get_steam_client()->steam_user)->UserHasLicenseForApp(steamID, appID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_BIsBehindNAT(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUser_BIsBehindNAT( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->BIsBehindNAT();
 }
 
-STEAMAPI_API void SteamAPI_ISteamUser_AdvertiseGame(intptr_t instancePtr, class CSteamID steamIDGameServer, uint32 unIPServer, uint16 usPortServer)
+STEAMAPI_API void SteamAPI_ISteamUser_AdvertiseGame( ISteamUser* self, uint64_steamid steamIDGameServer, uint32 unIPServer, uint16 usPortServer )
 {
     return (get_steam_client()->steam_user)->AdvertiseGame(steamIDGameServer, unIPServer, usPortServer);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_RequestEncryptedAppTicket(intptr_t instancePtr, void * pDataToInclude, int cbDataToInclude)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_RequestEncryptedAppTicket( ISteamUser* self, void * pDataToInclude, int cbDataToInclude )
 {
     return (get_steam_client()->steam_user)->RequestEncryptedAppTicket(pDataToInclude, cbDataToInclude);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_GetEncryptedAppTicket(intptr_t instancePtr, void * pTicket, int cbMaxTicket, uint32 * pcbTicket)
+STEAMAPI_API bool SteamAPI_ISteamUser_GetEncryptedAppTicket( ISteamUser* self, void * pTicket, int cbMaxTicket, uint32 * pcbTicket )
 {
     return (get_steam_client()->steam_user)->GetEncryptedAppTicket(pTicket, cbMaxTicket, pcbTicket);
 }
 
-STEAMAPI_API int SteamAPI_ISteamUser_GetGameBadgeLevel(intptr_t instancePtr, int nSeries, bool bFoil)
+STEAMAPI_API int SteamAPI_ISteamUser_GetGameBadgeLevel( ISteamUser* self, int nSeries, bool bFoil )
 {
     return (get_steam_client()->steam_user)->GetGameBadgeLevel(nSeries, bFoil);
 }
 
-STEAMAPI_API int SteamAPI_ISteamUser_GetPlayerSteamLevel(intptr_t instancePtr)
+STEAMAPI_API int SteamAPI_ISteamUser_GetPlayerSteamLevel( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->GetPlayerSteamLevel();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_RequestStoreAuthURL(intptr_t instancePtr, const char * pchRedirectURL)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_RequestStoreAuthURL( ISteamUser* self, const char * pchRedirectURL )
 {
     return (get_steam_client()->steam_user)->RequestStoreAuthURL(pchRedirectURL);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneVerified(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneVerified( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->BIsPhoneVerified();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_BIsTwoFactorEnabled(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUser_BIsTwoFactorEnabled( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->BIsTwoFactorEnabled();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneIdentifying(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneIdentifying( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->BIsPhoneIdentifying();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneRequiringVerification(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneRequiringVerification( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->BIsPhoneRequiringVerification();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_GetMarketEligibility(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_GetMarketEligibility( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->GetMarketEligibility();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_GetDurationControl(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_GetDurationControl( ISteamUser* self )
 {
     return (get_steam_client()->steam_user)->GetDurationControl();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetPersonaName(intptr_t instancePtr)
+STEAMAPI_API ISteamFriends *SteamAPI_SteamFriends_v017()
+{
+    return get_steam_client()->GetISteamFriends(flat_hsteamuser(), flat_hsteampipe(), "SteamFriends017");
+}
+
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetPersonaName( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->GetPersonaName();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_SetPersonaName(intptr_t instancePtr, const char * pchPersonaName)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_SetPersonaName( ISteamFriends* self, const char * pchPersonaName )
 {
     return (get_steam_client()->steam_friends)->SetPersonaName(pchPersonaName);
 }
 
-STEAMAPI_API EPersonaState SteamAPI_ISteamFriends_GetPersonaState(intptr_t instancePtr)
+STEAMAPI_API EPersonaState SteamAPI_ISteamFriends_GetPersonaState( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->GetPersonaState();
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendCount(intptr_t instancePtr, int iFriendFlags)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendCount( ISteamFriends* self, int iFriendFlags )
 {
     return (get_steam_client()->steam_friends)->GetFriendCount(iFriendFlags);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamFriends_GetFriendByIndex(intptr_t instancePtr, int iFriend, int iFriendFlags)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamFriends_GetFriendByIndex( ISteamFriends* self, int iFriend, int iFriendFlags )
 {
     return (get_steam_client()->steam_friends)->GetFriendByIndex(iFriend, iFriendFlags).ConvertToUint64();
 }
 
-STEAMAPI_API EFriendRelationship SteamAPI_ISteamFriends_GetFriendRelationship(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API EFriendRelationship SteamAPI_ISteamFriends_GetFriendRelationship( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendRelationship(steamIDFriend);
 }
 
-STEAMAPI_API EPersonaState SteamAPI_ISteamFriends_GetFriendPersonaState(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API EPersonaState SteamAPI_ISteamFriends_GetFriendPersonaState( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendPersonaState(steamIDFriend);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendPersonaName(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendPersonaName( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendPersonaName(steamIDFriend);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_GetFriendGamePlayed(intptr_t instancePtr, class CSteamID steamIDFriend, struct FriendGameInfo_t * pFriendGameInfo)
+STEAMAPI_API bool SteamAPI_ISteamFriends_GetFriendGamePlayed( ISteamFriends* self, uint64_steamid steamIDFriend, FriendGameInfo_t * pFriendGameInfo )
 {
     return (get_steam_client()->steam_friends)->GetFriendGamePlayed(steamIDFriend, pFriendGameInfo);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendPersonaNameHistory(intptr_t instancePtr, class CSteamID steamIDFriend, int iPersonaName)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendPersonaNameHistory( ISteamFriends* self, uint64_steamid steamIDFriend, int iPersonaName )
 {
     return (get_steam_client()->steam_friends)->GetFriendPersonaNameHistory(steamIDFriend, iPersonaName);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendSteamLevel(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendSteamLevel( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendSteamLevel(steamIDFriend);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetPlayerNickname(intptr_t instancePtr, class CSteamID steamIDPlayer)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetPlayerNickname( ISteamFriends* self, uint64_steamid steamIDPlayer )
 {
     return (get_steam_client()->steam_friends)->GetPlayerNickname(steamIDPlayer);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendsGroupCount(intptr_t instancePtr)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendsGroupCount( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->GetFriendsGroupCount();
 }
 
-STEAMAPI_API FriendsGroupID_t SteamAPI_ISteamFriends_GetFriendsGroupIDByIndex(intptr_t instancePtr, int iFG)
+STEAMAPI_API FriendsGroupID_t SteamAPI_ISteamFriends_GetFriendsGroupIDByIndex( ISteamFriends* self, int iFG )
 {
     return (get_steam_client()->steam_friends)->GetFriendsGroupIDByIndex(iFG);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendsGroupName(intptr_t instancePtr, FriendsGroupID_t friendsGroupID)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendsGroupName( ISteamFriends* self, FriendsGroupID_t friendsGroupID )
 {
     return (get_steam_client()->steam_friends)->GetFriendsGroupName(friendsGroupID);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendsGroupMembersCount(intptr_t instancePtr, FriendsGroupID_t friendsGroupID)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendsGroupMembersCount( ISteamFriends* self, FriendsGroupID_t friendsGroupID )
 {
     return (get_steam_client()->steam_friends)->GetFriendsGroupMembersCount(friendsGroupID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_GetFriendsGroupMembersList(intptr_t instancePtr, FriendsGroupID_t friendsGroupID, class CSteamID * pOutSteamIDMembers, int nMembersCount)
+STEAMAPI_API void SteamAPI_ISteamFriends_GetFriendsGroupMembersList( ISteamFriends* self, FriendsGroupID_t friendsGroupID, CSteamID * pOutSteamIDMembers, int nMembersCount )
 {
     return (get_steam_client()->steam_friends)->GetFriendsGroupMembersList(friendsGroupID, pOutSteamIDMembers, nMembersCount);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_HasFriend(intptr_t instancePtr, class CSteamID steamIDFriend, int iFriendFlags)
+STEAMAPI_API bool SteamAPI_ISteamFriends_HasFriend( ISteamFriends* self, uint64_steamid steamIDFriend, int iFriendFlags )
 {
     return (get_steam_client()->steam_friends)->HasFriend(steamIDFriend, iFriendFlags);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetClanCount(intptr_t instancePtr)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetClanCount( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->GetClanCount();
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamFriends_GetClanByIndex(intptr_t instancePtr, int iClan)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamFriends_GetClanByIndex( ISteamFriends* self, int iClan )
 {
     return (get_steam_client()->steam_friends)->GetClanByIndex(iClan).ConvertToUint64();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetClanName(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetClanName( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->GetClanName(steamIDClan);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetClanTag(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetClanTag( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->GetClanTag(steamIDClan);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_GetClanActivityCounts(intptr_t instancePtr, class CSteamID steamIDClan, int * pnOnline, int * pnInGame, int * pnChatting)
+STEAMAPI_API bool SteamAPI_ISteamFriends_GetClanActivityCounts( ISteamFriends* self, uint64_steamid steamIDClan, int * pnOnline, int * pnInGame, int * pnChatting )
 {
     return (get_steam_client()->steam_friends)->GetClanActivityCounts(steamIDClan, pnOnline, pnInGame, pnChatting);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_DownloadClanActivityCounts(intptr_t instancePtr, class CSteamID * psteamIDClans, int cClansToRequest)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_DownloadClanActivityCounts( ISteamFriends* self, CSteamID * psteamIDClans, int cClansToRequest )
 {
     return (get_steam_client()->steam_friends)->DownloadClanActivityCounts(psteamIDClans, cClansToRequest);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendCountFromSource(intptr_t instancePtr, class CSteamID steamIDSource)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendCountFromSource( ISteamFriends* self, uint64_steamid steamIDSource )
 {
     return (get_steam_client()->steam_friends)->GetFriendCountFromSource(steamIDSource);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamFriends_GetFriendFromSourceByIndex(intptr_t instancePtr, class CSteamID steamIDSource, int iFriend)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamFriends_GetFriendFromSourceByIndex( ISteamFriends* self, uint64_steamid steamIDSource, int iFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendFromSourceByIndex(steamIDSource, iFriend).ConvertToUint64();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_IsUserInSource(intptr_t instancePtr, class CSteamID steamIDUser, class CSteamID steamIDSource)
+STEAMAPI_API bool SteamAPI_ISteamFriends_IsUserInSource( ISteamFriends* self, uint64_steamid steamIDUser, uint64_steamid steamIDSource )
 {
     return (get_steam_client()->steam_friends)->IsUserInSource(steamIDUser, steamIDSource);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_SetInGameVoiceSpeaking(intptr_t instancePtr, class CSteamID steamIDUser, bool bSpeaking)
+STEAMAPI_API void SteamAPI_ISteamFriends_SetInGameVoiceSpeaking( ISteamFriends* self, uint64_steamid steamIDUser, bool bSpeaking )
 {
     return (get_steam_client()->steam_friends)->SetInGameVoiceSpeaking(steamIDUser, bSpeaking);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlay(intptr_t instancePtr, const char * pchDialog)
+STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlay( ISteamFriends* self, const char * pchDialog )
 {
     return (get_steam_client()->steam_friends)->ActivateGameOverlay(pchDialog);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayToUser(intptr_t instancePtr, const char * pchDialog, class CSteamID steamID)
+STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayToUser( ISteamFriends* self, const char * pchDialog, uint64_steamid steamID )
 {
     return (get_steam_client()->steam_friends)->ActivateGameOverlayToUser(pchDialog, steamID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayToWebPage(intptr_t instancePtr, const char * pchURL, EActivateGameOverlayToWebPageMode eMode)
+STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayToWebPage( ISteamFriends* self, const char * pchURL, EActivateGameOverlayToWebPageMode eMode )
 {
     return (get_steam_client()->steam_friends)->ActivateGameOverlayToWebPage(pchURL, eMode);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayToStore(intptr_t instancePtr, AppId_t nAppID, EOverlayToStoreFlag eFlag)
+STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayToStore( ISteamFriends* self, AppId_t nAppID, EOverlayToStoreFlag eFlag )
 {
     return (get_steam_client()->steam_friends)->ActivateGameOverlayToStore(nAppID, eFlag);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_SetPlayedWith(intptr_t instancePtr, class CSteamID steamIDUserPlayedWith)
+STEAMAPI_API void SteamAPI_ISteamFriends_SetPlayedWith( ISteamFriends* self, uint64_steamid steamIDUserPlayedWith )
 {
     return (get_steam_client()->steam_friends)->SetPlayedWith(steamIDUserPlayedWith);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayInviteDialog(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayInviteDialog( ISteamFriends* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_friends)->ActivateGameOverlayInviteDialog(steamIDLobby);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetSmallFriendAvatar(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetSmallFriendAvatar( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetSmallFriendAvatar(steamIDFriend);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetMediumFriendAvatar(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetMediumFriendAvatar( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetMediumFriendAvatar(steamIDFriend);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetLargeFriendAvatar(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetLargeFriendAvatar( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetLargeFriendAvatar(steamIDFriend);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_RequestUserInformation(intptr_t instancePtr, class CSteamID steamIDUser, bool bRequireNameOnly)
+STEAMAPI_API bool SteamAPI_ISteamFriends_RequestUserInformation( ISteamFriends* self, uint64_steamid steamIDUser, bool bRequireNameOnly )
 {
     return (get_steam_client()->steam_friends)->RequestUserInformation(steamIDUser, bRequireNameOnly);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_RequestClanOfficerList(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_RequestClanOfficerList( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->RequestClanOfficerList(steamIDClan);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamFriends_GetClanOwner(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamFriends_GetClanOwner( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->GetClanOwner(steamIDClan).ConvertToUint64();
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetClanOfficerCount(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetClanOfficerCount( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->GetClanOfficerCount(steamIDClan);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamFriends_GetClanOfficerByIndex(intptr_t instancePtr, class CSteamID steamIDClan, int iOfficer)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamFriends_GetClanOfficerByIndex( ISteamFriends* self, uint64_steamid steamIDClan, int iOfficer )
 {
     return (get_steam_client()->steam_friends)->GetClanOfficerByIndex(steamIDClan, iOfficer).ConvertToUint64();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamFriends_GetUserRestrictions(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamFriends_GetUserRestrictions( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->GetUserRestrictions();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_SetRichPresence(intptr_t instancePtr, const char * pchKey, const char * pchValue)
+STEAMAPI_API bool SteamAPI_ISteamFriends_SetRichPresence( ISteamFriends* self, const char * pchKey, const char * pchValue )
 {
     return (get_steam_client()->steam_friends)->SetRichPresence(pchKey, pchValue);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_ClearRichPresence(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamFriends_ClearRichPresence( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->ClearRichPresence();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendRichPresence(intptr_t instancePtr, class CSteamID steamIDFriend, const char * pchKey)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendRichPresence( ISteamFriends* self, uint64_steamid steamIDFriend, const char * pchKey )
 {
     return (get_steam_client()->steam_friends)->GetFriendRichPresence(steamIDFriend, pchKey);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendRichPresenceKeyCount(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendRichPresenceKeyCount( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendRichPresenceKeyCount(steamIDFriend);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendRichPresenceKeyByIndex(intptr_t instancePtr, class CSteamID steamIDFriend, int iKey)
+STEAMAPI_API const char * SteamAPI_ISteamFriends_GetFriendRichPresenceKeyByIndex( ISteamFriends* self, uint64_steamid steamIDFriend, int iKey )
 {
     return (get_steam_client()->steam_friends)->GetFriendRichPresenceKeyByIndex(steamIDFriend, iKey);
 }
 
-STEAMAPI_API void SteamAPI_ISteamFriends_RequestFriendRichPresence(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API void SteamAPI_ISteamFriends_RequestFriendRichPresence( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->RequestFriendRichPresence(steamIDFriend);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_InviteUserToGame(intptr_t instancePtr, class CSteamID steamIDFriend, const char * pchConnectString)
+STEAMAPI_API bool SteamAPI_ISteamFriends_InviteUserToGame( ISteamFriends* self, uint64_steamid steamIDFriend, const char * pchConnectString )
 {
     return (get_steam_client()->steam_friends)->InviteUserToGame(steamIDFriend, pchConnectString);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetCoplayFriendCount(intptr_t instancePtr)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetCoplayFriendCount( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->GetCoplayFriendCount();
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamFriends_GetCoplayFriend(intptr_t instancePtr, int iCoplayFriend)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamFriends_GetCoplayFriend( ISteamFriends* self, int iCoplayFriend )
 {
     return (get_steam_client()->steam_friends)->GetCoplayFriend(iCoplayFriend).ConvertToUint64();
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendCoplayTime(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendCoplayTime( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendCoplayTime(steamIDFriend);
 }
 
-STEAMAPI_API AppId_t SteamAPI_ISteamFriends_GetFriendCoplayGame(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API AppId_t SteamAPI_ISteamFriends_GetFriendCoplayGame( ISteamFriends* self, uint64_steamid steamIDFriend )
 {
     return (get_steam_client()->steam_friends)->GetFriendCoplayGame(steamIDFriend);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_JoinClanChatRoom(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_JoinClanChatRoom( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->JoinClanChatRoom(steamIDClan);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_LeaveClanChatRoom(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API bool SteamAPI_ISteamFriends_LeaveClanChatRoom( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->LeaveClanChatRoom(steamIDClan);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetClanChatMemberCount(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetClanChatMemberCount( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->GetClanChatMemberCount(steamIDClan);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamFriends_GetChatMemberByIndex(intptr_t instancePtr, class CSteamID steamIDClan, int iUser)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamFriends_GetChatMemberByIndex( ISteamFriends* self, uint64_steamid steamIDClan, int iUser )
 {
     return (get_steam_client()->steam_friends)->GetChatMemberByIndex(steamIDClan, iUser).ConvertToUint64();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_SendClanChatMessage(intptr_t instancePtr, class CSteamID steamIDClanChat, const char * pchText)
+STEAMAPI_API bool SteamAPI_ISteamFriends_SendClanChatMessage( ISteamFriends* self, uint64_steamid steamIDClanChat, const char * pchText )
 {
     return (get_steam_client()->steam_friends)->SendClanChatMessage(steamIDClanChat, pchText);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetClanChatMessage(intptr_t instancePtr, class CSteamID steamIDClanChat, int iMessage, void * prgchText, int cchTextMax, EChatEntryType * peChatEntryType, class CSteamID * psteamidChatter)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetClanChatMessage( ISteamFriends* self, uint64_steamid steamIDClanChat, int iMessage, void * prgchText, int cchTextMax, EChatEntryType * peChatEntryType, CSteamID * psteamidChatter )
 {
     return (get_steam_client()->steam_friends)->GetClanChatMessage(steamIDClanChat, iMessage, prgchText, cchTextMax, peChatEntryType, psteamidChatter);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanChatAdmin(intptr_t instancePtr, class CSteamID steamIDClanChat, class CSteamID steamIDUser)
+STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanChatAdmin( ISteamFriends* self, uint64_steamid steamIDClanChat, uint64_steamid steamIDUser )
 {
     return (get_steam_client()->steam_friends)->IsClanChatAdmin(steamIDClanChat, steamIDUser);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanChatWindowOpenInSteam(intptr_t instancePtr, class CSteamID steamIDClanChat)
+STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanChatWindowOpenInSteam( ISteamFriends* self, uint64_steamid steamIDClanChat )
 {
     return (get_steam_client()->steam_friends)->IsClanChatWindowOpenInSteam(steamIDClanChat);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_OpenClanChatWindowInSteam(intptr_t instancePtr, class CSteamID steamIDClanChat)
+STEAMAPI_API bool SteamAPI_ISteamFriends_OpenClanChatWindowInSteam( ISteamFriends* self, uint64_steamid steamIDClanChat )
 {
     return (get_steam_client()->steam_friends)->OpenClanChatWindowInSteam(steamIDClanChat);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_CloseClanChatWindowInSteam(intptr_t instancePtr, class CSteamID steamIDClanChat)
+STEAMAPI_API bool SteamAPI_ISteamFriends_CloseClanChatWindowInSteam( ISteamFriends* self, uint64_steamid steamIDClanChat )
 {
     return (get_steam_client()->steam_friends)->CloseClanChatWindowInSteam(steamIDClanChat);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_SetListenForFriendsMessages(intptr_t instancePtr, bool bInterceptEnabled)
+STEAMAPI_API bool SteamAPI_ISteamFriends_SetListenForFriendsMessages( ISteamFriends* self, bool bInterceptEnabled )
 {
     return (get_steam_client()->steam_friends)->SetListenForFriendsMessages(bInterceptEnabled);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_ReplyToFriendMessage(intptr_t instancePtr, class CSteamID steamIDFriend, const char * pchMsgToSend)
+STEAMAPI_API bool SteamAPI_ISteamFriends_ReplyToFriendMessage( ISteamFriends* self, uint64_steamid steamIDFriend, const char * pchMsgToSend )
 {
     return (get_steam_client()->steam_friends)->ReplyToFriendMessage(steamIDFriend, pchMsgToSend);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendMessage(intptr_t instancePtr, class CSteamID steamIDFriend, int iMessageID, void * pvData, int cubData, EChatEntryType * peChatEntryType)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetFriendMessage( ISteamFriends* self, uint64_steamid steamIDFriend, int iMessageID, void * pvData, int cubData, EChatEntryType * peChatEntryType )
 {
     return (get_steam_client()->steam_friends)->GetFriendMessage(steamIDFriend, iMessageID, pvData, cubData, peChatEntryType);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_GetFollowerCount(intptr_t instancePtr, class CSteamID steamID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_GetFollowerCount( ISteamFriends* self, uint64_steamid steamID )
 {
     return (get_steam_client()->steam_friends)->GetFollowerCount(steamID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_IsFollowing(intptr_t instancePtr, class CSteamID steamID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_IsFollowing( ISteamFriends* self, uint64_steamid steamID )
 {
     return (get_steam_client()->steam_friends)->IsFollowing(steamID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_EnumerateFollowingList(intptr_t instancePtr, uint32 unStartIndex)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamFriends_EnumerateFollowingList( ISteamFriends* self, uint32 unStartIndex )
 {
     return (get_steam_client()->steam_friends)->EnumerateFollowingList(unStartIndex);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanPublic(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanPublic( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->IsClanPublic(steamIDClan);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanOfficialGameGroup(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanOfficialGameGroup( ISteamFriends* self, uint64_steamid steamIDClan )
 {
     return (get_steam_client()->steam_friends)->IsClanOfficialGameGroup(steamIDClan);
 }
 
-STEAMAPI_API int SteamAPI_ISteamFriends_GetNumChatsWithUnreadPriorityMessages(intptr_t instancePtr)
+STEAMAPI_API int SteamAPI_ISteamFriends_GetNumChatsWithUnreadPriorityMessages( ISteamFriends* self )
 {
     return (get_steam_client()->steam_friends)->GetNumChatsWithUnreadPriorityMessages();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceAppActive(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayRemotePlayTogetherInviteDialog( ISteamFriends* self, uint64_steamid steamIDLobby )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    return (get_steam_client()->steam_friends)->ActivateGameOverlayRemotePlayTogetherInviteDialog(steamIDLobby);
+}
+
+STEAMAPI_API ISteamUtils *SteamAPI_SteamUtils_v009()
+{
+    return get_steam_client()->GetISteamUtils(flat_hsteampipe(), "SteamUtils009");
+}
+
+STEAMAPI_API ISteamUtils *SteamAPI_SteamGameServerUtils_v009()
+{
+    return get_steam_client()->GetISteamUtils(flat_gs_hsteampipe(), "SteamUtils009");
+}
+
+STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceAppActive( ISteamUtils* self )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -736,10 +765,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceAppActive(intptr_t insta
     return (ptr)->GetSecondsSinceAppActive();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceComputerActive(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceComputerActive( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -748,10 +777,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetSecondsSinceComputerActive(intptr_t 
     return (ptr)->GetSecondsSinceComputerActive();
 }
 
-STEAMAPI_API EUniverse SteamAPI_ISteamUtils_GetConnectedUniverse(intptr_t instancePtr)
+STEAMAPI_API EUniverse SteamAPI_ISteamUtils_GetConnectedUniverse( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -760,10 +789,10 @@ STEAMAPI_API EUniverse SteamAPI_ISteamUtils_GetConnectedUniverse(intptr_t instan
     return (ptr)->GetConnectedUniverse();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetServerRealTime(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetServerRealTime( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -772,10 +801,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetServerRealTime(intptr_t instancePtr)
     return (ptr)->GetServerRealTime();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamUtils_GetIPCountry(intptr_t instancePtr)
+STEAMAPI_API const char * SteamAPI_ISteamUtils_GetIPCountry( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -784,10 +813,10 @@ STEAMAPI_API const char * SteamAPI_ISteamUtils_GetIPCountry(intptr_t instancePtr
     return (ptr)->GetIPCountry();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_GetImageSize(intptr_t instancePtr, int iImage, uint32 * pnWidth, uint32 * pnHeight)
+STEAMAPI_API bool SteamAPI_ISteamUtils_GetImageSize( ISteamUtils* self, int iImage, uint32 * pnWidth, uint32 * pnHeight )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -796,10 +825,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_GetImageSize(intptr_t instancePtr, int iI
     return (ptr)->GetImageSize(iImage, pnWidth, pnHeight);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_GetImageRGBA(intptr_t instancePtr, int iImage, uint8 * pubDest, int nDestBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamUtils_GetImageRGBA( ISteamUtils* self, int iImage, uint8 * pubDest, int nDestBufferSize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -808,10 +837,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_GetImageRGBA(intptr_t instancePtr, int iI
     return (ptr)->GetImageRGBA(iImage, pubDest, nDestBufferSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_GetCSERIPPort(intptr_t instancePtr, uint32 * unIP, uint16 * usPort)
+STEAMAPI_API bool SteamAPI_ISteamUtils_GetCSERIPPort( ISteamUtils* self, uint32 * unIP, uint16 * usPort )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -820,10 +849,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_GetCSERIPPort(intptr_t instancePtr, uint3
     return (ptr)->GetCSERIPPort(unIP, usPort);
 }
 
-STEAMAPI_API uint8 SteamAPI_ISteamUtils_GetCurrentBatteryPower(intptr_t instancePtr)
+STEAMAPI_API uint8 SteamAPI_ISteamUtils_GetCurrentBatteryPower( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -832,10 +861,10 @@ STEAMAPI_API uint8 SteamAPI_ISteamUtils_GetCurrentBatteryPower(intptr_t instance
     return (ptr)->GetCurrentBatteryPower();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetAppID(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetAppID( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -844,10 +873,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetAppID(intptr_t instancePtr)
     return (ptr)->GetAppID();
 }
 
-STEAMAPI_API void SteamAPI_ISteamUtils_SetOverlayNotificationPosition(intptr_t instancePtr, ENotificationPosition eNotificationPosition)
+STEAMAPI_API void SteamAPI_ISteamUtils_SetOverlayNotificationPosition( ISteamUtils* self, ENotificationPosition eNotificationPosition )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -856,10 +885,10 @@ STEAMAPI_API void SteamAPI_ISteamUtils_SetOverlayNotificationPosition(intptr_t i
     return (ptr)->SetOverlayNotificationPosition(eNotificationPosition);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_IsAPICallCompleted(intptr_t instancePtr, SteamAPICall_t hSteamAPICall, bool * pbFailed)
+STEAMAPI_API bool SteamAPI_ISteamUtils_IsAPICallCompleted( ISteamUtils* self, SteamAPICall_t hSteamAPICall, bool * pbFailed )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -868,10 +897,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_IsAPICallCompleted(intptr_t instancePtr, 
     return (ptr)->IsAPICallCompleted(hSteamAPICall, pbFailed);
 }
 
-STEAMAPI_API ESteamAPICallFailure SteamAPI_ISteamUtils_GetAPICallFailureReason(intptr_t instancePtr, SteamAPICall_t hSteamAPICall)
+STEAMAPI_API ESteamAPICallFailure SteamAPI_ISteamUtils_GetAPICallFailureReason( ISteamUtils* self, SteamAPICall_t hSteamAPICall )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -880,10 +909,10 @@ STEAMAPI_API ESteamAPICallFailure SteamAPI_ISteamUtils_GetAPICallFailureReason(i
     return (ptr)->GetAPICallFailureReason(hSteamAPICall);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_GetAPICallResult(intptr_t instancePtr, SteamAPICall_t hSteamAPICall, void * pCallback, int cubCallback, int iCallbackExpected, bool * pbFailed)
+STEAMAPI_API bool SteamAPI_ISteamUtils_GetAPICallResult( ISteamUtils* self, SteamAPICall_t hSteamAPICall, void * pCallback, int cubCallback, int iCallbackExpected, bool * pbFailed )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -892,10 +921,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_GetAPICallResult(intptr_t instancePtr, St
     return (ptr)->GetAPICallResult(hSteamAPICall, pCallback, cubCallback, iCallbackExpected, pbFailed);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetIPCCallCount(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetIPCCallCount( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -904,10 +933,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetIPCCallCount(intptr_t instancePtr)
     return (ptr)->GetIPCCallCount();
 }
 
-STEAMAPI_API void SteamAPI_ISteamUtils_SetWarningMessageHook(intptr_t instancePtr, SteamAPIWarningMessageHook_t pFunction)
+STEAMAPI_API void SteamAPI_ISteamUtils_SetWarningMessageHook( ISteamUtils* self, SteamAPIWarningMessageHook_t pFunction )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -916,10 +945,10 @@ STEAMAPI_API void SteamAPI_ISteamUtils_SetWarningMessageHook(intptr_t instancePt
     return (ptr)->SetWarningMessageHook(pFunction);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_IsOverlayEnabled(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUtils_IsOverlayEnabled( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -928,10 +957,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_IsOverlayEnabled(intptr_t instancePtr)
     return (ptr)->IsOverlayEnabled();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_BOverlayNeedsPresent(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUtils_BOverlayNeedsPresent( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -940,10 +969,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_BOverlayNeedsPresent(intptr_t instancePtr
     return (ptr)->BOverlayNeedsPresent();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUtils_CheckFileSignature(intptr_t instancePtr, const char * szFileName)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUtils_CheckFileSignature( ISteamUtils* self, const char * szFileName )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -952,10 +981,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUtils_CheckFileSignature(intptr_t ins
     return (ptr)->CheckFileSignature(szFileName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_ShowGamepadTextInput(intptr_t instancePtr, EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char * pchDescription, uint32 unCharMax, const char * pchExistingText)
+STEAMAPI_API bool SteamAPI_ISteamUtils_ShowGamepadTextInput( ISteamUtils* self, EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char * pchDescription, uint32 unCharMax, const char * pchExistingText )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -964,10 +993,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_ShowGamepadTextInput(intptr_t instancePtr
     return (ptr)->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax, pchExistingText);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetEnteredGamepadTextLength(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetEnteredGamepadTextLength( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -976,10 +1005,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUtils_GetEnteredGamepadTextLength(intptr_t in
     return (ptr)->GetEnteredGamepadTextLength();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_GetEnteredGamepadTextInput(intptr_t instancePtr, char * pchText, uint32 cchText)
+STEAMAPI_API bool SteamAPI_ISteamUtils_GetEnteredGamepadTextInput( ISteamUtils* self, char * pchText, uint32 cchText )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -988,10 +1017,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_GetEnteredGamepadTextInput(intptr_t insta
     return (ptr)->GetEnteredGamepadTextInput(pchText, cchText);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamUtils_GetSteamUILanguage(intptr_t instancePtr)
+STEAMAPI_API const char * SteamAPI_ISteamUtils_GetSteamUILanguage( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1000,10 +1029,10 @@ STEAMAPI_API const char * SteamAPI_ISteamUtils_GetSteamUILanguage(intptr_t insta
     return (ptr)->GetSteamUILanguage();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamRunningInVR(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamRunningInVR( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1012,10 +1041,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamRunningInVR(intptr_t instancePtr)
     return (ptr)->IsSteamRunningInVR();
 }
 
-STEAMAPI_API void SteamAPI_ISteamUtils_SetOverlayNotificationInset(intptr_t instancePtr, int nHorizontalInset, int nVerticalInset)
+STEAMAPI_API void SteamAPI_ISteamUtils_SetOverlayNotificationInset( ISteamUtils* self, int nHorizontalInset, int nVerticalInset )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1024,10 +1053,10 @@ STEAMAPI_API void SteamAPI_ISteamUtils_SetOverlayNotificationInset(intptr_t inst
     return (ptr)->SetOverlayNotificationInset(nHorizontalInset, nVerticalInset);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamInBigPictureMode(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamInBigPictureMode( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1036,10 +1065,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamInBigPictureMode(intptr_t instance
     return (ptr)->IsSteamInBigPictureMode();
 }
 
-STEAMAPI_API void SteamAPI_ISteamUtils_StartVRDashboard(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamUtils_StartVRDashboard( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1048,10 +1077,10 @@ STEAMAPI_API void SteamAPI_ISteamUtils_StartVRDashboard(intptr_t instancePtr)
     return (ptr)->StartVRDashboard();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_IsVRHeadsetStreamingEnabled(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUtils_IsVRHeadsetStreamingEnabled( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1060,10 +1089,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_IsVRHeadsetStreamingEnabled(intptr_t inst
     return (ptr)->IsVRHeadsetStreamingEnabled();
 }
 
-STEAMAPI_API void SteamAPI_ISteamUtils_SetVRHeadsetStreamingEnabled(intptr_t instancePtr, bool bEnabled)
+STEAMAPI_API void SteamAPI_ISteamUtils_SetVRHeadsetStreamingEnabled( ISteamUtils* self, bool bEnabled )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1072,10 +1101,10 @@ STEAMAPI_API void SteamAPI_ISteamUtils_SetVRHeadsetStreamingEnabled(intptr_t ins
     return (ptr)->SetVRHeadsetStreamingEnabled(bEnabled);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamChinaLauncher(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamChinaLauncher( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1084,10 +1113,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamChinaLauncher(intptr_t instancePtr
     return (ptr)->IsSteamChinaLauncher();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_InitFilterText(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUtils_InitFilterText( ISteamUtils* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1096,10 +1125,10 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_InitFilterText(intptr_t instancePtr)
     return (ptr)->InitFilterText();
 }
 
-STEAMAPI_API int SteamAPI_ISteamUtils_FilterText(intptr_t instancePtr, char * pchOutFilteredText, uint32 nByteSizeOutFilteredText, const char * pchInputMessage, bool bLegalOnly)
+STEAMAPI_API int SteamAPI_ISteamUtils_FilterText( ISteamUtils* self, char * pchOutFilteredText, uint32 nByteSizeOutFilteredText, const char * pchInputMessage, bool bLegalOnly )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1108,10 +1137,10 @@ STEAMAPI_API int SteamAPI_ISteamUtils_FilterText(intptr_t instancePtr, char * pc
     return (ptr)->FilterText(pchOutFilteredText, nByteSizeOutFilteredText, pchInputMessage, bLegalOnly);
 }
 
-STEAMAPI_API ESteamIPv6ConnectivityState SteamAPI_ISteamUtils_GetIPv6ConnectivityState(intptr_t instancePtr, ESteamIPv6ConnectivityProtocol eProtocol)
+STEAMAPI_API ESteamIPv6ConnectivityState SteamAPI_ISteamUtils_GetIPv6ConnectivityState( ISteamUtils* self, ESteamIPv6ConnectivityProtocol eProtocol )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_utils);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
     auto ptr = get_steam_client()->steam_gameserver_utils;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_utils;
@@ -1120,742 +1149,772 @@ STEAMAPI_API ESteamIPv6ConnectivityState SteamAPI_ISteamUtils_GetIPv6Connectivit
     return (ptr)->GetIPv6ConnectivityState(eProtocol);
 }
 
-STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetFavoriteGameCount(intptr_t instancePtr)
+STEAMAPI_API ISteamMatchmaking *SteamAPI_SteamMatchmaking_v009()
+{
+    return get_steam_client()->GetISteamMatchmaking(flat_hsteamuser(), flat_hsteampipe(), "SteamMatchMaking009");
+}
+
+STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetFavoriteGameCount( ISteamMatchmaking* self )
 {
     return (get_steam_client()->steam_matchmaking)->GetFavoriteGameCount();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_GetFavoriteGame(intptr_t instancePtr, int iGame, AppId_t * pnAppID, uint32 * pnIP, uint16 * pnConnPort, uint16 * pnQueryPort, uint32 * punFlags, uint32 * pRTime32LastPlayedOnServer)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_GetFavoriteGame( ISteamMatchmaking* self, int iGame, AppId_t * pnAppID, uint32 * pnIP, uint16 * pnConnPort, uint16 * pnQueryPort, uint32 * punFlags, uint32 * pRTime32LastPlayedOnServer )
 {
     return (get_steam_client()->steam_matchmaking)->GetFavoriteGame(iGame, pnAppID, pnIP, pnConnPort, pnQueryPort, punFlags, pRTime32LastPlayedOnServer);
 }
 
-STEAMAPI_API int SteamAPI_ISteamMatchmaking_AddFavoriteGame(intptr_t instancePtr, AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer)
+STEAMAPI_API int SteamAPI_ISteamMatchmaking_AddFavoriteGame( ISteamMatchmaking* self, AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags, uint32 rTime32LastPlayedOnServer )
 {
     return (get_steam_client()->steam_matchmaking)->AddFavoriteGame(nAppID, nIP, nConnPort, nQueryPort, unFlags, rTime32LastPlayedOnServer);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_RemoveFavoriteGame(intptr_t instancePtr, AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_RemoveFavoriteGame( ISteamMatchmaking* self, AppId_t nAppID, uint32 nIP, uint16 nConnPort, uint16 nQueryPort, uint32 unFlags )
 {
     return (get_steam_client()->steam_matchmaking)->RemoveFavoriteGame(nAppID, nIP, nConnPort, nQueryPort, unFlags);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamMatchmaking_RequestLobbyList(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamMatchmaking_RequestLobbyList( ISteamMatchmaking* self )
 {
     return (get_steam_client()->steam_matchmaking)->RequestLobbyList();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListStringFilter(intptr_t instancePtr, const char * pchKeyToMatch, const char * pchValueToMatch, ELobbyComparison eComparisonType)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListStringFilter( ISteamMatchmaking* self, const char * pchKeyToMatch, const char * pchValueToMatch, ELobbyComparison eComparisonType )
 {
     return (get_steam_client()->steam_matchmaking)->AddRequestLobbyListStringFilter(pchKeyToMatch, pchValueToMatch, eComparisonType);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListNumericalFilter(intptr_t instancePtr, const char * pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListNumericalFilter( ISteamMatchmaking* self, const char * pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType )
 {
     return (get_steam_client()->steam_matchmaking)->AddRequestLobbyListNumericalFilter(pchKeyToMatch, nValueToMatch, eComparisonType);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListNearValueFilter(intptr_t instancePtr, const char * pchKeyToMatch, int nValueToBeCloseTo)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListNearValueFilter( ISteamMatchmaking* self, const char * pchKeyToMatch, int nValueToBeCloseTo )
 {
     return (get_steam_client()->steam_matchmaking)->AddRequestLobbyListNearValueFilter(pchKeyToMatch, nValueToBeCloseTo);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable(intptr_t instancePtr, int nSlotsAvailable)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable( ISteamMatchmaking* self, int nSlotsAvailable )
 {
     return (get_steam_client()->steam_matchmaking)->AddRequestLobbyListFilterSlotsAvailable(nSlotsAvailable);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListDistanceFilter(intptr_t instancePtr, ELobbyDistanceFilter eLobbyDistanceFilter)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListDistanceFilter( ISteamMatchmaking* self, ELobbyDistanceFilter eLobbyDistanceFilter )
 {
     return (get_steam_client()->steam_matchmaking)->AddRequestLobbyListDistanceFilter(eLobbyDistanceFilter);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListResultCountFilter(intptr_t instancePtr, int cMaxResults)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListResultCountFilter( ISteamMatchmaking* self, int cMaxResults )
 {
     return (get_steam_client()->steam_matchmaking)->AddRequestLobbyListResultCountFilter(cMaxResults);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->AddRequestLobbyListCompatibleMembersFilter(steamIDLobby);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamMatchmaking_GetLobbyByIndex(intptr_t instancePtr, int iLobby)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamMatchmaking_GetLobbyByIndex( ISteamMatchmaking* self, int iLobby )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyByIndex(iLobby).ConvertToUint64();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamMatchmaking_CreateLobby(intptr_t instancePtr, ELobbyType eLobbyType, int cMaxMembers)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamMatchmaking_CreateLobby( ISteamMatchmaking* self, ELobbyType eLobbyType, int cMaxMembers )
 {
     return (get_steam_client()->steam_matchmaking)->CreateLobby(eLobbyType, cMaxMembers);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamMatchmaking_JoinLobby(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamMatchmaking_JoinLobby( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->JoinLobby(steamIDLobby);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_LeaveLobby(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_LeaveLobby( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->LeaveLobby(steamIDLobby);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_InviteUserToLobby(intptr_t instancePtr, class CSteamID steamIDLobby, class CSteamID steamIDInvitee)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_InviteUserToLobby( ISteamMatchmaking* self, uint64_steamid steamIDLobby, uint64_steamid steamIDInvitee )
 {
     return (get_steam_client()->steam_matchmaking)->InviteUserToLobby(steamIDLobby, steamIDInvitee);
 }
 
-STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetNumLobbyMembers(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetNumLobbyMembers( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->GetNumLobbyMembers(steamIDLobby);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamMatchmaking_GetLobbyMemberByIndex(intptr_t instancePtr, class CSteamID steamIDLobby, int iMember)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamMatchmaking_GetLobbyMemberByIndex( ISteamMatchmaking* self, uint64_steamid steamIDLobby, int iMember )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyMemberByIndex(steamIDLobby, iMember).ConvertToUint64();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamMatchmaking_GetLobbyData(intptr_t instancePtr, class CSteamID steamIDLobby, const char * pchKey)
+STEAMAPI_API const char * SteamAPI_ISteamMatchmaking_GetLobbyData( ISteamMatchmaking* self, uint64_steamid steamIDLobby, const char * pchKey )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyData(steamIDLobby, pchKey);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyData(intptr_t instancePtr, class CSteamID steamIDLobby, const char * pchKey, const char * pchValue)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyData( ISteamMatchmaking* self, uint64_steamid steamIDLobby, const char * pchKey, const char * pchValue )
 {
     return (get_steam_client()->steam_matchmaking)->SetLobbyData(steamIDLobby, pchKey, pchValue);
 }
 
-STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetLobbyDataCount(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetLobbyDataCount( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyDataCount(steamIDLobby);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_GetLobbyDataByIndex(intptr_t instancePtr, class CSteamID steamIDLobby, int iLobbyData, char * pchKey, int cchKeyBufferSize, char * pchValue, int cchValueBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_GetLobbyDataByIndex( ISteamMatchmaking* self, uint64_steamid steamIDLobby, int iLobbyData, char * pchKey, int cchKeyBufferSize, char * pchValue, int cchValueBufferSize )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyDataByIndex(steamIDLobby, iLobbyData, pchKey, cchKeyBufferSize, pchValue, cchValueBufferSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_DeleteLobbyData(intptr_t instancePtr, class CSteamID steamIDLobby, const char * pchKey)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_DeleteLobbyData( ISteamMatchmaking* self, uint64_steamid steamIDLobby, const char * pchKey )
 {
     return (get_steam_client()->steam_matchmaking)->DeleteLobbyData(steamIDLobby, pchKey);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamMatchmaking_GetLobbyMemberData(intptr_t instancePtr, class CSteamID steamIDLobby, class CSteamID steamIDUser, const char * pchKey)
+STEAMAPI_API const char * SteamAPI_ISteamMatchmaking_GetLobbyMemberData( ISteamMatchmaking* self, uint64_steamid steamIDLobby, uint64_steamid steamIDUser, const char * pchKey )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyMemberData(steamIDLobby, steamIDUser, pchKey);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_SetLobbyMemberData(intptr_t instancePtr, class CSteamID steamIDLobby, const char * pchKey, const char * pchValue)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_SetLobbyMemberData( ISteamMatchmaking* self, uint64_steamid steamIDLobby, const char * pchKey, const char * pchValue )
 {
     return (get_steam_client()->steam_matchmaking)->SetLobbyMemberData(steamIDLobby, pchKey, pchValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SendLobbyChatMsg(intptr_t instancePtr, class CSteamID steamIDLobby, const void * pvMsgBody, int cubMsgBody)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SendLobbyChatMsg( ISteamMatchmaking* self, uint64_steamid steamIDLobby, const void * pvMsgBody, int cubMsgBody )
 {
     return (get_steam_client()->steam_matchmaking)->SendLobbyChatMsg(steamIDLobby, pvMsgBody, cubMsgBody);
 }
 
-STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetLobbyChatEntry(intptr_t instancePtr, class CSteamID steamIDLobby, int iChatID, class CSteamID * pSteamIDUser, void * pvData, int cubData, EChatEntryType * peChatEntryType)
+STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetLobbyChatEntry( ISteamMatchmaking* self, uint64_steamid steamIDLobby, int iChatID, CSteamID * pSteamIDUser, void * pvData, int cubData, EChatEntryType * peChatEntryType )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyChatEntry(steamIDLobby, iChatID, pSteamIDUser, pvData, cubData, peChatEntryType);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_RequestLobbyData(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_RequestLobbyData( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->RequestLobbyData(steamIDLobby);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmaking_SetLobbyGameServer(intptr_t instancePtr, class CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, class CSteamID steamIDGameServer)
+STEAMAPI_API void SteamAPI_ISteamMatchmaking_SetLobbyGameServer( ISteamMatchmaking* self, uint64_steamid steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, uint64_steamid steamIDGameServer )
 {
     return (get_steam_client()->steam_matchmaking)->SetLobbyGameServer(steamIDLobby, unGameServerIP, unGameServerPort, steamIDGameServer);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_GetLobbyGameServer(intptr_t instancePtr, class CSteamID steamIDLobby, uint32 * punGameServerIP, uint16 * punGameServerPort, class CSteamID * psteamIDGameServer)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_GetLobbyGameServer( ISteamMatchmaking* self, uint64_steamid steamIDLobby, uint32 * punGameServerIP, uint16 * punGameServerPort, CSteamID * psteamIDGameServer )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyGameServer(steamIDLobby, punGameServerIP, punGameServerPort, psteamIDGameServer);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyMemberLimit(intptr_t instancePtr, class CSteamID steamIDLobby, int cMaxMembers)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyMemberLimit( ISteamMatchmaking* self, uint64_steamid steamIDLobby, int cMaxMembers )
 {
     return (get_steam_client()->steam_matchmaking)->SetLobbyMemberLimit(steamIDLobby, cMaxMembers);
 }
 
-STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetLobbyMemberLimit(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API int SteamAPI_ISteamMatchmaking_GetLobbyMemberLimit( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyMemberLimit(steamIDLobby);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyType(intptr_t instancePtr, class CSteamID steamIDLobby, ELobbyType eLobbyType)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyType( ISteamMatchmaking* self, uint64_steamid steamIDLobby, ELobbyType eLobbyType )
 {
     return (get_steam_client()->steam_matchmaking)->SetLobbyType(steamIDLobby, eLobbyType);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyJoinable(intptr_t instancePtr, class CSteamID steamIDLobby, bool bLobbyJoinable)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyJoinable( ISteamMatchmaking* self, uint64_steamid steamIDLobby, bool bLobbyJoinable )
 {
     return (get_steam_client()->steam_matchmaking)->SetLobbyJoinable(steamIDLobby, bLobbyJoinable);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamMatchmaking_GetLobbyOwner(intptr_t instancePtr, class CSteamID steamIDLobby)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamMatchmaking_GetLobbyOwner( ISteamMatchmaking* self, uint64_steamid steamIDLobby )
 {
     return (get_steam_client()->steam_matchmaking)->GetLobbyOwner(steamIDLobby).ConvertToUint64();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyOwner(intptr_t instancePtr, class CSteamID steamIDLobby, class CSteamID steamIDNewOwner)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLobbyOwner( ISteamMatchmaking* self, uint64_steamid steamIDLobby, uint64_steamid steamIDNewOwner )
 {
     return (get_steam_client()->steam_matchmaking)->SetLobbyOwner(steamIDLobby, steamIDNewOwner);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLinkedLobby(intptr_t instancePtr, class CSteamID steamIDLobby, class CSteamID steamIDLobbyDependent)
+STEAMAPI_API bool SteamAPI_ISteamMatchmaking_SetLinkedLobby( ISteamMatchmaking* self, uint64_steamid steamIDLobby, uint64_steamid steamIDLobbyDependent )
 {
     return (get_steam_client()->steam_matchmaking)->SetLinkedLobby(steamIDLobby, steamIDLobbyDependent);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServerListResponse_ServerResponded(intptr_t instancePtr, HServerListRequest hRequest, int iServer)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServerListResponse_ServerResponded( ISteamMatchmakingServerListResponse* self, HServerListRequest hRequest, int iServer )
 {
-    return ((ISteamMatchmakingServerListResponse *)instancePtr)->ServerResponded(hRequest, iServer);
+    return self->ServerResponded(hRequest, iServer);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServerListResponse_ServerFailedToRespond(intptr_t instancePtr, HServerListRequest hRequest, int iServer)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServerListResponse_ServerFailedToRespond( ISteamMatchmakingServerListResponse* self, HServerListRequest hRequest, int iServer )
 {
-    return ((ISteamMatchmakingServerListResponse *)instancePtr)->ServerFailedToRespond(hRequest, iServer);
+    return self->ServerFailedToRespond(hRequest, iServer);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServerListResponse_RefreshComplete(intptr_t instancePtr, HServerListRequest hRequest, EMatchMakingServerResponse response)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServerListResponse_RefreshComplete( ISteamMatchmakingServerListResponse* self, HServerListRequest hRequest, EMatchMakingServerResponse response )
 {
-    return ((ISteamMatchmakingServerListResponse *)instancePtr)->RefreshComplete(hRequest, response);
+    return self->RefreshComplete(hRequest, response);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingPingResponse_ServerResponded(intptr_t instancePtr, class gameserveritem_t & server)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingPingResponse_ServerResponded( ISteamMatchmakingPingResponse* self, gameserveritem_t & server )
 {
-    return ((ISteamMatchmakingPingResponse *)instancePtr)->ServerResponded(server);
+    return self->ServerResponded(server);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingPingResponse_ServerFailedToRespond(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingPingResponse_ServerFailedToRespond( ISteamMatchmakingPingResponse* self )
 {
-    return ((ISteamMatchmakingPingResponse *)instancePtr)->ServerFailedToRespond();
+    return self->ServerFailedToRespond();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingPlayersResponse_AddPlayerToList(intptr_t instancePtr, const char * pchName, int nScore, float flTimePlayed)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingPlayersResponse_AddPlayerToList( ISteamMatchmakingPlayersResponse* self, const char * pchName, int nScore, float flTimePlayed )
 {
-    return ((ISteamMatchmakingPlayersResponse *)instancePtr)->AddPlayerToList(pchName, nScore, flTimePlayed);
+    return self->AddPlayerToList(pchName, nScore, flTimePlayed);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingPlayersResponse_PlayersFailedToRespond(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingPlayersResponse_PlayersFailedToRespond( ISteamMatchmakingPlayersResponse* self )
 {
-    return ((ISteamMatchmakingPlayersResponse *)instancePtr)->PlayersFailedToRespond();
+    return self->PlayersFailedToRespond();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingPlayersResponse_PlayersRefreshComplete(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingPlayersResponse_PlayersRefreshComplete( ISteamMatchmakingPlayersResponse* self )
 {
-    return ((ISteamMatchmakingPlayersResponse *)instancePtr)->PlayersRefreshComplete();
+    return self->PlayersRefreshComplete();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingRulesResponse_RulesResponded(intptr_t instancePtr, const char * pchRule, const char * pchValue)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingRulesResponse_RulesResponded( ISteamMatchmakingRulesResponse* self, const char * pchRule, const char * pchValue )
 {
-    return ((ISteamMatchmakingRulesResponse *)instancePtr)->RulesResponded(pchRule, pchValue);
+    return self->RulesResponded(pchRule, pchValue);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingRulesResponse_RulesFailedToRespond(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingRulesResponse_RulesFailedToRespond( ISteamMatchmakingRulesResponse* self )
 {
-    return ((ISteamMatchmakingRulesResponse *)instancePtr)->RulesFailedToRespond();
+    return self->RulesFailedToRespond();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingRulesResponse_RulesRefreshComplete(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingRulesResponse_RulesRefreshComplete( ISteamMatchmakingRulesResponse* self )
 {
-    return ((ISteamMatchmakingRulesResponse *)instancePtr)->RulesRefreshComplete();
+    return self->RulesRefreshComplete();
 }
 
-STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestInternetServerList(intptr_t instancePtr, AppId_t iApp, struct MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, class ISteamMatchmakingServerListResponse * pRequestServersResponse)
+STEAMAPI_API ISteamMatchmakingServers *SteamAPI_SteamMatchmakingServers_v002()
+{
+    return get_steam_client()->GetISteamMatchmakingServers(flat_hsteamuser(), flat_hsteampipe(), "SteamMatchMakingServers002");
+}
+
+STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestInternetServerList( ISteamMatchmakingServers* self, AppId_t iApp, MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RequestInternetServerList(iApp, ppchFilters, nFilters, pRequestServersResponse);
 }
 
-STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestLANServerList(intptr_t instancePtr, AppId_t iApp, class ISteamMatchmakingServerListResponse * pRequestServersResponse)
+STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestLANServerList( ISteamMatchmakingServers* self, AppId_t iApp, ISteamMatchmakingServerListResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RequestLANServerList(iApp, pRequestServersResponse);
 }
 
-STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestFriendsServerList(intptr_t instancePtr, AppId_t iApp, struct MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, class ISteamMatchmakingServerListResponse * pRequestServersResponse)
+STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestFriendsServerList( ISteamMatchmakingServers* self, AppId_t iApp, MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RequestFriendsServerList(iApp, ppchFilters, nFilters, pRequestServersResponse);
 }
 
-STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestFavoritesServerList(intptr_t instancePtr, AppId_t iApp, struct MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, class ISteamMatchmakingServerListResponse * pRequestServersResponse)
+STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestFavoritesServerList( ISteamMatchmakingServers* self, AppId_t iApp, MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RequestFavoritesServerList(iApp, ppchFilters, nFilters, pRequestServersResponse);
 }
 
-STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestHistoryServerList(intptr_t instancePtr, AppId_t iApp, struct MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, class ISteamMatchmakingServerListResponse * pRequestServersResponse)
+STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestHistoryServerList( ISteamMatchmakingServers* self, AppId_t iApp, MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RequestHistoryServerList(iApp, ppchFilters, nFilters, pRequestServersResponse);
 }
 
-STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestSpectatorServerList(intptr_t instancePtr, AppId_t iApp, struct MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, class ISteamMatchmakingServerListResponse * pRequestServersResponse)
+STEAMAPI_API HServerListRequest SteamAPI_ISteamMatchmakingServers_RequestSpectatorServerList( ISteamMatchmakingServers* self, AppId_t iApp, MatchMakingKeyValuePair_t ** ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RequestSpectatorServerList(iApp, ppchFilters, nFilters, pRequestServersResponse);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_ReleaseRequest(intptr_t instancePtr, HServerListRequest hServerListRequest)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_ReleaseRequest( ISteamMatchmakingServers* self, HServerListRequest hServerListRequest )
 {
     return (get_steam_client()->steam_matchmaking_servers)->ReleaseRequest(hServerListRequest);
 }
 
-STEAMAPI_API class gameserveritem_t * SteamAPI_ISteamMatchmakingServers_GetServerDetails(intptr_t instancePtr, HServerListRequest hRequest, int iServer)
+STEAMAPI_API gameserveritem_t * SteamAPI_ISteamMatchmakingServers_GetServerDetails( ISteamMatchmakingServers* self, HServerListRequest hRequest, int iServer )
 {
     return (get_steam_client()->steam_matchmaking_servers)->GetServerDetails(hRequest, iServer);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_CancelQuery(intptr_t instancePtr, HServerListRequest hRequest)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_CancelQuery( ISteamMatchmakingServers* self, HServerListRequest hRequest )
 {
     return (get_steam_client()->steam_matchmaking_servers)->CancelQuery(hRequest);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_RefreshQuery(intptr_t instancePtr, HServerListRequest hRequest)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_RefreshQuery( ISteamMatchmakingServers* self, HServerListRequest hRequest )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RefreshQuery(hRequest);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMatchmakingServers_IsRefreshing(intptr_t instancePtr, HServerListRequest hRequest)
+STEAMAPI_API bool SteamAPI_ISteamMatchmakingServers_IsRefreshing( ISteamMatchmakingServers* self, HServerListRequest hRequest )
 {
     return (get_steam_client()->steam_matchmaking_servers)->IsRefreshing(hRequest);
 }
 
-STEAMAPI_API int SteamAPI_ISteamMatchmakingServers_GetServerCount(intptr_t instancePtr, HServerListRequest hRequest)
+STEAMAPI_API int SteamAPI_ISteamMatchmakingServers_GetServerCount( ISteamMatchmakingServers* self, HServerListRequest hRequest )
 {
     return (get_steam_client()->steam_matchmaking_servers)->GetServerCount(hRequest);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_RefreshServer(intptr_t instancePtr, HServerListRequest hRequest, int iServer)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_RefreshServer( ISteamMatchmakingServers* self, HServerListRequest hRequest, int iServer )
 {
     return (get_steam_client()->steam_matchmaking_servers)->RefreshServer(hRequest, iServer);
 }
 
-STEAMAPI_API HServerQuery SteamAPI_ISteamMatchmakingServers_PingServer(intptr_t instancePtr, uint32 unIP, uint16 usPort, class ISteamMatchmakingPingResponse * pRequestServersResponse)
+STEAMAPI_API HServerQuery SteamAPI_ISteamMatchmakingServers_PingServer( ISteamMatchmakingServers* self, uint32 unIP, uint16 usPort, ISteamMatchmakingPingResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->PingServer(unIP, usPort, pRequestServersResponse);
 }
 
-STEAMAPI_API HServerQuery SteamAPI_ISteamMatchmakingServers_PlayerDetails(intptr_t instancePtr, uint32 unIP, uint16 usPort, class ISteamMatchmakingPlayersResponse * pRequestServersResponse)
+STEAMAPI_API HServerQuery SteamAPI_ISteamMatchmakingServers_PlayerDetails( ISteamMatchmakingServers* self, uint32 unIP, uint16 usPort, ISteamMatchmakingPlayersResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->PlayerDetails(unIP, usPort, pRequestServersResponse);
 }
 
-STEAMAPI_API HServerQuery SteamAPI_ISteamMatchmakingServers_ServerRules(intptr_t instancePtr, uint32 unIP, uint16 usPort, class ISteamMatchmakingRulesResponse * pRequestServersResponse)
+STEAMAPI_API HServerQuery SteamAPI_ISteamMatchmakingServers_ServerRules( ISteamMatchmakingServers* self, uint32 unIP, uint16 usPort, ISteamMatchmakingRulesResponse * pRequestServersResponse )
 {
     return (get_steam_client()->steam_matchmaking_servers)->ServerRules(unIP, usPort, pRequestServersResponse);
 }
 
-STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_CancelServerQuery(intptr_t instancePtr, HServerQuery hServerQuery)
+STEAMAPI_API void SteamAPI_ISteamMatchmakingServers_CancelServerQuery( ISteamMatchmakingServers* self, HServerQuery hServerQuery )
 {
     return (get_steam_client()->steam_matchmaking_servers)->CancelServerQuery(hServerQuery);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_AddGameSearchParams(intptr_t instancePtr, const char * pchKeyToFind, const char * pchValuesToFind)
+STEAMAPI_API ISteamGameSearch *SteamAPI_SteamGameSearch_v001()
 {
-    return ((ISteamGameSearch *)instancePtr)->AddGameSearchParams(pchKeyToFind, pchValuesToFind);
+    return get_steam_client()->GetISteamGameSearch(flat_hsteamuser(), flat_hsteampipe(), "SteamMatchGameSearch001");
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SearchForGameWithLobby(intptr_t instancePtr, class CSteamID steamIDLobby, int nPlayerMin, int nPlayerMax)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_AddGameSearchParams( ISteamGameSearch* self, const char * pchKeyToFind, const char * pchValuesToFind )
 {
-    return ((ISteamGameSearch *)instancePtr)->SearchForGameWithLobby(steamIDLobby, nPlayerMin, nPlayerMax);
+    return self->AddGameSearchParams(pchKeyToFind, pchValuesToFind);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SearchForGameSolo(intptr_t instancePtr, int nPlayerMin, int nPlayerMax)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SearchForGameWithLobby( ISteamGameSearch* self, uint64_steamid steamIDLobby, int nPlayerMin, int nPlayerMax )
 {
-    return ((ISteamGameSearch *)instancePtr)->SearchForGameSolo(nPlayerMin, nPlayerMax);
+    return self->SearchForGameWithLobby(steamIDLobby, nPlayerMin, nPlayerMax);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_AcceptGame(intptr_t instancePtr)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SearchForGameSolo( ISteamGameSearch* self, int nPlayerMin, int nPlayerMax )
 {
-    return ((ISteamGameSearch *)instancePtr)->AcceptGame();
+    return self->SearchForGameSolo(nPlayerMin, nPlayerMax);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_DeclineGame(intptr_t instancePtr)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_AcceptGame( ISteamGameSearch* self )
 {
-    return ((ISteamGameSearch *)instancePtr)->DeclineGame();
+    return self->AcceptGame();
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_RetrieveConnectionDetails(intptr_t instancePtr, class CSteamID steamIDHost, char * pchConnectionDetails, int cubConnectionDetails)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_DeclineGame( ISteamGameSearch* self )
 {
-    return ((ISteamGameSearch *)instancePtr)->RetrieveConnectionDetails(steamIDHost, pchConnectionDetails, cubConnectionDetails);
+    return self->DeclineGame();
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_EndGameSearch(intptr_t instancePtr)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_RetrieveConnectionDetails( ISteamGameSearch* self, uint64_steamid steamIDHost, char * pchConnectionDetails, int cubConnectionDetails )
 {
-    return ((ISteamGameSearch *)instancePtr)->EndGameSearch();
+    return self->RetrieveConnectionDetails(steamIDHost, pchConnectionDetails, cubConnectionDetails);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SetGameHostParams(intptr_t instancePtr, const char * pchKey, const char * pchValue)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_EndGameSearch( ISteamGameSearch* self )
 {
-    return ((ISteamGameSearch *)instancePtr)->SetGameHostParams(pchKey, pchValue);
+    return self->EndGameSearch();
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SetConnectionDetails(intptr_t instancePtr, const char * pchConnectionDetails, int cubConnectionDetails)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SetGameHostParams( ISteamGameSearch* self, const char * pchKey, const char * pchValue )
 {
-    return ((ISteamGameSearch *)instancePtr)->SetConnectionDetails(pchConnectionDetails, cubConnectionDetails);
+    return self->SetGameHostParams(pchKey, pchValue);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_RequestPlayersForGame(intptr_t instancePtr, int nPlayerMin, int nPlayerMax, int nMaxTeamSize)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SetConnectionDetails( ISteamGameSearch* self, const char * pchConnectionDetails, int cubConnectionDetails )
 {
-    return ((ISteamGameSearch *)instancePtr)->RequestPlayersForGame(nPlayerMin, nPlayerMax, nMaxTeamSize);
+    return self->SetConnectionDetails(pchConnectionDetails, cubConnectionDetails);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_HostConfirmGameStart(intptr_t instancePtr, uint64 ullUniqueGameID)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_RequestPlayersForGame( ISteamGameSearch* self, int nPlayerMin, int nPlayerMax, int nMaxTeamSize )
 {
-    return ((ISteamGameSearch *)instancePtr)->HostConfirmGameStart(ullUniqueGameID);
+    return self->RequestPlayersForGame(nPlayerMin, nPlayerMax, nMaxTeamSize);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_CancelRequestPlayersForGame(intptr_t instancePtr)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_HostConfirmGameStart( ISteamGameSearch* self, uint64 ullUniqueGameID )
 {
-    return ((ISteamGameSearch *)instancePtr)->CancelRequestPlayersForGame();
+    return self->HostConfirmGameStart(ullUniqueGameID);
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SubmitPlayerResult(intptr_t instancePtr, uint64 ullUniqueGameID, class CSteamID steamIDPlayer, EPlayerResult_t EPlayerResult)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_CancelRequestPlayersForGame( ISteamGameSearch* self )
 {
-    return ((ISteamGameSearch *)instancePtr)->SubmitPlayerResult(ullUniqueGameID, steamIDPlayer, EPlayerResult);
+    return self->CancelRequestPlayersForGame();
 }
 
-STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_EndGame(intptr_t instancePtr, uint64 ullUniqueGameID)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_SubmitPlayerResult( ISteamGameSearch* self, uint64 ullUniqueGameID, uint64_steamid steamIDPlayer, EPlayerResult_t EPlayerResult )
 {
-    return ((ISteamGameSearch *)instancePtr)->EndGame(ullUniqueGameID);
+    return self->SubmitPlayerResult(ullUniqueGameID, steamIDPlayer, EPlayerResult);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamParties_GetNumActiveBeacons(intptr_t instancePtr)
+STEAMAPI_API EGameSearchErrorCode_t SteamAPI_ISteamGameSearch_EndGame( ISteamGameSearch* self, uint64 ullUniqueGameID )
 {
-    return ((ISteamParties *)instancePtr)->GetNumActiveBeacons();
+    return self->EndGame(ullUniqueGameID);
 }
 
-STEAMAPI_API PartyBeaconID_t SteamAPI_ISteamParties_GetBeaconByIndex(intptr_t instancePtr, uint32 unIndex)
+STEAMAPI_API ISteamParties *SteamAPI_SteamParties_v002()
 {
-    return ((ISteamParties *)instancePtr)->GetBeaconByIndex(unIndex);
+    return get_steam_client()->GetISteamParties(flat_hsteamuser(), flat_hsteampipe(), "SteamParties002");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParties_GetBeaconDetails(intptr_t instancePtr, PartyBeaconID_t ulBeaconID, class CSteamID * pSteamIDBeaconOwner, struct SteamPartyBeaconLocation_t * pLocation, char * pchMetadata, int cchMetadata)
+STEAMAPI_API uint32 SteamAPI_ISteamParties_GetNumActiveBeacons( ISteamParties* self )
 {
-    return ((ISteamParties *)instancePtr)->GetBeaconDetails(ulBeaconID, pSteamIDBeaconOwner, pLocation, pchMetadata, cchMetadata);
+    return self->GetNumActiveBeacons();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamParties_JoinParty(intptr_t instancePtr, PartyBeaconID_t ulBeaconID)
+STEAMAPI_API PartyBeaconID_t SteamAPI_ISteamParties_GetBeaconByIndex( ISteamParties* self, uint32 unIndex )
 {
-    return ((ISteamParties *)instancePtr)->JoinParty(ulBeaconID);
+    return self->GetBeaconByIndex(unIndex);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParties_GetNumAvailableBeaconLocations(intptr_t instancePtr, uint32 * puNumLocations)
+STEAMAPI_API bool SteamAPI_ISteamParties_GetBeaconDetails( ISteamParties* self, PartyBeaconID_t ulBeaconID, CSteamID * pSteamIDBeaconOwner, SteamPartyBeaconLocation_t * pLocation, char * pchMetadata, int cchMetadata )
 {
-    return ((ISteamParties *)instancePtr)->GetNumAvailableBeaconLocations(puNumLocations);
+    return self->GetBeaconDetails(ulBeaconID, pSteamIDBeaconOwner, pLocation, pchMetadata, cchMetadata);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParties_GetAvailableBeaconLocations(intptr_t instancePtr, struct SteamPartyBeaconLocation_t * pLocationList, uint32 uMaxNumLocations)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamParties_JoinParty( ISteamParties* self, PartyBeaconID_t ulBeaconID )
 {
-    return ((ISteamParties *)instancePtr)->GetAvailableBeaconLocations(pLocationList, uMaxNumLocations);
+    return self->JoinParty(ulBeaconID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamParties_CreateBeacon(intptr_t instancePtr, uint32 unOpenSlots, struct SteamPartyBeaconLocation_t * pBeaconLocation, const char * pchConnectString, const char * pchMetadata)
+STEAMAPI_API bool SteamAPI_ISteamParties_GetNumAvailableBeaconLocations( ISteamParties* self, uint32 * puNumLocations )
 {
-    return ((ISteamParties *)instancePtr)->CreateBeacon(unOpenSlots, pBeaconLocation, pchConnectString, pchMetadata);
+    return self->GetNumAvailableBeaconLocations(puNumLocations);
 }
 
-STEAMAPI_API void SteamAPI_ISteamParties_OnReservationCompleted(intptr_t instancePtr, PartyBeaconID_t ulBeacon, class CSteamID steamIDUser)
+STEAMAPI_API bool SteamAPI_ISteamParties_GetAvailableBeaconLocations( ISteamParties* self, SteamPartyBeaconLocation_t * pLocationList, uint32 uMaxNumLocations )
 {
-    return ((ISteamParties *)instancePtr)->OnReservationCompleted(ulBeacon, steamIDUser);
+    return self->GetAvailableBeaconLocations(pLocationList, uMaxNumLocations);
 }
 
-STEAMAPI_API void SteamAPI_ISteamParties_CancelReservation(intptr_t instancePtr, PartyBeaconID_t ulBeacon, class CSteamID steamIDUser)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamParties_CreateBeacon( ISteamParties* self, uint32 unOpenSlots, SteamPartyBeaconLocation_t * pBeaconLocation, const char * pchConnectString, const char * pchMetadata )
 {
-    return ((ISteamParties *)instancePtr)->CancelReservation(ulBeacon, steamIDUser);
+    return self->CreateBeacon(unOpenSlots, pBeaconLocation, pchConnectString, pchMetadata);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamParties_ChangeNumOpenSlots(intptr_t instancePtr, PartyBeaconID_t ulBeacon, uint32 unOpenSlots)
+STEAMAPI_API void SteamAPI_ISteamParties_OnReservationCompleted( ISteamParties* self, PartyBeaconID_t ulBeacon, uint64_steamid steamIDUser )
 {
-    return ((ISteamParties *)instancePtr)->ChangeNumOpenSlots(ulBeacon, unOpenSlots);
+    return self->OnReservationCompleted(ulBeacon, steamIDUser);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParties_DestroyBeacon(intptr_t instancePtr, PartyBeaconID_t ulBeacon)
+STEAMAPI_API void SteamAPI_ISteamParties_CancelReservation( ISteamParties* self, PartyBeaconID_t ulBeacon, uint64_steamid steamIDUser )
 {
-    return ((ISteamParties *)instancePtr)->DestroyBeacon(ulBeacon);
+    return self->CancelReservation(ulBeacon, steamIDUser);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParties_GetBeaconLocationData(intptr_t instancePtr, struct SteamPartyBeaconLocation_t BeaconLocation, ESteamPartyBeaconLocationData eData, char * pchDataStringOut, int cchDataStringOut)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamParties_ChangeNumOpenSlots( ISteamParties* self, PartyBeaconID_t ulBeacon, uint32 unOpenSlots )
 {
-    return ((ISteamParties *)instancePtr)->GetBeaconLocationData(BeaconLocation, eData, pchDataStringOut, cchDataStringOut);
+    return self->ChangeNumOpenSlots(ulBeacon, unOpenSlots);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWrite(intptr_t instancePtr, const char * pchFile, const void * pvData, int32 cubData)
+STEAMAPI_API bool SteamAPI_ISteamParties_DestroyBeacon( ISteamParties* self, PartyBeaconID_t ulBeacon )
+{
+    return self->DestroyBeacon(ulBeacon);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamParties_GetBeaconLocationData( ISteamParties* self, SteamPartyBeaconLocation_t BeaconLocation, ESteamPartyBeaconLocationData eData, char * pchDataStringOut, int cchDataStringOut )
+{
+    return self->GetBeaconLocationData(BeaconLocation, eData, pchDataStringOut, cchDataStringOut);
+}
+
+STEAMAPI_API ISteamRemoteStorage *SteamAPI_SteamRemoteStorage_v014()
+{
+    return get_steam_client()->GetISteamRemoteStorage(flat_hsteamuser(), flat_hsteampipe(), "STEAMREMOTESTORAGE_INTERFACE_VERSION014");
+}
+
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWrite( ISteamRemoteStorage* self, const char * pchFile, const void * pvData, int32 cubData )
 {
     return (get_steam_client()->steam_remote_storage)->FileWrite(pchFile, pvData, cubData);
 }
 
-STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_FileRead(intptr_t instancePtr, const char * pchFile, void * pvData, int32 cubDataToRead)
+STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_FileRead( ISteamRemoteStorage* self, const char * pchFile, void * pvData, int32 cubDataToRead )
 {
     return (get_steam_client()->steam_remote_storage)->FileRead(pchFile, pvData, cubDataToRead);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_FileWriteAsync(intptr_t instancePtr, const char * pchFile, const void * pvData, uint32 cubData)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_FileWriteAsync( ISteamRemoteStorage* self, const char * pchFile, const void * pvData, uint32 cubData )
 {
     return (get_steam_client()->steam_remote_storage)->FileWriteAsync(pchFile, pvData, cubData);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_FileReadAsync(intptr_t instancePtr, const char * pchFile, uint32 nOffset, uint32 cubToRead)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_FileReadAsync( ISteamRemoteStorage* self, const char * pchFile, uint32 nOffset, uint32 cubToRead )
 {
     return (get_steam_client()->steam_remote_storage)->FileReadAsync(pchFile, nOffset, cubToRead);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileReadAsyncComplete(intptr_t instancePtr, SteamAPICall_t hReadCall, void * pvBuffer, uint32 cubToRead)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileReadAsyncComplete( ISteamRemoteStorage* self, SteamAPICall_t hReadCall, void * pvBuffer, uint32 cubToRead )
 {
     return (get_steam_client()->steam_remote_storage)->FileReadAsyncComplete(hReadCall, pvBuffer, cubToRead);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileForget(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileForget( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->FileForget(pchFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileDelete(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileDelete( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->FileDelete(pchFile);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_FileShare(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_FileShare( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->FileShare(pchFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_SetSyncPlatforms(intptr_t instancePtr, const char * pchFile, ERemoteStoragePlatform eRemoteStoragePlatform)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_SetSyncPlatforms( ISteamRemoteStorage* self, const char * pchFile, ERemoteStoragePlatform eRemoteStoragePlatform )
 {
     return (get_steam_client()->steam_remote_storage)->SetSyncPlatforms(pchFile, eRemoteStoragePlatform);
 }
 
-STEAMAPI_API UGCFileWriteStreamHandle_t SteamAPI_ISteamRemoteStorage_FileWriteStreamOpen(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API UGCFileWriteStreamHandle_t SteamAPI_ISteamRemoteStorage_FileWriteStreamOpen( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->FileWriteStreamOpen(pchFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWriteStreamWriteChunk(intptr_t instancePtr, UGCFileWriteStreamHandle_t writeHandle, const void * pvData, int32 cubData)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWriteStreamWriteChunk( ISteamRemoteStorage* self, UGCFileWriteStreamHandle_t writeHandle, const void * pvData, int32 cubData )
 {
     return (get_steam_client()->steam_remote_storage)->FileWriteStreamWriteChunk(writeHandle, pvData, cubData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWriteStreamClose(intptr_t instancePtr, UGCFileWriteStreamHandle_t writeHandle)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWriteStreamClose( ISteamRemoteStorage* self, UGCFileWriteStreamHandle_t writeHandle )
 {
     return (get_steam_client()->steam_remote_storage)->FileWriteStreamClose(writeHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWriteStreamCancel(intptr_t instancePtr, UGCFileWriteStreamHandle_t writeHandle)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileWriteStreamCancel( ISteamRemoteStorage* self, UGCFileWriteStreamHandle_t writeHandle )
 {
     return (get_steam_client()->steam_remote_storage)->FileWriteStreamCancel(writeHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileExists(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FileExists( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->FileExists(pchFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FilePersisted(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_FilePersisted( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->FilePersisted(pchFile);
 }
 
-STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_GetFileSize(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_GetFileSize( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->GetFileSize(pchFile);
 }
 
-STEAMAPI_API int64 SteamAPI_ISteamRemoteStorage_GetFileTimestamp(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API int64 SteamAPI_ISteamRemoteStorage_GetFileTimestamp( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->GetFileTimestamp(pchFile);
 }
 
-STEAMAPI_API ERemoteStoragePlatform SteamAPI_ISteamRemoteStorage_GetSyncPlatforms(intptr_t instancePtr, const char * pchFile)
+STEAMAPI_API ERemoteStoragePlatform SteamAPI_ISteamRemoteStorage_GetSyncPlatforms( ISteamRemoteStorage* self, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->GetSyncPlatforms(pchFile);
 }
 
-STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_GetFileCount(intptr_t instancePtr)
+STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_GetFileCount( ISteamRemoteStorage* self )
 {
     return (get_steam_client()->steam_remote_storage)->GetFileCount();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamRemoteStorage_GetFileNameAndSize(intptr_t instancePtr, int iFile, int32 * pnFileSizeInBytes)
+STEAMAPI_API const char * SteamAPI_ISteamRemoteStorage_GetFileNameAndSize( ISteamRemoteStorage* self, int iFile, int32 * pnFileSizeInBytes )
 {
     return (get_steam_client()->steam_remote_storage)->GetFileNameAndSize(iFile, pnFileSizeInBytes);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_GetQuota(intptr_t instancePtr, uint64 * pnTotalBytes, uint64 * puAvailableBytes)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_GetQuota( ISteamRemoteStorage* self, uint64 * pnTotalBytes, uint64 * puAvailableBytes )
 {
     return (get_steam_client()->steam_remote_storage)->GetQuota(pnTotalBytes, puAvailableBytes);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_IsCloudEnabledForAccount(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_IsCloudEnabledForAccount( ISteamRemoteStorage* self )
 {
     return (get_steam_client()->steam_remote_storage)->IsCloudEnabledForAccount();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_IsCloudEnabledForApp(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_IsCloudEnabledForApp( ISteamRemoteStorage* self )
 {
     return (get_steam_client()->steam_remote_storage)->IsCloudEnabledForApp();
 }
 
-STEAMAPI_API void SteamAPI_ISteamRemoteStorage_SetCloudEnabledForApp(intptr_t instancePtr, bool bEnabled)
+STEAMAPI_API void SteamAPI_ISteamRemoteStorage_SetCloudEnabledForApp( ISteamRemoteStorage* self, bool bEnabled )
 {
     return (get_steam_client()->steam_remote_storage)->SetCloudEnabledForApp(bEnabled);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UGCDownload(intptr_t instancePtr, UGCHandle_t hContent, uint32 unPriority)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UGCDownload( ISteamRemoteStorage* self, UGCHandle_t hContent, uint32 unPriority )
 {
     return (get_steam_client()->steam_remote_storage)->UGCDownload(hContent, unPriority);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_GetUGCDownloadProgress(intptr_t instancePtr, UGCHandle_t hContent, int32 * pnBytesDownloaded, int32 * pnBytesExpected)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_GetUGCDownloadProgress( ISteamRemoteStorage* self, UGCHandle_t hContent, int32 * pnBytesDownloaded, int32 * pnBytesExpected )
 {
     return (get_steam_client()->steam_remote_storage)->GetUGCDownloadProgress(hContent, pnBytesDownloaded, pnBytesExpected);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_GetUGCDetails(intptr_t instancePtr, UGCHandle_t hContent, AppId_t * pnAppID, char ** ppchName, int32 * pnFileSizeInBytes, class CSteamID * pSteamIDOwner)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_GetUGCDetails( ISteamRemoteStorage* self, UGCHandle_t hContent, AppId_t * pnAppID, char ** ppchName, int32 * pnFileSizeInBytes, CSteamID * pSteamIDOwner )
 {
     return (get_steam_client()->steam_remote_storage)->GetUGCDetails(hContent, pnAppID, ppchName, pnFileSizeInBytes, pSteamIDOwner);
 }
 
-STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_UGCRead(intptr_t instancePtr, UGCHandle_t hContent, void * pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction)
+STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_UGCRead( ISteamRemoteStorage* self, UGCHandle_t hContent, void * pvData, int32 cubDataToRead, uint32 cOffset, EUGCReadAction eAction )
 {
     return (get_steam_client()->steam_remote_storage)->UGCRead(hContent, pvData, cubDataToRead, cOffset, eAction);
 }
 
-STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_GetCachedUGCCount(intptr_t instancePtr)
+STEAMAPI_API int32 SteamAPI_ISteamRemoteStorage_GetCachedUGCCount( ISteamRemoteStorage* self )
 {
     return (get_steam_client()->steam_remote_storage)->GetCachedUGCCount();
 }
 
-STEAMAPI_API UGCHandle_t SteamAPI_ISteamRemoteStorage_GetCachedUGCHandle(intptr_t instancePtr, int32 iCachedContent)
+STEAMAPI_API UGCHandle_t SteamAPI_ISteamRemoteStorage_GetCachedUGCHandle( ISteamRemoteStorage* self, int32 iCachedContent )
 {
     return (get_steam_client()->steam_remote_storage)->GetCachedUGCHandle(iCachedContent);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_PublishWorkshopFile(intptr_t instancePtr, const char * pchFile, const char * pchPreviewFile, AppId_t nConsumerAppId, const char * pchTitle, const char * pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, struct SteamParamStringArray_t * pTags, EWorkshopFileType eWorkshopFileType)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_PublishWorkshopFile( ISteamRemoteStorage* self, const char * pchFile, const char * pchPreviewFile, AppId_t nConsumerAppId, const char * pchTitle, const char * pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t * pTags, EWorkshopFileType eWorkshopFileType )
 {
     return (get_steam_client()->steam_remote_storage)->PublishWorkshopFile(pchFile, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, pTags, eWorkshopFileType);
 }
 
-STEAMAPI_API PublishedFileUpdateHandle_t SteamAPI_ISteamRemoteStorage_CreatePublishedFileUpdateRequest(intptr_t instancePtr, PublishedFileId_t unPublishedFileId)
+STEAMAPI_API PublishedFileUpdateHandle_t SteamAPI_ISteamRemoteStorage_CreatePublishedFileUpdateRequest( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId )
 {
     return (get_steam_client()->steam_remote_storage)->CreatePublishedFileUpdateRequest(unPublishedFileId);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileFile(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle, const char * pchFile)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileFile( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle, const char * pchFile )
 {
     return (get_steam_client()->steam_remote_storage)->UpdatePublishedFileFile(updateHandle, pchFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFilePreviewFile(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle, const char * pchPreviewFile)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFilePreviewFile( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle, const char * pchPreviewFile )
 {
     return (get_steam_client()->steam_remote_storage)->UpdatePublishedFilePreviewFile(updateHandle, pchPreviewFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileTitle(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle, const char * pchTitle)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileTitle( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle, const char * pchTitle )
 {
     return (get_steam_client()->steam_remote_storage)->UpdatePublishedFileTitle(updateHandle, pchTitle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileDescription(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle, const char * pchDescription)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileDescription( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle, const char * pchDescription )
 {
     return (get_steam_client()->steam_remote_storage)->UpdatePublishedFileDescription(updateHandle, pchDescription);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileVisibility(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle, ERemoteStoragePublishedFileVisibility eVisibility)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileVisibility( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle, ERemoteStoragePublishedFileVisibility eVisibility )
 {
     return (get_steam_client()->steam_remote_storage)->UpdatePublishedFileVisibility(updateHandle, eVisibility);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileTags(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle, struct SteamParamStringArray_t * pTags)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileTags( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle, SteamParamStringArray_t * pTags )
 {
     return (get_steam_client()->steam_remote_storage)->UpdatePublishedFileTags(updateHandle, pTags);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_CommitPublishedFileUpdate(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_CommitPublishedFileUpdate( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle )
 {
     return (get_steam_client()->steam_remote_storage)->CommitPublishedFileUpdate(updateHandle);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_GetPublishedFileDetails(intptr_t instancePtr, PublishedFileId_t unPublishedFileId, uint32 unMaxSecondsOld)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_GetPublishedFileDetails( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId, uint32 unMaxSecondsOld )
 {
     return (get_steam_client()->steam_remote_storage)->GetPublishedFileDetails(unPublishedFileId, unMaxSecondsOld);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_DeletePublishedFile(intptr_t instancePtr, PublishedFileId_t unPublishedFileId)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_DeletePublishedFile( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId )
 {
     return (get_steam_client()->steam_remote_storage)->DeletePublishedFile(unPublishedFileId);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumerateUserPublishedFiles(intptr_t instancePtr, uint32 unStartIndex)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumerateUserPublishedFiles( ISteamRemoteStorage* self, uint32 unStartIndex )
 {
     return (get_steam_client()->steam_remote_storage)->EnumerateUserPublishedFiles(unStartIndex);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_SubscribePublishedFile(intptr_t instancePtr, PublishedFileId_t unPublishedFileId)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_SubscribePublishedFile( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId )
 {
     return (get_steam_client()->steam_remote_storage)->SubscribePublishedFile(unPublishedFileId);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumerateUserSubscribedFiles(intptr_t instancePtr, uint32 unStartIndex)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumerateUserSubscribedFiles( ISteamRemoteStorage* self, uint32 unStartIndex )
 {
     return (get_steam_client()->steam_remote_storage)->EnumerateUserSubscribedFiles(unStartIndex);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UnsubscribePublishedFile(intptr_t instancePtr, PublishedFileId_t unPublishedFileId)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UnsubscribePublishedFile( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId )
 {
     return (get_steam_client()->steam_remote_storage)->UnsubscribePublishedFile(unPublishedFileId);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileSetChangeDescription(intptr_t instancePtr, PublishedFileUpdateHandle_t updateHandle, const char * pchChangeDescription)
+STEAMAPI_API bool SteamAPI_ISteamRemoteStorage_UpdatePublishedFileSetChangeDescription( ISteamRemoteStorage* self, PublishedFileUpdateHandle_t updateHandle, const char * pchChangeDescription )
 {
     return (get_steam_client()->steam_remote_storage)->UpdatePublishedFileSetChangeDescription(updateHandle, pchChangeDescription);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_GetPublishedItemVoteDetails(intptr_t instancePtr, PublishedFileId_t unPublishedFileId)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_GetPublishedItemVoteDetails( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId )
 {
     return (get_steam_client()->steam_remote_storage)->GetPublishedItemVoteDetails(unPublishedFileId);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UpdateUserPublishedItemVote(intptr_t instancePtr, PublishedFileId_t unPublishedFileId, bool bVoteUp)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UpdateUserPublishedItemVote( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId, bool bVoteUp )
 {
     return (get_steam_client()->steam_remote_storage)->UpdateUserPublishedItemVote(unPublishedFileId, bVoteUp);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_GetUserPublishedItemVoteDetails(intptr_t instancePtr, PublishedFileId_t unPublishedFileId)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_GetUserPublishedItemVoteDetails( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId )
 {
     return (get_steam_client()->steam_remote_storage)->GetUserPublishedItemVoteDetails(unPublishedFileId);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumerateUserSharedWorkshopFiles(intptr_t instancePtr, class CSteamID steamId, uint32 unStartIndex, struct SteamParamStringArray_t * pRequiredTags, struct SteamParamStringArray_t * pExcludedTags)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumerateUserSharedWorkshopFiles( ISteamRemoteStorage* self, uint64_steamid steamId, uint32 unStartIndex, SteamParamStringArray_t * pRequiredTags, SteamParamStringArray_t * pExcludedTags )
 {
     return (get_steam_client()->steam_remote_storage)->EnumerateUserSharedWorkshopFiles(steamId, unStartIndex, pRequiredTags, pExcludedTags);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_PublishVideo(intptr_t instancePtr, EWorkshopVideoProvider eVideoProvider, const char * pchVideoAccount, const char * pchVideoIdentifier, const char * pchPreviewFile, AppId_t nConsumerAppId, const char * pchTitle, const char * pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, struct SteamParamStringArray_t * pTags)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_PublishVideo( ISteamRemoteStorage* self, EWorkshopVideoProvider eVideoProvider, const char * pchVideoAccount, const char * pchVideoIdentifier, const char * pchPreviewFile, AppId_t nConsumerAppId, const char * pchTitle, const char * pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t * pTags )
 {
     return (get_steam_client()->steam_remote_storage)->PublishVideo(eVideoProvider, pchVideoAccount, pchVideoIdentifier, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, pTags);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_SetUserPublishedFileAction(intptr_t instancePtr, PublishedFileId_t unPublishedFileId, EWorkshopFileAction eAction)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_SetUserPublishedFileAction( ISteamRemoteStorage* self, PublishedFileId_t unPublishedFileId, EWorkshopFileAction eAction )
 {
     return (get_steam_client()->steam_remote_storage)->SetUserPublishedFileAction(unPublishedFileId, eAction);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumeratePublishedFilesByUserAction(intptr_t instancePtr, EWorkshopFileAction eAction, uint32 unStartIndex)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumeratePublishedFilesByUserAction( ISteamRemoteStorage* self, EWorkshopFileAction eAction, uint32 unStartIndex )
 {
     return (get_steam_client()->steam_remote_storage)->EnumeratePublishedFilesByUserAction(eAction, unStartIndex);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumeratePublishedWorkshopFiles(intptr_t instancePtr, EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays, struct SteamParamStringArray_t * pTags, struct SteamParamStringArray_t * pUserTags)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumeratePublishedWorkshopFiles( ISteamRemoteStorage* self, EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays, SteamParamStringArray_t * pTags, SteamParamStringArray_t * pUserTags )
 {
     return (get_steam_client()->steam_remote_storage)->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, pTags, pUserTags);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UGCDownloadToLocation(intptr_t instancePtr, UGCHandle_t hContent, const char * pchLocation, uint32 unPriority)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UGCDownloadToLocation( ISteamRemoteStorage* self, UGCHandle_t hContent, const char * pchLocation, uint32 unPriority )
 {
     return (get_steam_client()->steam_remote_storage)->UGCDownloadToLocation(hContent, pchLocation, unPriority);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_RequestCurrentStats(intptr_t instancePtr)
+STEAMAPI_API ISteamUserStats *SteamAPI_SteamUserStats_v011()
+{
+    return get_steam_client()->GetISteamUserStats(flat_hsteamuser(), flat_hsteampipe(), "STEAMUSERSTATS_INTERFACE_VERSION011");
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUserStats_RequestCurrentStats( ISteamUserStats* self )
 {
     return (get_steam_client()->steam_user_stats)->RequestCurrentStats();
 }
@@ -1870,6 +1929,16 @@ STEAMAPI_API bool SteamAPI_ISteamUserStats_GetStat0(intptr_t instancePtr, const 
     return (get_steam_client()->steam_user_stats)->GetStat(pchName, pData);
 }
 
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetStatInt32( ISteamUserStats* self, const char * pchName, int32 * pData )
+{
+    return (get_steam_client()->steam_user_stats)->GetStat(pchName, pData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetStatFloat( ISteamUserStats* self, const char * pchName, float * pData )
+{
+    return (get_steam_client()->steam_user_stats)->GetStat(pchName, pData);
+}
+
 STEAMAPI_API bool SteamAPI_ISteamUserStats_SetStat(intptr_t instancePtr, const char * pchName, int32 nData)
 {
     return (get_steam_client()->steam_user_stats)->SetStat(pchName, nData);
@@ -1880,62 +1949,72 @@ STEAMAPI_API bool SteamAPI_ISteamUserStats_SetStat0(intptr_t instancePtr, const 
     return (get_steam_client()->steam_user_stats)->SetStat(pchName, fData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_UpdateAvgRateStat(intptr_t instancePtr, const char * pchName, float flCountThisSession, double dSessionLength)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_SetStatInt32( ISteamUserStats* self, const char * pchName, int32 nData )
+{
+    return (get_steam_client()->steam_user_stats)->SetStat(pchName, nData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUserStats_SetStatFloat( ISteamUserStats* self, const char * pchName, float fData )
+{
+    return (get_steam_client()->steam_user_stats)->SetStat(pchName, fData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUserStats_UpdateAvgRateStat( ISteamUserStats* self, const char * pchName, float flCountThisSession, double dSessionLength )
 {
     return (get_steam_client()->steam_user_stats)->UpdateAvgRateStat(pchName, flCountThisSession, dSessionLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievement(intptr_t instancePtr, const char * pchName, bool * pbAchieved)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievement( ISteamUserStats* self, const char * pchName, bool * pbAchieved )
 {
     return (get_steam_client()->steam_user_stats)->GetAchievement(pchName, pbAchieved);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_SetAchievement(intptr_t instancePtr, const char * pchName)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_SetAchievement( ISteamUserStats* self, const char * pchName )
 {
     return (get_steam_client()->steam_user_stats)->SetAchievement(pchName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_ClearAchievement(intptr_t instancePtr, const char * pchName)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_ClearAchievement( ISteamUserStats* self, const char * pchName )
 {
     return (get_steam_client()->steam_user_stats)->ClearAchievement(pchName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievementAndUnlockTime(intptr_t instancePtr, const char * pchName, bool * pbAchieved, uint32 * punUnlockTime)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievementAndUnlockTime( ISteamUserStats* self, const char * pchName, bool * pbAchieved, uint32 * punUnlockTime )
 {
     return (get_steam_client()->steam_user_stats)->GetAchievementAndUnlockTime(pchName, pbAchieved, punUnlockTime);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_StoreStats(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_StoreStats( ISteamUserStats* self )
 {
     return (get_steam_client()->steam_user_stats)->StoreStats();
 }
 
-STEAMAPI_API int SteamAPI_ISteamUserStats_GetAchievementIcon(intptr_t instancePtr, const char * pchName)
+STEAMAPI_API int SteamAPI_ISteamUserStats_GetAchievementIcon( ISteamUserStats* self, const char * pchName )
 {
     return (get_steam_client()->steam_user_stats)->GetAchievementIcon(pchName);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamUserStats_GetAchievementDisplayAttribute(intptr_t instancePtr, const char * pchName, const char * pchKey)
+STEAMAPI_API const char * SteamAPI_ISteamUserStats_GetAchievementDisplayAttribute( ISteamUserStats* self, const char * pchName, const char * pchKey )
 {
     return (get_steam_client()->steam_user_stats)->GetAchievementDisplayAttribute(pchName, pchKey);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_IndicateAchievementProgress(intptr_t instancePtr, const char * pchName, uint32 nCurProgress, uint32 nMaxProgress)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_IndicateAchievementProgress( ISteamUserStats* self, const char * pchName, uint32 nCurProgress, uint32 nMaxProgress )
 {
     return (get_steam_client()->steam_user_stats)->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUserStats_GetNumAchievements(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUserStats_GetNumAchievements( ISteamUserStats* self )
 {
     return (get_steam_client()->steam_user_stats)->GetNumAchievements();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamUserStats_GetAchievementName(intptr_t instancePtr, uint32 iAchievement)
+STEAMAPI_API const char * SteamAPI_ISteamUserStats_GetAchievementName( ISteamUserStats* self, uint32 iAchievement )
 {
     return (get_steam_client()->steam_user_stats)->GetAchievementName(iAchievement);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_RequestUserStats(intptr_t instancePtr, class CSteamID steamIDUser)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_RequestUserStats( ISteamUserStats* self, uint64_steamid steamIDUser )
 {
     return (get_steam_client()->steam_user_stats)->RequestUserStats(steamIDUser);
 }
@@ -1950,102 +2029,112 @@ STEAMAPI_API bool SteamAPI_ISteamUserStats_GetUserStat0(intptr_t instancePtr, cl
     return (get_steam_client()->steam_user_stats)->GetUserStat(steamIDUser, pchName, pData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_GetUserAchievement(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName, bool * pbAchieved)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetUserStatInt32( ISteamUserStats* self, uint64_steamid steamIDUser, const char * pchName, int32 * pData )
+{
+    return (get_steam_client()->steam_user_stats)->GetUserStat(steamIDUser, pchName, pData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetUserStatFloat( ISteamUserStats* self, uint64_steamid steamIDUser, const char * pchName, float * pData )
+{
+    return (get_steam_client()->steam_user_stats)->GetUserStat(steamIDUser, pchName, pData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetUserAchievement( ISteamUserStats* self, uint64_steamid steamIDUser, const char * pchName, bool * pbAchieved )
 {
     return (get_steam_client()->steam_user_stats)->GetUserAchievement(steamIDUser, pchName, pbAchieved);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_GetUserAchievementAndUnlockTime(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName, bool * pbAchieved, uint32 * punUnlockTime)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetUserAchievementAndUnlockTime( ISteamUserStats* self, uint64_steamid steamIDUser, const char * pchName, bool * pbAchieved, uint32 * punUnlockTime )
 {
     return (get_steam_client()->steam_user_stats)->GetUserAchievementAndUnlockTime(steamIDUser, pchName, pbAchieved, punUnlockTime);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_ResetAllStats(intptr_t instancePtr, bool bAchievementsToo)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_ResetAllStats( ISteamUserStats* self, bool bAchievementsToo )
 {
     return (get_steam_client()->steam_user_stats)->ResetAllStats(bAchievementsToo);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_FindOrCreateLeaderboard(intptr_t instancePtr, const char * pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod, ELeaderboardDisplayType eLeaderboardDisplayType)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_FindOrCreateLeaderboard( ISteamUserStats* self, const char * pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod, ELeaderboardDisplayType eLeaderboardDisplayType )
 {
     return (get_steam_client()->steam_user_stats)->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_FindLeaderboard(intptr_t instancePtr, const char * pchLeaderboardName)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_FindLeaderboard( ISteamUserStats* self, const char * pchLeaderboardName )
 {
     return (get_steam_client()->steam_user_stats)->FindLeaderboard(pchLeaderboardName);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamUserStats_GetLeaderboardName(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard)
+STEAMAPI_API const char * SteamAPI_ISteamUserStats_GetLeaderboardName( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard )
 {
     return (get_steam_client()->steam_user_stats)->GetLeaderboardName(hSteamLeaderboard);
 }
 
-STEAMAPI_API int SteamAPI_ISteamUserStats_GetLeaderboardEntryCount(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard)
+STEAMAPI_API int SteamAPI_ISteamUserStats_GetLeaderboardEntryCount( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard )
 {
     return (get_steam_client()->steam_user_stats)->GetLeaderboardEntryCount(hSteamLeaderboard);
 }
 
-STEAMAPI_API ELeaderboardSortMethod SteamAPI_ISteamUserStats_GetLeaderboardSortMethod(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard)
+STEAMAPI_API ELeaderboardSortMethod SteamAPI_ISteamUserStats_GetLeaderboardSortMethod( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard )
 {
     return (get_steam_client()->steam_user_stats)->GetLeaderboardSortMethod(hSteamLeaderboard);
 }
 
-STEAMAPI_API ELeaderboardDisplayType SteamAPI_ISteamUserStats_GetLeaderboardDisplayType(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard)
+STEAMAPI_API ELeaderboardDisplayType SteamAPI_ISteamUserStats_GetLeaderboardDisplayType( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard )
 {
     return (get_steam_client()->steam_user_stats)->GetLeaderboardDisplayType(hSteamLeaderboard);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_DownloadLeaderboardEntries(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_DownloadLeaderboardEntries( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd )
 {
     return (get_steam_client()->steam_user_stats)->DownloadLeaderboardEntries(hSteamLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_DownloadLeaderboardEntriesForUsers(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard, class CSteamID * prgUsers, int cUsers)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_DownloadLeaderboardEntriesForUsers( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard, CSteamID * prgUsers, int cUsers )
 {
     return (get_steam_client()->steam_user_stats)->DownloadLeaderboardEntriesForUsers(hSteamLeaderboard, prgUsers, cUsers);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_GetDownloadedLeaderboardEntry(intptr_t instancePtr, SteamLeaderboardEntries_t hSteamLeaderboardEntries, int index, struct LeaderboardEntry_t * pLeaderboardEntry, int32 * pDetails, int cDetailsMax)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetDownloadedLeaderboardEntry( ISteamUserStats* self, SteamLeaderboardEntries_t hSteamLeaderboardEntries, int index, LeaderboardEntry_t * pLeaderboardEntry, int32 * pDetails, int cDetailsMax )
 {
     return (get_steam_client()->steam_user_stats)->GetDownloadedLeaderboardEntry(hSteamLeaderboardEntries, index, pLeaderboardEntry, pDetails, cDetailsMax);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_UploadLeaderboardScore(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int32 nScore, const int32 * pScoreDetails, int cScoreDetailsCount)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_UploadLeaderboardScore( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int32 nScore, const int32 * pScoreDetails, int cScoreDetailsCount )
 {
     return (get_steam_client()->steam_user_stats)->UploadLeaderboardScore(hSteamLeaderboard, eLeaderboardUploadScoreMethod, nScore, pScoreDetails, cScoreDetailsCount);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_AttachLeaderboardUGC(intptr_t instancePtr, SteamLeaderboard_t hSteamLeaderboard, UGCHandle_t hUGC)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_AttachLeaderboardUGC( ISteamUserStats* self, SteamLeaderboard_t hSteamLeaderboard, UGCHandle_t hUGC )
 {
     return (get_steam_client()->steam_user_stats)->AttachLeaderboardUGC(hSteamLeaderboard, hUGC);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_GetNumberOfCurrentPlayers(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_GetNumberOfCurrentPlayers( ISteamUserStats* self )
 {
     return (get_steam_client()->steam_user_stats)->GetNumberOfCurrentPlayers();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_RequestGlobalAchievementPercentages(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_RequestGlobalAchievementPercentages( ISteamUserStats* self )
 {
     return (get_steam_client()->steam_user_stats)->RequestGlobalAchievementPercentages();
 }
 
-STEAMAPI_API int SteamAPI_ISteamUserStats_GetMostAchievedAchievementInfo(intptr_t instancePtr, char * pchName, uint32 unNameBufLen, float * pflPercent, bool * pbAchieved)
+STEAMAPI_API int SteamAPI_ISteamUserStats_GetMostAchievedAchievementInfo( ISteamUserStats* self, char * pchName, uint32 unNameBufLen, float * pflPercent, bool * pbAchieved )
 {
     return (get_steam_client()->steam_user_stats)->GetMostAchievedAchievementInfo(pchName, unNameBufLen, pflPercent, pbAchieved);
 }
 
-STEAMAPI_API int SteamAPI_ISteamUserStats_GetNextMostAchievedAchievementInfo(intptr_t instancePtr, int iIteratorPrevious, char * pchName, uint32 unNameBufLen, float * pflPercent, bool * pbAchieved)
+STEAMAPI_API int SteamAPI_ISteamUserStats_GetNextMostAchievedAchievementInfo( ISteamUserStats* self, int iIteratorPrevious, char * pchName, uint32 unNameBufLen, float * pflPercent, bool * pbAchieved )
 {
     return (get_steam_client()->steam_user_stats)->GetNextMostAchievedAchievementInfo(iIteratorPrevious, pchName, unNameBufLen, pflPercent, pbAchieved);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievementAchievedPercent(intptr_t instancePtr, const char * pchName, float * pflPercent)
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievementAchievedPercent( ISteamUserStats* self, const char * pchName, float * pflPercent )
 {
     return (get_steam_client()->steam_user_stats)->GetAchievementAchievedPercent(pchName, pflPercent);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_RequestGlobalStats(intptr_t instancePtr, int nHistoryDays)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUserStats_RequestGlobalStats( ISteamUserStats* self, int nHistoryDays )
 {
     return (get_steam_client()->steam_user_stats)->RequestGlobalStats(nHistoryDays);
 }
@@ -2060,6 +2149,16 @@ STEAMAPI_API bool SteamAPI_ISteamUserStats_GetGlobalStat0(intptr_t instancePtr, 
     return (get_steam_client()->steam_user_stats)->GetGlobalStat(pchStatName, pData);
 }
 
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetGlobalStatInt64( ISteamUserStats* self, const char * pchStatName, int64 * pData )
+{
+    return (get_steam_client()->steam_user_stats)->GetGlobalStat(pchStatName, pData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetGlobalStatDouble( ISteamUserStats* self, const char * pchStatName, double * pData )
+{
+    return (get_steam_client()->steam_user_stats)->GetGlobalStat(pchStatName, pData);
+}
+
 STEAMAPI_API int32 SteamAPI_ISteamUserStats_GetGlobalStatHistory(intptr_t instancePtr, const char * pchStatName, int64 * pData, uint32 cubData)
 {
     return (get_steam_client()->steam_user_stats)->GetGlobalStatHistory(pchStatName, pData, cubData);
@@ -2070,981 +2169,1055 @@ STEAMAPI_API int32 SteamAPI_ISteamUserStats_GetGlobalStatHistory0(intptr_t insta
     return (get_steam_client()->steam_user_stats)->GetGlobalStatHistory(pchStatName, pData, cubData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribed(intptr_t instancePtr)
+STEAMAPI_API int32 SteamAPI_ISteamUserStats_GetGlobalStatHistoryInt64( ISteamUserStats* self, const char * pchStatName, int64 * pData, uint32 cubData )
 {
-    return ((ISteamApps *)instancePtr)->BIsSubscribed();
+    return (get_steam_client()->steam_user_stats)->GetGlobalStatHistory(pchStatName, pData, cubData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsLowViolence(intptr_t instancePtr)
+STEAMAPI_API int32 SteamAPI_ISteamUserStats_GetGlobalStatHistoryDouble( ISteamUserStats* self, const char * pchStatName, double * pData, uint32 cubData )
 {
-    return ((ISteamApps *)instancePtr)->BIsLowViolence();
+    return (get_steam_client()->steam_user_stats)->GetGlobalStatHistory(pchStatName, pData, cubData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsCybercafe(intptr_t instancePtr)
+STEAMAPI_API ISteamApps *SteamAPI_SteamApps_v008()
 {
-    return ((ISteamApps *)instancePtr)->BIsCybercafe();
+    return get_steam_client()->GetISteamApps(flat_hsteamuser(), flat_hsteampipe(), "STEAMAPPS_INTERFACE_VERSION008");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsVACBanned(intptr_t instancePtr)
+STEAMAPI_API ISteamApps *SteamAPI_SteamGameServerApps_v008()
 {
-    return ((ISteamApps *)instancePtr)->BIsVACBanned();
+    return get_steam_client()->GetISteamApps(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "STEAMAPPS_INTERFACE_VERSION008");
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamApps_GetCurrentGameLanguage(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribed( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->GetCurrentGameLanguage();
+    return self->BIsSubscribed();
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamApps_GetAvailableGameLanguages(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsLowViolence( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->GetAvailableGameLanguages();
+    return self->BIsLowViolence();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribedApp(intptr_t instancePtr, AppId_t appID)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsCybercafe( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->BIsSubscribedApp(appID);
+    return self->BIsCybercafe();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsDlcInstalled(intptr_t instancePtr, AppId_t appID)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsVACBanned( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->BIsDlcInstalled(appID);
+    return self->BIsVACBanned();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamApps_GetEarliestPurchaseUnixTime(intptr_t instancePtr, AppId_t nAppID)
+STEAMAPI_API const char * SteamAPI_ISteamApps_GetCurrentGameLanguage( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->GetEarliestPurchaseUnixTime(nAppID);
+    return self->GetCurrentGameLanguage();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribedFromFreeWeekend(intptr_t instancePtr)
+STEAMAPI_API const char * SteamAPI_ISteamApps_GetAvailableGameLanguages( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->BIsSubscribedFromFreeWeekend();
+    return self->GetAvailableGameLanguages();
 }
 
-STEAMAPI_API int SteamAPI_ISteamApps_GetDLCCount(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribedApp( ISteamApps* self, AppId_t appID )
 {
-    return ((ISteamApps *)instancePtr)->GetDLCCount();
+    return self->BIsSubscribedApp(appID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BGetDLCDataByIndex(intptr_t instancePtr, int iDLC, AppId_t * pAppID, bool * pbAvailable, char * pchName, int cchNameBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsDlcInstalled( ISteamApps* self, AppId_t appID )
 {
-    return ((ISteamApps *)instancePtr)->BGetDLCDataByIndex(iDLC, pAppID, pbAvailable, pchName, cchNameBufferSize);
+    return self->BIsDlcInstalled(appID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamApps_InstallDLC(intptr_t instancePtr, AppId_t nAppID)
+STEAMAPI_API uint32 SteamAPI_ISteamApps_GetEarliestPurchaseUnixTime( ISteamApps* self, AppId_t nAppID )
 {
-    return ((ISteamApps *)instancePtr)->InstallDLC(nAppID);
+    return self->GetEarliestPurchaseUnixTime(nAppID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamApps_UninstallDLC(intptr_t instancePtr, AppId_t nAppID)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribedFromFreeWeekend( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->UninstallDLC(nAppID);
+    return self->BIsSubscribedFromFreeWeekend();
 }
 
-STEAMAPI_API void SteamAPI_ISteamApps_RequestAppProofOfPurchaseKey(intptr_t instancePtr, AppId_t nAppID)
+STEAMAPI_API int SteamAPI_ISteamApps_GetDLCCount( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->RequestAppProofOfPurchaseKey(nAppID);
+    return self->GetDLCCount();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_GetCurrentBetaName(intptr_t instancePtr, char * pchName, int cchNameBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamApps_BGetDLCDataByIndex( ISteamApps* self, int iDLC, AppId_t * pAppID, bool * pbAvailable, char * pchName, int cchNameBufferSize )
 {
-    return ((ISteamApps *)instancePtr)->GetCurrentBetaName(pchName, cchNameBufferSize);
+    return self->BGetDLCDataByIndex(iDLC, pAppID, pbAvailable, pchName, cchNameBufferSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_MarkContentCorrupt(intptr_t instancePtr, bool bMissingFilesOnly)
+STEAMAPI_API void SteamAPI_ISteamApps_InstallDLC( ISteamApps* self, AppId_t nAppID )
 {
-    return ((ISteamApps *)instancePtr)->MarkContentCorrupt(bMissingFilesOnly);
+    return self->InstallDLC(nAppID);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamApps_GetInstalledDepots(intptr_t instancePtr, AppId_t appID, DepotId_t * pvecDepots, uint32 cMaxDepots)
+STEAMAPI_API void SteamAPI_ISteamApps_UninstallDLC( ISteamApps* self, AppId_t nAppID )
 {
-    return ((ISteamApps *)instancePtr)->GetInstalledDepots(appID, pvecDepots, cMaxDepots);
+    return self->UninstallDLC(nAppID);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamApps_GetAppInstallDir(intptr_t instancePtr, AppId_t appID, char * pchFolder, uint32 cchFolderBufferSize)
+STEAMAPI_API void SteamAPI_ISteamApps_RequestAppProofOfPurchaseKey( ISteamApps* self, AppId_t nAppID )
 {
-    return ((ISteamApps *)instancePtr)->GetAppInstallDir(appID, pchFolder, cchFolderBufferSize);
+    return self->RequestAppProofOfPurchaseKey(nAppID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsAppInstalled(intptr_t instancePtr, AppId_t appID)
+STEAMAPI_API bool SteamAPI_ISteamApps_GetCurrentBetaName( ISteamApps* self, char * pchName, int cchNameBufferSize )
 {
-    return ((ISteamApps *)instancePtr)->BIsAppInstalled(appID);
+    return self->GetCurrentBetaName(pchName, cchNameBufferSize);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamApps_GetAppOwner(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamApps_MarkContentCorrupt( ISteamApps* self, bool bMissingFilesOnly )
 {
-    return ((ISteamApps *)instancePtr)->GetAppOwner().ConvertToUint64();
+    return self->MarkContentCorrupt(bMissingFilesOnly);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamApps_GetLaunchQueryParam(intptr_t instancePtr, const char * pchKey)
+STEAMAPI_API uint32 SteamAPI_ISteamApps_GetInstalledDepots( ISteamApps* self, AppId_t appID, DepotId_t * pvecDepots, uint32 cMaxDepots )
 {
-    return ((ISteamApps *)instancePtr)->GetLaunchQueryParam(pchKey);
+    return self->GetInstalledDepots(appID, pvecDepots, cMaxDepots);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_GetDlcDownloadProgress(intptr_t instancePtr, AppId_t nAppID, uint64 * punBytesDownloaded, uint64 * punBytesTotal)
+STEAMAPI_API uint32 SteamAPI_ISteamApps_GetAppInstallDir( ISteamApps* self, AppId_t appID, char * pchFolder, uint32 cchFolderBufferSize )
 {
-    return ((ISteamApps *)instancePtr)->GetDlcDownloadProgress(nAppID, punBytesDownloaded, punBytesTotal);
+    return self->GetAppInstallDir(appID, pchFolder, cchFolderBufferSize);
 }
 
-STEAMAPI_API int SteamAPI_ISteamApps_GetAppBuildId(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsAppInstalled( ISteamApps* self, AppId_t appID )
 {
-    return ((ISteamApps *)instancePtr)->GetAppBuildId();
+    return self->BIsAppInstalled(appID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamApps_RequestAllProofOfPurchaseKeys(intptr_t instancePtr)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamApps_GetAppOwner( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->RequestAllProofOfPurchaseKeys();
+    return self->GetAppOwner().ConvertToUint64();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamApps_GetFileDetails(intptr_t instancePtr, const char * pszFileName)
+STEAMAPI_API const char * SteamAPI_ISteamApps_GetLaunchQueryParam( ISteamApps* self, const char * pchKey )
 {
-    return ((ISteamApps *)instancePtr)->GetFileDetails(pszFileName);
+    return self->GetLaunchQueryParam(pchKey);
 }
 
-STEAMAPI_API int SteamAPI_ISteamApps_GetLaunchCommandLine(intptr_t instancePtr, char * pszCommandLine, int cubCommandLine)
+STEAMAPI_API bool SteamAPI_ISteamApps_GetDlcDownloadProgress( ISteamApps* self, AppId_t nAppID, uint64 * punBytesDownloaded, uint64 * punBytesTotal )
 {
-    return ((ISteamApps *)instancePtr)->GetLaunchCommandLine(pszCommandLine, cubCommandLine);
+    return self->GetDlcDownloadProgress(nAppID, punBytesDownloaded, punBytesTotal);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribedFromFamilySharing(intptr_t instancePtr)
+STEAMAPI_API int SteamAPI_ISteamApps_GetAppBuildId( ISteamApps* self )
 {
-    return ((ISteamApps *)instancePtr)->BIsSubscribedFromFamilySharing();
+    return self->GetAppBuildId();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_SendP2PPacket(intptr_t instancePtr, class CSteamID steamIDRemote, const void * pubData, uint32 cubData, EP2PSend eP2PSendType, int nChannel)
+STEAMAPI_API void SteamAPI_ISteamApps_RequestAllProofOfPurchaseKeys( ISteamApps* self )
 {
-    return ((ISteamNetworking *)instancePtr)->SendP2PPacket(steamIDRemote, pubData, cubData, eP2PSendType, nChannel);
+    return self->RequestAllProofOfPurchaseKeys();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_IsP2PPacketAvailable(intptr_t instancePtr, uint32 * pcubMsgSize, int nChannel)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamApps_GetFileDetails( ISteamApps* self, const char * pszFileName )
 {
-    return ((ISteamNetworking *)instancePtr)->IsP2PPacketAvailable(pcubMsgSize, nChannel);
+    return self->GetFileDetails(pszFileName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_ReadP2PPacket(intptr_t instancePtr, void * pubDest, uint32 cubDest, uint32 * pcubMsgSize, class CSteamID * psteamIDRemote, int nChannel)
+STEAMAPI_API int SteamAPI_ISteamApps_GetLaunchCommandLine( ISteamApps* self, char * pszCommandLine, int cubCommandLine )
 {
-    return ((ISteamNetworking *)instancePtr)->ReadP2PPacket(pubDest, cubDest, pcubMsgSize, psteamIDRemote, nChannel);
+    return self->GetLaunchCommandLine(pszCommandLine, cubCommandLine);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_AcceptP2PSessionWithUser(intptr_t instancePtr, class CSteamID steamIDRemote)
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribedFromFamilySharing( ISteamApps* self )
 {
-    return ((ISteamNetworking *)instancePtr)->AcceptP2PSessionWithUser(steamIDRemote);
+    return self->BIsSubscribedFromFamilySharing();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_CloseP2PSessionWithUser(intptr_t instancePtr, class CSteamID steamIDRemote)
+STEAMAPI_API ISteamNetworking *SteamAPI_SteamNetworking_v006()
 {
-    return ((ISteamNetworking *)instancePtr)->CloseP2PSessionWithUser(steamIDRemote);
+    return get_steam_client()->GetISteamNetworking(flat_hsteamuser(), flat_hsteampipe(), "SteamNetworking006");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_CloseP2PChannelWithUser(intptr_t instancePtr, class CSteamID steamIDRemote, int nChannel)
+STEAMAPI_API ISteamNetworking *SteamAPI_SteamGameServerNetworking_v006()
 {
-    return ((ISteamNetworking *)instancePtr)->CloseP2PChannelWithUser(steamIDRemote, nChannel);
+    return get_steam_client()->GetISteamNetworking(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "SteamNetworking006");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_GetP2PSessionState(intptr_t instancePtr, class CSteamID steamIDRemote, struct P2PSessionState_t * pConnectionState)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_SendP2PPacket( ISteamNetworking* self, uint64_steamid steamIDRemote, const void * pubData, uint32 cubData, EP2PSend eP2PSendType, int nChannel )
 {
-    return ((ISteamNetworking *)instancePtr)->GetP2PSessionState(steamIDRemote, pConnectionState);
+    return self->SendP2PPacket(steamIDRemote, pubData, cubData, eP2PSendType, nChannel);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_AllowP2PPacketRelay(intptr_t instancePtr, bool bAllow)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_IsP2PPacketAvailable( ISteamNetworking* self, uint32 * pcubMsgSize, int nChannel )
 {
-    return ((ISteamNetworking *)instancePtr)->AllowP2PPacketRelay(bAllow);
+    return self->IsP2PPacketAvailable(pcubMsgSize, nChannel);
 }
 
-STEAMAPI_API SNetListenSocket_t SteamAPI_ISteamNetworking_CreateListenSocket(intptr_t instancePtr, int nVirtualP2PPort, struct SteamIPAddress_t nIP, uint16 nPort, bool bAllowUseOfPacketRelay)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_ReadP2PPacket( ISteamNetworking* self, void * pubDest, uint32 cubDest, uint32 * pcubMsgSize, CSteamID * psteamIDRemote, int nChannel )
 {
-    return ((ISteamNetworking *)instancePtr)->CreateListenSocket(nVirtualP2PPort, nIP, nPort, bAllowUseOfPacketRelay);
+    return self->ReadP2PPacket(pubDest, cubDest, pcubMsgSize, psteamIDRemote, nChannel);
 }
 
-STEAMAPI_API SNetSocket_t SteamAPI_ISteamNetworking_CreateP2PConnectionSocket(intptr_t instancePtr, class CSteamID steamIDTarget, int nVirtualPort, int nTimeoutSec, bool bAllowUseOfPacketRelay)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_AcceptP2PSessionWithUser( ISteamNetworking* self, uint64_steamid steamIDRemote )
 {
-    return ((ISteamNetworking *)instancePtr)->CreateP2PConnectionSocket(steamIDTarget, nVirtualPort, nTimeoutSec, bAllowUseOfPacketRelay);
+    return self->AcceptP2PSessionWithUser(steamIDRemote);
 }
 
-STEAMAPI_API SNetSocket_t SteamAPI_ISteamNetworking_CreateConnectionSocket(intptr_t instancePtr, struct SteamIPAddress_t nIP, uint16 nPort, int nTimeoutSec)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_CloseP2PSessionWithUser( ISteamNetworking* self, uint64_steamid steamIDRemote )
 {
-    return ((ISteamNetworking *)instancePtr)->CreateConnectionSocket(nIP, nPort, nTimeoutSec);
+    return self->CloseP2PSessionWithUser(steamIDRemote);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_DestroySocket(intptr_t instancePtr, SNetSocket_t hSocket, bool bNotifyRemoteEnd)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_CloseP2PChannelWithUser( ISteamNetworking* self, uint64_steamid steamIDRemote, int nChannel )
 {
-    return ((ISteamNetworking *)instancePtr)->DestroySocket(hSocket, bNotifyRemoteEnd);
+    return self->CloseP2PChannelWithUser(steamIDRemote, nChannel);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_DestroyListenSocket(intptr_t instancePtr, SNetListenSocket_t hSocket, bool bNotifyRemoteEnd)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_GetP2PSessionState( ISteamNetworking* self, uint64_steamid steamIDRemote, P2PSessionState_t * pConnectionState )
 {
-    return ((ISteamNetworking *)instancePtr)->DestroyListenSocket(hSocket, bNotifyRemoteEnd);
+    return self->GetP2PSessionState(steamIDRemote, pConnectionState);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_SendDataOnSocket(intptr_t instancePtr, SNetSocket_t hSocket, void * pubData, uint32 cubData, bool bReliable)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_AllowP2PPacketRelay( ISteamNetworking* self, bool bAllow )
 {
-    return ((ISteamNetworking *)instancePtr)->SendDataOnSocket(hSocket, pubData, cubData, bReliable);
+    return self->AllowP2PPacketRelay(bAllow);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_IsDataAvailableOnSocket(intptr_t instancePtr, SNetSocket_t hSocket, uint32 * pcubMsgSize)
+STEAMAPI_API SNetListenSocket_t SteamAPI_ISteamNetworking_CreateListenSocket( ISteamNetworking* self, int nVirtualP2PPort, SteamIPAddress_t nIP, uint16 nPort, bool bAllowUseOfPacketRelay )
 {
-    return ((ISteamNetworking *)instancePtr)->IsDataAvailableOnSocket(hSocket, pcubMsgSize);
+    return self->CreateListenSocket(nVirtualP2PPort, nIP, nPort, bAllowUseOfPacketRelay);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_RetrieveDataFromSocket(intptr_t instancePtr, SNetSocket_t hSocket, void * pubDest, uint32 cubDest, uint32 * pcubMsgSize)
+STEAMAPI_API SNetSocket_t SteamAPI_ISteamNetworking_CreateP2PConnectionSocket( ISteamNetworking* self, uint64_steamid steamIDTarget, int nVirtualPort, int nTimeoutSec, bool bAllowUseOfPacketRelay )
 {
-    return ((ISteamNetworking *)instancePtr)->RetrieveDataFromSocket(hSocket, pubDest, cubDest, pcubMsgSize);
+    return self->CreateP2PConnectionSocket(steamIDTarget, nVirtualPort, nTimeoutSec, bAllowUseOfPacketRelay);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_IsDataAvailable(intptr_t instancePtr, SNetListenSocket_t hListenSocket, uint32 * pcubMsgSize, SNetSocket_t * phSocket)
+STEAMAPI_API SNetSocket_t SteamAPI_ISteamNetworking_CreateConnectionSocket( ISteamNetworking* self, SteamIPAddress_t nIP, uint16 nPort, int nTimeoutSec )
 {
-    return ((ISteamNetworking *)instancePtr)->IsDataAvailable(hListenSocket, pcubMsgSize, phSocket);
+    return self->CreateConnectionSocket(nIP, nPort, nTimeoutSec);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_RetrieveData(intptr_t instancePtr, SNetListenSocket_t hListenSocket, void * pubDest, uint32 cubDest, uint32 * pcubMsgSize, SNetSocket_t * phSocket)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_DestroySocket( ISteamNetworking* self, SNetSocket_t hSocket, bool bNotifyRemoteEnd )
 {
-    return ((ISteamNetworking *)instancePtr)->RetrieveData(hListenSocket, pubDest, cubDest, pcubMsgSize, phSocket);
+    return self->DestroySocket(hSocket, bNotifyRemoteEnd);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_GetSocketInfo(intptr_t instancePtr, SNetSocket_t hSocket, class CSteamID * pSteamIDRemote, int * peSocketStatus, struct SteamIPAddress_t * punIPRemote, uint16 * punPortRemote)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_DestroyListenSocket( ISteamNetworking* self, SNetListenSocket_t hSocket, bool bNotifyRemoteEnd )
 {
-    return ((ISteamNetworking *)instancePtr)->GetSocketInfo(hSocket, pSteamIDRemote, peSocketStatus, punIPRemote, punPortRemote);
+    return self->DestroyListenSocket(hSocket, bNotifyRemoteEnd);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamNetworking_GetListenSocketInfo(intptr_t instancePtr, SNetListenSocket_t hListenSocket, struct SteamIPAddress_t * pnIP, uint16 * pnPort)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_SendDataOnSocket( ISteamNetworking* self, SNetSocket_t hSocket, void * pubData, uint32 cubData, bool bReliable )
 {
-    return ((ISteamNetworking *)instancePtr)->GetListenSocketInfo(hListenSocket, pnIP, pnPort);
+    return self->SendDataOnSocket(hSocket, pubData, cubData, bReliable);
 }
 
-STEAMAPI_API ESNetSocketConnectionType SteamAPI_ISteamNetworking_GetSocketConnectionType(intptr_t instancePtr, SNetSocket_t hSocket)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_IsDataAvailableOnSocket( ISteamNetworking* self, SNetSocket_t hSocket, uint32 * pcubMsgSize )
 {
-    return ((ISteamNetworking *)instancePtr)->GetSocketConnectionType(hSocket);
+    return self->IsDataAvailableOnSocket(hSocket, pcubMsgSize);
 }
 
-STEAMAPI_API int SteamAPI_ISteamNetworking_GetMaxPacketSize(intptr_t instancePtr, SNetSocket_t hSocket)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_RetrieveDataFromSocket( ISteamNetworking* self, SNetSocket_t hSocket, void * pubDest, uint32 cubDest, uint32 * pcubMsgSize )
 {
-    return ((ISteamNetworking *)instancePtr)->GetMaxPacketSize(hSocket);
+    return self->RetrieveDataFromSocket(hSocket, pubDest, cubDest, pcubMsgSize);
 }
 
+STEAMAPI_API bool SteamAPI_ISteamNetworking_IsDataAvailable( ISteamNetworking* self, SNetListenSocket_t hListenSocket, uint32 * pcubMsgSize, SNetSocket_t * phSocket )
+{
+    return self->IsDataAvailable(hListenSocket, pcubMsgSize, phSocket);
+}
 
-STEAMAPI_API ScreenshotHandle SteamAPI_ISteamScreenshots_WriteScreenshot(intptr_t instancePtr, void * pubRGB, uint32 cubRGB, int nWidth, int nHeight)
+STEAMAPI_API bool SteamAPI_ISteamNetworking_RetrieveData( ISteamNetworking* self, SNetListenSocket_t hListenSocket, void * pubDest, uint32 cubDest, uint32 * pcubMsgSize, SNetSocket_t * phSocket )
+{
+    return self->RetrieveData(hListenSocket, pubDest, cubDest, pcubMsgSize, phSocket);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworking_GetSocketInfo( ISteamNetworking* self, SNetSocket_t hSocket, CSteamID * pSteamIDRemote, int * peSocketStatus, SteamIPAddress_t * punIPRemote, uint16 * punPortRemote )
+{
+    return self->GetSocketInfo(hSocket, pSteamIDRemote, peSocketStatus, punIPRemote, punPortRemote);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworking_GetListenSocketInfo( ISteamNetworking* self, SNetListenSocket_t hListenSocket, SteamIPAddress_t * pnIP, uint16 * pnPort )
+{
+    return self->GetListenSocketInfo(hListenSocket, pnIP, pnPort);
+}
+
+STEAMAPI_API ESNetSocketConnectionType SteamAPI_ISteamNetworking_GetSocketConnectionType( ISteamNetworking* self, SNetSocket_t hSocket )
+{
+    return self->GetSocketConnectionType(hSocket);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworking_GetMaxPacketSize( ISteamNetworking* self, SNetSocket_t hSocket )
+{
+    return self->GetMaxPacketSize(hSocket);
+}
+
+STEAMAPI_API ISteamScreenshots *SteamAPI_SteamScreenshots_v003()
+{
+    return get_steam_client()->GetISteamScreenshots(flat_hsteamuser(), flat_hsteampipe(), "STEAMSCREENSHOTS_INTERFACE_VERSION003");
+}
+
+STEAMAPI_API ScreenshotHandle SteamAPI_ISteamScreenshots_WriteScreenshot( ISteamScreenshots* self, void * pubRGB, uint32 cubRGB, int nWidth, int nHeight )
 {
     return (get_steam_client()->steam_screenshots)->WriteScreenshot(pubRGB, cubRGB, nWidth, nHeight);
 }
 
-STEAMAPI_API ScreenshotHandle SteamAPI_ISteamScreenshots_AddScreenshotToLibrary(intptr_t instancePtr, const char * pchFilename, const char * pchThumbnailFilename, int nWidth, int nHeight)
+STEAMAPI_API ScreenshotHandle SteamAPI_ISteamScreenshots_AddScreenshotToLibrary( ISteamScreenshots* self, const char * pchFilename, const char * pchThumbnailFilename, int nWidth, int nHeight )
 {
     return (get_steam_client()->steam_screenshots)->AddScreenshotToLibrary(pchFilename, pchThumbnailFilename, nWidth, nHeight);
 }
 
-STEAMAPI_API void SteamAPI_ISteamScreenshots_TriggerScreenshot(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamScreenshots_TriggerScreenshot( ISteamScreenshots* self )
 {
     return (get_steam_client()->steam_screenshots)->TriggerScreenshot();
 }
 
-STEAMAPI_API void SteamAPI_ISteamScreenshots_HookScreenshots(intptr_t instancePtr, bool bHook)
+STEAMAPI_API void SteamAPI_ISteamScreenshots_HookScreenshots( ISteamScreenshots* self, bool bHook )
 {
     return (get_steam_client()->steam_screenshots)->HookScreenshots(bHook);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamScreenshots_SetLocation(intptr_t instancePtr, ScreenshotHandle hScreenshot, const char * pchLocation)
+STEAMAPI_API bool SteamAPI_ISteamScreenshots_SetLocation( ISteamScreenshots* self, ScreenshotHandle hScreenshot, const char * pchLocation )
 {
     return (get_steam_client()->steam_screenshots)->SetLocation(hScreenshot, pchLocation);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamScreenshots_TagUser(intptr_t instancePtr, ScreenshotHandle hScreenshot, class CSteamID steamID)
+STEAMAPI_API bool SteamAPI_ISteamScreenshots_TagUser( ISteamScreenshots* self, ScreenshotHandle hScreenshot, uint64_steamid steamID )
 {
     return (get_steam_client()->steam_screenshots)->TagUser(hScreenshot, steamID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamScreenshots_TagPublishedFile(intptr_t instancePtr, ScreenshotHandle hScreenshot, PublishedFileId_t unPublishedFileID)
+STEAMAPI_API bool SteamAPI_ISteamScreenshots_TagPublishedFile( ISteamScreenshots* self, ScreenshotHandle hScreenshot, PublishedFileId_t unPublishedFileID )
 {
     return (get_steam_client()->steam_screenshots)->TagPublishedFile(hScreenshot, unPublishedFileID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamScreenshots_IsScreenshotsHooked(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamScreenshots_IsScreenshotsHooked( ISteamScreenshots* self )
 {
     return (get_steam_client()->steam_screenshots)->IsScreenshotsHooked();
 }
 
-STEAMAPI_API ScreenshotHandle SteamAPI_ISteamScreenshots_AddVRScreenshotToLibrary(intptr_t instancePtr, EVRScreenshotType eType, const char * pchFilename, const char * pchVRFilename)
+STEAMAPI_API ScreenshotHandle SteamAPI_ISteamScreenshots_AddVRScreenshotToLibrary( ISteamScreenshots* self, EVRScreenshotType eType, const char * pchFilename, const char * pchVRFilename )
 {
     return (get_steam_client()->steam_screenshots)->AddVRScreenshotToLibrary(eType, pchFilename, pchVRFilename);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusic_BIsEnabled(intptr_t instancePtr)
+STEAMAPI_API ISteamMusic *SteamAPI_SteamMusic_v001()
 {
-    return ((ISteamMusic *)instancePtr)->BIsEnabled();
+    return get_steam_client()->GetISteamMusic(flat_hsteamuser(), flat_hsteampipe(), "STEAMMUSIC_INTERFACE_VERSION001");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusic_BIsPlaying(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusic_BIsEnabled( ISteamMusic* self )
 {
-    return ((ISteamMusic *)instancePtr)->BIsPlaying();
+    return self->BIsEnabled();
 }
 
-STEAMAPI_API AudioPlayback_Status SteamAPI_ISteamMusic_GetPlaybackStatus(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusic_BIsPlaying( ISteamMusic* self )
 {
-    return ((ISteamMusic *)instancePtr)->GetPlaybackStatus();
+    return self->BIsPlaying();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMusic_Play(intptr_t instancePtr)
+STEAMAPI_API AudioPlayback_Status SteamAPI_ISteamMusic_GetPlaybackStatus( ISteamMusic* self )
 {
-    return ((ISteamMusic *)instancePtr)->Play();
+    return self->GetPlaybackStatus();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMusic_Pause(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMusic_Play( ISteamMusic* self )
 {
-    return ((ISteamMusic *)instancePtr)->Pause();
+    return self->Play();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMusic_PlayPrevious(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMusic_Pause( ISteamMusic* self )
 {
-    return ((ISteamMusic *)instancePtr)->PlayPrevious();
+    return self->Pause();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMusic_PlayNext(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMusic_PlayPrevious( ISteamMusic* self )
 {
-    return ((ISteamMusic *)instancePtr)->PlayNext();
+    return self->PlayPrevious();
 }
 
-STEAMAPI_API void SteamAPI_ISteamMusic_SetVolume(intptr_t instancePtr, float flVolume)
+STEAMAPI_API void SteamAPI_ISteamMusic_PlayNext( ISteamMusic* self )
 {
-    return ((ISteamMusic *)instancePtr)->SetVolume(flVolume);
+    return self->PlayNext();
 }
 
-STEAMAPI_API float SteamAPI_ISteamMusic_GetVolume(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamMusic_SetVolume( ISteamMusic* self, float flVolume )
 {
-    return ((ISteamMusic *)instancePtr)->GetVolume();
+    return self->SetVolume(flVolume);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_RegisterSteamMusicRemote(intptr_t instancePtr, const char * pchName)
+STEAMAPI_API float SteamAPI_ISteamMusic_GetVolume( ISteamMusic* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->RegisterSteamMusicRemote(pchName);
+    return self->GetVolume();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_DeregisterSteamMusicRemote(intptr_t instancePtr)
+STEAMAPI_API ISteamMusicRemote *SteamAPI_SteamMusicRemote_v001()
 {
-    return ((ISteamMusicRemote *)instancePtr)->DeregisterSteamMusicRemote();
+    return get_steam_client()->GetISteamMusicRemote(flat_hsteamuser(), flat_hsteampipe(), "STEAMMUSICREMOTE_INTERFACE_VERSION001");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_BIsCurrentMusicRemote(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_RegisterSteamMusicRemote( ISteamMusicRemote* self, const char * pchName )
 {
-    return ((ISteamMusicRemote *)instancePtr)->BIsCurrentMusicRemote();
+    return self->RegisterSteamMusicRemote(pchName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_BActivationSuccess(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_DeregisterSteamMusicRemote( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->BActivationSuccess(bValue);
+    return self->DeregisterSteamMusicRemote();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetDisplayName(intptr_t instancePtr, const char * pchDisplayName)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_BIsCurrentMusicRemote( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->SetDisplayName(pchDisplayName);
+    return self->BIsCurrentMusicRemote();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetPNGIcon_64x64(intptr_t instancePtr, void * pvBuffer, uint32 cbBufferLength)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_BActivationSuccess( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->SetPNGIcon_64x64(pvBuffer, cbBufferLength);
+    return self->BActivationSuccess(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnablePlayPrevious(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetDisplayName( ISteamMusicRemote* self, const char * pchDisplayName )
 {
-    return ((ISteamMusicRemote *)instancePtr)->EnablePlayPrevious(bValue);
+    return self->SetDisplayName(pchDisplayName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnablePlayNext(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetPNGIcon_64x64( ISteamMusicRemote* self, void * pvBuffer, uint32 cbBufferLength )
 {
-    return ((ISteamMusicRemote *)instancePtr)->EnablePlayNext(bValue);
+    return self->SetPNGIcon_64x64(pvBuffer, cbBufferLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnableShuffled(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnablePlayPrevious( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->EnableShuffled(bValue);
+    return self->EnablePlayPrevious(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnableLooped(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnablePlayNext( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->EnableLooped(bValue);
+    return self->EnablePlayNext(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnableQueue(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnableShuffled( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->EnableQueue(bValue);
+    return self->EnableShuffled(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnablePlaylists(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnableLooped( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->EnablePlaylists(bValue);
+    return self->EnableLooped(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdatePlaybackStatus(intptr_t instancePtr, AudioPlayback_Status nStatus)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnableQueue( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->UpdatePlaybackStatus(nStatus);
+    return self->EnableQueue(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateShuffled(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_EnablePlaylists( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->UpdateShuffled(bValue);
+    return self->EnablePlaylists(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateLooped(intptr_t instancePtr, bool bValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdatePlaybackStatus( ISteamMusicRemote* self, AudioPlayback_Status nStatus )
 {
-    return ((ISteamMusicRemote *)instancePtr)->UpdateLooped(bValue);
+    return self->UpdatePlaybackStatus(nStatus);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateVolume(intptr_t instancePtr, float flValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateShuffled( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->UpdateVolume(flValue);
+    return self->UpdateShuffled(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_CurrentEntryWillChange(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateLooped( ISteamMusicRemote* self, bool bValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->CurrentEntryWillChange();
+    return self->UpdateLooped(bValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_CurrentEntryIsAvailable(intptr_t instancePtr, bool bAvailable)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateVolume( ISteamMusicRemote* self, float flValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->CurrentEntryIsAvailable(bAvailable);
+    return self->UpdateVolume(flValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateCurrentEntryText(intptr_t instancePtr, const char * pchText)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_CurrentEntryWillChange( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->UpdateCurrentEntryText(pchText);
+    return self->CurrentEntryWillChange();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateCurrentEntryElapsedSeconds(intptr_t instancePtr, int nValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_CurrentEntryIsAvailable( ISteamMusicRemote* self, bool bAvailable )
 {
-    return ((ISteamMusicRemote *)instancePtr)->UpdateCurrentEntryElapsedSeconds(nValue);
+    return self->CurrentEntryIsAvailable(bAvailable);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateCurrentEntryCoverArt(intptr_t instancePtr, void * pvBuffer, uint32 cbBufferLength)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateCurrentEntryText( ISteamMusicRemote* self, const char * pchText )
 {
-    return ((ISteamMusicRemote *)instancePtr)->UpdateCurrentEntryCoverArt(pvBuffer, cbBufferLength);
+    return self->UpdateCurrentEntryText(pchText);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_CurrentEntryDidChange(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateCurrentEntryElapsedSeconds( ISteamMusicRemote* self, int nValue )
 {
-    return ((ISteamMusicRemote *)instancePtr)->CurrentEntryDidChange();
+    return self->UpdateCurrentEntryElapsedSeconds(nValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_QueueWillChange(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_UpdateCurrentEntryCoverArt( ISteamMusicRemote* self, void * pvBuffer, uint32 cbBufferLength )
 {
-    return ((ISteamMusicRemote *)instancePtr)->QueueWillChange();
+    return self->UpdateCurrentEntryCoverArt(pvBuffer, cbBufferLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_ResetQueueEntries(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_CurrentEntryDidChange( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->ResetQueueEntries();
+    return self->CurrentEntryDidChange();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetQueueEntry(intptr_t instancePtr, int nID, int nPosition, const char * pchEntryText)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_QueueWillChange( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->SetQueueEntry(nID, nPosition, pchEntryText);
+    return self->QueueWillChange();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetCurrentQueueEntry(intptr_t instancePtr, int nID)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_ResetQueueEntries( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->SetCurrentQueueEntry(nID);
+    return self->ResetQueueEntries();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_QueueDidChange(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetQueueEntry( ISteamMusicRemote* self, int nID, int nPosition, const char * pchEntryText )
 {
-    return ((ISteamMusicRemote *)instancePtr)->QueueDidChange();
+    return self->SetQueueEntry(nID, nPosition, pchEntryText);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_PlaylistWillChange(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetCurrentQueueEntry( ISteamMusicRemote* self, int nID )
 {
-    return ((ISteamMusicRemote *)instancePtr)->PlaylistWillChange();
+    return self->SetCurrentQueueEntry(nID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_ResetPlaylistEntries(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_QueueDidChange( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->ResetPlaylistEntries();
+    return self->QueueDidChange();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetPlaylistEntry(intptr_t instancePtr, int nID, int nPosition, const char * pchEntryText)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_PlaylistWillChange( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->SetPlaylistEntry(nID, nPosition, pchEntryText);
+    return self->PlaylistWillChange();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetCurrentPlaylistEntry(intptr_t instancePtr, int nID)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_ResetPlaylistEntries( ISteamMusicRemote* self )
 {
-    return ((ISteamMusicRemote *)instancePtr)->SetCurrentPlaylistEntry(nID);
+    return self->ResetPlaylistEntries();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamMusicRemote_PlaylistDidChange(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetPlaylistEntry( ISteamMusicRemote* self, int nID, int nPosition, const char * pchEntryText )
 {
-    return ((ISteamMusicRemote *)instancePtr)->PlaylistDidChange();
+    return self->SetPlaylistEntry(nID, nPosition, pchEntryText);
 }
 
-STEAMAPI_API HTTPRequestHandle SteamAPI_ISteamHTTP_CreateHTTPRequest(intptr_t instancePtr, EHTTPMethod eHTTPRequestMethod, const char * pchAbsoluteURL)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_SetCurrentPlaylistEntry( ISteamMusicRemote* self, int nID )
 {
-    return ((ISteamHTTP *)instancePtr)->CreateHTTPRequest(eHTTPRequestMethod, pchAbsoluteURL);
+    return self->SetCurrentPlaylistEntry(nID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestContextValue(intptr_t instancePtr, HTTPRequestHandle hRequest, uint64 ulContextValue)
+STEAMAPI_API bool SteamAPI_ISteamMusicRemote_PlaylistDidChange( ISteamMusicRemote* self )
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestContextValue(hRequest, ulContextValue);
+    return self->PlaylistDidChange();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestNetworkActivityTimeout(intptr_t instancePtr, HTTPRequestHandle hRequest, uint32 unTimeoutSeconds)
+STEAMAPI_API ISteamHTTP *SteamAPI_SteamHTTP_v003()
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestNetworkActivityTimeout(hRequest, unTimeoutSeconds);
+    return get_steam_client()->GetISteamHTTP(flat_hsteamuser(), flat_hsteampipe(), "STEAMHTTP_INTERFACE_VERSION003");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestHeaderValue(intptr_t instancePtr, HTTPRequestHandle hRequest, const char * pchHeaderName, const char * pchHeaderValue)
+STEAMAPI_API ISteamHTTP *SteamAPI_SteamGameServerHTTP_v003()
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestHeaderValue(hRequest, pchHeaderName, pchHeaderValue);
+    return get_steam_client()->GetISteamHTTP(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "STEAMHTTP_INTERFACE_VERSION003");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestGetOrPostParameter(intptr_t instancePtr, HTTPRequestHandle hRequest, const char * pchParamName, const char * pchParamValue)
+STEAMAPI_API HTTPRequestHandle SteamAPI_ISteamHTTP_CreateHTTPRequest( ISteamHTTP* self, EHTTPMethod eHTTPRequestMethod, const char * pchAbsoluteURL )
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestGetOrPostParameter(hRequest, pchParamName, pchParamValue);
+    return self->CreateHTTPRequest(eHTTPRequestMethod, pchAbsoluteURL);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SendHTTPRequest(intptr_t instancePtr, HTTPRequestHandle hRequest, SteamAPICall_t * pCallHandle)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestContextValue( ISteamHTTP* self, HTTPRequestHandle hRequest, uint64 ulContextValue )
 {
-    return ((ISteamHTTP *)instancePtr)->SendHTTPRequest(hRequest, pCallHandle);
+    return self->SetHTTPRequestContextValue(hRequest, ulContextValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SendHTTPRequestAndStreamResponse(intptr_t instancePtr, HTTPRequestHandle hRequest, SteamAPICall_t * pCallHandle)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestNetworkActivityTimeout( ISteamHTTP* self, HTTPRequestHandle hRequest, uint32 unTimeoutSeconds )
 {
-    return ((ISteamHTTP *)instancePtr)->SendHTTPRequestAndStreamResponse(hRequest, pCallHandle);
+    return self->SetHTTPRequestNetworkActivityTimeout(hRequest, unTimeoutSeconds);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_DeferHTTPRequest(intptr_t instancePtr, HTTPRequestHandle hRequest)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestHeaderValue( ISteamHTTP* self, HTTPRequestHandle hRequest, const char * pchHeaderName, const char * pchHeaderValue )
 {
-    return ((ISteamHTTP *)instancePtr)->DeferHTTPRequest(hRequest);
+    return self->SetHTTPRequestHeaderValue(hRequest, pchHeaderName, pchHeaderValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_PrioritizeHTTPRequest(intptr_t instancePtr, HTTPRequestHandle hRequest)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestGetOrPostParameter( ISteamHTTP* self, HTTPRequestHandle hRequest, const char * pchParamName, const char * pchParamValue )
 {
-    return ((ISteamHTTP *)instancePtr)->PrioritizeHTTPRequest(hRequest);
+    return self->SetHTTPRequestGetOrPostParameter(hRequest, pchParamName, pchParamValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseHeaderSize(intptr_t instancePtr, HTTPRequestHandle hRequest, const char * pchHeaderName, uint32 * unResponseHeaderSize)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SendHTTPRequest( ISteamHTTP* self, HTTPRequestHandle hRequest, SteamAPICall_t * pCallHandle )
 {
-    return ((ISteamHTTP *)instancePtr)->GetHTTPResponseHeaderSize(hRequest, pchHeaderName, unResponseHeaderSize);
+    return self->SendHTTPRequest(hRequest, pCallHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseHeaderValue(intptr_t instancePtr, HTTPRequestHandle hRequest, const char * pchHeaderName, uint8 * pHeaderValueBuffer, uint32 unBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SendHTTPRequestAndStreamResponse( ISteamHTTP* self, HTTPRequestHandle hRequest, SteamAPICall_t * pCallHandle )
 {
-    return ((ISteamHTTP *)instancePtr)->GetHTTPResponseHeaderValue(hRequest, pchHeaderName, pHeaderValueBuffer, unBufferSize);
+    return self->SendHTTPRequestAndStreamResponse(hRequest, pCallHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseBodySize(intptr_t instancePtr, HTTPRequestHandle hRequest, uint32 * unBodySize)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_DeferHTTPRequest( ISteamHTTP* self, HTTPRequestHandle hRequest )
 {
-    return ((ISteamHTTP *)instancePtr)->GetHTTPResponseBodySize(hRequest, unBodySize);
+    return self->DeferHTTPRequest(hRequest);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseBodyData(intptr_t instancePtr, HTTPRequestHandle hRequest, uint8 * pBodyDataBuffer, uint32 unBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_PrioritizeHTTPRequest( ISteamHTTP* self, HTTPRequestHandle hRequest )
 {
-    return ((ISteamHTTP *)instancePtr)->GetHTTPResponseBodyData(hRequest, pBodyDataBuffer, unBufferSize);
+    return self->PrioritizeHTTPRequest(hRequest);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPStreamingResponseBodyData(intptr_t instancePtr, HTTPRequestHandle hRequest, uint32 cOffset, uint8 * pBodyDataBuffer, uint32 unBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseHeaderSize( ISteamHTTP* self, HTTPRequestHandle hRequest, const char * pchHeaderName, uint32 * unResponseHeaderSize )
 {
-    return ((ISteamHTTP *)instancePtr)->GetHTTPStreamingResponseBodyData(hRequest, cOffset, pBodyDataBuffer, unBufferSize);
+    return self->GetHTTPResponseHeaderSize(hRequest, pchHeaderName, unResponseHeaderSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_ReleaseHTTPRequest(intptr_t instancePtr, HTTPRequestHandle hRequest)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseHeaderValue( ISteamHTTP* self, HTTPRequestHandle hRequest, const char * pchHeaderName, uint8 * pHeaderValueBuffer, uint32 unBufferSize )
 {
-    return ((ISteamHTTP *)instancePtr)->ReleaseHTTPRequest(hRequest);
+    return self->GetHTTPResponseHeaderValue(hRequest, pchHeaderName, pHeaderValueBuffer, unBufferSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPDownloadProgressPct(intptr_t instancePtr, HTTPRequestHandle hRequest, float * pflPercentOut)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseBodySize( ISteamHTTP* self, HTTPRequestHandle hRequest, uint32 * unBodySize )
 {
-    return ((ISteamHTTP *)instancePtr)->GetHTTPDownloadProgressPct(hRequest, pflPercentOut);
+    return self->GetHTTPResponseBodySize(hRequest, unBodySize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestRawPostBody(intptr_t instancePtr, HTTPRequestHandle hRequest, const char * pchContentType, uint8 * pubBody, uint32 unBodyLen)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPResponseBodyData( ISteamHTTP* self, HTTPRequestHandle hRequest, uint8 * pBodyDataBuffer, uint32 unBufferSize )
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestRawPostBody(hRequest, pchContentType, pubBody, unBodyLen);
+    return self->GetHTTPResponseBodyData(hRequest, pBodyDataBuffer, unBufferSize);
 }
 
-STEAMAPI_API HTTPCookieContainerHandle SteamAPI_ISteamHTTP_CreateCookieContainer(intptr_t instancePtr, bool bAllowResponsesToModify)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPStreamingResponseBodyData( ISteamHTTP* self, HTTPRequestHandle hRequest, uint32 cOffset, uint8 * pBodyDataBuffer, uint32 unBufferSize )
 {
-    return ((ISteamHTTP *)instancePtr)->CreateCookieContainer(bAllowResponsesToModify);
+    return self->GetHTTPStreamingResponseBodyData(hRequest, cOffset, pBodyDataBuffer, unBufferSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_ReleaseCookieContainer(intptr_t instancePtr, HTTPCookieContainerHandle hCookieContainer)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_ReleaseHTTPRequest( ISteamHTTP* self, HTTPRequestHandle hRequest )
 {
-    return ((ISteamHTTP *)instancePtr)->ReleaseCookieContainer(hCookieContainer);
+    return self->ReleaseHTTPRequest(hRequest);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetCookie(intptr_t instancePtr, HTTPCookieContainerHandle hCookieContainer, const char * pchHost, const char * pchUrl, const char * pchCookie)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPDownloadProgressPct( ISteamHTTP* self, HTTPRequestHandle hRequest, float * pflPercentOut )
 {
-    return ((ISteamHTTP *)instancePtr)->SetCookie(hCookieContainer, pchHost, pchUrl, pchCookie);
+    return self->GetHTTPDownloadProgressPct(hRequest, pflPercentOut);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestCookieContainer(intptr_t instancePtr, HTTPRequestHandle hRequest, HTTPCookieContainerHandle hCookieContainer)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestRawPostBody( ISteamHTTP* self, HTTPRequestHandle hRequest, const char * pchContentType, uint8 * pubBody, uint32 unBodyLen )
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestCookieContainer(hRequest, hCookieContainer);
+    return self->SetHTTPRequestRawPostBody(hRequest, pchContentType, pubBody, unBodyLen);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestUserAgentInfo(intptr_t instancePtr, HTTPRequestHandle hRequest, const char * pchUserAgentInfo)
+STEAMAPI_API HTTPCookieContainerHandle SteamAPI_ISteamHTTP_CreateCookieContainer( ISteamHTTP* self, bool bAllowResponsesToModify )
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestUserAgentInfo(hRequest, pchUserAgentInfo);
+    return self->CreateCookieContainer(bAllowResponsesToModify);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestRequiresVerifiedCertificate(intptr_t instancePtr, HTTPRequestHandle hRequest, bool bRequireVerifiedCertificate)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_ReleaseCookieContainer( ISteamHTTP* self, HTTPCookieContainerHandle hCookieContainer )
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestRequiresVerifiedCertificate(hRequest, bRequireVerifiedCertificate);
+    return self->ReleaseCookieContainer(hCookieContainer);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestAbsoluteTimeoutMS(intptr_t instancePtr, HTTPRequestHandle hRequest, uint32 unMilliseconds)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetCookie( ISteamHTTP* self, HTTPCookieContainerHandle hCookieContainer, const char * pchHost, const char * pchUrl, const char * pchCookie )
 {
-    return ((ISteamHTTP *)instancePtr)->SetHTTPRequestAbsoluteTimeoutMS(hRequest, unMilliseconds);
+    return self->SetCookie(hCookieContainer, pchHost, pchUrl, pchCookie);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPRequestWasTimedOut(intptr_t instancePtr, HTTPRequestHandle hRequest, bool * pbWasTimedOut)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestCookieContainer( ISteamHTTP* self, HTTPRequestHandle hRequest, HTTPCookieContainerHandle hCookieContainer )
 {
-    return ((ISteamHTTP *)instancePtr)->GetHTTPRequestWasTimedOut(hRequest, pbWasTimedOut);
+    return self->SetHTTPRequestCookieContainer(hRequest, hCookieContainer);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInput_Init(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestUserAgentInfo( ISteamHTTP* self, HTTPRequestHandle hRequest, const char * pchUserAgentInfo )
+{
+    return self->SetHTTPRequestUserAgentInfo(hRequest, pchUserAgentInfo);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestRequiresVerifiedCertificate( ISteamHTTP* self, HTTPRequestHandle hRequest, bool bRequireVerifiedCertificate )
+{
+    return self->SetHTTPRequestRequiresVerifiedCertificate(hRequest, bRequireVerifiedCertificate);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamHTTP_SetHTTPRequestAbsoluteTimeoutMS( ISteamHTTP* self, HTTPRequestHandle hRequest, uint32 unMilliseconds )
+{
+    return self->SetHTTPRequestAbsoluteTimeoutMS(hRequest, unMilliseconds);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamHTTP_GetHTTPRequestWasTimedOut( ISteamHTTP* self, HTTPRequestHandle hRequest, bool * pbWasTimedOut )
+{
+    return self->GetHTTPRequestWasTimedOut(hRequest, pbWasTimedOut);
+}
+
+STEAMAPI_API ISteamInput *SteamAPI_SteamInput_v001()
+{
+    return get_steam_client()->GetISteamInput(flat_hsteamuser(), flat_hsteampipe(), "SteamInput001");
+}
+
+STEAMAPI_API bool SteamAPI_ISteamInput_Init( ISteamInput* self )
 {
     return (get_steam_client()->steam_controller)->Init();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInput_Shutdown(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamInput_Shutdown( ISteamInput* self )
 {
     return (get_steam_client()->steam_controller)->Shutdown();
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_RunFrame(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamInput_RunFrame( ISteamInput* self )
 {
     return (get_steam_client()->steam_controller)->RunFrame();
 }
 
-STEAMAPI_API int SteamAPI_ISteamInput_GetConnectedControllers(intptr_t instancePtr, InputHandle_t * handlesOut)
+STEAMAPI_API int SteamAPI_ISteamInput_GetConnectedControllers( ISteamInput* self, InputHandle_t * handlesOut )
 {
     return (get_steam_client()->steam_controller)->GetConnectedControllers(handlesOut);
 }
 
-STEAMAPI_API InputActionSetHandle_t SteamAPI_ISteamInput_GetActionSetHandle(intptr_t instancePtr, const char * pszActionSetName)
+STEAMAPI_API InputActionSetHandle_t SteamAPI_ISteamInput_GetActionSetHandle( ISteamInput* self, const char * pszActionSetName )
 {
     return (get_steam_client()->steam_controller)->GetActionSetHandle(pszActionSetName);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_ActivateActionSet(intptr_t instancePtr, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle)
+STEAMAPI_API void SteamAPI_ISteamInput_ActivateActionSet( ISteamInput* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle )
 {
     return (get_steam_client()->steam_controller)->ActivateActionSet(inputHandle, actionSetHandle);
 }
 
-STEAMAPI_API InputActionSetHandle_t SteamAPI_ISteamInput_GetCurrentActionSet(intptr_t instancePtr, InputHandle_t inputHandle)
+STEAMAPI_API InputActionSetHandle_t SteamAPI_ISteamInput_GetCurrentActionSet( ISteamInput* self, InputHandle_t inputHandle )
 {
     return (get_steam_client()->steam_controller)->GetCurrentActionSet(inputHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_ActivateActionSetLayer(intptr_t instancePtr, InputHandle_t inputHandle, InputActionSetHandle_t actionSetLayerHandle)
+STEAMAPI_API void SteamAPI_ISteamInput_ActivateActionSetLayer( ISteamInput* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetLayerHandle )
 {
     return (get_steam_client()->steam_controller)->ActivateActionSetLayer(inputHandle, actionSetLayerHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_DeactivateActionSetLayer(intptr_t instancePtr, InputHandle_t inputHandle, InputActionSetHandle_t actionSetLayerHandle)
+STEAMAPI_API void SteamAPI_ISteamInput_DeactivateActionSetLayer( ISteamInput* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetLayerHandle )
 {
     return (get_steam_client()->steam_controller)->DeactivateActionSetLayer(inputHandle, actionSetLayerHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_DeactivateAllActionSetLayers(intptr_t instancePtr, InputHandle_t inputHandle)
+STEAMAPI_API void SteamAPI_ISteamInput_DeactivateAllActionSetLayers( ISteamInput* self, InputHandle_t inputHandle )
 {
     return (get_steam_client()->steam_controller)->DeactivateAllActionSetLayers(inputHandle);
 }
 
-STEAMAPI_API int SteamAPI_ISteamInput_GetActiveActionSetLayers(intptr_t instancePtr, InputHandle_t inputHandle, InputActionSetHandle_t * handlesOut)
+STEAMAPI_API int SteamAPI_ISteamInput_GetActiveActionSetLayers( ISteamInput* self, InputHandle_t inputHandle, InputActionSetHandle_t * handlesOut )
 {
     return (get_steam_client()->steam_controller)->GetActiveActionSetLayers(inputHandle, handlesOut);
 }
 
-STEAMAPI_API InputDigitalActionHandle_t SteamAPI_ISteamInput_GetDigitalActionHandle(intptr_t instancePtr, const char * pszActionName)
+STEAMAPI_API InputDigitalActionHandle_t SteamAPI_ISteamInput_GetDigitalActionHandle( ISteamInput* self, const char * pszActionName )
 {
     return (get_steam_client()->steam_controller)->GetDigitalActionHandle(pszActionName);
 }
 
-STEAMAPI_API struct InputDigitalActionData_t SteamAPI_ISteamInput_GetDigitalActionData(intptr_t instancePtr, InputHandle_t inputHandle, InputDigitalActionHandle_t digitalActionHandle)
+STEAMAPI_API InputDigitalActionData_t SteamAPI_ISteamInput_GetDigitalActionData( ISteamInput* self, InputHandle_t inputHandle, InputDigitalActionHandle_t digitalActionHandle )
 {
     return (get_steam_client()->steam_controller)->GetDigitalActionData(inputHandle, digitalActionHandle);
 }
 
-STEAMAPI_API int SteamAPI_ISteamInput_GetDigitalActionOrigins(intptr_t instancePtr, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin * originsOut)
+STEAMAPI_API int SteamAPI_ISteamInput_GetDigitalActionOrigins( ISteamInput* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputDigitalActionHandle_t digitalActionHandle, EInputActionOrigin * originsOut )
 {
     return (get_steam_client()->steam_controller)->GetDigitalActionOrigins(inputHandle, actionSetHandle, digitalActionHandle, originsOut);
 }
 
-STEAMAPI_API InputAnalogActionHandle_t SteamAPI_ISteamInput_GetAnalogActionHandle(intptr_t instancePtr, const char * pszActionName)
+STEAMAPI_API InputAnalogActionHandle_t SteamAPI_ISteamInput_GetAnalogActionHandle( ISteamInput* self, const char * pszActionName )
 {
     return (get_steam_client()->steam_controller)->GetAnalogActionHandle(pszActionName);
 }
 
-STEAMAPI_API struct InputAnalogActionData_t SteamAPI_ISteamInput_GetAnalogActionData(intptr_t instancePtr, InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle)
+STEAMAPI_API InputAnalogActionData_t SteamAPI_ISteamInput_GetAnalogActionData( ISteamInput* self, InputHandle_t inputHandle, InputAnalogActionHandle_t analogActionHandle )
 {
     return (get_steam_client()->steam_controller)->GetAnalogActionData(inputHandle, analogActionHandle);
 }
 
-STEAMAPI_API int SteamAPI_ISteamInput_GetAnalogActionOrigins(intptr_t instancePtr, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin * originsOut)
+STEAMAPI_API int SteamAPI_ISteamInput_GetAnalogActionOrigins( ISteamInput* self, InputHandle_t inputHandle, InputActionSetHandle_t actionSetHandle, InputAnalogActionHandle_t analogActionHandle, EInputActionOrigin * originsOut )
 {
     return (get_steam_client()->steam_controller)->GetAnalogActionOrigins(inputHandle, actionSetHandle, analogActionHandle, originsOut);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamInput_GetGlyphForActionOrigin(intptr_t instancePtr, EInputActionOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamInput_GetGlyphForActionOrigin( ISteamInput* self, EInputActionOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetGlyphForActionOrigin(eOrigin);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamInput_GetStringForActionOrigin(intptr_t instancePtr, EInputActionOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamInput_GetStringForActionOrigin( ISteamInput* self, EInputActionOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetStringForActionOrigin(eOrigin);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_StopAnalogActionMomentum(intptr_t instancePtr, InputHandle_t inputHandle, InputAnalogActionHandle_t eAction)
+STEAMAPI_API void SteamAPI_ISteamInput_StopAnalogActionMomentum( ISteamInput* self, InputHandle_t inputHandle, InputAnalogActionHandle_t eAction )
 {
     return (get_steam_client()->steam_controller)->StopAnalogActionMomentum(inputHandle, eAction);
 }
 
-STEAMAPI_API struct InputMotionData_t SteamAPI_ISteamInput_GetMotionData(intptr_t instancePtr, InputHandle_t inputHandle)
+STEAMAPI_API InputMotionData_t SteamAPI_ISteamInput_GetMotionData( ISteamInput* self, InputHandle_t inputHandle )
 {
     return (get_steam_client()->steam_controller)->GetMotionData(inputHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_TriggerVibration(intptr_t instancePtr, InputHandle_t inputHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed)
+STEAMAPI_API void SteamAPI_ISteamInput_TriggerVibration( ISteamInput* self, InputHandle_t inputHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed )
 {
     return (get_steam_client()->steam_controller)->TriggerVibration(inputHandle, usLeftSpeed, usRightSpeed);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_SetLEDColor(intptr_t instancePtr, InputHandle_t inputHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags)
+STEAMAPI_API void SteamAPI_ISteamInput_SetLEDColor( ISteamInput* self, InputHandle_t inputHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags )
 {
     return (get_steam_client()->steam_controller)->SetLEDColor(inputHandle, nColorR, nColorG, nColorB, nFlags);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_TriggerHapticPulse(intptr_t instancePtr, InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec)
+STEAMAPI_API void SteamAPI_ISteamInput_TriggerHapticPulse( ISteamInput* self, InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec )
 {
     return (get_steam_client()->steam_controller)->TriggerHapticPulse(inputHandle, eTargetPad, usDurationMicroSec);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInput_TriggerRepeatedHapticPulse(intptr_t instancePtr, InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags)
+STEAMAPI_API void SteamAPI_ISteamInput_TriggerRepeatedHapticPulse( ISteamInput* self, InputHandle_t inputHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags )
 {
     return (get_steam_client()->steam_controller)->TriggerRepeatedHapticPulse(inputHandle, eTargetPad, usDurationMicroSec, usOffMicroSec, unRepeat, nFlags);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInput_ShowBindingPanel(intptr_t instancePtr, InputHandle_t inputHandle)
+STEAMAPI_API bool SteamAPI_ISteamInput_ShowBindingPanel( ISteamInput* self, InputHandle_t inputHandle )
 {
     return (get_steam_client()->steam_controller)->ShowBindingPanel(inputHandle);
 }
 
-STEAMAPI_API ESteamInputType SteamAPI_ISteamInput_GetInputTypeForHandle(intptr_t instancePtr, InputHandle_t inputHandle)
+STEAMAPI_API ESteamInputType SteamAPI_ISteamInput_GetInputTypeForHandle( ISteamInput* self, InputHandle_t inputHandle )
 {
     return (get_steam_client()->steam_controller)->GetInputTypeForHandle(inputHandle);
 }
 
-STEAMAPI_API InputHandle_t SteamAPI_ISteamInput_GetControllerForGamepadIndex(intptr_t instancePtr, int nIndex)
+STEAMAPI_API InputHandle_t SteamAPI_ISteamInput_GetControllerForGamepadIndex( ISteamInput* self, int nIndex )
 {
     return (get_steam_client()->steam_controller)->GetControllerForGamepadIndex(nIndex);
 }
 
-STEAMAPI_API int SteamAPI_ISteamInput_GetGamepadIndexForController(intptr_t instancePtr, InputHandle_t ulinputHandle)
+STEAMAPI_API int SteamAPI_ISteamInput_GetGamepadIndexForController( ISteamInput* self, InputHandle_t ulinputHandle )
 {
     return (get_steam_client()->steam_controller)->GetGamepadIndexForController(ulinputHandle);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamInput_GetStringForXboxOrigin(intptr_t instancePtr, EXboxOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamInput_GetStringForXboxOrigin( ISteamInput* self, EXboxOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetStringForXboxOrigin(eOrigin);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamInput_GetGlyphForXboxOrigin(intptr_t instancePtr, EXboxOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamInput_GetGlyphForXboxOrigin( ISteamInput* self, EXboxOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetGlyphForXboxOrigin(eOrigin);
 }
 
-STEAMAPI_API EInputActionOrigin SteamAPI_ISteamInput_GetActionOriginFromXboxOrigin(intptr_t instancePtr, InputHandle_t inputHandle, EXboxOrigin eOrigin)
+STEAMAPI_API EInputActionOrigin SteamAPI_ISteamInput_GetActionOriginFromXboxOrigin( ISteamInput* self, InputHandle_t inputHandle, EXboxOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetActionOriginFromXboxOrigin(inputHandle, eOrigin);
 }
 
-STEAMAPI_API EInputActionOrigin SteamAPI_ISteamInput_TranslateActionOrigin(intptr_t instancePtr, ESteamInputType eDestinationInputType, EInputActionOrigin eSourceOrigin)
+STEAMAPI_API EInputActionOrigin SteamAPI_ISteamInput_TranslateActionOrigin( ISteamInput* self, ESteamInputType eDestinationInputType, EInputActionOrigin eSourceOrigin )
 {
     return (get_steam_client()->steam_controller)->TranslateActionOrigin(eDestinationInputType, eSourceOrigin);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInput_GetDeviceBindingRevision(intptr_t instancePtr, InputHandle_t inputHandle, int * pMajor, int * pMinor)
+STEAMAPI_API bool SteamAPI_ISteamInput_GetDeviceBindingRevision( ISteamInput* self, InputHandle_t inputHandle, int * pMajor, int * pMinor )
 {
     return (get_steam_client()->steam_controller)->GetDeviceBindingRevision(inputHandle, pMajor, pMinor);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamInput_GetRemotePlaySessionID(intptr_t instancePtr, InputHandle_t inputHandle)
+STEAMAPI_API uint32 SteamAPI_ISteamInput_GetRemotePlaySessionID( ISteamInput* self, InputHandle_t inputHandle )
 {
     return (get_steam_client()->steam_controller)->GetRemotePlaySessionID(inputHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamController_Init(intptr_t instancePtr)
+STEAMAPI_API ISteamController *SteamAPI_SteamController_v007()
+{
+    return get_steam_client()->GetISteamController(flat_hsteamuser(), flat_hsteampipe(), "SteamController007");
+}
+
+STEAMAPI_API bool SteamAPI_ISteamController_Init( ISteamController* self )
 {
     return (get_steam_client()->steam_controller)->Init();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamController_Shutdown(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamController_Shutdown( ISteamController* self )
 {
     return (get_steam_client()->steam_controller)->Shutdown();
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_RunFrame(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamController_RunFrame( ISteamController* self )
 {
     return (get_steam_client()->steam_controller)->RunFrame();
 }
 
-STEAMAPI_API int SteamAPI_ISteamController_GetConnectedControllers(intptr_t instancePtr, ControllerHandle_t * handlesOut)
+STEAMAPI_API int SteamAPI_ISteamController_GetConnectedControllers( ISteamController* self, ControllerHandle_t * handlesOut )
 {
     return (get_steam_client()->steam_controller)->GetConnectedControllers(handlesOut);
 }
 
-STEAMAPI_API ControllerActionSetHandle_t SteamAPI_ISteamController_GetActionSetHandle(intptr_t instancePtr, const char * pszActionSetName)
+STEAMAPI_API ControllerActionSetHandle_t SteamAPI_ISteamController_GetActionSetHandle( ISteamController* self, const char * pszActionSetName )
 {
     return (get_steam_client()->steam_controller)->GetActionSetHandle(pszActionSetName);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_ActivateActionSet(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle)
+STEAMAPI_API void SteamAPI_ISteamController_ActivateActionSet( ISteamController* self, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle )
 {
     return (get_steam_client()->steam_controller)->ActivateActionSet(controllerHandle, actionSetHandle);
 }
 
-STEAMAPI_API ControllerActionSetHandle_t SteamAPI_ISteamController_GetCurrentActionSet(intptr_t instancePtr, ControllerHandle_t controllerHandle)
+STEAMAPI_API ControllerActionSetHandle_t SteamAPI_ISteamController_GetCurrentActionSet( ISteamController* self, ControllerHandle_t controllerHandle )
 {
     return (get_steam_client()->steam_controller)->GetCurrentActionSet(controllerHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_ActivateActionSetLayer(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle)
+STEAMAPI_API void SteamAPI_ISteamController_ActivateActionSetLayer( ISteamController* self, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle )
 {
     return (get_steam_client()->steam_controller)->ActivateActionSetLayer(controllerHandle, actionSetLayerHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_DeactivateActionSetLayer(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle)
+STEAMAPI_API void SteamAPI_ISteamController_DeactivateActionSetLayer( ISteamController* self, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetLayerHandle )
 {
     return (get_steam_client()->steam_controller)->DeactivateActionSetLayer(controllerHandle, actionSetLayerHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_DeactivateAllActionSetLayers(intptr_t instancePtr, ControllerHandle_t controllerHandle)
+STEAMAPI_API void SteamAPI_ISteamController_DeactivateAllActionSetLayers( ISteamController* self, ControllerHandle_t controllerHandle )
 {
     return (get_steam_client()->steam_controller)->DeactivateAllActionSetLayers(controllerHandle);
 }
 
-STEAMAPI_API int SteamAPI_ISteamController_GetActiveActionSetLayers(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t * handlesOut)
+STEAMAPI_API int SteamAPI_ISteamController_GetActiveActionSetLayers( ISteamController* self, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t * handlesOut )
 {
     return (get_steam_client()->steam_controller)->GetActiveActionSetLayers(controllerHandle, handlesOut);
 }
 
-STEAMAPI_API ControllerDigitalActionHandle_t SteamAPI_ISteamController_GetDigitalActionHandle(intptr_t instancePtr, const char * pszActionName)
+STEAMAPI_API ControllerDigitalActionHandle_t SteamAPI_ISteamController_GetDigitalActionHandle( ISteamController* self, const char * pszActionName )
 {
     return (get_steam_client()->steam_controller)->GetDigitalActionHandle(pszActionName);
 }
 
-STEAMAPI_API struct InputDigitalActionData_t SteamAPI_ISteamController_GetDigitalActionData(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle)
+STEAMAPI_API InputDigitalActionData_t SteamAPI_ISteamController_GetDigitalActionData( ISteamController* self, ControllerHandle_t controllerHandle, ControllerDigitalActionHandle_t digitalActionHandle )
 {
     return (get_steam_client()->steam_controller)->GetDigitalActionData(controllerHandle, digitalActionHandle);
 }
 
-STEAMAPI_API int SteamAPI_ISteamController_GetDigitalActionOrigins(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin * originsOut)
+STEAMAPI_API int SteamAPI_ISteamController_GetDigitalActionOrigins( ISteamController* self, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerDigitalActionHandle_t digitalActionHandle, EControllerActionOrigin * originsOut )
 {
     return (get_steam_client()->steam_controller)->GetDigitalActionOrigins(controllerHandle, actionSetHandle, digitalActionHandle, originsOut);
 }
 
-STEAMAPI_API ControllerAnalogActionHandle_t SteamAPI_ISteamController_GetAnalogActionHandle(intptr_t instancePtr, const char * pszActionName)
+STEAMAPI_API ControllerAnalogActionHandle_t SteamAPI_ISteamController_GetAnalogActionHandle( ISteamController* self, const char * pszActionName )
 {
     return (get_steam_client()->steam_controller)->GetAnalogActionHandle(pszActionName);
 }
 
-STEAMAPI_API struct InputAnalogActionData_t SteamAPI_ISteamController_GetAnalogActionData(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle)
+STEAMAPI_API InputAnalogActionData_t SteamAPI_ISteamController_GetAnalogActionData( ISteamController* self, ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle )
 {
     return (get_steam_client()->steam_controller)->GetAnalogActionData(controllerHandle, analogActionHandle);
 }
 
-STEAMAPI_API int SteamAPI_ISteamController_GetAnalogActionOrigins(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin * originsOut)
+STEAMAPI_API int SteamAPI_ISteamController_GetAnalogActionOrigins( ISteamController* self, ControllerHandle_t controllerHandle, ControllerActionSetHandle_t actionSetHandle, ControllerAnalogActionHandle_t analogActionHandle, EControllerActionOrigin * originsOut )
 {
     return (get_steam_client()->steam_controller)->GetAnalogActionOrigins(controllerHandle, actionSetHandle, analogActionHandle, originsOut);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamController_GetGlyphForActionOrigin(intptr_t instancePtr, EControllerActionOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamController_GetGlyphForActionOrigin( ISteamController* self, EControllerActionOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetGlyphForActionOrigin(eOrigin);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamController_GetStringForActionOrigin(intptr_t instancePtr, EControllerActionOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamController_GetStringForActionOrigin( ISteamController* self, EControllerActionOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetStringForActionOrigin(eOrigin);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_StopAnalogActionMomentum(intptr_t instancePtr, ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t eAction)
+STEAMAPI_API void SteamAPI_ISteamController_StopAnalogActionMomentum( ISteamController* self, ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t eAction )
 {
     return (get_steam_client()->steam_controller)->StopAnalogActionMomentum(controllerHandle, eAction);
 }
 
-STEAMAPI_API struct InputMotionData_t SteamAPI_ISteamController_GetMotionData(intptr_t instancePtr, ControllerHandle_t controllerHandle)
+STEAMAPI_API InputMotionData_t SteamAPI_ISteamController_GetMotionData( ISteamController* self, ControllerHandle_t controllerHandle )
 {
     return (get_steam_client()->steam_controller)->GetMotionData(controllerHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_TriggerHapticPulse(intptr_t instancePtr, ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec)
+STEAMAPI_API void SteamAPI_ISteamController_TriggerHapticPulse( ISteamController* self, ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec )
 {
     return (get_steam_client()->steam_controller)->TriggerHapticPulse(controllerHandle, eTargetPad, usDurationMicroSec);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_TriggerRepeatedHapticPulse(intptr_t instancePtr, ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags)
+STEAMAPI_API void SteamAPI_ISteamController_TriggerRepeatedHapticPulse( ISteamController* self, ControllerHandle_t controllerHandle, ESteamControllerPad eTargetPad, unsigned short usDurationMicroSec, unsigned short usOffMicroSec, unsigned short unRepeat, unsigned int nFlags )
 {
     return (get_steam_client()->steam_controller)->TriggerRepeatedHapticPulse(controllerHandle, eTargetPad, usDurationMicroSec, usOffMicroSec, unRepeat, nFlags);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_TriggerVibration(intptr_t instancePtr, ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed)
+STEAMAPI_API void SteamAPI_ISteamController_TriggerVibration( ISteamController* self, ControllerHandle_t controllerHandle, unsigned short usLeftSpeed, unsigned short usRightSpeed )
 {
     return (get_steam_client()->steam_controller)->TriggerVibration(controllerHandle, usLeftSpeed, usRightSpeed);
 }
 
-STEAMAPI_API void SteamAPI_ISteamController_SetLEDColor(intptr_t instancePtr, ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags)
+STEAMAPI_API void SteamAPI_ISteamController_SetLEDColor( ISteamController* self, ControllerHandle_t controllerHandle, uint8 nColorR, uint8 nColorG, uint8 nColorB, unsigned int nFlags )
 {
     return (get_steam_client()->steam_controller)->SetLEDColor(controllerHandle, nColorR, nColorG, nColorB, nFlags);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamController_ShowBindingPanel(intptr_t instancePtr, ControllerHandle_t controllerHandle)
+STEAMAPI_API bool SteamAPI_ISteamController_ShowBindingPanel( ISteamController* self, ControllerHandle_t controllerHandle )
 {
     return (get_steam_client()->steam_controller)->ShowBindingPanel(controllerHandle);
 }
 
-STEAMAPI_API ESteamInputType SteamAPI_ISteamController_GetInputTypeForHandle(intptr_t instancePtr, ControllerHandle_t controllerHandle)
+STEAMAPI_API ESteamInputType SteamAPI_ISteamController_GetInputTypeForHandle( ISteamController* self, ControllerHandle_t controllerHandle )
 {
     return (get_steam_client()->steam_controller)->GetInputTypeForHandle(controllerHandle);
 }
 
-STEAMAPI_API ControllerHandle_t SteamAPI_ISteamController_GetControllerForGamepadIndex(intptr_t instancePtr, int nIndex)
+STEAMAPI_API ControllerHandle_t SteamAPI_ISteamController_GetControllerForGamepadIndex( ISteamController* self, int nIndex )
 {
     return (get_steam_client()->steam_controller)->GetControllerForGamepadIndex(nIndex);
 }
 
-STEAMAPI_API int SteamAPI_ISteamController_GetGamepadIndexForController(intptr_t instancePtr, ControllerHandle_t ulControllerHandle)
+STEAMAPI_API int SteamAPI_ISteamController_GetGamepadIndexForController( ISteamController* self, ControllerHandle_t ulControllerHandle )
 {
     return (get_steam_client()->steam_controller)->GetGamepadIndexForController(ulControllerHandle);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamController_GetStringForXboxOrigin(intptr_t instancePtr, EXboxOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamController_GetStringForXboxOrigin( ISteamController* self, EXboxOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetStringForXboxOrigin(eOrigin);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamController_GetGlyphForXboxOrigin(intptr_t instancePtr, EXboxOrigin eOrigin)
+STEAMAPI_API const char * SteamAPI_ISteamController_GetGlyphForXboxOrigin( ISteamController* self, EXboxOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetGlyphForXboxOrigin(eOrigin);
 }
 
-STEAMAPI_API EControllerActionOrigin SteamAPI_ISteamController_GetActionOriginFromXboxOrigin(intptr_t instancePtr, ControllerHandle_t controllerHandle, EXboxOrigin eOrigin)
+STEAMAPI_API EControllerActionOrigin SteamAPI_ISteamController_GetActionOriginFromXboxOrigin( ISteamController* self, ControllerHandle_t controllerHandle, EXboxOrigin eOrigin )
 {
     return (get_steam_client()->steam_controller)->GetActionOriginFromXboxOrigin_(controllerHandle, eOrigin);
 }
 
-STEAMAPI_API EControllerActionOrigin SteamAPI_ISteamController_TranslateActionOrigin(intptr_t instancePtr, ESteamInputType eDestinationInputType, EControllerActionOrigin eSourceOrigin)
+STEAMAPI_API EControllerActionOrigin SteamAPI_ISteamController_TranslateActionOrigin( ISteamController* self, ESteamInputType eDestinationInputType, EControllerActionOrigin eSourceOrigin )
 {
     return (get_steam_client()->steam_controller)->TranslateActionOrigin(eDestinationInputType, eSourceOrigin);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamController_GetControllerBindingRevision(intptr_t instancePtr, ControllerHandle_t controllerHandle, int * pMajor, int * pMinor)
+STEAMAPI_API bool SteamAPI_ISteamController_GetControllerBindingRevision( ISteamController* self, ControllerHandle_t controllerHandle, int * pMajor, int * pMinor )
 {
     return (get_steam_client()->steam_controller)->GetControllerBindingRevision(controllerHandle, pMajor, pMinor);
 }
 
-STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryUserUGCRequest(intptr_t instancePtr, AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage)
+STEAMAPI_API ISteamUGC *SteamAPI_SteamUGC_v014()
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    return get_steam_client()->GetISteamUGC(flat_hsteamuser(), flat_hsteampipe(), "STEAMUGC_INTERFACE_VERSION014");
+}
+
+STEAMAPI_API ISteamUGC *SteamAPI_SteamGameServerUGC_v014()
+{
+    return get_steam_client()->GetISteamUGC(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "STEAMUGC_INTERFACE_VERSION014");
+}
+
+STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryUserUGCRequest( ISteamUGC* self, AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3077,10 +3250,34 @@ STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryAllUGCRequest0(intpt
     return (ptr)->CreateQueryAllUGCRequest(eQueryType, eMatchingeMatchingUGCTypeFileType, nCreatorAppID, nConsumerAppID, pchCursor);
 }
 
-STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryUGCDetailsRequest(intptr_t instancePtr, PublishedFileId_t * pvecPublishedFileID, uint32 unNumPublishedFileIDs)
+STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryAllUGCRequestPage( ISteamUGC* self, EUGCQuery eQueryType, EUGCMatchingUGCType eMatchingeMatchingUGCTypeFileType, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
+    auto ptr = get_steam_client()->steam_gameserver_ugc;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_ugc;
+    }
+
+    return (ptr)->CreateQueryAllUGCRequest(eQueryType, eMatchingeMatchingUGCTypeFileType, nCreatorAppID, nConsumerAppID, unPage);
+}
+
+STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryAllUGCRequestCursor( ISteamUGC* self, EUGCQuery eQueryType, EUGCMatchingUGCType eMatchingeMatchingUGCTypeFileType, AppId_t nCreatorAppID, AppId_t nConsumerAppID, const char * pchCursor )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
+    auto ptr = get_steam_client()->steam_gameserver_ugc;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_ugc;
+    }
+
+    return (ptr)->CreateQueryAllUGCRequest(eQueryType, eMatchingeMatchingUGCTypeFileType, nCreatorAppID, nConsumerAppID, pchCursor);
+}
+
+STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryUGCDetailsRequest( ISteamUGC* self, PublishedFileId_t * pvecPublishedFileID, uint32 unNumPublishedFileIDs )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3089,10 +3286,10 @@ STEAMAPI_API UGCQueryHandle_t SteamAPI_ISteamUGC_CreateQueryUGCDetailsRequest(in
     return (ptr)->CreateQueryUGCDetailsRequest(pvecPublishedFileID, unNumPublishedFileIDs);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SendQueryUGCRequest(intptr_t instancePtr, UGCQueryHandle_t handle)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SendQueryUGCRequest( ISteamUGC* self, UGCQueryHandle_t handle )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3101,10 +3298,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SendQueryUGCRequest(intptr_t inst
     return (ptr)->SendQueryUGCRequest(handle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCResult(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, struct SteamUGCDetails_t * pDetails)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCResult( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, SteamUGCDetails_t * pDetails )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3113,10 +3310,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCResult(intptr_t instancePtr, UGC
     return (ptr)->GetQueryUGCResult(handle, index, pDetails);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCPreviewURL(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, char * pchURL, uint32 cchURLSize)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCPreviewURL( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, char * pchURL, uint32 cchURLSize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3125,10 +3322,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCPreviewURL(intptr_t instancePtr,
     return (ptr)->GetQueryUGCPreviewURL(handle, index, pchURL, cchURLSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCMetadata(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, char * pchMetadata, uint32 cchMetadatasize)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCMetadata( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, char * pchMetadata, uint32 cchMetadatasize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3137,10 +3334,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCMetadata(intptr_t instancePtr, U
     return (ptr)->GetQueryUGCMetadata(handle, index, pchMetadata, cchMetadatasize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCChildren(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, PublishedFileId_t * pvecPublishedFileID, uint32 cMaxEntries)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCChildren( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, PublishedFileId_t * pvecPublishedFileID, uint32 cMaxEntries )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3149,10 +3346,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCChildren(intptr_t instancePtr, U
     return (ptr)->GetQueryUGCChildren(handle, index, pvecPublishedFileID, cMaxEntries);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCStatistic(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, EItemStatistic eStatType, uint64 * pStatValue)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCStatistic( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, EItemStatistic eStatType, uint64 * pStatValue )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3161,10 +3358,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCStatistic(intptr_t instancePtr, 
     return (ptr)->GetQueryUGCStatistic(handle, index, eStatType, pStatValue);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetQueryUGCNumAdditionalPreviews(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index)
+STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetQueryUGCNumAdditionalPreviews( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3173,10 +3370,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetQueryUGCNumAdditionalPreviews(intptr_t
     return (ptr)->GetQueryUGCNumAdditionalPreviews(handle, index);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCAdditionalPreview(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, uint32 previewIndex, char * pchURLOrVideoID, uint32 cchURLSize, char * pchOriginalFileName, uint32 cchOriginalFileNameSize, EItemPreviewType * pPreviewType)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCAdditionalPreview( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, uint32 previewIndex, char * pchURLOrVideoID, uint32 cchURLSize, char * pchOriginalFileName, uint32 cchOriginalFileNameSize, EItemPreviewType * pPreviewType )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3185,10 +3382,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCAdditionalPreview(intptr_t insta
     return (ptr)->GetQueryUGCAdditionalPreview(handle, index, previewIndex, pchURLOrVideoID, cchURLSize, pchOriginalFileName, cchOriginalFileNameSize, pPreviewType);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetQueryUGCNumKeyValueTags(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index)
+STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetQueryUGCNumKeyValueTags( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3197,10 +3394,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetQueryUGCNumKeyValueTags(intptr_t insta
     return (ptr)->GetQueryUGCNumKeyValueTags(handle, index);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCKeyValueTag(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 index, uint32 keyValueTagIndex, char * pchKey, uint32 cchKeySize, char * pchValue, uint32 cchValueSize)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCKeyValueTag( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, uint32 keyValueTagIndex, char * pchKey, uint32 cchKeySize, char * pchValue, uint32 cchValueSize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3221,10 +3418,22 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryUGCKeyValueTag0(intptr_t instancePt
     return (ptr)->GetQueryUGCKeyValueTag(handle, index, pchKey, pchValue, cchValueSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_ReleaseQueryUGCRequest(intptr_t instancePtr, UGCQueryHandle_t handle)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetQueryFirstUGCKeyValueTag( ISteamUGC* self, UGCQueryHandle_t handle, uint32 index, const char * pchKey, char * pchValue, uint32 cchValueSize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
+    auto ptr = get_steam_client()->steam_gameserver_ugc;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_ugc;
+    }
+
+    return (ptr)->GetQueryUGCKeyValueTag(handle, index, pchKey, pchValue, cchValueSize);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamUGC_ReleaseQueryUGCRequest( ISteamUGC* self, UGCQueryHandle_t handle )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3233,10 +3442,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_ReleaseQueryUGCRequest(intptr_t instancePtr
     return (ptr)->ReleaseQueryUGCRequest(handle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTag(intptr_t instancePtr, UGCQueryHandle_t handle, const char * pTagName)
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTag( ISteamUGC* self, UGCQueryHandle_t handle, const char * pTagName )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3245,10 +3454,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTag(intptr_t instancePtr, UGCQue
     return (ptr)->AddRequiredTag(handle, pTagName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTagGroup(intptr_t instancePtr, UGCQueryHandle_t handle, const struct SteamParamStringArray_t * pTagGroups)
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTagGroup( ISteamUGC* self, UGCQueryHandle_t handle, const SteamParamStringArray_t * pTagGroups )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3257,11 +3466,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredTagGroup(intptr_t instancePtr, U
     return (ptr)->AddRequiredTagGroup(handle, pTagGroups);
 }
 
-
-STEAMAPI_API bool SteamAPI_ISteamUGC_AddExcludedTag(intptr_t instancePtr, UGCQueryHandle_t handle, const char * pTagName)
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddExcludedTag( ISteamUGC* self, UGCQueryHandle_t handle, const char * pTagName )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3270,10 +3478,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddExcludedTag(intptr_t instancePtr, UGCQue
     return (ptr)->AddExcludedTag(handle, pTagName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnOnlyIDs(intptr_t instancePtr, UGCQueryHandle_t handle, bool bReturnOnlyIDs)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnOnlyIDs( ISteamUGC* self, UGCQueryHandle_t handle, bool bReturnOnlyIDs )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3282,10 +3490,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnOnlyIDs(intptr_t instancePtr, UGCQ
     return (ptr)->SetReturnOnlyIDs(handle, bReturnOnlyIDs);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnKeyValueTags(intptr_t instancePtr, UGCQueryHandle_t handle, bool bReturnKeyValueTags)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnKeyValueTags( ISteamUGC* self, UGCQueryHandle_t handle, bool bReturnKeyValueTags )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3294,10 +3502,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnKeyValueTags(intptr_t instancePtr,
     return (ptr)->SetReturnKeyValueTags(handle, bReturnKeyValueTags);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnLongDescription(intptr_t instancePtr, UGCQueryHandle_t handle, bool bReturnLongDescription)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnLongDescription( ISteamUGC* self, UGCQueryHandle_t handle, bool bReturnLongDescription )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3306,10 +3514,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnLongDescription(intptr_t instanceP
     return (ptr)->SetReturnLongDescription(handle, bReturnLongDescription);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnMetadata(intptr_t instancePtr, UGCQueryHandle_t handle, bool bReturnMetadata)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnMetadata( ISteamUGC* self, UGCQueryHandle_t handle, bool bReturnMetadata )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3318,10 +3526,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnMetadata(intptr_t instancePtr, UGC
     return (ptr)->SetReturnMetadata(handle, bReturnMetadata);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnChildren(intptr_t instancePtr, UGCQueryHandle_t handle, bool bReturnChildren)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnChildren( ISteamUGC* self, UGCQueryHandle_t handle, bool bReturnChildren )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3330,10 +3538,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnChildren(intptr_t instancePtr, UGC
     return (ptr)->SetReturnChildren(handle, bReturnChildren);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnAdditionalPreviews(intptr_t instancePtr, UGCQueryHandle_t handle, bool bReturnAdditionalPreviews)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnAdditionalPreviews( ISteamUGC* self, UGCQueryHandle_t handle, bool bReturnAdditionalPreviews )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3342,10 +3550,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnAdditionalPreviews(intptr_t instan
     return (ptr)->SetReturnAdditionalPreviews(handle, bReturnAdditionalPreviews);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnTotalOnly(intptr_t instancePtr, UGCQueryHandle_t handle, bool bReturnTotalOnly)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnTotalOnly( ISteamUGC* self, UGCQueryHandle_t handle, bool bReturnTotalOnly )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3354,10 +3562,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnTotalOnly(intptr_t instancePtr, UG
     return (ptr)->SetReturnTotalOnly(handle, bReturnTotalOnly);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnPlaytimeStats(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 unDays)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnPlaytimeStats( ISteamUGC* self, UGCQueryHandle_t handle, uint32 unDays )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3366,10 +3574,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetReturnPlaytimeStats(intptr_t instancePtr
     return (ptr)->SetReturnPlaytimeStats(handle, unDays);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetLanguage(intptr_t instancePtr, UGCQueryHandle_t handle, const char * pchLanguage)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetLanguage( ISteamUGC* self, UGCQueryHandle_t handle, const char * pchLanguage )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3378,10 +3586,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetLanguage(intptr_t instancePtr, UGCQueryH
     return (ptr)->SetLanguage(handle, pchLanguage);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetAllowCachedResponse(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 unMaxAgeSeconds)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetAllowCachedResponse( ISteamUGC* self, UGCQueryHandle_t handle, uint32 unMaxAgeSeconds )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3390,10 +3598,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetAllowCachedResponse(intptr_t instancePtr
     return (ptr)->SetAllowCachedResponse(handle, unMaxAgeSeconds);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetCloudFileNameFilter(intptr_t instancePtr, UGCQueryHandle_t handle, const char * pMatchCloudFileName)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetCloudFileNameFilter( ISteamUGC* self, UGCQueryHandle_t handle, const char * pMatchCloudFileName )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3402,10 +3610,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetCloudFileNameFilter(intptr_t instancePtr
     return (ptr)->SetCloudFileNameFilter(handle, pMatchCloudFileName);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetMatchAnyTag(intptr_t instancePtr, UGCQueryHandle_t handle, bool bMatchAnyTag)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetMatchAnyTag( ISteamUGC* self, UGCQueryHandle_t handle, bool bMatchAnyTag )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3414,10 +3622,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetMatchAnyTag(intptr_t instancePtr, UGCQue
     return (ptr)->SetMatchAnyTag(handle, bMatchAnyTag);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetSearchText(intptr_t instancePtr, UGCQueryHandle_t handle, const char * pSearchText)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetSearchText( ISteamUGC* self, UGCQueryHandle_t handle, const char * pSearchText )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3426,10 +3634,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetSearchText(intptr_t instancePtr, UGCQuer
     return (ptr)->SetSearchText(handle, pSearchText);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetRankedByTrendDays(intptr_t instancePtr, UGCQueryHandle_t handle, uint32 unDays)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetRankedByTrendDays( ISteamUGC* self, UGCQueryHandle_t handle, uint32 unDays )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3438,10 +3646,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetRankedByTrendDays(intptr_t instancePtr, 
     return (ptr)->SetRankedByTrendDays(handle, unDays);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredKeyValueTag(intptr_t instancePtr, UGCQueryHandle_t handle, const char * pKey, const char * pValue)
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredKeyValueTag( ISteamUGC* self, UGCQueryHandle_t handle, const char * pKey, const char * pValue )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3450,10 +3658,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddRequiredKeyValueTag(intptr_t instancePtr
     return (ptr)->AddRequiredKeyValueTag(handle, pKey, pValue);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RequestUGCDetails(intptr_t instancePtr, PublishedFileId_t nPublishedFileID, uint32 unMaxAgeSeconds)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RequestUGCDetails( ISteamUGC* self, PublishedFileId_t nPublishedFileID, uint32 unMaxAgeSeconds )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3462,10 +3670,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RequestUGCDetails(intptr_t instan
     return (ptr)->RequestUGCDetails(nPublishedFileID, unMaxAgeSeconds);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_CreateItem(intptr_t instancePtr, AppId_t nConsumerAppId, EWorkshopFileType eFileType)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_CreateItem( ISteamUGC* self, AppId_t nConsumerAppId, EWorkshopFileType eFileType )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3474,10 +3682,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_CreateItem(intptr_t instancePtr, 
     return (ptr)->CreateItem(nConsumerAppId, eFileType);
 }
 
-STEAMAPI_API UGCUpdateHandle_t SteamAPI_ISteamUGC_StartItemUpdate(intptr_t instancePtr, AppId_t nConsumerAppId, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API UGCUpdateHandle_t SteamAPI_ISteamUGC_StartItemUpdate( ISteamUGC* self, AppId_t nConsumerAppId, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3486,10 +3694,10 @@ STEAMAPI_API UGCUpdateHandle_t SteamAPI_ISteamUGC_StartItemUpdate(intptr_t insta
     return (ptr)->StartItemUpdate(nConsumerAppId, nPublishedFileID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemTitle(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchTitle)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemTitle( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pchTitle )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3498,10 +3706,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemTitle(intptr_t instancePtr, UGCUpdat
     return (ptr)->SetItemTitle(handle, pchTitle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemDescription(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchDescription)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemDescription( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pchDescription )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3510,10 +3718,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemDescription(intptr_t instancePtr, UG
     return (ptr)->SetItemDescription(handle, pchDescription);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemUpdateLanguage(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchLanguage)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemUpdateLanguage( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pchLanguage )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3522,10 +3730,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemUpdateLanguage(intptr_t instancePtr,
     return (ptr)->SetItemUpdateLanguage(handle, pchLanguage);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemMetadata(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchMetaData)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemMetadata( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pchMetaData )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3534,10 +3742,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemMetadata(intptr_t instancePtr, UGCUp
     return (ptr)->SetItemMetadata(handle, pchMetaData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemVisibility(intptr_t instancePtr, UGCUpdateHandle_t handle, ERemoteStoragePublishedFileVisibility eVisibility)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemVisibility( ISteamUGC* self, UGCUpdateHandle_t handle, ERemoteStoragePublishedFileVisibility eVisibility )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3546,10 +3754,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemVisibility(intptr_t instancePtr, UGC
     return (ptr)->SetItemVisibility(handle, eVisibility);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemTags(intptr_t instancePtr, UGCUpdateHandle_t updateHandle, const struct SteamParamStringArray_t * pTags)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemTags( ISteamUGC* self, UGCUpdateHandle_t updateHandle, const SteamParamStringArray_t * pTags )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3558,10 +3766,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemTags(intptr_t instancePtr, UGCUpdate
     return (ptr)->SetItemTags(updateHandle, pTags);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemContent(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pszContentFolder)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemContent( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pszContentFolder )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3570,10 +3778,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemContent(intptr_t instancePtr, UGCUpd
     return (ptr)->SetItemContent(handle, pszContentFolder);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemPreview(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pszPreviewFile)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemPreview( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pszPreviewFile )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3582,10 +3790,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetItemPreview(intptr_t instancePtr, UGCUpd
     return (ptr)->SetItemPreview(handle, pszPreviewFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_SetAllowLegacyUpload(intptr_t instancePtr, UGCUpdateHandle_t handle, bool bAllowLegacyUpload)
+STEAMAPI_API bool SteamAPI_ISteamUGC_SetAllowLegacyUpload( ISteamUGC* self, UGCUpdateHandle_t handle, bool bAllowLegacyUpload )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3594,10 +3802,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_SetAllowLegacyUpload(intptr_t instancePtr, 
     return (ptr)->SetAllowLegacyUpload(handle, bAllowLegacyUpload);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveAllItemKeyValueTags(intptr_t instancePtr, UGCUpdateHandle_t handle)
+STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveAllItemKeyValueTags( ISteamUGC* self, UGCUpdateHandle_t handle )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3606,10 +3814,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveAllItemKeyValueTags(intptr_t instance
     return (ptr)->RemoveAllItemKeyValueTags(handle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveItemKeyValueTags(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchKey)
+STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveItemKeyValueTags( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pchKey )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3618,10 +3826,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveItemKeyValueTags(intptr_t instancePtr
     return (ptr)->RemoveItemKeyValueTags(handle, pchKey);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemKeyValueTag(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchKey, const char * pchValue)
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemKeyValueTag( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pchKey, const char * pchValue )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3630,10 +3838,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemKeyValueTag(intptr_t instancePtr, UG
     return (ptr)->AddItemKeyValueTag(handle, pchKey, pchValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemPreviewFile(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pszPreviewFile, EItemPreviewType type)
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemPreviewFile( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pszPreviewFile, EItemPreviewType type )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3642,10 +3850,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemPreviewFile(intptr_t instancePtr, UG
     return (ptr)->AddItemPreviewFile(handle, pszPreviewFile, type);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemPreviewVideo(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pszVideoID)
+STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemPreviewVideo( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pszVideoID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3654,10 +3862,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_AddItemPreviewVideo(intptr_t instancePtr, U
     return (ptr)->AddItemPreviewVideo(handle, pszVideoID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_UpdateItemPreviewFile(intptr_t instancePtr, UGCUpdateHandle_t handle, uint32 index, const char * pszPreviewFile)
+STEAMAPI_API bool SteamAPI_ISteamUGC_UpdateItemPreviewFile( ISteamUGC* self, UGCUpdateHandle_t handle, uint32 index, const char * pszPreviewFile )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3666,10 +3874,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_UpdateItemPreviewFile(intptr_t instancePtr,
     return (ptr)->UpdateItemPreviewFile(handle, index, pszPreviewFile);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_UpdateItemPreviewVideo(intptr_t instancePtr, UGCUpdateHandle_t handle, uint32 index, const char * pszVideoID)
+STEAMAPI_API bool SteamAPI_ISteamUGC_UpdateItemPreviewVideo( ISteamUGC* self, UGCUpdateHandle_t handle, uint32 index, const char * pszVideoID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3678,10 +3886,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_UpdateItemPreviewVideo(intptr_t instancePtr
     return (ptr)->UpdateItemPreviewVideo(handle, index, pszVideoID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveItemPreview(intptr_t instancePtr, UGCUpdateHandle_t handle, uint32 index)
+STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveItemPreview( ISteamUGC* self, UGCUpdateHandle_t handle, uint32 index )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3690,10 +3898,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_RemoveItemPreview(intptr_t instancePtr, UGC
     return (ptr)->RemoveItemPreview(handle, index);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SubmitItemUpdate(intptr_t instancePtr, UGCUpdateHandle_t handle, const char * pchChangeNote)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SubmitItemUpdate( ISteamUGC* self, UGCUpdateHandle_t handle, const char * pchChangeNote )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3702,10 +3910,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SubmitItemUpdate(intptr_t instanc
     return (ptr)->SubmitItemUpdate(handle, pchChangeNote);
 }
 
-STEAMAPI_API EItemUpdateStatus SteamAPI_ISteamUGC_GetItemUpdateProgress(intptr_t instancePtr, UGCUpdateHandle_t handle, uint64 * punBytesProcessed, uint64 * punBytesTotal)
+STEAMAPI_API EItemUpdateStatus SteamAPI_ISteamUGC_GetItemUpdateProgress( ISteamUGC* self, UGCUpdateHandle_t handle, uint64 * punBytesProcessed, uint64 * punBytesTotal )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3714,10 +3922,10 @@ STEAMAPI_API EItemUpdateStatus SteamAPI_ISteamUGC_GetItemUpdateProgress(intptr_t
     return (ptr)->GetItemUpdateProgress(handle, punBytesProcessed, punBytesTotal);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SetUserItemVote(intptr_t instancePtr, PublishedFileId_t nPublishedFileID, bool bVoteUp)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SetUserItemVote( ISteamUGC* self, PublishedFileId_t nPublishedFileID, bool bVoteUp )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3726,10 +3934,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SetUserItemVote(intptr_t instance
     return (ptr)->SetUserItemVote(nPublishedFileID, bVoteUp);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_GetUserItemVote(intptr_t instancePtr, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_GetUserItemVote( ISteamUGC* self, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3738,10 +3946,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_GetUserItemVote(intptr_t instance
     return (ptr)->GetUserItemVote(nPublishedFileID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddItemToFavorites(intptr_t instancePtr, AppId_t nAppId, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddItemToFavorites( ISteamUGC* self, AppId_t nAppId, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3750,10 +3958,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddItemToFavorites(intptr_t insta
     return (ptr)->AddItemToFavorites(nAppId, nPublishedFileID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveItemFromFavorites(intptr_t instancePtr, AppId_t nAppId, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveItemFromFavorites( ISteamUGC* self, AppId_t nAppId, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3762,10 +3970,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveItemFromFavorites(intptr_t 
     return (ptr)->RemoveItemFromFavorites(nAppId, nPublishedFileID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SubscribeItem(intptr_t instancePtr, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SubscribeItem( ISteamUGC* self, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3774,10 +3982,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_SubscribeItem(intptr_t instancePt
     return (ptr)->SubscribeItem(nPublishedFileID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_UnsubscribeItem(intptr_t instancePtr, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_UnsubscribeItem( ISteamUGC* self, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3786,10 +3994,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_UnsubscribeItem(intptr_t instance
     return (ptr)->UnsubscribeItem(nPublishedFileID);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetNumSubscribedItems(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetNumSubscribedItems( ISteamUGC* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3798,10 +4006,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetNumSubscribedItems(intptr_t instancePt
     return (ptr)->GetNumSubscribedItems();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetSubscribedItems(intptr_t instancePtr, PublishedFileId_t * pvecPublishedFileID, uint32 cMaxEntries)
+STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetSubscribedItems( ISteamUGC* self, PublishedFileId_t * pvecPublishedFileID, uint32 cMaxEntries )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3810,10 +4018,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetSubscribedItems(intptr_t instancePtr, 
     return (ptr)->GetSubscribedItems(pvecPublishedFileID, cMaxEntries);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetItemState(intptr_t instancePtr, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetItemState( ISteamUGC* self, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3822,10 +4030,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamUGC_GetItemState(intptr_t instancePtr, Publis
     return (ptr)->GetItemState(nPublishedFileID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetItemInstallInfo(intptr_t instancePtr, PublishedFileId_t nPublishedFileID, uint64 * punSizeOnDisk, char * pchFolder, uint32 cchFolderSize, uint32 * punTimeStamp)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetItemInstallInfo( ISteamUGC* self, PublishedFileId_t nPublishedFileID, uint64 * punSizeOnDisk, char * pchFolder, uint32 cchFolderSize, uint32 * punTimeStamp )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3834,10 +4042,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetItemInstallInfo(intptr_t instancePtr, Pu
     return (ptr)->GetItemInstallInfo(nPublishedFileID, punSizeOnDisk, pchFolder, cchFolderSize, punTimeStamp);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_GetItemDownloadInfo(intptr_t instancePtr, PublishedFileId_t nPublishedFileID, uint64 * punBytesDownloaded, uint64 * punBytesTotal)
+STEAMAPI_API bool SteamAPI_ISteamUGC_GetItemDownloadInfo( ISteamUGC* self, PublishedFileId_t nPublishedFileID, uint64 * punBytesDownloaded, uint64 * punBytesTotal )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3846,10 +4054,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_GetItemDownloadInfo(intptr_t instancePtr, P
     return (ptr)->GetItemDownloadInfo(nPublishedFileID, punBytesDownloaded, punBytesTotal);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_DownloadItem(intptr_t instancePtr, PublishedFileId_t nPublishedFileID, bool bHighPriority)
+STEAMAPI_API bool SteamAPI_ISteamUGC_DownloadItem( ISteamUGC* self, PublishedFileId_t nPublishedFileID, bool bHighPriority )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3858,10 +4066,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_DownloadItem(intptr_t instancePtr, Publishe
     return (ptr)->DownloadItem(nPublishedFileID, bHighPriority);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUGC_BInitWorkshopForGameServer(intptr_t instancePtr, DepotId_t unWorkshopDepotID, const char * pszFolder)
+STEAMAPI_API bool SteamAPI_ISteamUGC_BInitWorkshopForGameServer( ISteamUGC* self, DepotId_t unWorkshopDepotID, const char * pszFolder )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3870,10 +4078,10 @@ STEAMAPI_API bool SteamAPI_ISteamUGC_BInitWorkshopForGameServer(intptr_t instanc
     return (ptr)->BInitWorkshopForGameServer(unWorkshopDepotID, pszFolder);
 }
 
-STEAMAPI_API void SteamAPI_ISteamUGC_SuspendDownloads(intptr_t instancePtr, bool bSuspend)
+STEAMAPI_API void SteamAPI_ISteamUGC_SuspendDownloads( ISteamUGC* self, bool bSuspend )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3882,10 +4090,10 @@ STEAMAPI_API void SteamAPI_ISteamUGC_SuspendDownloads(intptr_t instancePtr, bool
     return (ptr)->SuspendDownloads(bSuspend);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StartPlaytimeTracking(intptr_t instancePtr, PublishedFileId_t * pvecPublishedFileID, uint32 unNumPublishedFileIDs)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StartPlaytimeTracking( ISteamUGC* self, PublishedFileId_t * pvecPublishedFileID, uint32 unNumPublishedFileIDs )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3894,10 +4102,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StartPlaytimeTracking(intptr_t in
     return (ptr)->StartPlaytimeTracking(pvecPublishedFileID, unNumPublishedFileIDs);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StopPlaytimeTracking(intptr_t instancePtr, PublishedFileId_t * pvecPublishedFileID, uint32 unNumPublishedFileIDs)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StopPlaytimeTracking( ISteamUGC* self, PublishedFileId_t * pvecPublishedFileID, uint32 unNumPublishedFileIDs )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3906,10 +4114,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StopPlaytimeTracking(intptr_t ins
     return (ptr)->StopPlaytimeTracking(pvecPublishedFileID, unNumPublishedFileIDs);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StopPlaytimeTrackingForAllItems(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StopPlaytimeTrackingForAllItems( ISteamUGC* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3918,10 +4126,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_StopPlaytimeTrackingForAllItems(i
     return (ptr)->StopPlaytimeTrackingForAllItems();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddDependency(intptr_t instancePtr, PublishedFileId_t nParentPublishedFileID, PublishedFileId_t nChildPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddDependency( ISteamUGC* self, PublishedFileId_t nParentPublishedFileID, PublishedFileId_t nChildPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3930,10 +4138,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddDependency(intptr_t instancePt
     return (ptr)->AddDependency(nParentPublishedFileID, nChildPublishedFileID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveDependency(intptr_t instancePtr, PublishedFileId_t nParentPublishedFileID, PublishedFileId_t nChildPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveDependency( ISteamUGC* self, PublishedFileId_t nParentPublishedFileID, PublishedFileId_t nChildPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3942,10 +4150,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveDependency(intptr_t instanc
     return (ptr)->RemoveDependency(nParentPublishedFileID, nChildPublishedFileID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddAppDependency(intptr_t instancePtr, PublishedFileId_t nPublishedFileID, AppId_t nAppID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddAppDependency( ISteamUGC* self, PublishedFileId_t nPublishedFileID, AppId_t nAppID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3954,10 +4162,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_AddAppDependency(intptr_t instanc
     return (ptr)->AddAppDependency(nPublishedFileID, nAppID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveAppDependency(intptr_t instancePtr, PublishedFileId_t nPublishedFileID, AppId_t nAppID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveAppDependency( ISteamUGC* self, PublishedFileId_t nPublishedFileID, AppId_t nAppID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3966,10 +4174,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_RemoveAppDependency(intptr_t inst
     return (ptr)->RemoveAppDependency(nPublishedFileID, nAppID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_GetAppDependencies(intptr_t instancePtr, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_GetAppDependencies( ISteamUGC* self, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3978,10 +4186,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_GetAppDependencies(intptr_t insta
     return (ptr)->GetAppDependencies(nPublishedFileID);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_DeleteItem(intptr_t instancePtr, PublishedFileId_t nPublishedFileID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_DeleteItem( ISteamUGC* self, PublishedFileId_t nPublishedFileID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_ugc);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_ugc);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_ugc);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_ugc);
     auto ptr = get_steam_client()->steam_gameserver_ugc;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_ugc;
@@ -3990,29 +4198,39 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUGC_DeleteItem(intptr_t instancePtr, 
     return (ptr)->DeleteItem(nPublishedFileID);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamAppList_GetNumInstalledApps(intptr_t instancePtr)
+STEAMAPI_API ISteamAppList *SteamAPI_SteamAppList_v001()
 {
-    return ((ISteamAppList *)instancePtr)->GetNumInstalledApps();
+    return get_steam_client()->GetISteamAppList(flat_hsteamuser(), flat_hsteampipe(), "STEAMAPPLIST_INTERFACE_VERSION001");
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamAppList_GetInstalledApps(intptr_t instancePtr, AppId_t * pvecAppID, uint32 unMaxAppIDs)
+STEAMAPI_API uint32 SteamAPI_ISteamAppList_GetNumInstalledApps( ISteamAppList* self )
 {
-    return ((ISteamAppList *)instancePtr)->GetInstalledApps(pvecAppID, unMaxAppIDs);
+    return self->GetNumInstalledApps();
 }
 
-STEAMAPI_API int SteamAPI_ISteamAppList_GetAppName(intptr_t instancePtr, AppId_t nAppID, char * pchName, int cchNameMax)
+STEAMAPI_API uint32 SteamAPI_ISteamAppList_GetInstalledApps( ISteamAppList* self, AppId_t * pvecAppID, uint32 unMaxAppIDs )
 {
-    return ((ISteamAppList *)instancePtr)->GetAppName(nAppID, pchName, cchNameMax);
+    return self->GetInstalledApps(pvecAppID, unMaxAppIDs);
 }
 
-STEAMAPI_API int SteamAPI_ISteamAppList_GetAppInstallDir(intptr_t instancePtr, AppId_t nAppID, char * pchDirectory, int cchNameMax)
+STEAMAPI_API int SteamAPI_ISteamAppList_GetAppName( ISteamAppList* self, AppId_t nAppID, char * pchName, int cchNameMax )
 {
-    return ((ISteamAppList *)instancePtr)->GetAppInstallDir(nAppID, pchDirectory, cchNameMax);
+    return self->GetAppName(nAppID, pchName, cchNameMax);
 }
 
-STEAMAPI_API int SteamAPI_ISteamAppList_GetAppBuildId(intptr_t instancePtr, AppId_t nAppID)
+STEAMAPI_API int SteamAPI_ISteamAppList_GetAppInstallDir( ISteamAppList* self, AppId_t nAppID, char * pchDirectory, int cchNameMax )
 {
-    return ((ISteamAppList *)instancePtr)->GetAppBuildId(nAppID);
+    return self->GetAppInstallDir(nAppID, pchDirectory, cchNameMax);
+}
+
+STEAMAPI_API int SteamAPI_ISteamAppList_GetAppBuildId( ISteamAppList* self, AppId_t nAppID )
+{
+    return self->GetAppBuildId(nAppID);
+}
+
+STEAMAPI_API ISteamHTMLSurface *SteamAPI_SteamHTMLSurface_v005()
+{
+    return get_steam_client()->GetISteamHTMLSurface(flat_hsteamuser(), flat_hsteampipe(), "STEAMHTMLSURFACE_INTERFACE_VERSION_005");
 }
 
 STEAMAPI_API void SteamAPI_ISteamHTMLSurface_DestructISteamHTMLSurface(intptr_t instancePtr)
@@ -4020,190 +4238,205 @@ STEAMAPI_API void SteamAPI_ISteamHTMLSurface_DestructISteamHTMLSurface(intptr_t 
     //return (get_steam_client()->steam_HTMLsurface)->DestructISteamHTMLSurface();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTMLSurface_Init(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamHTMLSurface_Init( ISteamHTMLSurface* self )
 {
     return (get_steam_client()->steam_HTMLsurface)->Init();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamHTMLSurface_Shutdown(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamHTMLSurface_Shutdown( ISteamHTMLSurface* self )
 {
     return (get_steam_client()->steam_HTMLsurface)->Shutdown();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamHTMLSurface_CreateBrowser(intptr_t instancePtr, const char * pchUserAgent, const char * pchUserCSS)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamHTMLSurface_CreateBrowser( ISteamHTMLSurface* self, const char * pchUserAgent, const char * pchUserCSS )
 {
     return (get_steam_client()->steam_HTMLsurface)->CreateBrowser(pchUserAgent, pchUserCSS);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_RemoveBrowser(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_RemoveBrowser( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->RemoveBrowser(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_LoadURL(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, const char * pchURL, const char * pchPostData)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_LoadURL( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, const char * pchURL, const char * pchPostData )
 {
     return (get_steam_client()->steam_HTMLsurface)->LoadURL(unBrowserHandle, pchURL, pchPostData);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetSize(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, uint32 unWidth, uint32 unHeight)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetSize( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, uint32 unWidth, uint32 unHeight )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetSize(unBrowserHandle, unWidth, unHeight);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_StopLoad(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_StopLoad( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->StopLoad(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_Reload(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_Reload( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->Reload(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_GoBack(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_GoBack( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->GoBack(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_GoForward(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_GoForward( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->GoForward(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_AddHeader(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, const char * pchKey, const char * pchValue)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_AddHeader( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, const char * pchKey, const char * pchValue )
 {
     return (get_steam_client()->steam_HTMLsurface)->AddHeader(unBrowserHandle, pchKey, pchValue);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_ExecuteJavascript(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, const char * pchScript)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_ExecuteJavascript( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, const char * pchScript )
 {
     return (get_steam_client()->steam_HTMLsurface)->ExecuteJavascript(unBrowserHandle, pchScript);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseUp(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, EHTMLMouseButton eMouseButton)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseUp( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, EHTMLMouseButton eMouseButton )
 {
     return (get_steam_client()->steam_HTMLsurface)->MouseUp(unBrowserHandle, eMouseButton);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseDown(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, EHTMLMouseButton eMouseButton)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseDown( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, EHTMLMouseButton eMouseButton )
 {
     return (get_steam_client()->steam_HTMLsurface)->MouseDown(unBrowserHandle, eMouseButton);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseDoubleClick(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, EHTMLMouseButton eMouseButton)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseDoubleClick( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, EHTMLMouseButton eMouseButton )
 {
     return (get_steam_client()->steam_HTMLsurface)->MouseDoubleClick(unBrowserHandle, eMouseButton);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseMove(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, int x, int y)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseMove( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, int x, int y )
 {
     return (get_steam_client()->steam_HTMLsurface)->MouseMove(unBrowserHandle, x, y);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseWheel(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, int32 nDelta)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_MouseWheel( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, int32 nDelta )
 {
     return (get_steam_client()->steam_HTMLsurface)->MouseWheel(unBrowserHandle, nDelta);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_KeyDown(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, uint32 nNativeKeyCode, EHTMLKeyModifiers eHTMLKeyModifiers, bool bIsSystemKey)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_KeyDown( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, uint32 nNativeKeyCode, EHTMLKeyModifiers eHTMLKeyModifiers, bool bIsSystemKey )
 {
     return (get_steam_client()->steam_HTMLsurface)->KeyDown(unBrowserHandle, nNativeKeyCode, eHTMLKeyModifiers, bIsSystemKey);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_KeyUp(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, uint32 nNativeKeyCode, EHTMLKeyModifiers eHTMLKeyModifiers)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_KeyUp( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, uint32 nNativeKeyCode, EHTMLKeyModifiers eHTMLKeyModifiers )
 {
     return (get_steam_client()->steam_HTMLsurface)->KeyUp(unBrowserHandle, nNativeKeyCode, eHTMLKeyModifiers);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_KeyChar(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, uint32 cUnicodeChar, EHTMLKeyModifiers eHTMLKeyModifiers)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_KeyChar( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, uint32 cUnicodeChar, EHTMLKeyModifiers eHTMLKeyModifiers )
 {
     return (get_steam_client()->steam_HTMLsurface)->KeyChar(unBrowserHandle, cUnicodeChar, eHTMLKeyModifiers);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetHorizontalScroll(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, uint32 nAbsolutePixelScroll)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetHorizontalScroll( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, uint32 nAbsolutePixelScroll )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetHorizontalScroll(unBrowserHandle, nAbsolutePixelScroll);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetVerticalScroll(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, uint32 nAbsolutePixelScroll)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetVerticalScroll( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, uint32 nAbsolutePixelScroll )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetVerticalScroll(unBrowserHandle, nAbsolutePixelScroll);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetKeyFocus(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, bool bHasKeyFocus)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetKeyFocus( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, bool bHasKeyFocus )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetKeyFocus(unBrowserHandle, bHasKeyFocus);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_ViewSource(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_ViewSource( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->ViewSource(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_CopyToClipboard(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_CopyToClipboard( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->CopyToClipboard(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_PasteFromClipboard(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_PasteFromClipboard( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->PasteFromClipboard(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_Find(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, const char * pchSearchStr, bool bCurrentlyInFind, bool bReverse)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_Find( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, const char * pchSearchStr, bool bCurrentlyInFind, bool bReverse )
 {
     return (get_steam_client()->steam_HTMLsurface)->Find(unBrowserHandle, pchSearchStr, bCurrentlyInFind, bReverse);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_StopFind(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_StopFind( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->StopFind(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_GetLinkAtPosition(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, int x, int y)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_GetLinkAtPosition( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, int x, int y )
 {
     return (get_steam_client()->steam_HTMLsurface)->GetLinkAtPosition(unBrowserHandle, x, y);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetCookie(intptr_t instancePtr, const char * pchHostname, const char * pchKey, const char * pchValue, const char * pchPath, RTime32 nExpires, bool bSecure, bool bHTTPOnly)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetCookie( ISteamHTMLSurface* self, const char * pchHostname, const char * pchKey, const char * pchValue, const char * pchPath, RTime32 nExpires, bool bSecure, bool bHTTPOnly )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetCookie(pchHostname, pchKey, pchValue, pchPath, nExpires, bSecure, bHTTPOnly);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetPageScaleFactor(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, float flZoom, int nPointX, int nPointY)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetPageScaleFactor( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, float flZoom, int nPointX, int nPointY )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetPageScaleFactor(unBrowserHandle, flZoom, nPointX, nPointY);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetBackgroundMode(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, bool bBackgroundMode)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetBackgroundMode( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, bool bBackgroundMode )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetBackgroundMode(unBrowserHandle, bBackgroundMode);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetDPIScalingFactor(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, float flDPIScaling)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_SetDPIScalingFactor( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, float flDPIScaling )
 {
     return (get_steam_client()->steam_HTMLsurface)->SetDPIScalingFactor(unBrowserHandle, flDPIScaling);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_OpenDeveloperTools(intptr_t instancePtr, HHTMLBrowser unBrowserHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_OpenDeveloperTools( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle )
 {
     return (get_steam_client()->steam_HTMLsurface)->OpenDeveloperTools(unBrowserHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_AllowStartRequest(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, bool bAllowed)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_AllowStartRequest( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, bool bAllowed )
 {
     return (get_steam_client()->steam_HTMLsurface)->AllowStartRequest(unBrowserHandle, bAllowed);
 }
 
-STEAMAPI_API void SteamAPI_ISteamHTMLSurface_JSDialogResponse(intptr_t instancePtr, HHTMLBrowser unBrowserHandle, bool bResult)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_JSDialogResponse( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, bool bResult )
 {
     return (get_steam_client()->steam_HTMLsurface)->JSDialogResponse(unBrowserHandle, bResult);
 }
 
-STEAMAPI_API EResult SteamAPI_ISteamInventory_GetResultStatus(intptr_t instancePtr, SteamInventoryResult_t resultHandle)
+STEAMAPI_API void SteamAPI_ISteamHTMLSurface_FileLoadDialogResponse( ISteamHTMLSurface* self, HHTMLBrowser unBrowserHandle, const char ** pchSelectedFiles )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    return (get_steam_client()->steam_HTMLsurface)->FileLoadDialogResponse(unBrowserHandle, pchSelectedFiles);
+}
+
+STEAMAPI_API ISteamInventory *SteamAPI_SteamInventory_v003()
+{
+    return get_steam_client()->GetISteamInventory(flat_hsteamuser(), flat_hsteampipe(), "STEAMINVENTORY_INTERFACE_V003");
+}
+
+STEAMAPI_API ISteamInventory *SteamAPI_SteamGameServerInventory_v003()
+{
+    return get_steam_client()->GetISteamInventory(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "STEAMINVENTORY_INTERFACE_V003");
+}
+
+STEAMAPI_API EResult SteamAPI_ISteamInventory_GetResultStatus( ISteamInventory* self, SteamInventoryResult_t resultHandle )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4212,10 +4445,10 @@ STEAMAPI_API EResult SteamAPI_ISteamInventory_GetResultStatus(intptr_t instanceP
     return (ptr)->GetResultStatus(resultHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetResultItems(intptr_t instancePtr, SteamInventoryResult_t resultHandle, struct SteamItemDetails_t * pOutItemsArray, uint32 * punOutItemsArraySize)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetResultItems( ISteamInventory* self, SteamInventoryResult_t resultHandle, SteamItemDetails_t * pOutItemsArray, uint32 * punOutItemsArraySize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4224,10 +4457,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetResultItems(intptr_t instancePtr, 
     return (ptr)->GetResultItems(resultHandle, pOutItemsArray, punOutItemsArraySize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetResultItemProperty(intptr_t instancePtr, SteamInventoryResult_t resultHandle, uint32 unItemIndex, const char * pchPropertyName, char * pchValueBuffer, uint32 * punValueBufferSizeOut)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetResultItemProperty( ISteamInventory* self, SteamInventoryResult_t resultHandle, uint32 unItemIndex, const char * pchPropertyName, char * pchValueBuffer, uint32 * punValueBufferSizeOut )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4236,10 +4469,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetResultItemProperty(intptr_t instan
     return (ptr)->GetResultItemProperty(resultHandle, unItemIndex, pchPropertyName, pchValueBuffer, punValueBufferSizeOut);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamInventory_GetResultTimestamp(intptr_t instancePtr, SteamInventoryResult_t resultHandle)
+STEAMAPI_API uint32 SteamAPI_ISteamInventory_GetResultTimestamp( ISteamInventory* self, SteamInventoryResult_t resultHandle )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4248,10 +4481,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamInventory_GetResultTimestamp(intptr_t instanc
     return (ptr)->GetResultTimestamp(resultHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_CheckResultSteamID(intptr_t instancePtr, SteamInventoryResult_t resultHandle, class CSteamID steamIDExpected)
+STEAMAPI_API bool SteamAPI_ISteamInventory_CheckResultSteamID( ISteamInventory* self, SteamInventoryResult_t resultHandle, uint64_steamid steamIDExpected )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4260,10 +4493,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_CheckResultSteamID(intptr_t instanceP
     return (ptr)->CheckResultSteamID(resultHandle, steamIDExpected);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInventory_DestroyResult(intptr_t instancePtr, SteamInventoryResult_t resultHandle)
+STEAMAPI_API void SteamAPI_ISteamInventory_DestroyResult( ISteamInventory* self, SteamInventoryResult_t resultHandle )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4272,10 +4505,10 @@ STEAMAPI_API void SteamAPI_ISteamInventory_DestroyResult(intptr_t instancePtr, S
     return (ptr)->DestroyResult(resultHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetAllItems(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetAllItems( ISteamInventory* self, SteamInventoryResult_t * pResultHandle )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4284,10 +4517,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetAllItems(intptr_t instancePtr, Ste
     return (ptr)->GetAllItems(pResultHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemsByID(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, const SteamItemInstanceID_t * pInstanceIDs, uint32 unCountInstanceIDs)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemsByID( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, const SteamItemInstanceID_t * pInstanceIDs, uint32 unCountInstanceIDs )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4296,10 +4529,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemsByID(intptr_t instancePtr, St
     return (ptr)->GetItemsByID(pResultHandle, pInstanceIDs, unCountInstanceIDs);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_SerializeResult(intptr_t instancePtr, SteamInventoryResult_t resultHandle, void * pOutBuffer, uint32 * punOutBufferSize)
+STEAMAPI_API bool SteamAPI_ISteamInventory_SerializeResult( ISteamInventory* self, SteamInventoryResult_t resultHandle, void * pOutBuffer, uint32 * punOutBufferSize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4308,10 +4541,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_SerializeResult(intptr_t instancePtr,
     return (ptr)->SerializeResult(resultHandle, pOutBuffer, punOutBufferSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_DeserializeResult(intptr_t instancePtr, SteamInventoryResult_t * pOutResultHandle, const void * pBuffer, uint32 unBufferSize, bool bRESERVED_MUST_BE_FALSE)
+STEAMAPI_API bool SteamAPI_ISteamInventory_DeserializeResult( ISteamInventory* self, SteamInventoryResult_t * pOutResultHandle, const void * pBuffer, uint32 unBufferSize, bool bRESERVED_MUST_BE_FALSE )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4320,10 +4553,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_DeserializeResult(intptr_t instancePt
     return (ptr)->DeserializeResult(pOutResultHandle, pBuffer, unBufferSize, bRESERVED_MUST_BE_FALSE);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GenerateItems(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, const SteamItemDef_t * pArrayItemDefs, const uint32 * punArrayQuantity, uint32 unArrayLength)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GenerateItems( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, const SteamItemDef_t * pArrayItemDefs, const uint32 * punArrayQuantity, uint32 unArrayLength )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4332,10 +4565,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GenerateItems(intptr_t instancePtr, S
     return (ptr)->GenerateItems(pResultHandle, pArrayItemDefs, punArrayQuantity, unArrayLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GrantPromoItems(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GrantPromoItems( ISteamInventory* self, SteamInventoryResult_t * pResultHandle )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4344,10 +4577,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GrantPromoItems(intptr_t instancePtr,
     return (ptr)->GrantPromoItems(pResultHandle);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_AddPromoItem(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, SteamItemDef_t itemDef)
+STEAMAPI_API bool SteamAPI_ISteamInventory_AddPromoItem( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, SteamItemDef_t itemDef )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4356,10 +4589,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_AddPromoItem(intptr_t instancePtr, St
     return (ptr)->AddPromoItem(pResultHandle, itemDef);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_AddPromoItems(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, const SteamItemDef_t * pArrayItemDefs, uint32 unArrayLength)
+STEAMAPI_API bool SteamAPI_ISteamInventory_AddPromoItems( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, const SteamItemDef_t * pArrayItemDefs, uint32 unArrayLength )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4368,10 +4601,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_AddPromoItems(intptr_t instancePtr, S
     return (ptr)->AddPromoItems(pResultHandle, pArrayItemDefs, unArrayLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_ConsumeItem(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, SteamItemInstanceID_t itemConsume, uint32 unQuantity)
+STEAMAPI_API bool SteamAPI_ISteamInventory_ConsumeItem( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, SteamItemInstanceID_t itemConsume, uint32 unQuantity )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4380,10 +4613,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_ConsumeItem(intptr_t instancePtr, Ste
     return (ptr)->ConsumeItem(pResultHandle, itemConsume, unQuantity);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_ExchangeItems(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, const SteamItemDef_t * pArrayGenerate, const uint32 * punArrayGenerateQuantity, uint32 unArrayGenerateLength, const SteamItemInstanceID_t * pArrayDestroy, const uint32 * punArrayDestroyQuantity, uint32 unArrayDestroyLength)
+STEAMAPI_API bool SteamAPI_ISteamInventory_ExchangeItems( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, const SteamItemDef_t * pArrayGenerate, const uint32 * punArrayGenerateQuantity, uint32 unArrayGenerateLength, const SteamItemInstanceID_t * pArrayDestroy, const uint32 * punArrayDestroyQuantity, uint32 unArrayDestroyLength )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4392,10 +4625,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_ExchangeItems(intptr_t instancePtr, S
     return (ptr)->ExchangeItems(pResultHandle, pArrayGenerate, punArrayGenerateQuantity, unArrayGenerateLength, pArrayDestroy, punArrayDestroyQuantity, unArrayDestroyLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_TransferItemQuantity(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, SteamItemInstanceID_t itemIdSource, uint32 unQuantity, SteamItemInstanceID_t itemIdDest)
+STEAMAPI_API bool SteamAPI_ISteamInventory_TransferItemQuantity( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, SteamItemInstanceID_t itemIdSource, uint32 unQuantity, SteamItemInstanceID_t itemIdDest )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4404,10 +4637,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_TransferItemQuantity(intptr_t instanc
     return (ptr)->TransferItemQuantity(pResultHandle, itemIdSource, unQuantity, itemIdDest);
 }
 
-STEAMAPI_API void SteamAPI_ISteamInventory_SendItemDropHeartbeat(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamInventory_SendItemDropHeartbeat( ISteamInventory* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4416,10 +4649,10 @@ STEAMAPI_API void SteamAPI_ISteamInventory_SendItemDropHeartbeat(intptr_t instan
     return (ptr)->SendItemDropHeartbeat();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_TriggerItemDrop(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, SteamItemDef_t dropListDefinition)
+STEAMAPI_API bool SteamAPI_ISteamInventory_TriggerItemDrop( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, SteamItemDef_t dropListDefinition )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4428,10 +4661,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_TriggerItemDrop(intptr_t instancePtr,
     return (ptr)->TriggerItemDrop(pResultHandle, dropListDefinition);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_TradeItems(intptr_t instancePtr, SteamInventoryResult_t * pResultHandle, class CSteamID steamIDTradePartner, const SteamItemInstanceID_t * pArrayGive, const uint32 * pArrayGiveQuantity, uint32 nArrayGiveLength, const SteamItemInstanceID_t * pArrayGet, const uint32 * pArrayGetQuantity, uint32 nArrayGetLength)
+STEAMAPI_API bool SteamAPI_ISteamInventory_TradeItems( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, uint64_steamid steamIDTradePartner, const SteamItemInstanceID_t * pArrayGive, const uint32 * pArrayGiveQuantity, uint32 nArrayGiveLength, const SteamItemInstanceID_t * pArrayGet, const uint32 * pArrayGetQuantity, uint32 nArrayGetLength )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4440,10 +4673,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_TradeItems(intptr_t instancePtr, Stea
     return (ptr)->TradeItems(pResultHandle, steamIDTradePartner, pArrayGive, pArrayGiveQuantity, nArrayGiveLength, pArrayGet, pArrayGetQuantity, nArrayGetLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_LoadItemDefinitions(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamInventory_LoadItemDefinitions( ISteamInventory* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4452,10 +4685,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_LoadItemDefinitions(intptr_t instance
     return (ptr)->LoadItemDefinitions();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemDefinitionIDs(intptr_t instancePtr, SteamItemDef_t * pItemDefIDs, uint32 * punItemDefIDsArraySize)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemDefinitionIDs( ISteamInventory* self, SteamItemDef_t * pItemDefIDs, uint32 * punItemDefIDsArraySize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4464,10 +4697,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemDefinitionIDs(intptr_t instanc
     return (ptr)->GetItemDefinitionIDs(pItemDefIDs, punItemDefIDsArraySize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemDefinitionProperty(intptr_t instancePtr, SteamItemDef_t iDefinition, const char * pchPropertyName, char * pchValueBuffer, uint32 * punValueBufferSizeOut)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemDefinitionProperty( ISteamInventory* self, SteamItemDef_t iDefinition, const char * pchPropertyName, char * pchValueBuffer, uint32 * punValueBufferSizeOut )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4476,10 +4709,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemDefinitionProperty(intptr_t in
     return (ptr)->GetItemDefinitionProperty(iDefinition, pchPropertyName, pchValueBuffer, punValueBufferSizeOut);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_RequestEligiblePromoItemDefinitionsIDs(intptr_t instancePtr, class CSteamID steamID)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_RequestEligiblePromoItemDefinitionsIDs( ISteamInventory* self, uint64_steamid steamID )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4488,10 +4721,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_RequestEligiblePromoItemDef
     return (ptr)->RequestEligiblePromoItemDefinitionsIDs(steamID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetEligiblePromoItemDefinitionIDs(intptr_t instancePtr, class CSteamID steamID, SteamItemDef_t * pItemDefIDs, uint32 * punItemDefIDsArraySize)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetEligiblePromoItemDefinitionIDs( ISteamInventory* self, uint64_steamid steamID, SteamItemDef_t * pItemDefIDs, uint32 * punItemDefIDsArraySize )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4500,10 +4733,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetEligiblePromoItemDefinitionIDs(int
     return (ptr)->GetEligiblePromoItemDefinitionIDs(steamID, pItemDefIDs, punItemDefIDsArraySize);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_StartPurchase(intptr_t instancePtr, const SteamItemDef_t * pArrayItemDefs, const uint32 * punArrayQuantity, uint32 unArrayLength)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_StartPurchase( ISteamInventory* self, const SteamItemDef_t * pArrayItemDefs, const uint32 * punArrayQuantity, uint32 unArrayLength )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4512,10 +4745,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_StartPurchase(intptr_t inst
     return (ptr)->StartPurchase(pArrayItemDefs, punArrayQuantity, unArrayLength);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_RequestPrices(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_RequestPrices( ISteamInventory* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4524,10 +4757,10 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamInventory_RequestPrices(intptr_t inst
     return (ptr)->RequestPrices();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamInventory_GetNumItemsWithPrices(intptr_t instancePtr)
+STEAMAPI_API uint32 SteamAPI_ISteamInventory_GetNumItemsWithPrices( ISteamInventory* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4536,10 +4769,10 @@ STEAMAPI_API uint32 SteamAPI_ISteamInventory_GetNumItemsWithPrices(intptr_t inst
     return (ptr)->GetNumItemsWithPrices();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemsWithPrices(intptr_t instancePtr, SteamItemDef_t * pArrayItemDefs, uint64 * pCurrentPrices, uint64 * pBasePrices, uint32 unArrayLength)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemsWithPrices( ISteamInventory* self, SteamItemDef_t * pArrayItemDefs, uint64 * pCurrentPrices, uint64 * pBasePrices, uint32 unArrayLength )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4548,10 +4781,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemsWithPrices(intptr_t instanceP
     return (ptr)->GetItemsWithPrices(pArrayItemDefs, pCurrentPrices, pBasePrices, unArrayLength);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemPrice(intptr_t instancePtr, SteamItemDef_t iDefinition, uint64 * pCurrentPrice, uint64 * pBasePrice)
+STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemPrice( ISteamInventory* self, SteamItemDef_t iDefinition, uint64 * pCurrentPrice, uint64 * pBasePrice )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4560,10 +4793,10 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_GetItemPrice(intptr_t instancePtr, St
     return (ptr)->GetItemPrice(iDefinition, pCurrentPrice, pBasePrice);
 }
 
-STEAMAPI_API SteamInventoryUpdateHandle_t SteamAPI_ISteamInventory_StartUpdateProperties(intptr_t instancePtr)
+STEAMAPI_API SteamInventoryUpdateHandle_t SteamAPI_ISteamInventory_StartUpdateProperties( ISteamInventory* self )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4572,10 +4805,10 @@ STEAMAPI_API SteamInventoryUpdateHandle_t SteamAPI_ISteamInventory_StartUpdatePr
     return (ptr)->StartUpdateProperties();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_RemoveProperty(intptr_t instancePtr, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName)
+STEAMAPI_API bool SteamAPI_ISteamInventory_RemoveProperty( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4632,10 +4865,58 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_SetProperty2(intptr_t instancePtr, St
     return (ptr)->SetProperty(handle, nItemID, pchPropertyName, flValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamInventory_SubmitUpdateProperties(intptr_t instancePtr, SteamInventoryUpdateHandle_t handle, SteamInventoryResult_t * pResultHandle)
+STEAMAPI_API bool SteamAPI_ISteamInventory_SetPropertyString( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName, const char * pchPropertyValue )
 {
-    int test1 = ((char *)instancePtr - (char*)get_steam_client()->steam_inventory);
-    int test2 = ((char *)instancePtr - (char*)get_steam_client()->steam_gameserver_inventory);
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
+    auto ptr = get_steam_client()->steam_gameserver_inventory;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_inventory;
+    }
+
+    return (ptr)->SetProperty(handle, nItemID, pchPropertyName, pchPropertyValue);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamInventory_SetPropertyBool( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName, bool bValue )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
+    auto ptr = get_steam_client()->steam_gameserver_inventory;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_inventory;
+    }
+
+    return (ptr)->SetProperty(handle, nItemID, pchPropertyName, bValue);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamInventory_SetPropertyInt64( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName, int64 nValue )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
+    auto ptr = get_steam_client()->steam_gameserver_inventory;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_inventory;
+    }
+
+    return (ptr)->SetProperty(handle, nItemID, pchPropertyName, nValue);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamInventory_SetPropertyFloat( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName, float flValue )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
+    auto ptr = get_steam_client()->steam_gameserver_inventory;
+    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
+        ptr = get_steam_client()->steam_inventory;
+    }
+
+    return (ptr)->SetProperty(handle, nItemID, pchPropertyName, flValue);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamInventory_SubmitUpdateProperties( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamInventoryResult_t * pResultHandle )
+{
+    int test1 = ((char *)self - (char*)get_steam_client()->steam_inventory);
+    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_inventory);
     auto ptr = get_steam_client()->steam_gameserver_inventory;
     if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
         ptr = get_steam_client()->steam_inventory;
@@ -4644,89 +4925,529 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_SubmitUpdateProperties(intptr_t insta
     return (ptr)->SubmitUpdateProperties(handle, pResultHandle);
 }
 
-STEAMAPI_API void SteamAPI_ISteamVideo_GetVideoURL(intptr_t instancePtr, AppId_t unVideoAppID)
+STEAMAPI_API ISteamVideo *SteamAPI_SteamVideo_v002()
 {
-    return ((ISteamVideo *)instancePtr)->GetVideoURL(unVideoAppID);
+    return get_steam_client()->GetISteamVideo(flat_hsteamuser(), flat_hsteampipe(), "STEAMVIDEO_INTERFACE_V002");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamVideo_IsBroadcasting(intptr_t instancePtr, int * pnNumViewers)
+STEAMAPI_API void SteamAPI_ISteamVideo_GetVideoURL( ISteamVideo* self, AppId_t unVideoAppID )
 {
-    return ((ISteamVideo *)instancePtr)->IsBroadcasting(pnNumViewers);
+    return self->GetVideoURL(unVideoAppID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamVideo_GetOPFSettings(intptr_t instancePtr, AppId_t unVideoAppID)
+STEAMAPI_API bool SteamAPI_ISteamVideo_IsBroadcasting( ISteamVideo* self, int * pnNumViewers )
 {
-    return ((ISteamVideo *)instancePtr)->GetOPFSettings(unVideoAppID);
+    return self->IsBroadcasting(pnNumViewers);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamVideo_GetOPFStringForApp(intptr_t instancePtr, AppId_t unVideoAppID, char * pchBuffer, int32 * pnBufferSize)
+STEAMAPI_API void SteamAPI_ISteamVideo_GetOPFSettings( ISteamVideo* self, AppId_t unVideoAppID )
 {
-    return ((ISteamVideo *)instancePtr)->GetOPFStringForApp(unVideoAppID, pchBuffer, pnBufferSize);
+    return self->GetOPFSettings(unVideoAppID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsParentalLockEnabled(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamVideo_GetOPFStringForApp( ISteamVideo* self, AppId_t unVideoAppID, char * pchBuffer, int32 * pnBufferSize )
 {
-    return ((ISteamParentalSettings *)instancePtr)->BIsParentalLockEnabled();
+    return self->GetOPFStringForApp(unVideoAppID, pchBuffer, pnBufferSize);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsParentalLockLocked(intptr_t instancePtr)
+ISteamTV *SteamAPI_SteamTV_v001()
 {
-    return ((ISteamParentalSettings *)instancePtr)->BIsParentalLockLocked();
+    return (ISteamTV *)get_steam_client()->GetISteamGenericInterface(flat_hsteamuser(), flat_hsteampipe(), "STEAMTV_INTERFACE_V001");
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsAppBlocked(intptr_t instancePtr, AppId_t nAppID)
+STEAMAPI_API bool SteamAPI_ISteamTV_IsBroadcasting( ISteamTV* self, int * pnNumViewers )
 {
-    return ((ISteamParentalSettings *)instancePtr)->BIsAppBlocked(nAppID);
+    return self->IsBroadcasting(pnNumViewers);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsAppInBlockList(intptr_t instancePtr, AppId_t nAppID)
+STEAMAPI_API void SteamAPI_ISteamTV_AddBroadcastGameData( ISteamTV* self, const char * pchKey, const char * pchValue )
 {
-    return ((ISteamParentalSettings *)instancePtr)->BIsAppInBlockList(nAppID);
+    return self->AddBroadcastGameData(pchKey, pchValue);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsFeatureBlocked(intptr_t instancePtr, EParentalFeature eFeature)
+STEAMAPI_API void SteamAPI_ISteamTV_RemoveBroadcastGameData( ISteamTV* self, const char * pchKey )
 {
-    return ((ISteamParentalSettings *)instancePtr)->BIsFeatureBlocked(eFeature);
+    return self->RemoveBroadcastGameData(pchKey);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsFeatureInBlockList(intptr_t instancePtr, EParentalFeature eFeature)
+STEAMAPI_API void SteamAPI_ISteamTV_AddTimelineMarker( ISteamTV* self, const char * pchTemplateName, bool bPersistent, uint8 nColorR, uint8 nColorG, uint8 nColorB )
 {
-    return ((ISteamParentalSettings *)instancePtr)->BIsFeatureInBlockList(eFeature);
+    return self->AddTimelineMarker(pchTemplateName, bPersistent, nColorR, nColorG, nColorB);
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamRemotePlay_GetSessionCount(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamTV_RemoveTimelineMarker( ISteamTV* self )
 {
-    return ((ISteamRemotePlay *)instancePtr)->GetSessionCount();
+    return self->RemoveTimelineMarker();
 }
 
-STEAMAPI_API RemotePlaySessionID_t SteamAPI_ISteamRemotePlay_GetSessionID(intptr_t instancePtr, int iSessionIndex)
+STEAMAPI_API uint32 SteamAPI_ISteamTV_AddRegion( ISteamTV* self, const char * pchElementName, const char * pchTimelineDataSection, const SteamTVRegion_t * pSteamTVRegion, ESteamTVRegionBehavior eSteamTVRegionBehavior )
 {
-    return ((ISteamRemotePlay *)instancePtr)->GetSessionID(iSessionIndex);
+    return self->AddRegion(pchElementName, pchTimelineDataSection, pSteamTVRegion, eSteamTVRegionBehavior);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamRemotePlay_GetSessionSteamID(intptr_t instancePtr, RemotePlaySessionID_t unSessionID)
+STEAMAPI_API void SteamAPI_ISteamTV_RemoveRegion( ISteamTV* self, uint32 unRegionHandle )
 {
-    return ((ISteamRemotePlay *)instancePtr)->GetSessionSteamID(unSessionID).ConvertToUint64();
+    return self->RemoveRegion(unRegionHandle);
 }
 
-STEAMAPI_API const char * SteamAPI_ISteamRemotePlay_GetSessionClientName(intptr_t instancePtr, RemotePlaySessionID_t unSessionID)
+STEAMAPI_API ISteamParentalSettings *SteamAPI_SteamParentalSettings_v001()
 {
-    return ((ISteamRemotePlay *)instancePtr)->GetSessionClientName(unSessionID);
+    return get_steam_client()->GetISteamParentalSettings(flat_hsteamuser(), flat_hsteampipe(), "STEAMPARENTALSETTINGS_INTERFACE_VERSION001");
 }
 
-STEAMAPI_API ESteamDeviceFormFactor SteamAPI_ISteamRemotePlay_GetSessionClientFormFactor(intptr_t instancePtr, RemotePlaySessionID_t unSessionID)
+STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsParentalLockEnabled( ISteamParentalSettings* self )
 {
-    return ((ISteamRemotePlay *)instancePtr)->GetSessionClientFormFactor(unSessionID);
+    return self->BIsParentalLockEnabled();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BGetSessionClientResolution(intptr_t instancePtr, RemotePlaySessionID_t unSessionID, int * pnResolutionX, int * pnResolutionY)
+STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsParentalLockLocked( ISteamParentalSettings* self )
 {
-    return ((ISteamRemotePlay *)instancePtr)->BGetSessionClientResolution(unSessionID, pnResolutionX, pnResolutionY);
+    return self->BIsParentalLockLocked();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BSendRemotePlayTogetherInvite(intptr_t instancePtr, class CSteamID steamIDFriend)
+STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsAppBlocked( ISteamParentalSettings* self, AppId_t nAppID )
 {
-    return ((ISteamRemotePlay *)instancePtr)->BSendRemotePlayTogetherInvite(steamIDFriend);
+    return self->BIsAppBlocked(nAppID);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsAppInBlockList( ISteamParentalSettings* self, AppId_t nAppID )
+{
+    return self->BIsAppInBlockList(nAppID);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsFeatureBlocked( ISteamParentalSettings* self, EParentalFeature eFeature )
+{
+    return self->BIsFeatureBlocked(eFeature);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamParentalSettings_BIsFeatureInBlockList( ISteamParentalSettings* self, EParentalFeature eFeature )
+{
+    return self->BIsFeatureInBlockList(eFeature);
+}
+
+STEAMAPI_API ISteamRemotePlay *SteamAPI_SteamRemotePlay_v001()
+{
+    return get_steam_client()->GetISteamRemotePlay(flat_hsteamuser(), flat_hsteampipe(), "STEAMREMOTEPLAY_INTERFACE_VERSION001");
+}
+
+STEAMAPI_API uint32 SteamAPI_ISteamRemotePlay_GetSessionCount( ISteamRemotePlay* self )
+{
+    return self->GetSessionCount();
+}
+
+STEAMAPI_API RemotePlaySessionID_t SteamAPI_ISteamRemotePlay_GetSessionID( ISteamRemotePlay* self, int iSessionIndex )
+{
+    return self->GetSessionID(iSessionIndex);
+}
+
+STEAMAPI_API uint64_steamid SteamAPI_ISteamRemotePlay_GetSessionSteamID( ISteamRemotePlay* self, RemotePlaySessionID_t unSessionID )
+{
+    return self->GetSessionSteamID(unSessionID).ConvertToUint64();
+}
+
+STEAMAPI_API const char * SteamAPI_ISteamRemotePlay_GetSessionClientName( ISteamRemotePlay* self, RemotePlaySessionID_t unSessionID )
+{
+    return self->GetSessionClientName(unSessionID);
+}
+
+STEAMAPI_API ESteamDeviceFormFactor SteamAPI_ISteamRemotePlay_GetSessionClientFormFactor( ISteamRemotePlay* self, RemotePlaySessionID_t unSessionID )
+{
+    return self->GetSessionClientFormFactor(unSessionID);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BGetSessionClientResolution( ISteamRemotePlay* self, RemotePlaySessionID_t unSessionID, int * pnResolutionX, int * pnResolutionY )
+{
+    return self->BGetSessionClientResolution(unSessionID, pnResolutionX, pnResolutionY);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BSendRemotePlayTogetherInvite( ISteamRemotePlay* self, uint64_steamid steamIDFriend )
+{
+    return self->BSendRemotePlayTogetherInvite(steamIDFriend);
+}
+
+STEAMAPI_API ISteamNetworkingSockets *SteamAPI_SteamNetworkingSockets_v008()
+{
+    return (ISteamNetworkingSockets *)get_steam_client()->GetISteamGenericInterface(flat_hsteamuser(), flat_hsteampipe(), "SteamNetworkingSockets008");
+}
+
+STEAMAPI_API ISteamNetworkingSockets *SteamAPI_SteamGameServerNetworkingSockets_v008()
+{
+    return (ISteamNetworkingSockets *)get_steam_client()->GetISteamGenericInterface(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "SteamNetworkingSockets008");
+}
+
+STEAMAPI_API HSteamListenSocket SteamAPI_ISteamNetworkingSockets_CreateListenSocketIP( ISteamNetworkingSockets* self, const SteamNetworkingIPAddr & localAddress, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+{
+    return self->CreateListenSocketIP(localAddress, nOptions, pOptions);
+}
+
+STEAMAPI_API HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectByIPAddress( ISteamNetworkingSockets* self, const SteamNetworkingIPAddr & address, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+{
+    return self->ConnectByIPAddress(address, nOptions, pOptions);
+}
+
+STEAMAPI_API HSteamListenSocket SteamAPI_ISteamNetworkingSockets_CreateListenSocketP2P( ISteamNetworkingSockets* self, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+{
+    return self->CreateListenSocketP2P(nVirtualPort, nOptions, pOptions);
+}
+
+STEAMAPI_API HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectP2P( ISteamNetworkingSockets* self, const SteamNetworkingIdentity & identityRemote, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+{
+    return self->ConnectP2P(identityRemote, nVirtualPort, nOptions, pOptions);
+}
+
+STEAMAPI_API EResult SteamAPI_ISteamNetworkingSockets_AcceptConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn )
+{
+    return self->AcceptConnection(hConn);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_CloseConnection( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, int nReason, const char * pszDebug, bool bEnableLinger )
+{
+    return self->CloseConnection(hPeer, nReason, pszDebug, bEnableLinger);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_CloseListenSocket( ISteamNetworkingSockets* self, HSteamListenSocket hSocket )
+{
+    return self->CloseListenSocket(hSocket);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_SetConnectionUserData( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, int64 nUserData )
+{
+    return self->SetConnectionUserData(hPeer, nUserData);
+}
+
+STEAMAPI_API int64 SteamAPI_ISteamNetworkingSockets_GetConnectionUserData( ISteamNetworkingSockets* self, HSteamNetConnection hPeer )
+{
+    return self->GetConnectionUserData(hPeer);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingSockets_SetConnectionName( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, const char * pszName )
+{
+    return self->SetConnectionName(hPeer, pszName);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_GetConnectionName( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, char * pszName, int nMaxLen )
+{
+    return self->GetConnectionName(hPeer, pszName, nMaxLen);
+}
+
+STEAMAPI_API EResult SteamAPI_ISteamNetworkingSockets_SendMessageToConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn, const void * pData, uint32 cbData, int nSendFlags, int64 * pOutMessageNumber )
+{
+    return self->SendMessageToConnection(hConn, pData, cbData, nSendFlags, pOutMessageNumber);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingSockets_SendMessages( ISteamNetworkingSockets* self, int nMessages, SteamNetworkingMessage_t *const * pMessages, int64 * pOutMessageNumberOrResult )
+{
+    return self->SendMessages(nMessages, pMessages, pOutMessageNumberOrResult);
+}
+
+STEAMAPI_API EResult SteamAPI_ISteamNetworkingSockets_FlushMessagesOnConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn )
+{
+    return self->FlushMessagesOnConnection(hConn);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingSockets_ReceiveMessagesOnConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn, SteamNetworkingMessage_t ** ppOutMessages, int nMaxMessages )
+{
+    return self->ReceiveMessagesOnConnection(hConn, ppOutMessages, nMaxMessages);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_GetConnectionInfo( ISteamNetworkingSockets* self, HSteamNetConnection hConn, SteamNetConnectionInfo_t * pInfo )
+{
+    return self->GetConnectionInfo(hConn, pInfo);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_GetQuickConnectionStatus( ISteamNetworkingSockets* self, HSteamNetConnection hConn, SteamNetworkingQuickConnectionStatus * pStats )
+{
+    return self->GetQuickConnectionStatus(hConn, pStats);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingSockets_GetDetailedConnectionStatus( ISteamNetworkingSockets* self, HSteamNetConnection hConn, char * pszBuf, int cbBuf )
+{
+    return self->GetDetailedConnectionStatus(hConn, pszBuf, cbBuf);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_GetListenSocketAddress( ISteamNetworkingSockets* self, HSteamListenSocket hSocket, SteamNetworkingIPAddr * address )
+{
+    return self->GetListenSocketAddress(hSocket, address);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_CreateSocketPair( ISteamNetworkingSockets* self, HSteamNetConnection * pOutConnection1, HSteamNetConnection * pOutConnection2, bool bUseNetworkLoopback, const SteamNetworkingIdentity * pIdentity1, const SteamNetworkingIdentity * pIdentity2 )
+{
+    return self->CreateSocketPair(pOutConnection1, pOutConnection2, bUseNetworkLoopback, pIdentity1, pIdentity2);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_GetIdentity( ISteamNetworkingSockets* self, SteamNetworkingIdentity * pIdentity )
+{
+    return self->GetIdentity(pIdentity);
+}
+
+STEAMAPI_API ESteamNetworkingAvailability SteamAPI_ISteamNetworkingSockets_InitAuthentication( ISteamNetworkingSockets* self )
+{
+    return self->InitAuthentication();
+}
+
+STEAMAPI_API ESteamNetworkingAvailability SteamAPI_ISteamNetworkingSockets_GetAuthenticationStatus( ISteamNetworkingSockets* self, SteamNetAuthenticationStatus_t * pDetails )
+{
+    return self->GetAuthenticationStatus(pDetails);
+}
+
+STEAMAPI_API HSteamNetPollGroup SteamAPI_ISteamNetworkingSockets_CreatePollGroup( ISteamNetworkingSockets* self )
+{
+    return self->CreatePollGroup();
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_DestroyPollGroup( ISteamNetworkingSockets* self, HSteamNetPollGroup hPollGroup )
+{
+    return self->DestroyPollGroup(hPollGroup);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_SetConnectionPollGroup( ISteamNetworkingSockets* self, HSteamNetConnection hConn, HSteamNetPollGroup hPollGroup )
+{
+    return self->SetConnectionPollGroup(hConn, hPollGroup);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingSockets_ReceiveMessagesOnPollGroup( ISteamNetworkingSockets* self, HSteamNetPollGroup hPollGroup, SteamNetworkingMessage_t ** ppOutMessages, int nMaxMessages )
+{
+    return self->ReceiveMessagesOnPollGroup(hPollGroup, ppOutMessages, nMaxMessages);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_ReceivedRelayAuthTicket( ISteamNetworkingSockets* self, const void * pvTicket, int cbTicket, SteamDatagramRelayAuthTicket * pOutParsedTicket )
+{
+    return self->ReceivedRelayAuthTicket(pvTicket, cbTicket, pOutParsedTicket);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingSockets_FindRelayAuthTicketForServer( ISteamNetworkingSockets* self, const SteamNetworkingIdentity & identityGameServer, int nVirtualPort, SteamDatagramRelayAuthTicket * pOutParsedTicket )
+{
+    return self->FindRelayAuthTicketForServer(identityGameServer, nVirtualPort, pOutParsedTicket);
+}
+
+STEAMAPI_API HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectToHostedDedicatedServer( ISteamNetworkingSockets* self, const SteamNetworkingIdentity & identityTarget, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+{
+    return self->ConnectToHostedDedicatedServer(identityTarget, nVirtualPort, nOptions, pOptions);
+}
+
+STEAMAPI_API uint16 SteamAPI_ISteamNetworkingSockets_GetHostedDedicatedServerPort( ISteamNetworkingSockets* self )
+{
+    return self->GetHostedDedicatedServerPort();
+}
+
+STEAMAPI_API SteamNetworkingPOPID SteamAPI_ISteamNetworkingSockets_GetHostedDedicatedServerPOPID( ISteamNetworkingSockets* self )
+{
+    return self->GetHostedDedicatedServerPOPID();
+}
+
+STEAMAPI_API EResult SteamAPI_ISteamNetworkingSockets_GetHostedDedicatedServerAddress( ISteamNetworkingSockets* self, SteamDatagramHostedAddress * pRouting )
+{
+    return self->GetHostedDedicatedServerAddress(pRouting);
+}
+
+STEAMAPI_API HSteamListenSocket SteamAPI_ISteamNetworkingSockets_CreateHostedDedicatedServerListenSocket( ISteamNetworkingSockets* self, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+{
+    return self->CreateHostedDedicatedServerListenSocket(nVirtualPort, nOptions, pOptions);
+}
+
+STEAMAPI_API EResult SteamAPI_ISteamNetworkingSockets_GetGameCoordinatorServerLogin( ISteamNetworkingSockets* self, SteamDatagramGameCoordinatorServerLogin * pLoginInfo, int * pcbSignedBlob, void * pBlob )
+{
+    return self->GetGameCoordinatorServerLogin(pLoginInfo, pcbSignedBlob, pBlob);
+}
+
+STEAMAPI_API HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectP2PCustomSignaling( ISteamNetworkingSockets* self, ISteamNetworkingConnectionCustomSignaling * pSignaling, const SteamNetworkingIdentity * pPeerIdentity, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+{
+    return self->ConnectP2PCustomSignaling(pSignaling, pPeerIdentity, nOptions, pOptions);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_ReceivedP2PCustomSignal( ISteamNetworkingSockets* self, const void * pMsg, int cbMsg, ISteamNetworkingCustomSignalingRecvContext * pContext )
+{
+    return self->ReceivedP2PCustomSignal(pMsg, cbMsg, pContext);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_GetCertificateRequest( ISteamNetworkingSockets* self, int * pcbBlob, void * pBlob, SteamNetworkingErrMsg & errMsg )
+{
+    return self->GetCertificateRequest(pcbBlob, pBlob, errMsg);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_SetCertificate( ISteamNetworkingSockets* self, const void * pCertificate, int cbCertificate, SteamNetworkingErrMsg & errMsg )
+{
+    return self->SetCertificate(pCertificate, cbCertificate, errMsg);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingConnectionCustomSignaling_SendSignal( ISteamNetworkingConnectionCustomSignaling* self, HSteamNetConnection hConn, const SteamNetConnectionInfo_t & info, const void * pMsg, int cbMsg )
+{
+    return self->SendSignal(hConn, info, pMsg, cbMsg);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingConnectionCustomSignaling_Release( ISteamNetworkingConnectionCustomSignaling* self )
+{
+    return self->Release();
+}
+
+STEAMAPI_API ISteamNetworkingConnectionCustomSignaling * SteamAPI_ISteamNetworkingCustomSignalingRecvContext_OnConnectRequest( ISteamNetworkingCustomSignalingRecvContext* self, HSteamNetConnection hConn, const SteamNetworkingIdentity & identityPeer )
+{
+    return self->OnConnectRequest(hConn, identityPeer);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingCustomSignalingRecvContext_SendRejectionSignal( ISteamNetworkingCustomSignalingRecvContext* self, const SteamNetworkingIdentity & identityPeer, const void * pMsg, int cbMsg )
+{
+    return self->SendRejectionSignal(identityPeer, pMsg, cbMsg);
+}
+
+STEAMAPI_API ISteamNetworkingUtils *SteamAPI_SteamNetworkingUtils_v003()
+{
+    return (ISteamNetworkingUtils *)get_steam_client()->GetISteamGenericInterface(flat_hsteamuser(), flat_hsteampipe(), "SteamNetworkingUtils003");
+}
+
+STEAMAPI_API SteamNetworkingMessage_t * SteamAPI_ISteamNetworkingUtils_AllocateMessage( ISteamNetworkingUtils* self, int cbAllocateBuffer )
+{
+    return self->AllocateMessage(cbAllocateBuffer);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingUtils_InitRelayNetworkAccess( ISteamNetworkingUtils* self )
+{
+    return self->InitRelayNetworkAccess();
+}
+
+STEAMAPI_API ESteamNetworkingAvailability SteamAPI_ISteamNetworkingUtils_GetRelayNetworkStatus( ISteamNetworkingUtils* self, SteamRelayNetworkStatus_t * pDetails )
+{
+    return self->GetRelayNetworkStatus(pDetails);
+}
+
+STEAMAPI_API float SteamAPI_ISteamNetworkingUtils_GetLocalPingLocation( ISteamNetworkingUtils* self, SteamNetworkPingLocation_t & result )
+{
+    return self->GetLocalPingLocation(result);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingUtils_EstimatePingTimeBetweenTwoLocations( ISteamNetworkingUtils* self, const SteamNetworkPingLocation_t & location1, const SteamNetworkPingLocation_t & location2 )
+{
+    return self->EstimatePingTimeBetweenTwoLocations(location1, location2);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingUtils_EstimatePingTimeFromLocalHost( ISteamNetworkingUtils* self, const SteamNetworkPingLocation_t & remoteLocation )
+{
+    return self->EstimatePingTimeFromLocalHost(remoteLocation);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingUtils_ConvertPingLocationToString( ISteamNetworkingUtils* self, const SteamNetworkPingLocation_t & location, char * pszBuf, int cchBufSize )
+{
+    return self->ConvertPingLocationToString(location, pszBuf, cchBufSize);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_ParsePingLocationString( ISteamNetworkingUtils* self, const char * pszString, SteamNetworkPingLocation_t & result )
+{
+    return self->ParsePingLocationString(pszString, result);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_CheckPingDataUpToDate( ISteamNetworkingUtils* self, float flMaxAgeSeconds )
+{
+    return self->CheckPingDataUpToDate(flMaxAgeSeconds);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingUtils_GetPingToDataCenter( ISteamNetworkingUtils* self, SteamNetworkingPOPID popID, SteamNetworkingPOPID * pViaRelayPoP )
+{
+    return self->GetPingToDataCenter(popID, pViaRelayPoP);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingUtils_GetDirectPingToPOP( ISteamNetworkingUtils* self, SteamNetworkingPOPID popID )
+{
+    return self->GetDirectPingToPOP(popID);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingUtils_GetPOPCount( ISteamNetworkingUtils* self )
+{
+    return self->GetPOPCount();
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingUtils_GetPOPList( ISteamNetworkingUtils* self, SteamNetworkingPOPID * list, int nListSz )
+{
+    return self->GetPOPList(list, nListSz);
+}
+
+STEAMAPI_API SteamNetworkingMicroseconds SteamAPI_ISteamNetworkingUtils_GetLocalTimestamp( ISteamNetworkingUtils* self )
+{
+    return self->GetLocalTimestamp();
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction( ISteamNetworkingUtils* self, ESteamNetworkingSocketsDebugOutputType eDetailLevel, FSteamNetworkingSocketsDebugOutput pfnFunc )
+{
+    return self->SetDebugOutputFunction(eDetailLevel, pfnFunc);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValueInt32( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, int32 val )
+{
+    return self->SetGlobalConfigValueInt32(eValue, val);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValueFloat( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, float val )
+{
+    return self->SetGlobalConfigValueFloat(eValue, val);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValueString( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, const char * val )
+{
+    return self->SetGlobalConfigValueString(eValue, val);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueInt32( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, int32 val )
+{
+    return self->SetConnectionConfigValueInt32(hConn, eValue, val);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueFloat( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, float val )
+{
+    return self->SetConnectionConfigValueFloat(hConn, eValue, val);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueString( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, const char * val )
+{
+    return self->SetConnectionConfigValueString(hConn, eValue, val);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConfigValue( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj, ESteamNetworkingConfigDataType eDataType, const void * pArg )
+{
+    return self->SetConfigValue(eValue, eScopeType, scopeObj, eDataType, pArg);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConfigValueStruct( ISteamNetworkingUtils* self, const SteamNetworkingConfigValue_t & opt, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj )
+{
+    return self->SetConfigValueStruct(opt, eScopeType, scopeObj);
+}
+
+STEAMAPI_API ESteamNetworkingGetConfigValueResult SteamAPI_ISteamNetworkingUtils_GetConfigValue( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj, ESteamNetworkingConfigDataType * pOutDataType, void * pResult, size_t * cbResult )
+{
+    return self->GetConfigValue(eValue, eScopeType, scopeObj, pOutDataType, pResult, cbResult);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_GetConfigValueInfo( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, const char ** pOutName, ESteamNetworkingConfigDataType * pOutDataType, ESteamNetworkingConfigScope * pOutScope, ESteamNetworkingConfigValue * pOutNextValue )
+{
+    return self->GetConfigValueInfo(eValue, pOutName, pOutDataType, pOutScope, pOutNextValue);
+}
+
+STEAMAPI_API ESteamNetworkingConfigValue SteamAPI_ISteamNetworkingUtils_GetFirstConfigValue( ISteamNetworkingUtils* self )
+{
+    return self->GetFirstConfigValue();
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingUtils_SteamNetworkingIPAddr_ToString( ISteamNetworkingUtils* self, const SteamNetworkingIPAddr & addr, char * buf, uint32 cbBuf, bool bWithPort )
+{
+    return self->SteamNetworkingIPAddr_ToString(addr, buf, cbBuf, bWithPort);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SteamNetworkingIPAddr_ParseString( ISteamNetworkingUtils* self, SteamNetworkingIPAddr * pAddr, const char * pszStr )
+{
+    return self->SteamNetworkingIPAddr_ParseString(pAddr, pszStr);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingUtils_SteamNetworkingIdentity_ToString( ISteamNetworkingUtils* self, const SteamNetworkingIdentity & identity, char * buf, uint32 cbBuf )
+{
+    return self->SteamNetworkingIdentity_ToString(identity, buf, cbBuf);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SteamNetworkingIdentity_ParseString( ISteamNetworkingUtils* self, SteamNetworkingIdentity * pIdentity, const char * pszStr )
+{
+    return self->SteamNetworkingIdentity_ParseString(pIdentity, pszStr);
+}
+
+STEAMAPI_API ISteamGameServer *SteamAPI_SteamGameServer_v013()
+{
+    return get_steam_client()->GetISteamGameServer(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "SteamGameServer013");
 }
 
 STEAMAPI_API bool SteamAPI_ISteamGameServer_InitGameServer(intptr_t instancePtr, uint32 unIP, uint16 usGamePort, uint16 usQueryPort, uint32 unFlags, AppId_t nGameAppId, const char * pchVersionString)
@@ -4734,182 +5455,182 @@ STEAMAPI_API bool SteamAPI_ISteamGameServer_InitGameServer(intptr_t instancePtr,
     return ((ISteamGameServer *)instancePtr)->InitGameServer(unIP, usGamePort, usQueryPort, unFlags, nGameAppId, pchVersionString);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetProduct(intptr_t instancePtr, const char * pszProduct)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetProduct( ISteamGameServer* self, const char * pszProduct )
 {
-    return ((ISteamGameServer *)instancePtr)->SetProduct(pszProduct);
+    return self->SetProduct(pszProduct);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetGameDescription(intptr_t instancePtr, const char * pszGameDescription)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetGameDescription( ISteamGameServer* self, const char * pszGameDescription )
 {
-    return ((ISteamGameServer *)instancePtr)->SetGameDescription(pszGameDescription);
+    return self->SetGameDescription(pszGameDescription);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetModDir(intptr_t instancePtr, const char * pszModDir)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetModDir( ISteamGameServer* self, const char * pszModDir )
 {
-    return ((ISteamGameServer *)instancePtr)->SetModDir(pszModDir);
+    return self->SetModDir(pszModDir);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetDedicatedServer(intptr_t instancePtr, bool bDedicated)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetDedicatedServer( ISteamGameServer* self, bool bDedicated )
 {
-    return ((ISteamGameServer *)instancePtr)->SetDedicatedServer(bDedicated);
+    return self->SetDedicatedServer(bDedicated);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_LogOn(intptr_t instancePtr, const char * pszToken)
+STEAMAPI_API void SteamAPI_ISteamGameServer_LogOn( ISteamGameServer* self, const char * pszToken )
 {
-    return ((ISteamGameServer *)instancePtr)->LogOn(pszToken);
+    return self->LogOn(pszToken);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_LogOnAnonymous(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamGameServer_LogOnAnonymous( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->LogOnAnonymous();
+    return self->LogOnAnonymous();
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_LogOff(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamGameServer_LogOff( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->LogOff();
+    return self->LogOff();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServer_BLoggedOn(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamGameServer_BLoggedOn( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->BLoggedOn();
+    return self->BLoggedOn();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServer_BSecure(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamGameServer_BSecure( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->BSecure();
+    return self->BSecure();
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamGameServer_GetSteamID(intptr_t instancePtr)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamGameServer_GetSteamID( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->GetSteamID().ConvertToUint64();
+    return self->GetSteamID().ConvertToUint64();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServer_WasRestartRequested(intptr_t instancePtr)
+STEAMAPI_API bool SteamAPI_ISteamGameServer_WasRestartRequested( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->WasRestartRequested();
+    return self->WasRestartRequested();
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetMaxPlayerCount(intptr_t instancePtr, int cPlayersMax)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetMaxPlayerCount( ISteamGameServer* self, int cPlayersMax )
 {
-    return ((ISteamGameServer *)instancePtr)->SetMaxPlayerCount(cPlayersMax);
+    return self->SetMaxPlayerCount(cPlayersMax);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetBotPlayerCount(intptr_t instancePtr, int cBotplayers)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetBotPlayerCount( ISteamGameServer* self, int cBotplayers )
 {
-    return ((ISteamGameServer *)instancePtr)->SetBotPlayerCount(cBotplayers);
+    return self->SetBotPlayerCount(cBotplayers);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetServerName(intptr_t instancePtr, const char * pszServerName)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetServerName( ISteamGameServer* self, const char * pszServerName )
 {
-    return ((ISteamGameServer *)instancePtr)->SetServerName(pszServerName);
+    return self->SetServerName(pszServerName);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetMapName(intptr_t instancePtr, const char * pszMapName)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetMapName( ISteamGameServer* self, const char * pszMapName )
 {
-    return ((ISteamGameServer *)instancePtr)->SetMapName(pszMapName);
+    return self->SetMapName(pszMapName);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetPasswordProtected(intptr_t instancePtr, bool bPasswordProtected)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetPasswordProtected( ISteamGameServer* self, bool bPasswordProtected )
 {
-    return ((ISteamGameServer *)instancePtr)->SetPasswordProtected(bPasswordProtected);
+    return self->SetPasswordProtected(bPasswordProtected);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetSpectatorPort(intptr_t instancePtr, uint16 unSpectatorPort)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetSpectatorPort( ISteamGameServer* self, uint16 unSpectatorPort )
 {
-    return ((ISteamGameServer *)instancePtr)->SetSpectatorPort(unSpectatorPort);
+    return self->SetSpectatorPort(unSpectatorPort);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetSpectatorServerName(intptr_t instancePtr, const char * pszSpectatorServerName)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetSpectatorServerName( ISteamGameServer* self, const char * pszSpectatorServerName )
 {
-    return ((ISteamGameServer *)instancePtr)->SetSpectatorServerName(pszSpectatorServerName);
+    return self->SetSpectatorServerName(pszSpectatorServerName);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_ClearAllKeyValues(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamGameServer_ClearAllKeyValues( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->ClearAllKeyValues();
+    return self->ClearAllKeyValues();
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetKeyValue(intptr_t instancePtr, const char * pKey, const char * pValue)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetKeyValue( ISteamGameServer* self, const char * pKey, const char * pValue )
 {
-    return ((ISteamGameServer *)instancePtr)->SetKeyValue(pKey, pValue);
+    return self->SetKeyValue(pKey, pValue);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetGameTags(intptr_t instancePtr, const char * pchGameTags)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetGameTags( ISteamGameServer* self, const char * pchGameTags )
 {
-    return ((ISteamGameServer *)instancePtr)->SetGameTags(pchGameTags);
+    return self->SetGameTags(pchGameTags);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetGameData(intptr_t instancePtr, const char * pchGameData)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetGameData( ISteamGameServer* self, const char * pchGameData )
 {
-    return ((ISteamGameServer *)instancePtr)->SetGameData(pchGameData);
+    return self->SetGameData(pchGameData);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetRegion(intptr_t instancePtr, const char * pszRegion)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetRegion( ISteamGameServer* self, const char * pszRegion )
 {
-    return ((ISteamGameServer *)instancePtr)->SetRegion(pszRegion);
+    return self->SetRegion(pszRegion);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServer_SendUserConnectAndAuthenticate(intptr_t instancePtr, uint32 unIPClient, const void * pvAuthBlob, uint32 cubAuthBlobSize, class CSteamID * pSteamIDUser)
+STEAMAPI_API bool SteamAPI_ISteamGameServer_SendUserConnectAndAuthenticate( ISteamGameServer* self, uint32 unIPClient, const void * pvAuthBlob, uint32 cubAuthBlobSize, CSteamID * pSteamIDUser )
 {
-    return ((ISteamGameServer *)instancePtr)->SendUserConnectAndAuthenticate(unIPClient, pvAuthBlob, cubAuthBlobSize, pSteamIDUser);
+    return self->SendUserConnectAndAuthenticate(unIPClient, pvAuthBlob, cubAuthBlobSize, pSteamIDUser);
 }
 
-STEAMAPI_API uint64 SteamAPI_ISteamGameServer_CreateUnauthenticatedUserConnection(intptr_t instancePtr)
+STEAMAPI_API uint64_steamid SteamAPI_ISteamGameServer_CreateUnauthenticatedUserConnection( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->CreateUnauthenticatedUserConnection().ConvertToUint64();
+    return self->CreateUnauthenticatedUserConnection().ConvertToUint64();
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SendUserDisconnect(intptr_t instancePtr, class CSteamID steamIDUser)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SendUserDisconnect( ISteamGameServer* self, uint64_steamid steamIDUser )
 {
-    return ((ISteamGameServer *)instancePtr)->SendUserDisconnect(steamIDUser);
+    return self->SendUserDisconnect(steamIDUser);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServer_BUpdateUserData(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchPlayerName, uint32 uScore)
+STEAMAPI_API bool SteamAPI_ISteamGameServer_BUpdateUserData( ISteamGameServer* self, uint64_steamid steamIDUser, const char * pchPlayerName, uint32 uScore )
 {
-    return ((ISteamGameServer *)instancePtr)->BUpdateUserData(steamIDUser, pchPlayerName, uScore);
+    return self->BUpdateUserData(steamIDUser, pchPlayerName, uScore);
 }
 
-STEAMAPI_API HAuthTicket SteamAPI_ISteamGameServer_GetAuthSessionTicket(intptr_t instancePtr, void * pTicket, int cbMaxTicket, uint32 * pcbTicket)
+STEAMAPI_API HAuthTicket SteamAPI_ISteamGameServer_GetAuthSessionTicket( ISteamGameServer* self, void * pTicket, int cbMaxTicket, uint32 * pcbTicket )
 {
-    return ((ISteamGameServer *)instancePtr)->GetAuthSessionTicket(pTicket, cbMaxTicket, pcbTicket);
+    return self->GetAuthSessionTicket(pTicket, cbMaxTicket, pcbTicket);
 }
 
-STEAMAPI_API EBeginAuthSessionResult SteamAPI_ISteamGameServer_BeginAuthSession(intptr_t instancePtr, const void * pAuthTicket, int cbAuthTicket, class CSteamID steamID)
+STEAMAPI_API EBeginAuthSessionResult SteamAPI_ISteamGameServer_BeginAuthSession( ISteamGameServer* self, const void * pAuthTicket, int cbAuthTicket, uint64_steamid steamID )
 {
-    return ((ISteamGameServer *)instancePtr)->BeginAuthSession(pAuthTicket, cbAuthTicket, steamID);
+    return self->BeginAuthSession(pAuthTicket, cbAuthTicket, steamID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_EndAuthSession(intptr_t instancePtr, class CSteamID steamID)
+STEAMAPI_API void SteamAPI_ISteamGameServer_EndAuthSession( ISteamGameServer* self, uint64_steamid steamID )
 {
-    return ((ISteamGameServer *)instancePtr)->EndAuthSession(steamID);
+    return self->EndAuthSession(steamID);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_CancelAuthTicket(intptr_t instancePtr, HAuthTicket hAuthTicket)
+STEAMAPI_API void SteamAPI_ISteamGameServer_CancelAuthTicket( ISteamGameServer* self, HAuthTicket hAuthTicket )
 {
-    return ((ISteamGameServer *)instancePtr)->CancelAuthTicket(hAuthTicket);
+    return self->CancelAuthTicket(hAuthTicket);
 }
 
-STEAMAPI_API EUserHasLicenseForAppResult SteamAPI_ISteamGameServer_UserHasLicenseForApp(intptr_t instancePtr, class CSteamID steamID, AppId_t appID)
+STEAMAPI_API EUserHasLicenseForAppResult SteamAPI_ISteamGameServer_UserHasLicenseForApp( ISteamGameServer* self, uint64_steamid steamID, AppId_t appID )
 {
-    return ((ISteamGameServer *)instancePtr)->UserHasLicenseForApp(steamID, appID);
+    return self->UserHasLicenseForApp(steamID, appID);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServer_RequestUserGroupStatus(intptr_t instancePtr, class CSteamID steamIDUser, class CSteamID steamIDGroup)
+STEAMAPI_API bool SteamAPI_ISteamGameServer_RequestUserGroupStatus( ISteamGameServer* self, uint64_steamid steamIDUser, uint64_steamid steamIDGroup )
 {
-    return ((ISteamGameServer *)instancePtr)->RequestUserGroupStatus(steamIDUser, steamIDGroup);
+    return self->RequestUserGroupStatus(steamIDUser, steamIDGroup);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_GetGameplayStats(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamGameServer_GetGameplayStats( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->GetGameplayStats();
+    return self->GetGameplayStats();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_GetServerReputation(intptr_t instancePtr)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_GetServerReputation( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->GetServerReputation();
+    return self->GetServerReputation();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamGameServer_GetPublicIP(intptr_t instancePtr, void *instancePtr_possible)
+STEAMAPI_API uint32 SteamAPI_ISteamGameServer_GetPublicIP( intptr_t instancePtr, void *instancePtr_possible )
 {
     //TODO: check if this actually works (ret value changed from uint32 to struct)
     if (steamclient_has_ipv6_functions()) {
@@ -4919,44 +5640,49 @@ STEAMAPI_API uint32 SteamAPI_ISteamGameServer_GetPublicIP(intptr_t instancePtr, 
     }
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServer_HandleIncomingPacket(intptr_t instancePtr, const void * pData, int cbData, uint32 srcIP, uint16 srcPort)
+STEAMAPI_API bool SteamAPI_ISteamGameServer_HandleIncomingPacket( ISteamGameServer* self, const void * pData, int cbData, uint32 srcIP, uint16 srcPort )
 {
-    return ((ISteamGameServer *)instancePtr)->HandleIncomingPacket(pData, cbData, srcIP, srcPort);
+    return self->HandleIncomingPacket(pData, cbData, srcIP, srcPort);
 }
 
-STEAMAPI_API int SteamAPI_ISteamGameServer_GetNextOutgoingPacket(intptr_t instancePtr, void * pOut, int cbMaxOut, uint32 * pNetAdr, uint16 * pPort)
+STEAMAPI_API int SteamAPI_ISteamGameServer_GetNextOutgoingPacket( ISteamGameServer* self, void * pOut, int cbMaxOut, uint32 * pNetAdr, uint16 * pPort )
 {
-    return ((ISteamGameServer *)instancePtr)->GetNextOutgoingPacket(pOut, cbMaxOut, pNetAdr, pPort);
+    return self->GetNextOutgoingPacket(pOut, cbMaxOut, pNetAdr, pPort);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_EnableHeartbeats(intptr_t instancePtr, bool bActive)
+STEAMAPI_API void SteamAPI_ISteamGameServer_EnableHeartbeats( ISteamGameServer* self, bool bActive )
 {
-    return ((ISteamGameServer *)instancePtr)->EnableHeartbeats(bActive);
+    return self->EnableHeartbeats(bActive);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_SetHeartbeatInterval(intptr_t instancePtr, int iHeartbeatInterval)
+STEAMAPI_API void SteamAPI_ISteamGameServer_SetHeartbeatInterval( ISteamGameServer* self, int iHeartbeatInterval )
 {
-    return ((ISteamGameServer *)instancePtr)->SetHeartbeatInterval(iHeartbeatInterval);
+    return self->SetHeartbeatInterval(iHeartbeatInterval);
 }
 
-STEAMAPI_API void SteamAPI_ISteamGameServer_ForceHeartbeat(intptr_t instancePtr)
+STEAMAPI_API void SteamAPI_ISteamGameServer_ForceHeartbeat( ISteamGameServer* self )
 {
-    return ((ISteamGameServer *)instancePtr)->ForceHeartbeat();
+    return self->ForceHeartbeat();
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_AssociateWithClan(intptr_t instancePtr, class CSteamID steamIDClan)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_AssociateWithClan( ISteamGameServer* self, uint64_steamid steamIDClan )
 {
-    return ((ISteamGameServer *)instancePtr)->AssociateWithClan(steamIDClan);
+    return self->AssociateWithClan(steamIDClan);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_ComputeNewPlayerCompatibility(intptr_t instancePtr, class CSteamID steamIDNewPlayer)
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_ComputeNewPlayerCompatibility( ISteamGameServer* self, uint64_steamid steamIDNewPlayer )
 {
-    return ((ISteamGameServer *)instancePtr)->ComputeNewPlayerCompatibility(steamIDNewPlayer);
+    return self->ComputeNewPlayerCompatibility(steamIDNewPlayer);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServerStats_RequestUserStats(intptr_t instancePtr, class CSteamID steamIDUser)
+STEAMAPI_API ISteamGameServerStats *SteamAPI_SteamGameServerStats_v001()
 {
-    return ((ISteamGameServerStats *)instancePtr)->RequestUserStats(steamIDUser);
+    return get_steam_client()->GetISteamGameServerStats(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "SteamGameServerStats001");
+}
+
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServerStats_RequestUserStats( ISteamGameServerStats* self, uint64_steamid steamIDUser )
+{
+    return self->RequestUserStats(steamIDUser);
 }
 
 STEAMAPI_API bool SteamAPI_ISteamGameServerStats_GetUserStat(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName, int32 * pData)
@@ -4969,9 +5695,19 @@ STEAMAPI_API bool SteamAPI_ISteamGameServerStats_GetUserStat0(intptr_t instanceP
     return ((ISteamGameServerStats *)instancePtr)->GetUserStat(steamIDUser, pchName, pData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServerStats_GetUserAchievement(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName, bool * pbAchieved)
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_GetUserStatInt32( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName, int32 * pData )
 {
-    return ((ISteamGameServerStats *)instancePtr)->GetUserAchievement(steamIDUser, pchName, pbAchieved);
+    return self->GetUserStat(steamIDUser, pchName, pData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_GetUserStatFloat( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName, float * pData )
+{
+    return self->GetUserStat(steamIDUser, pchName, pData);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_GetUserAchievement( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName, bool * pbAchieved )
+{
+    return self->GetUserAchievement(steamIDUser, pchName, pbAchieved);
 }
 
 STEAMAPI_API bool SteamAPI_ISteamGameServerStats_SetUserStat(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName, int32 nData)
@@ -4984,22 +5720,290 @@ STEAMAPI_API bool SteamAPI_ISteamGameServerStats_SetUserStat0(intptr_t instanceP
     return ((ISteamGameServerStats *)instancePtr)->SetUserStat(steamIDUser, pchName, fData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServerStats_UpdateUserAvgRateStat(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName, float flCountThisSession, double dSessionLength)
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_SetUserStatInt32( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName, int32 nData )
 {
-    return ((ISteamGameServerStats *)instancePtr)->UpdateUserAvgRateStat(steamIDUser, pchName, flCountThisSession, dSessionLength);
+    return self->SetUserStat(steamIDUser, pchName, nData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServerStats_SetUserAchievement(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName)
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_SetUserStatFloat( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName, float fData )
 {
-    return ((ISteamGameServerStats *)instancePtr)->SetUserAchievement(steamIDUser, pchName);
+    return self->SetUserStat(steamIDUser, pchName, fData);
 }
 
-STEAMAPI_API bool SteamAPI_ISteamGameServerStats_ClearUserAchievement(intptr_t instancePtr, class CSteamID steamIDUser, const char * pchName)
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_UpdateUserAvgRateStat( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName, float flCountThisSession, double dSessionLength )
 {
-    return ((ISteamGameServerStats *)instancePtr)->ClearUserAchievement(steamIDUser, pchName);
+    return self->UpdateUserAvgRateStat(steamIDUser, pchName, flCountThisSession, dSessionLength);
 }
 
-STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServerStats_StoreUserStats(intptr_t instancePtr, class CSteamID steamIDUser)
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_SetUserAchievement( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName )
 {
-    return ((ISteamGameServerStats *)instancePtr)->StoreUserStats(steamIDUser);
+    return self->SetUserAchievement(steamIDUser, pchName);
 }
+
+STEAMAPI_API bool SteamAPI_ISteamGameServerStats_ClearUserAchievement( ISteamGameServerStats* self, uint64_steamid steamIDUser, const char * pchName )
+{
+    return self->ClearUserAchievement(steamIDUser, pchName);
+}
+
+STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServerStats_StoreUserStats( ISteamGameServerStats* self, uint64_steamid steamIDUser )
+{
+    return self->StoreUserStats(steamIDUser);
+}
+
+
+STEAMAPI_API bool SteamAPI_SteamIPAddress_t_IsSet( SteamIPAddress_t* self )
+{
+    return self->IsSet();
+}
+
+STEAMAPI_API void SteamAPI_MatchMakingKeyValuePair_t_Construct( MatchMakingKeyValuePair_t* self )
+{
+    new(self) MatchMakingKeyValuePair_t();
+}
+
+STEAMAPI_API void SteamAPI_servernetadr_t_Construct( servernetadr_t* self )
+{
+    new(self) servernetadr_t();
+}
+
+STEAMAPI_API void SteamAPI_servernetadr_t_Init( servernetadr_t* self, unsigned int ip, uint16 usQueryPort, uint16 usConnectionPort )
+{
+    return self->Init(ip, usQueryPort, usConnectionPort);
+}
+
+STEAMAPI_API uint16 SteamAPI_servernetadr_t_GetQueryPort( servernetadr_t* self )
+{
+    return self->GetQueryPort();
+}
+
+STEAMAPI_API void SteamAPI_servernetadr_t_SetQueryPort( servernetadr_t* self, uint16 usPort )
+{
+    return self->SetQueryPort(usPort);
+}
+
+STEAMAPI_API uint16 SteamAPI_servernetadr_t_GetConnectionPort( servernetadr_t* self )
+{
+    return self->GetConnectionPort();
+}
+
+STEAMAPI_API void SteamAPI_servernetadr_t_SetConnectionPort( servernetadr_t* self, uint16 usPort )
+{
+    return self->SetConnectionPort(usPort);
+}
+
+STEAMAPI_API uint32 SteamAPI_servernetadr_t_GetIP( servernetadr_t* self )
+{
+    return self->GetIP();
+}
+
+STEAMAPI_API void SteamAPI_servernetadr_t_SetIP( servernetadr_t* self, uint32 unIP )
+{
+    return self->SetIP(unIP);
+}
+
+STEAMAPI_API const char * SteamAPI_servernetadr_t_GetConnectionAddressString( servernetadr_t* self )
+{
+    return self->GetConnectionAddressString();
+}
+
+STEAMAPI_API const char * SteamAPI_servernetadr_t_GetQueryAddressString( servernetadr_t* self )
+{
+    return self->GetQueryAddressString();
+}
+
+STEAMAPI_API bool SteamAPI_servernetadr_t_IsLessThan( servernetadr_t* self, const servernetadr_t & netadr )
+{
+    return self->operator<(netadr);
+}
+
+STEAMAPI_API void SteamAPI_servernetadr_t_Assign( servernetadr_t* self, const servernetadr_t & that )
+{
+    return self->operator=(that);
+}
+
+STEAMAPI_API void SteamAPI_gameserveritem_t_Construct( gameserveritem_t* self )
+{
+    new(self) gameserveritem_t();
+}
+
+STEAMAPI_API const char * SteamAPI_gameserveritem_t_GetName( gameserveritem_t* self )
+{
+    return self->GetName();
+}
+
+STEAMAPI_API void SteamAPI_gameserveritem_t_SetName( gameserveritem_t* self, const char * pName )
+{
+    return self->SetName(pName);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIPAddr_Clear( SteamNetworkingIPAddr* self )
+{
+    return self->Clear();
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIPAddr_IsIPv6AllZeros( SteamNetworkingIPAddr* self )
+{
+    return self->IsIPv6AllZeros();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIPAddr_SetIPv6( SteamNetworkingIPAddr* self, const uint8 * ipv6, uint16 nPort )
+{
+    return self->SetIPv6(ipv6, nPort);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIPAddr_SetIPv4( SteamNetworkingIPAddr* self, uint32 nIP, uint16 nPort )
+{
+    return self->SetIPv4(nIP, nPort);
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIPAddr_IsIPv4( SteamNetworkingIPAddr* self )
+{
+    return self->IsIPv4();
+}
+
+STEAMAPI_API uint32 SteamAPI_SteamNetworkingIPAddr_GetIPv4( SteamNetworkingIPAddr* self )
+{
+    return self->GetIPv4();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIPAddr_SetIPv6LocalHost( SteamNetworkingIPAddr* self, uint16 nPort )
+{
+    return self->SetIPv6LocalHost(nPort);
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIPAddr_IsLocalHost( SteamNetworkingIPAddr* self )
+{
+    return self->IsLocalHost();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIPAddr_ToString( SteamNetworkingIPAddr* self, char * buf, uint32 cbBuf, bool bWithPort )
+{
+    return self->ToString(buf, cbBuf, bWithPort);
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr* self, const char * pszStr )
+{
+    return self->ParseString(pszStr);
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIPAddr_IsEqualTo( SteamNetworkingIPAddr* self, const SteamNetworkingIPAddr & x )
+{
+    return self->operator==(x);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIdentity_Clear( SteamNetworkingIdentity* self )
+{
+    return self->Clear();
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_IsInvalid( SteamNetworkingIdentity* self )
+{
+    return self->IsInvalid();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIdentity_SetSteamID( SteamNetworkingIdentity* self, uint64_steamid steamID )
+{
+    return self->SetSteamID(steamID);
+}
+
+STEAMAPI_API uint64_steamid SteamAPI_SteamNetworkingIdentity_GetSteamID( SteamNetworkingIdentity* self )
+{
+    return self->GetSteamID().ConvertToUint64();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIdentity_SetSteamID64( SteamNetworkingIdentity* self, uint64 steamID )
+{
+    return self->SetSteamID64(steamID);
+}
+
+STEAMAPI_API uint64 SteamAPI_SteamNetworkingIdentity_GetSteamID64( SteamNetworkingIdentity* self )
+{
+    return self->GetSteamID64();
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_SetXboxPairwiseID( SteamNetworkingIdentity* self, const char * pszString )
+{
+    return false;//self->SetXboxPairwiseID(pszString);
+}
+
+STEAMAPI_API const char * SteamAPI_SteamNetworkingIdentity_GetXboxPairwiseID( SteamNetworkingIdentity* self )
+{
+    return "";//self->GetXboxPairwiseID();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIdentity_SetIPAddr( SteamNetworkingIdentity* self, const SteamNetworkingIPAddr & addr )
+{
+    return self->SetIPAddr(addr);
+}
+
+STEAMAPI_API const SteamNetworkingIPAddr * SteamAPI_SteamNetworkingIdentity_GetIPAddr( SteamNetworkingIdentity* self )
+{
+    return self->GetIPAddr();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIdentity_SetLocalHost( SteamNetworkingIdentity* self )
+{
+    return self->SetLocalHost();
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_IsLocalHost( SteamNetworkingIdentity* self )
+{
+    return self->IsLocalHost();
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_SetGenericString( SteamNetworkingIdentity* self, const char * pszString )
+{
+    return self->SetGenericString(pszString);
+}
+
+STEAMAPI_API const char * SteamAPI_SteamNetworkingIdentity_GetGenericString( SteamNetworkingIdentity* self )
+{
+    return self->GetGenericString();
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_SetGenericBytes( SteamNetworkingIdentity* self, const void * data, uint32 cbLen )
+{
+    return self->SetGenericBytes(data, cbLen);
+}
+
+STEAMAPI_API const uint8 * SteamAPI_SteamNetworkingIdentity_GetGenericBytes( SteamNetworkingIdentity* self, int & cbLen )
+{
+    return self->GetGenericBytes(cbLen);
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_IsEqualTo( SteamNetworkingIdentity* self, const SteamNetworkingIdentity & x )
+{
+    return self->operator==(x);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingIdentity_ToString( SteamNetworkingIdentity* self, char * buf, uint32 cbBuf )
+{
+    return self->ToString(buf, cbBuf);
+}
+
+STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity* self, const char * pszStr )
+{
+    return self->ParseString(pszStr);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingMessage_t_Release( SteamNetworkingMessage_t* self )
+{
+    return self->Release();
+}
+
+STEAMAPI_API void SteamAPI_SteamDatagramHostedAddress_Clear( SteamDatagramHostedAddress* self )
+{
+    return self->Clear();
+}
+
+STEAMAPI_API SteamNetworkingPOPID SteamAPI_SteamDatagramHostedAddress_GetPopID( SteamDatagramHostedAddress* self )
+{
+    return self->GetPopID();
+}
+
+STEAMAPI_API void SteamAPI_SteamDatagramHostedAddress_SetDevAddress( SteamDatagramHostedAddress* self, uint32 nIP, uint16 nPort, SteamNetworkingPOPID popid )
+{
+    return self->SetDevAddress(nIP, nPort, popid);
+}
+
+#endif

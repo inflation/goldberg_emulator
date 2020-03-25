@@ -48,6 +48,7 @@
 #include "steam_gamesearch.h"
 #include "steam_parties.h"
 #include "steam_remoteplay.h"
+#include "steam_tv.h"
 
 #include "steam_gameserver.h"
 #include "steam_gameserverstats.h"
@@ -115,6 +116,7 @@ public:
     Steam_Game_Search *steam_game_search;
     Steam_Parties *steam_parties;
     Steam_RemotePlay *steam_remoteplay;
+    Steam_TV *steam_tv;
 
     Steam_GameServer *steam_gameserver;
     Steam_Utils *steam_gameserver_utils;

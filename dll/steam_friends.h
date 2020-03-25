@@ -994,6 +994,11 @@ int GetNumChatsWithUnreadPriorityMessages()
     return 0;
 }
 
+void ActivateGameOverlayRemotePlayTogetherInviteDialog( CSteamID steamIDLobby )
+{
+    PRINT_DEBUG("Steam_Friends::ActivateGameOverlayRemotePlayTogetherInviteDialog\n");
+}
+
 void RunCallbacks()
 {
 	PRINT_DEBUG("Steam_Friends::RunCallbacks\n");
