@@ -94,7 +94,7 @@ build_windows:
 
 build_cmake_linux:
   stage: build
-  image: ubuntu:disco
+  image: ubuntu
 
   before_script:
     - apt update -y
