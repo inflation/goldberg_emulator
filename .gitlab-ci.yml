@@ -97,6 +97,7 @@ build_cmake_linux:
   image: ubuntu
 
   before_script:
+    - export DEBIAN_FRONTEND=noninteractive
     - apt update -y
     - apt install build-essential cmake libprotobuf-dev protobuf-compiler ninja-build -y
 
