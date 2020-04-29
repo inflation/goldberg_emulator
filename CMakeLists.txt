@@ -257,6 +257,7 @@ target_link_libraries(${BIN_LOBBY_CONNECT}
 	$<$<BOOL:${WIN32}>:ws2_32>
 	$<$<BOOL:${WIN32}>:iphlpapi>
 	$<$<BOOL:${WIN32}>:comdlg32>
+  ${CMAKE_DL_LIBS}
 	-debug:none
 )
 
