@@ -36,6 +36,8 @@
 #define MAX_BROADCASTS 16
 static int number_broadcasts = -1;
 static IP_PORT broadcasts[MAX_BROADCASTS];
+static uint32_t lower_range_ips[MAX_BROADCASTS];
+static uint32_t upper_range_ips[MAX_BROADCASTS];
 
 #define BROADCAST_INTERVAL 5.0
 #define HEARTBEAT_TIMEOUT 20.0
@@ -118,6 +120,8 @@ static void get_broadcast_info(uint16 port)
                     uint32 broadcast_ip = iface_ip | ~subnet_mask;
                     ip_port->ip = broadcast_ip;
                     ip_port->port = port;
+                    lower_range_ips[number_broadcasts] = iface_ip & subnet_mask;
+                    upper_range_ips[number_broadcasts] = broadcast_ip;
                     number_broadcasts++;
 
                     if (number_broadcasts >= MAX_BROADCASTS) {
@@ -328,6 +332,7 @@ static bool send_broadcasts(sock_t sock, uint16 port, char *data, unsigned long 
     if (number_broadcasts < 0 || check_timedout(last_get_broadcast_info, 60.0)) {
         PRINT_DEBUG("get_broadcast_info\n");
         get_broadcast_info(port);
+        set_adapter_ips(lower_range_ips, upper_range_ips, number_broadcasts);
         last_get_broadcast_info = std::chrono::high_resolution_clock::now();
     }
 

@@ -471,6 +471,45 @@ void Auth_Ticket_Manager::Callback(Common_Message *msg)
 #ifdef STEAM_WIN32
 #include "../detours/detours.h"
 
+struct ips_test {
+    uint32_t ip_from;
+    uint32_t ip_to;
+};
+
+static std::vector<struct ips_test> adapter_ips;
+
+void set_adapter_ips(uint32_t *from, uint32_t *to, unsigned num_ips)
+{
+    adapter_ips.clear();
+    for (unsigned i = 0; i < num_ips; ++i) {
+        struct ips_test ip_a;
+        PRINT_DEBUG("from: %hhu.%hhu.%hhu.%hhu\n", ((unsigned char *)&from[i])[0], ((unsigned char *)&from[i])[1], ((unsigned char *)&from[i])[2], ((unsigned char *)&from[i])[3]);
+        PRINT_DEBUG("to: %hhu.%hhu.%hhu.%hhu\n", ((unsigned char *)&to[i])[0], ((unsigned char *)&to[i])[1], ((unsigned char *)&to[i])[2], ((unsigned char *)&to[i])[3]);
+        ip_a.ip_from = ntohl(from[i]);
+        ip_a.ip_to = ntohl(to[i]);
+        if (ip_a.ip_to < ip_a.ip_from) continue;
+        if ((ip_a.ip_to - ip_a.ip_from) > (1 << 25)) continue;
+        PRINT_DEBUG("added\n");
+        adapter_ips.push_back(ip_a);
+    }
+}
+
+static bool is_adapter_ip(unsigned char *ip)
+{
+    uint32_t ip_temp = 0;
+    memcpy(&ip_temp, ip, sizeof(ip_temp));
+    ip_temp = ntohl(ip_temp);
+
+    for (auto &i : adapter_ips) {
+        if (i.ip_from <= ip_temp && ip_temp <= i.ip_to) {
+            PRINT_DEBUG("ADAPTER IP %hhu.%hhu.%hhu.%hhu\n", ip[0], ip[1], ip[2], ip[3]);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static bool is_lan_ip(const sockaddr *addr, int namelen)
 {
     if (!namelen) return false;
@@ -480,6 +519,7 @@ static bool is_lan_ip(const sockaddr *addr, int namelen)
         unsigned char ip[4];
         memcpy(ip, &addr_in->sin_addr, sizeof(ip));
         PRINT_DEBUG("CHECK LAN IP %hhu.%hhu.%hhu.%hhu:%u\n", ip[0], ip[1], ip[2], ip[3], ntohs(addr_in->sin_port));
+        if (is_adapter_ip(ip)) return true;
         if (ip[0] == 127) return true;
         if (ip[0] == 10) return true;
         if (ip[0] == 192 && ip[1] == 168) return true;
@@ -756,5 +796,15 @@ BOOL WINAPI DllMain( HINSTANCE, DWORD dwReason, LPVOID ) {
 
     return TRUE;
 }
+#else
+void set_adapter_ips(uint32_t *from, uint32_t *to, unsigned num_ips)
+{
+
+}
 #endif
+#else
+void set_adapter_ips(uint32_t *from, uint32_t *to, unsigned num_ips)
+{
+
+}
 #endif
