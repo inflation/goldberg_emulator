@@ -15,13 +15,13 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifdef STEAM_WIN32
+// Nothing to be done here
+#else
 #define STEAM_API_FUNCTIONS_IMPL
 #include "base.h"
 #include "dll.h"
 
-#ifdef STEAM_WIN32
-// Nothing to be done here
-#else
 
 #include <dirent.h>
 #include <dlfcn.h>
