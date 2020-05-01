@@ -1170,7 +1170,8 @@ void RunCallbacks()
                         }
                     } else {
                         try {
-                            int compare_to = std::stoi(value->second, 0, 0);
+                            PRINT_DEBUG("%s\n", value->second.c_str());
+                            int compare_to = std::stoll(value->second, 0, 0);
                             PRINT_DEBUG("Compare Values %i %i\n", compare_to, f.value_int);
                             if (f.eComparisonType == k_ELobbyComparisonEqual) {
                                 if (compare_to == f.value_int) {
