@@ -15,7 +15,13 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifdef STEAM_WIN32
+#if defined(WIN64) || defined(_WIN64) || defined(__MINGW64__)
+    #define __WINDOWS_64__
+#elif defined(WIN32) || defined(_WIN32) || defined(__MINGW32__)
+	#define __WINDOWS_32__
+#endif
+
+#if defined(__WINDOWS_32__) || defined(__WINDOWS_64__)
 // Nothing to be done here
 #else
 #define STEAM_API_FUNCTIONS_IMPL
