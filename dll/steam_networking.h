@@ -16,6 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
+#include <list>
 
 //packet timeout in seconds for non connections
 #define ORPHANED_PACKET_TIMEOUT (20)

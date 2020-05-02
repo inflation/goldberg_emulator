@@ -2,7 +2,7 @@
 
 CXX=clang++
 CXX_FLAGS += -fPIC -std=c++11
-LD_FLAGS += -shared -lprotobuf-lite -Wl,--no-undefined
+LD_FLAGS += -shared -lprotobuf-lite -ldl -Wl,--no-undefined
 LIBRARY_NAME=libsteam_api.so
 RM = rm -f
 
