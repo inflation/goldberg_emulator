@@ -296,7 +296,7 @@ HSteamListenSocket CreateListenSocketP2P( int nVirtualPort )
 
 HSteamListenSocket CreateListenSocketP2P( int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketP2P old %i\n", nVirtualPort);
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketP2P %i\n", nVirtualPort);
     //TODO config options
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     return new_listen_socket(nVirtualPort);
@@ -904,6 +904,7 @@ bool GetListenSocketInfo( HSteamListenSocket hSocket, uint32 *pnIP, uint16 *pnPo
 bool CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection *pOutConnection2, bool bUseNetworkLoopback )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateSocketPair old\n");
+    return CreateSocketPair(pOutConnection1, pOutConnection2, bUseNetworkLoopback, NULL, NULL);
 }
 
 /// Create a pair of connections that are talking to each other, e.g. a loopback connection.
@@ -928,7 +929,18 @@ bool CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection
 /// actual bound loopback port.  Otherwise, the port will be zero.
 bool CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection *pOutConnection2, bool bUseNetworkLoopback, const SteamNetworkingIdentity *pIdentity1, const SteamNetworkingIdentity *pIdentity2 )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::CreateSocketPair\n");
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateSocketPair %u %p %p\n", bUseNetworkLoopback, pIdentity1, pIdentity2);
+    if (!pOutConnection1 || !pOutConnection1) return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+
+    SteamNetworkingIdentity remote_identity;
+    remote_identity.SetSteamID(settings->get_local_steam_id());
+    HSteamNetConnection con1 = new_connect_socket(remote_identity, 0, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, k_HSteamNetConnection_Invalid);
+    HSteamNetConnection con2 = new_connect_socket(remote_identity, 0, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, con1);
+    connect_sockets[con1].remote_id = con2;
+    *pOutConnection1 = con1;
+    *pOutConnection2 = con2;
+    return true;
 }
 
 /// Get the identity assigned to this interface.
