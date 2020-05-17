@@ -160,7 +160,7 @@ deploy_all:
 
   script:
     - ls -lah
-    - dnf -y install git
+    - dnf -y install git tree
     - mkdir -p release/source_code
     - git bundle create release/source_code/source_code.bundle --all
     - "echo \"This is a git bundle of the full repo, to use: git clone source_code.bundle --branch master\" > release/source_code/Readme.txt"
@@ -171,6 +171,7 @@ deploy_all:
     - mv release/* ./
     - rm -rf release
     - echo $CI_JOB_ID > job_id
+    - tree
   artifacts:
     name: "Goldberg_Lan_Steam_Emu_$CI_COMMIT_REF_NAME-$CI_COMMIT_TAG-$CI_COMMIT_SHORT_SHA"
     paths:
