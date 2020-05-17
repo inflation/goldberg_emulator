@@ -406,6 +406,7 @@ EResult AcceptConnection( HSteamNetConnection hConn )
     if (connect_socket->second.status != CONNECT_SOCKET_NOT_ACCEPTED) return k_EResultInvalidState;
     connect_socket->second.status = CONNECT_SOCKET_CONNECTED;
     send_packet_new_connection(connect_socket->first);
+    launch_callback(connect_socket->first, CONNECT_SOCKET_NOT_ACCEPTED);
 
     return k_EResultOK;
 }
