@@ -276,6 +276,20 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
                 disable_networking = true;
             } else if (p == "disable_overlay.txt") {
                 disable_overlay = true;
+            } else if (p == "force_language.txt") {
+                int len = Local_Storage::get_file_data(steam_settings_path + "force_language.txt", language, sizeof(language) - 1);
+                if (len > 0) language[len] = 0;
+            } else if (p == "force_steamid.txt") {
+                char steam_id_text[32] = {};
+                if (Local_Storage::get_file_data(steam_settings_path + "force_steamid.txt", steam_id_text, sizeof(steam_id_text) - 1) > 0) {
+                    CSteamID temp_id = CSteamID((uint64)std::atoll(steam_id_text));
+                    if (temp_id.IsValid()) {
+                        user_id = temp_id;
+                    }
+                }
+            } else if (p == "force_account_name.txt") {
+                int len = Local_Storage::get_file_data(steam_settings_path + "force_account_name.txt", name, sizeof(name) - 1);
+                if (len > 0) name[len] = 0;
             }
         }
     }

@@ -29,6 +29,9 @@ Note that these are global so you won't have to change them for each game. For g
 If you want to change your steam_id on a per game basis, simply create a settings folder in the game unique directory (Full path: C:\Users\<Your windows user name>\AppData\Roaming\Goldberg SteamEmu Saves\<appid>\settings)
 In that settings folder create a user_steam_id.txt file that contains the valid steam id that you want to use for that game only.
 
+You can also make the emu ignore certain global settings by using a force_account_name.txt, force_language.txt or force_steamid.txt that you put in the <path where my emu lib is>\steam_settings\ folder.
+See the steam_settings.EXAMPLE folder for an example.
+
 If for some reason you want it to save in the game directory you can create a file named local_save.txt right beside steam_api(64).dll (libsteam_api.so on linux)
 The only thing that file should contain is the name of the save directory. This can be useful if you want to use different global settings like a different account name or steam id for a particular game.
 Note that this save directory will be beside where the emu dll (or .so) is which may not be the same as the game path.
