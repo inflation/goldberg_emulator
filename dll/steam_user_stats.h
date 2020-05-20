@@ -778,6 +778,7 @@ STEAM_CALL_RESULT( GlobalAchievementPercentagesReady_t )
 SteamAPICall_t RequestGlobalAchievementPercentages()
 {
     PRINT_DEBUG("RequestGlobalAchievementPercentages\n");
+    return 0;
 }
 
 
@@ -787,6 +788,7 @@ SteamAPICall_t RequestGlobalAchievementPercentages()
 int GetMostAchievedAchievementInfo( char *pchName, uint32 unNameBufLen, float *pflPercent, bool *pbAchieved )
 {
     PRINT_DEBUG("GetMostAchievedAchievementInfo\n");
+    return -1;
 }
 
 
@@ -796,6 +798,7 @@ int GetMostAchievedAchievementInfo( char *pchName, uint32 unNameBufLen, float *p
 int GetNextMostAchievedAchievementInfo( int iIteratorPrevious, char *pchName, uint32 unNameBufLen, float *pflPercent, bool *pbAchieved )
 {
     PRINT_DEBUG("GetNextMostAchievedAchievementInfo\n");
+    return -1;
 }
 
 
@@ -803,6 +806,7 @@ int GetNextMostAchievedAchievementInfo( int iIteratorPrevious, char *pchName, ui
 bool GetAchievementAchievedPercent( const char *pchName, float *pflPercent )
 {
     PRINT_DEBUG("GetAchievementAchievedPercent\n");
+    return false;
 }
 
 

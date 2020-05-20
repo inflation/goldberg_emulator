@@ -42,7 +42,6 @@
 
 #if defined(__WINDOWS__)
 #define STEAM_WIN32
-#pragma warning( disable : 4716)
 #ifndef NOMINMAX
 # define NOMINMAX
 #endif

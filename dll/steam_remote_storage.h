@@ -405,11 +405,13 @@ SteamAPICall_t UGCDownload( UGCHandle_t hContent )
 bool	GetUGCDownloadProgress( UGCHandle_t hContent, int32 *pnBytesDownloaded, int32 *pnBytesExpected )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetUGCDownloadProgress\n");
+    return false;
 }
 
 bool	GetUGCDownloadProgress( UGCHandle_t hContent, uint32 *pnBytesDownloaded, uint32 *pnBytesExpected )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetUGCDownloadProgress old\n");
+    return false;
 }
 
 
@@ -417,6 +419,7 @@ bool	GetUGCDownloadProgress( UGCHandle_t hContent, uint32 *pnBytesDownloaded, ui
 bool	GetUGCDetails( UGCHandle_t hContent, AppId_t *pnAppID, STEAM_OUT_STRING() char **ppchName, int32 *pnFileSizeInBytes, STEAM_OUT_STRUCT() CSteamID *pSteamIDOwner )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetUGCDetails\n");
+    return false;
 }
 
 
@@ -460,11 +463,13 @@ int32	UGCRead( UGCHandle_t hContent, void *pvData, int32 cubDataToRead, uint32 c
 int32	GetCachedUGCCount()
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetCachedUGCCount\n");
+    return 0;
 }
 
 UGCHandle_t GetCachedUGCHandle( int32 iCachedContent )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetCachedUGCHandle\n");
+    return k_UGCHandleInvalid;
 }
 
 
@@ -517,62 +522,74 @@ STEAM_CALL_RESULT( RemoteStoragePublishFileProgress_t )
 SteamAPICall_t	PublishWorkshopFile( const char *pchFile, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t *pTags, EWorkshopFileType eWorkshopFileType )
 {
     PRINT_DEBUG("Steam_Remote_Storage::PublishWorkshopFile\n");
+    return 0;
 }
 
 PublishedFileUpdateHandle_t CreatePublishedFileUpdateRequest( PublishedFileId_t unPublishedFileId )
 {
     PRINT_DEBUG("Steam_Remote_Storage::CreatePublishedFileUpdateRequest\n");
+    return 0;
 }
 
 bool UpdatePublishedFileFile( PublishedFileUpdateHandle_t updateHandle, const char *pchFile )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFileFile\n");
+    return false;
 }
 
 SteamAPICall_t	PublishFile( const char *pchFile, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t *pTags )
 {
     PRINT_DEBUG("Steam_Remote_Storage::PublishFile\n");
+    return 0;
 }
 
 SteamAPICall_t	PublishWorkshopFile( const char *pchFile, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, SteamParamStringArray_t *pTags )
 {
     PRINT_DEBUG("Steam_Remote_Storage::PublishWorkshopFile old\n");
+    return 0;
 }
 
 SteamAPICall_t	UpdatePublishedFile( RemoteStorageUpdatePublishedFileRequest_t updatePublishedFileRequest )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFile\n");
+    return 0;
 }
 
 bool UpdatePublishedFilePreviewFile( PublishedFileUpdateHandle_t updateHandle, const char *pchPreviewFile )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFilePreviewFile\n");
+    return false;
 }
 
 bool UpdatePublishedFileTitle( PublishedFileUpdateHandle_t updateHandle, const char *pchTitle )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFileTitle\n");
+    return false;
 }
 
 bool UpdatePublishedFileDescription( PublishedFileUpdateHandle_t updateHandle, const char *pchDescription )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFileDescription\n");
+    return false;
 }
 
 bool UpdatePublishedFileVisibility( PublishedFileUpdateHandle_t updateHandle, ERemoteStoragePublishedFileVisibility eVisibility )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFileVisibility\n");
+    return false;
 }
 
 bool UpdatePublishedFileTags( PublishedFileUpdateHandle_t updateHandle, SteamParamStringArray_t *pTags )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFileTags\n");
+    return false;
 }
 
 STEAM_CALL_RESULT( RemoteStorageUpdatePublishedFileResult_t )
 SteamAPICall_t	CommitPublishedFileUpdate( PublishedFileUpdateHandle_t updateHandle )
 {
     PRINT_DEBUG("Steam_Remote_Storage::CommitPublishedFileUpdate\n");
+    return 0;
 }
 
 // Gets published file details for the given publishedfileid.  If unMaxSecondsOld is greater than 0,
@@ -581,19 +598,30 @@ SteamAPICall_t	CommitPublishedFileUpdate( PublishedFileUpdateHandle_t updateHand
 STEAM_CALL_RESULT( RemoteStorageGetPublishedFileDetailsResult_t )
 SteamAPICall_t	GetPublishedFileDetails( PublishedFileId_t unPublishedFileId, uint32 unMaxSecondsOld )
 {
-    PRINT_DEBUG("Steam_Remote_Storage::GetPublishedFileDetails\n");
+    PRINT_DEBUG("Steam_Remote_Storage::GetPublishedFileDetails %llu\n", unPublishedFileId);
+    //TODO: check what this function really returns
+    return 0;
+/*
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    RemoteStorageGetPublishedFileDetailsResult_t data = {};
+    data.m_eResult = k_EResultFail;
+    data.m_nPublishedFileId = unPublishedFileId;
+    return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
+*/
 }
 
 STEAM_CALL_RESULT( RemoteStorageGetPublishedFileDetailsResult_t )
 SteamAPICall_t	GetPublishedFileDetails( PublishedFileId_t unPublishedFileId )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetPublishedFileDetails old\n");
+    return GetPublishedFileDetails(unPublishedFileId, 0);
 }
 
 STEAM_CALL_RESULT( RemoteStorageDeletePublishedFileResult_t )
 SteamAPICall_t	DeletePublishedFile( PublishedFileId_t unPublishedFileId )
 {
     PRINT_DEBUG("Steam_Remote_Storage::DeletePublishedFile\n");
+    return 0;
 }
 
 // enumerate the files that the current user published with this app
@@ -614,6 +642,7 @@ STEAM_CALL_RESULT( RemoteStorageSubscribePublishedFileResult_t )
 SteamAPICall_t	SubscribePublishedFile( PublishedFileId_t unPublishedFileId )
 {
     PRINT_DEBUG("Steam_Remote_Storage::SubscribePublishedFile\n");
+    return 0;
 }
 
 STEAM_CALL_RESULT( RemoteStorageEnumerateUserSubscribedFilesResult_t )
@@ -634,29 +663,34 @@ STEAM_CALL_RESULT( RemoteStorageUnsubscribePublishedFileResult_t )
 SteamAPICall_t	UnsubscribePublishedFile( PublishedFileId_t unPublishedFileId )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UnsubscribePublishedFile\n");
+    return 0;
 }
 
 bool UpdatePublishedFileSetChangeDescription( PublishedFileUpdateHandle_t updateHandle, const char *pchChangeDescription )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdatePublishedFileSetChangeDescription\n");
+    return false;
 }
 
 STEAM_CALL_RESULT( RemoteStorageGetPublishedItemVoteDetailsResult_t )
 SteamAPICall_t	GetPublishedItemVoteDetails( PublishedFileId_t unPublishedFileId )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetPublishedItemVoteDetails\n");
+    return 0;
 }
 
 STEAM_CALL_RESULT( RemoteStorageUpdateUserPublishedItemVoteResult_t )
 SteamAPICall_t	UpdateUserPublishedItemVote( PublishedFileId_t unPublishedFileId, bool bVoteUp )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UpdateUserPublishedItemVote\n");
+    return 0;
 }
 
 STEAM_CALL_RESULT( RemoteStorageGetPublishedItemVoteDetailsResult_t )
 SteamAPICall_t	GetUserPublishedItemVoteDetails( PublishedFileId_t unPublishedFileId )
 {
     PRINT_DEBUG("Steam_Remote_Storage::GetUserPublishedItemVoteDetails\n");
+    return 0;
 }
 
 STEAM_CALL_RESULT( RemoteStorageEnumerateUserPublishedFilesResult_t )
@@ -683,24 +717,28 @@ STEAM_CALL_RESULT( RemoteStoragePublishFileProgress_t )
 SteamAPICall_t	PublishVideo( EWorkshopVideoProvider eVideoProvider, const char *pchVideoAccount, const char *pchVideoIdentifier, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t *pTags )
 {
     PRINT_DEBUG("Steam_Remote_Storage::PublishVideo\n");
+    return 0;
 }
 
 STEAM_CALL_RESULT( RemoteStoragePublishFileProgress_t )
 SteamAPICall_t	PublishVideo(const char *pchFileName, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t *pTags )
 {
     PRINT_DEBUG("Steam_Remote_Storage::PublishVideo old\n");
+    return 0;
 }
 
 STEAM_CALL_RESULT( RemoteStorageSetUserPublishedFileActionResult_t )
 SteamAPICall_t	SetUserPublishedFileAction( PublishedFileId_t unPublishedFileId, EWorkshopFileAction eAction )
 {
     PRINT_DEBUG("Steam_Remote_Storage::SetUserPublishedFileAction\n");
+    return 0;
 }
 
 STEAM_CALL_RESULT( RemoteStorageEnumeratePublishedFilesByUserActionResult_t )
 SteamAPICall_t	EnumeratePublishedFilesByUserAction( EWorkshopFileAction eAction, uint32 unStartIndex )
 {
     PRINT_DEBUG("Steam_Remote_Storage::EnumeratePublishedFilesByUserAction\n");
+    return 0;
 }
 
 // this method enumerates the public view of workshop files
@@ -708,6 +746,7 @@ STEAM_CALL_RESULT( RemoteStorageEnumerateWorkshopFilesResult_t )
 SteamAPICall_t	EnumeratePublishedWorkshopFiles( EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays, SteamParamStringArray_t *pTags, SteamParamStringArray_t *pUserTags )
 {
     PRINT_DEBUG("Steam_Remote_Storage::EnumeratePublishedWorkshopFiles\n");
+    return 0;
 }
 
 
@@ -715,6 +754,7 @@ STEAM_CALL_RESULT( RemoteStorageDownloadUGCResult_t )
 SteamAPICall_t UGCDownloadToLocation( UGCHandle_t hContent, const char *pchLocation, uint32 unPriority )
 {
     PRINT_DEBUG("Steam_Remote_Storage::UGCDownloadToLocation\n");
+    return 0;
 }
 
 };

@@ -20,171 +20,203 @@
 // Service Definition
 bool Steam_MusicRemote::RegisterSteamMusicRemote( const char *pchName )
 {
-    PRINT_DEBUG("RegisterSteamMusicRemote\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::DeregisterSteamMusicRemote()
 {
-    PRINT_DEBUG("DeregisterSteamMusicRemote\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::BIsCurrentMusicRemote()
 {
-    PRINT_DEBUG("BIsCurrentMusicRemote\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::BActivationSuccess( bool bValue )
 {
-    PRINT_DEBUG("BActivationSuccess\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 
 bool Steam_MusicRemote::SetDisplayName( const char *pchDisplayName )
 {
-    PRINT_DEBUG("SetDisplayName\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::SetPNGIcon_64x64( void *pvBuffer, uint32 cbBufferLength )
 {
-    PRINT_DEBUG("SetPNGIcon_64x64\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 
 // Abilities for the user interface
 bool Steam_MusicRemote::EnablePlayPrevious(bool bValue)
 {
-    PRINT_DEBUG("EnablePlayPrevious\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::EnablePlayNext( bool bValue )
 {
-    PRINT_DEBUG("EnablePlayNext\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::EnableShuffled( bool bValue )
 {
-    PRINT_DEBUG("EnableShuffled\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::EnableLooped( bool bValue )
 {
-    PRINT_DEBUG("EnableLooped\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::EnableQueue( bool bValue )
 {
-    PRINT_DEBUG("EnableQueue\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::EnablePlaylists( bool bValue )
 {
-    PRINT_DEBUG("EnablePlaylists\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 
 // Status
 bool Steam_MusicRemote::UpdatePlaybackStatus( AudioPlayback_Status nStatus )
 {
-    PRINT_DEBUG("UpdatePlaybackStatus\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::UpdateShuffled( bool bValue )
 {
-    PRINT_DEBUG("UpdateShuffled\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::UpdateLooped( bool bValue )
 {
-    PRINT_DEBUG("UpdateLooped\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::UpdateVolume( float flValue )
 {
-    PRINT_DEBUG("UpdateVolume\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
  // volume is between 0.0 and 1.0
 
 // Current Entry
 bool Steam_MusicRemote::CurrentEntryWillChange()
 {
-    PRINT_DEBUG("CurrentEntryWillChange\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::CurrentEntryIsAvailable( bool bAvailable )
 {
-    PRINT_DEBUG("CurrentEntryIsAvailable\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::UpdateCurrentEntryText( const char *pchText )
 {
-    PRINT_DEBUG("UpdateCurrentEntryText\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::UpdateCurrentEntryElapsedSeconds( int nValue )
 {
-    PRINT_DEBUG("UpdateCurrentEntryElapsedSeconds\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::UpdateCurrentEntryCoverArt( void *pvBuffer, uint32 cbBufferLength )
 {
-    PRINT_DEBUG("UpdateCurrentEntryCoverArt\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::CurrentEntryDidChange()
 {
-    PRINT_DEBUG("CurrentEntryDidChange\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 
 // Queue
 bool Steam_MusicRemote::QueueWillChange()
 {
-    PRINT_DEBUG("QueueWillChange\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::ResetQueueEntries()
 {
-    PRINT_DEBUG("ResetQueueEntries\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::SetQueueEntry( int nID, int nPosition, const char *pchEntryText )
 {
-    PRINT_DEBUG("SetQueueEntry\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::SetCurrentQueueEntry( int nID )
 {
-    PRINT_DEBUG("SetCurrentQueueEntry\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::QueueDidChange()
 {
-    PRINT_DEBUG("QueueDidChange\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 
 // Playlist
 bool Steam_MusicRemote::PlaylistWillChange()
 {
-    PRINT_DEBUG("PlaylistWillChange\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::ResetPlaylistEntries()
 {
-    PRINT_DEBUG("ResetPlaylistEntries\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::SetPlaylistEntry( int nID, int nPosition, const char *pchEntryText )
 {
-    PRINT_DEBUG("SetPlaylistEntry\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::SetCurrentPlaylistEntry( int nID )
 {
-    PRINT_DEBUG("SetCurrentPlaylistEntry\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }
 
 bool Steam_MusicRemote::PlaylistDidChange()
 {
-    PRINT_DEBUG("PlaylistDidChange\n");
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+    return false;
 }

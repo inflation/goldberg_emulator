@@ -242,11 +242,13 @@ HSteamListenSocket CreateListenSocket( int nSteamConnectVirtualPort, uint32 nIP,
 HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddress )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP old\n");
+    return k_HSteamListenSocket_Invalid;
 }
 
 HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddress, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP\n");
+    return k_HSteamListenSocket_Invalid;
 }
 
 /// Creates a connection and begins talking to a "server" over UDP at the
@@ -270,11 +272,13 @@ HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddre
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress old\n");
+    return k_HSteamNetConnection_Invalid;
 }
 
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress\n");
+    return k_HSteamNetConnection_Invalid;
 }
 
 /// Like CreateListenSocketIP, but clients will connect using ConnectP2P
@@ -354,12 +358,14 @@ HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, i
 HSteamNetConnection ConnectBySteamID( CSteamID steamIDTarget, int nVirtualPort )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectBySteamID\n");
+    return k_HSteamNetConnection_Invalid;
 }
 
 //#endif
 HSteamNetConnection ConnectByIPv4Address( uint32 nIP, uint16 nPort )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPv4Address\n");
+    return k_HSteamNetConnection_Invalid;
 }
 
 
@@ -471,6 +477,7 @@ bool CloseConnection( HSteamNetConnection hPeer, int nReason, const char *pszDeb
 bool CloseListenSocket( HSteamListenSocket hSocket, const char *pszNotifyRemoteReason )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CloseListenSocket old\n");
+    return false;
 }
 
 /// Destroy a listen socket.  All the connections that were accepting on the listen
@@ -538,6 +545,7 @@ void SetConnectionName( HSteamNetConnection hPeer, const char *pszName )
 bool GetConnectionName( HSteamNetConnection hPeer, char *pszName, int nMaxLen )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionName\n");
+    return false;
 }
 
 
@@ -568,6 +576,7 @@ bool GetConnectionName( HSteamNetConnection hPeer, char *pszName, int nMaxLen )
 EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, uint32 cbData, ESteamNetworkingSendType eSendType )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SendMessageToConnection old\n");
+    return k_EResultFail;
 }
 
 /// Send a message to the remote host on the specified connection.
@@ -687,6 +696,7 @@ void SendMessages( int nMessages, SteamNetworkingMessage_t *const *pMessages, in
 EResult FlushMessagesOnConnection( HSteamNetConnection hConn )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::FlushMessagesOnConnection\n");
+    return k_EResultOK;
 }
 
 static void free_steam_message_data(SteamNetworkingMessage_t *pMsg)
@@ -791,6 +801,7 @@ int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMe
 bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pInfo )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionInfo\n");
+    return false;
 }
 
 
@@ -813,6 +824,7 @@ bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pIn
 int ReceiveMessagesOnConnection( HSteamNetConnection hConn, SteamNetworkingMessage001_t **ppOutMessages, int nMaxMessages )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnConnection\n");
+    return -1;
 }
  
 
@@ -827,6 +839,7 @@ int ReceiveMessagesOnConnection( HSteamNetConnection hConn, SteamNetworkingMessa
 int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMessage001_t **ppOutMessages, int nMaxMessages )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnListenSocket\n");
+    return -1;
 }
  
 
@@ -834,6 +847,7 @@ int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMe
 bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo001_t *pInfo )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionInfo\n");
+    return false;
 }
 
 
@@ -842,6 +856,7 @@ bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo001_t *
 bool GetQuickConnectionStatus( HSteamNetConnection hConn, SteamNetworkingQuickConnectionStatus *pStats )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetQuickConnectionStatus\n");
+    return false;
 }
 
 
@@ -855,6 +870,7 @@ bool GetQuickConnectionStatus( HSteamNetConnection hConn, SteamNetworkingQuickCo
 int GetDetailedConnectionStatus( HSteamNetConnection hConn, char *pszBuf, int cbBuf )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetDetailedConnectionStatus\n");
+    return -1;
 }
 
 /// Returns local IP and port that a listen socket created using CreateListenSocketIP is bound to.
@@ -864,6 +880,7 @@ int GetDetailedConnectionStatus( HSteamNetConnection hConn, char *pszBuf, int cb
 bool GetListenSocketAddress( HSteamListenSocket hSocket, SteamNetworkingIPAddr *address )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetListenSocketAddress\n");
+    return false;
 }
 
 /// Returns information about the listen socket.
@@ -952,6 +969,9 @@ bool CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection
 bool GetIdentity( SteamNetworkingIdentity *pIdentity )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetIdentity\n");
+    if (!pIdentity) return false;
+    pIdentity->SetSteamID(settings->get_local_steam_id());
+    return true;
 }
 
 /// Indicate our desire to be ready participate in authenticated communications.
@@ -980,6 +1000,7 @@ bool GetIdentity( SteamNetworkingIdentity *pIdentity )
 ESteamNetworkingAvailability InitAuthentication()
 {
     PRINT_DEBUG("Steam_Networking_Sockets::InitAuthentication\n");
+    return k_ESteamNetworkingAvailability_Current;
 }
 
 /// Query our readiness to participate in authenticated communications.  A
@@ -992,6 +1013,7 @@ ESteamNetworkingAvailability InitAuthentication()
 ESteamNetworkingAvailability GetAuthenticationStatus( SteamNetAuthenticationStatus_t *pDetails )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetAuthenticationStatus\n");
+    return k_ESteamNetworkingAvailability_Current;
 }
 
 /// Create a new poll group.
@@ -1000,6 +1022,7 @@ ESteamNetworkingAvailability GetAuthenticationStatus( SteamNetAuthenticationStat
 HSteamNetPollGroup CreatePollGroup()
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreatePollGroup\n");
+    return k_HSteamNetPollGroup_Invalid;
 }
 
 /// Destroy a poll group created with CreatePollGroup().
@@ -1010,6 +1033,7 @@ HSteamNetPollGroup CreatePollGroup()
 bool DestroyPollGroup( HSteamNetPollGroup hPollGroup )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::DestroyPollGroup\n");
+    return false;
 }
 
 /// Assign a connection to a poll group.  Note that a connection may only belong to a
@@ -1029,6 +1053,7 @@ bool DestroyPollGroup( HSteamNetPollGroup hPollGroup )
 bool SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPollGroup )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SetConnectionPollGroup\n");
+    return false;
 }
 
 /// Same as ReceiveMessagesOnConnection, but will return the next messages available
@@ -1049,6 +1074,7 @@ bool SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPoll
 int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnPollGroup\n");
+    return -1; 
 }
 
 
@@ -1066,6 +1092,7 @@ int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMe
 bool ReceivedRelayAuthTicket( const void *pvTicket, int cbTicket, SteamDatagramRelayAuthTicket *pOutParsedTicket )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ReceivedRelayAuthTicket\n");
+    return false;
 }
 
 
@@ -1078,6 +1105,7 @@ bool ReceivedRelayAuthTicket( const void *pvTicket, int cbTicket, SteamDatagramR
 int FindRelayAuthTicketForServer( CSteamID steamID, int nVirtualPort, SteamDatagramRelayAuthTicket *pOutParsedTicket )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::FindRelayAuthTicketForServer old\n");
+    return 0;
 }
 
 /// Search cache for a ticket to talk to the server on the specified virtual port.
@@ -1089,6 +1117,7 @@ int FindRelayAuthTicketForServer( CSteamID steamID, int nVirtualPort, SteamDatag
 int FindRelayAuthTicketForServer( const SteamNetworkingIdentity &identityGameServer, int nVirtualPort, SteamDatagramRelayAuthTicket *pOutParsedTicket )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::FindRelayAuthTicketForServer\n");
+    return 0;
 }
 
 /// Client call to connect to a server hosted in a Valve data center, on the specified virtual
@@ -1103,6 +1132,7 @@ int FindRelayAuthTicketForServer( const SteamNetworkingIdentity &identityGameSer
 HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentity &identityTarget, int nVirtualPort )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer old\n");
+    return k_HSteamListenSocket_Invalid;
 }
 
 /// Client call to connect to a server hosted in a Valve data center, on the specified virtual
@@ -1114,11 +1144,13 @@ HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentit
 HSteamNetConnection ConnectToHostedDedicatedServer( CSteamID steamIDTarget, int nVirtualPort )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer older\n");
+    return k_HSteamListenSocket_Invalid;
 }
 
 HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentity &identityTarget, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer\n");
+    return k_HSteamListenSocket_Invalid;
 }
 
 //
@@ -1139,6 +1171,7 @@ uint16 GetHostedDedicatedServerPort()
 SteamNetworkingPOPID GetHostedDedicatedServerPOPID()
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetHostedDedicatedServerPOPID\n");
+    return 0;
 }
 
 
@@ -1238,6 +1271,7 @@ HSteamListenSocket CreateHostedDedicatedServerListenSocket( int nVirtualPort, in
 bool GetConnectionDebugText( HSteamNetConnection hConn, char *pOut, int nOutCCH )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionDebugText\n");
+    return false;
 }
 
 
@@ -1248,6 +1282,7 @@ bool GetConnectionDebugText( HSteamNetConnection hConn, char *pOut, int nOutCCH 
 int32 GetConfigurationValue( ESteamNetworkingConfigurationValue eConfigValue )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConfigurationValue\n");
+    return -1;
 }
 
 // Returns true if successfully set
@@ -1262,6 +1297,7 @@ bool SetConfigurationValue( ESteamNetworkingConfigurationValue eConfigValue, int
 const char *GetConfigurationValueName( ESteamNetworkingConfigurationValue eConfigValue )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConfigurationValueName\n");
+    return NULL;
 }
 
 
@@ -1273,11 +1309,13 @@ const char *GetConfigurationValueName( ESteamNetworkingConfigurationValue eConfi
 int32 GetConfigurationString( ESteamNetworkingConfigurationString eConfigString, char *pDest, int32 destSize )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConfigurationString\n");
+    return -1;
 }
 
 bool SetConfigurationString( ESteamNetworkingConfigurationString eConfigString, const char *pString )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SetConfigurationString\n");
+    return false;
 }
 
 
@@ -1285,6 +1323,7 @@ bool SetConfigurationString( ESteamNetworkingConfigurationString eConfigString, 
 const char *GetConfigurationStringName( ESteamNetworkingConfigurationString eConfigString )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConfigurationStringName\n");
+    return NULL;
 }
 
 
@@ -1295,12 +1334,14 @@ const char *GetConfigurationStringName( ESteamNetworkingConfigurationString eCon
 int32 GetConnectionConfigurationValue( HSteamNetConnection hConn, ESteamNetworkingConnectionConfigurationValue eConfigValue )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionConfigurationValue\n");
+    return -1;
 }
 
 // Returns true if successfully set
 bool SetConnectionConfigurationValue( HSteamNetConnection hConn, ESteamNetworkingConnectionConfigurationValue eConfigValue, int32 nValue )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SetConnectionConfigurationValue\n");
+    return false;
 }
 
 /// Generate an authentication blob that can be used to securely login with
@@ -1336,6 +1377,7 @@ bool SetConnectionConfigurationValue( HSteamNetConnection hConn, ESteamNetworkin
 EResult GetGameCoordinatorServerLogin( SteamDatagramGameCoordinatorServerLogin *pLoginInfo, int *pcbSignedBlob, void *pBlob )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetGameCoordinatorServerLogin\n");
+    return k_EResultFail;
 }
 
 //
@@ -1381,6 +1423,7 @@ EResult GetGameCoordinatorServerLogin( SteamDatagramGameCoordinatorServerLogin *
 HSteamNetConnection ConnectP2PCustomSignaling( ISteamNetworkingConnectionCustomSignaling *pSignaling, const SteamNetworkingIdentity *pPeerIdentity, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2PCustomSignaling\n");
+    return k_HSteamNetConnection_Invalid;
 }
 
 /// Called when custom signaling has received a message.  When your
@@ -1415,6 +1458,7 @@ HSteamNetConnection ConnectP2PCustomSignaling( ISteamNetworkingConnectionCustomS
 bool ReceivedP2PCustomSignal( const void *pMsg, int cbMsg, ISteamNetworkingCustomSignalingRecvContext *pContext )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ReceivedP2PCustomSignal\n");
+    return false;
 }
 
 //
@@ -1431,6 +1475,7 @@ bool ReceivedP2PCustomSignal( const void *pMsg, int cbMsg, ISteamNetworkingCusto
 bool GetCertificateRequest( int *pcbBlob, void *pBlob, SteamNetworkingErrMsg &errMsg )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetCertificateRequest\n");
+    return false;
 }
 
 /// Set the certificate.  The certificate blob should be the output of
@@ -1438,6 +1483,7 @@ bool GetCertificateRequest( int *pcbBlob, void *pBlob, SteamNetworkingErrMsg &er
 bool SetCertificate( const void *pCertificate, int cbCertificate, SteamNetworkingErrMsg &errMsg )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SetCertificate\n");
+    return false;
 }
 
 // TEMP KLUDGE Call to invoke all queued callbacks.

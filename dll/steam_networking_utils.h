@@ -188,24 +188,28 @@ bool IsPingMeasurementInProgress()
 int GetPingToDataCenter( SteamNetworkingPOPID popID, SteamNetworkingPOPID *pViaRelayPoP )
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetPingToDataCenter\n");
+    return 0;
 }
 
 
 int GetDirectPingToPOP( SteamNetworkingPOPID popID )
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetDirectPingToPOP\n");
+    return 0;
 }
 
 
 int GetPOPCount()
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetPOPCount\n");
+    return 0;
 }
 
 
 int GetPOPList( SteamNetworkingPOPID *list, int nListSz )
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetPOPList\n");
+    return 0;
 }
 
 
@@ -291,6 +295,7 @@ bool SetConfigValue( ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigS
     ESteamNetworkingConfigDataType eDataType, const void *pArg )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SetConfigValue\n");
+    return false;
 }
 
 
@@ -305,6 +310,7 @@ ESteamNetworkingGetConfigValueResult GetConfigValue( ESteamNetworkingConfigValue
     ESteamNetworkingConfigDataType *pOutDataType, void *pResult, size_t *cbResult )
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetConfigValue\n");
+    return k_ESteamNetworkingGetConfigValue_BadValue;
 }
 
 
@@ -315,6 +321,7 @@ ESteamNetworkingGetConfigValueResult GetConfigValue( ESteamNetworkingConfigValue
 bool GetConfigValueInfo( ESteamNetworkingConfigValue eValue, const char **pOutName, ESteamNetworkingConfigDataType *pOutDataType, ESteamNetworkingConfigScope *pOutScope, ESteamNetworkingConfigValue *pOutNextValue )
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetConfigValueInfo\n");
+    return false;
 }
 
 
@@ -322,6 +329,7 @@ bool GetConfigValueInfo( ESteamNetworkingConfigValue eValue, const char **pOutNa
 ESteamNetworkingConfigValue GetFirstConfigValue()
 {
     PRINT_DEBUG("Steam_Networking_Utils::GetFirstConfigValue\n");
+    return k_ESteamNetworkingConfig_Invalid;
 }
 
 
@@ -335,6 +343,7 @@ void SteamNetworkingIPAddr_ToString( const SteamNetworkingIPAddr &addr, char *bu
 bool SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr *pAddr, const char *pszStr )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SteamNetworkingIPAddr_ParseString\n");
+    return false;
 }
 
 void SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity &identity, char *buf, size_t cbBuf )
@@ -345,6 +354,7 @@ void SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity &identity, 
 bool SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity *pIdentity, const char *pszStr )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SteamNetworkingIdentity_ParseString\n");
+    return false;
 }
 
 

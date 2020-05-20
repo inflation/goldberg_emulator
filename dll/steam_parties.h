@@ -71,16 +71,19 @@ Steam_Parties(class Settings *settings, class Networking *network, class SteamCa
 uint32 GetNumActiveBeacons()
 {
     PRINT_DEBUG("Steam_Parties::GetNumActiveBeacons\n");
+    return 0;
 }
 
 PartyBeaconID_t GetBeaconByIndex( uint32 unIndex )
 {
     PRINT_DEBUG("Steam_Parties::GetBeaconByIndex\n");
+    return k_ulPartyBeaconIdInvalid;
 }
 
 bool GetBeaconDetails( PartyBeaconID_t ulBeaconID, CSteamID *pSteamIDBeaconOwner, STEAM_OUT_STRUCT() SteamPartyBeaconLocation_t *pLocation, STEAM_OUT_STRING_COUNT(cchMetadata) char *pchMetadata, int cchMetadata )
 {
     PRINT_DEBUG("Steam_Parties::GetBeaconDetails\n");
+    return false;
 }
 
 
@@ -90,6 +93,7 @@ STEAM_CALL_RESULT( JoinPartyCallback_t )
 SteamAPICall_t JoinParty( PartyBeaconID_t ulBeaconID )
 {
     PRINT_DEBUG("Steam_Parties::JoinParty\n");
+    return 0;
 }
 
 
@@ -100,11 +104,13 @@ SteamAPICall_t JoinParty( PartyBeaconID_t ulBeaconID )
 bool GetNumAvailableBeaconLocations( uint32 *puNumLocations )
 {
     PRINT_DEBUG("Steam_Parties::GetNumAvailableBeaconLocations\n");
+    return false;
 }
 
 bool GetAvailableBeaconLocations( SteamPartyBeaconLocation_t *pLocationList, uint32 uMaxNumLocations )
 {
     PRINT_DEBUG("Steam_Parties::GetAvailableBeaconLocations\n");
+    return false;
 }
 
 
@@ -116,6 +122,7 @@ STEAM_CALL_RESULT( CreateBeaconCallback_t )
 SteamAPICall_t CreateBeacon( uint32 unOpenSlots, SteamPartyBeaconLocation_t *pBeaconLocation, const char *pchConnectString, const char *pchMetadata )
 {
     PRINT_DEBUG("Steam_Parties::CreateBeacon\n");
+    return 0;
 }
 
 
@@ -143,6 +150,7 @@ STEAM_CALL_RESULT( ChangeNumOpenSlotsCallback_t )
 SteamAPICall_t ChangeNumOpenSlots( PartyBeaconID_t ulBeacon, uint32 unOpenSlots )
 {
     PRINT_DEBUG("Steam_Parties::ChangeNumOpenSlots\n");
+    return 0;
 }
 
 
@@ -150,6 +158,7 @@ SteamAPICall_t ChangeNumOpenSlots( PartyBeaconID_t ulBeacon, uint32 unOpenSlots 
 bool DestroyBeacon( PartyBeaconID_t ulBeacon )
 {
     PRINT_DEBUG("Steam_Parties::DestroyBeacon\n");
+    return false;
 }
 
 
@@ -157,6 +166,7 @@ bool DestroyBeacon( PartyBeaconID_t ulBeacon )
 bool GetBeaconLocationData( SteamPartyBeaconLocation_t BeaconLocation, ESteamPartyBeaconLocationData eData, STEAM_OUT_STRING_COUNT(cchDataStringOut) char *pchDataStringOut, int cchDataStringOut )
 {
     PRINT_DEBUG("Steam_Parties::GetBeaconLocationData\n");
+    return false;
 }
 
 

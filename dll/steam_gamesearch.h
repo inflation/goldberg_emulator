@@ -71,6 +71,7 @@ Steam_Game_Search(class Settings *settings, class Networking *network, class Ste
 EGameSearchErrorCode_t AddGameSearchParams( const char *pchKeyToFind, const char *pchValuesToFind )
 {
     PRINT_DEBUG("Steam_Game_Search::AddGameSearchParams\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -80,6 +81,7 @@ EGameSearchErrorCode_t AddGameSearchParams( const char *pchKeyToFind, const char
 EGameSearchErrorCode_t SearchForGameWithLobby( CSteamID steamIDLobby, int nPlayerMin, int nPlayerMax )
 {
     PRINT_DEBUG("Steam_Game_Search::SearchForGameWithLobby\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -88,6 +90,7 @@ EGameSearchErrorCode_t SearchForGameWithLobby( CSteamID steamIDLobby, int nPlaye
 EGameSearchErrorCode_t SearchForGameSolo( int nPlayerMin, int nPlayerMax )
 {
     PRINT_DEBUG("Steam_Game_Search::SearchForGameSolo\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -96,11 +99,13 @@ EGameSearchErrorCode_t SearchForGameSolo( int nPlayerMin, int nPlayerMax )
 EGameSearchErrorCode_t AcceptGame()
 {
     PRINT_DEBUG("Steam_Game_Search::AcceptGame\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 EGameSearchErrorCode_t DeclineGame()
 {
     PRINT_DEBUG("Steam_Game_Search::DeclineGame\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -108,6 +113,7 @@ EGameSearchErrorCode_t DeclineGame()
 EGameSearchErrorCode_t RetrieveConnectionDetails( CSteamID steamIDHost, char *pchConnectionDetails, int cubConnectionDetails )
 {
     PRINT_DEBUG("Steam_Game_Search::RetrieveConnectionDetails\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -115,6 +121,7 @@ EGameSearchErrorCode_t RetrieveConnectionDetails( CSteamID steamIDHost, char *pc
 EGameSearchErrorCode_t EndGameSearch()
 {
     PRINT_DEBUG("Steam_Game_Search::EndGameSearch\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -125,6 +132,7 @@ EGameSearchErrorCode_t EndGameSearch()
 EGameSearchErrorCode_t SetGameHostParams( const char *pchKey, const char *pchValue )
 {
     PRINT_DEBUG("Steam_Game_Search::SetGameHostParams\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -132,6 +140,7 @@ EGameSearchErrorCode_t SetGameHostParams( const char *pchKey, const char *pchVal
 EGameSearchErrorCode_t SetConnectionDetails( const char *pchConnectionDetails, int cubConnectionDetails )
 {
     PRINT_DEBUG("Steam_Game_Search::SetConnectionDetails\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -143,6 +152,7 @@ EGameSearchErrorCode_t SetConnectionDetails( const char *pchConnectionDetails, i
 EGameSearchErrorCode_t RequestPlayersForGame( int nPlayerMin, int nPlayerMax, int nMaxTeamSize )
 {
     PRINT_DEBUG("Steam_Game_Search::RequestPlayersForGame\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -152,6 +162,7 @@ EGameSearchErrorCode_t RequestPlayersForGame( int nPlayerMin, int nPlayerMax, in
 EGameSearchErrorCode_t HostConfirmGameStart( uint64 ullUniqueGameID )
 {
     PRINT_DEBUG("Steam_Game_Search::HostConfirmGameStart\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -160,6 +171,7 @@ EGameSearchErrorCode_t HostConfirmGameStart( uint64 ullUniqueGameID )
 EGameSearchErrorCode_t CancelRequestPlayersForGame()
 {
     PRINT_DEBUG("Steam_Game_Search::CancelRequestPlayersForGame\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -167,6 +179,7 @@ EGameSearchErrorCode_t CancelRequestPlayersForGame()
 EGameSearchErrorCode_t SubmitPlayerResult( uint64 ullUniqueGameID, CSteamID steamIDPlayer, EPlayerResult_t EPlayerResult )
 {
     PRINT_DEBUG("Steam_Game_Search::SubmitPlayerResult\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 
@@ -175,6 +188,7 @@ EGameSearchErrorCode_t SubmitPlayerResult( uint64 ullUniqueGameID, CSteamID stea
 EGameSearchErrorCode_t EndGame( uint64 ullUniqueGameID )
 {
     PRINT_DEBUG("Steam_Game_Search::EndGame\n");
+    return k_EGameSearchErrorCode_Failed_Offline;
 }
 
 void RunCallbacks()
