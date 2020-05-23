@@ -504,12 +504,13 @@ CSteamID GetLobbyByIndex( int iLobby )
     return id;
 }
 
-static void enter_lobby(Lobby *lobby, CSteamID id)
+static bool enter_lobby(Lobby *lobby, CSteamID id)
 {
-    if (get_lobby_member(lobby, id)) return;
+    if (get_lobby_member(lobby, id)) return false;
 
     Lobby_Member *member = lobby->add_members();
     member->set_id(id.ConvertToUint64());
+    return true;
 }
 
 static bool leave_lobby(Lobby *lobby, CSteamID id)
@@ -1303,20 +1304,26 @@ void Callback(Common_Message *msg)
                         if (!member) {
                             if (m.id() == settings->get_local_steam_id().ConvertToUint64()) {
                                 CSteamID id((uint64)lobby->room_id());
-                                auto pd = std::find_if(pending_joins.begin(), pending_joins.end(), [&id](Pending_Joins const& item) { return item.lobby_id == id; });
-                                if (pd != pending_joins.end()) {
-                                    bool success = true;
-                                    LobbyEnter_t data;
-                                    data.m_ulSteamIDLobby = lobby->room_id();
-                                    data.m_rgfChatPermissions = 0; //Unused - Always 0
-                                    data.m_bLocked = false;
-                                    data.m_EChatRoomEnterResponse = success ? k_EChatRoomEnterResponseSuccess : k_EChatRoomEnterResponseError;
-                                    callback_results->addCallResult(pd->api_id, data.k_iCallback, &data, sizeof(data));
-                                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
-                                    pending_joins.erase(pd);
+                                auto pd = pending_joins.begin();
+                                while (pd != pending_joins.end()) {
+                                    if (pd->lobby_id == id) {
+                                        bool success = true;
+                                        LobbyEnter_t data;
+                                        data.m_ulSteamIDLobby = lobby->room_id();
+                                        data.m_rgfChatPermissions = 0; //Unused - Always 0
+                                        data.m_bLocked = false;
+                                        data.m_EChatRoomEnterResponse = success ? k_EChatRoomEnterResponseSuccess : k_EChatRoomEnterResponseError;
+                                        callback_results->addCallResult(pd->api_id, data.k_iCallback, &data, sizeof(data));
+                                        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                                        pd = pending_joins.erase(pd);
+                                        joined = true;
+                                    } else {
+                                        ++pd;
+                                    }
+                                }
+                                if (joined) {
                                     on_self_enter_leave_lobby((uint64)lobby->room_id(), lobby->type(), false);
                                     trigger_lobby_dataupdate((uint64)lobby->room_id(), (uint64)lobby->room_id(), true);
-                                    joined = true;
                                 }
                             } else {
                                 if (we_are_in_lobby) trigger_lobby_member_join_leave((uint64)lobby->room_id(), (uint64)m.id(), false, true);
@@ -1357,8 +1364,9 @@ void Callback(Common_Message *msg)
             if (lobby->owner() == settings->get_local_steam_id().ConvertToUint64()) {
                 if (msg->lobby_messages().type() == Lobby_Messages::JOIN) {
                     PRINT_DEBUG("LOBBY MESSAGE: JOIN\n");
-                    enter_lobby(lobby, (uint64)msg->source_id());
-                    trigger_lobby_member_join_leave((uint64)lobby->room_id(), (uint64)msg->source_id(), false, true, 0.01);
+                    if (enter_lobby(lobby, (uint64)msg->source_id())) {
+                        trigger_lobby_member_join_leave((uint64)lobby->room_id(), (uint64)msg->source_id(), false, true, 0.01);
+                    }
                 }
 
                 if (msg->lobby_messages().type() == Lobby_Messages::MEMBER_DATA) {
