@@ -138,7 +138,7 @@ void remove_connection(CSteamID id)
         auto msg = std::begin(unprocessed_messages);
         while (msg != std::end(unprocessed_messages)) {
             if (msg->source_id() == id.ConvertToUint64()) {
-                msg = messages.erase(msg);
+                msg = unprocessed_messages.erase(msg);
             } else {
                 ++msg;
             }
