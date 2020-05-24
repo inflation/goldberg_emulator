@@ -42,7 +42,7 @@ static void background_thread(Steam_Client *client)
             global_mutex.lock();
             PRINT_DEBUG("background thread run\n");
             client->network->Run();
-            client->steam_matchmaking->RunBackground();
+            client->run_every_runcb->run();
             global_mutex.unlock();
         }
     }
