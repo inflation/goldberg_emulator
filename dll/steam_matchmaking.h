@@ -89,12 +89,11 @@ public ISteamMatchmaking
     std::vector<struct Data_Requested> data_requested;
 
     std::map<uint64, ::google::protobuf::Map<std::string, std::string>> self_lobby_member_data;
-auto caseinsensitive_find(const ::google::protobuf::Map< ::std::string, ::std::string >& map, std::string key)
+google::protobuf::Map<std::string,std::string>::const_iterator caseinsensitive_find(const ::google::protobuf::Map< ::std::string, ::std::string >& map, std::string key)
 {
     auto x = map.begin();
     while (x != map.end()) {
-        if (std::equal(x->first.begin(), x->first.end(),
-                      key.begin(), key.end(),
+        if (key.size() == x->first.size() && std::equal(x->first.begin(), x->first.end(), key.begin(),
                       [](char a, char b) {
                           return tolower(a) == tolower(b);
                       })) {
