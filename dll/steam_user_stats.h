@@ -322,7 +322,7 @@ bool StoreStats()
     UserStatsStored_t data;
     data.m_nGameID = settings->get_local_game_id().ToUint64();
     data.m_eResult = k_EResultOK;
-    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data), 0.01);
     return true;
 }
 
