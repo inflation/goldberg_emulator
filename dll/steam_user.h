@@ -374,8 +374,15 @@ SteamAPICall_t RequestEncryptedAppTicket( void *pDataToInclude, int cbDataToIncl
 bool GetEncryptedAppTicket( void *pTicket, int cbMaxTicket, uint32 *pcbTicket )
 {
     PRINT_DEBUG("Steam_User::GetEncryptedAppTicket %i\n", cbMaxTicket);
-    if (!pcbTicket || !pTicket) return false;
+    if (!pcbTicket) return false;
     unsigned int ticket_size = encrypted_app_ticket.size() + 126;
+    if (!cbMaxTicket) {
+        *pcbTicket = ticket_size;
+        return true;
+    }
+
+    if (!pTicket) return false;
+
     //TODO figure out exact sizes?
     if (ticket_size < cbMaxTicket) cbMaxTicket = ticket_size;
     char ticket_base[] = {0x08, 0x01};
