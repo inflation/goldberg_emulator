@@ -1158,6 +1158,11 @@ STEAMCLIENT_API void Steam_LogOn( HSteamUser hUser, HSteamPipe hSteamPipe, uint6
     PRINT_DEBUG("%s\n", __FUNCTION__);
 }
 
+STEAMCLIENT_API void Steam_ReleaseThreadLocalMemory(bool thread_exit)
+{
+    PRINT_DEBUG("%s\n", __FUNCTION__);
+}
+
 STEAMCLIENT_API void Steam_ReleaseUser( HSteamPipe hSteamPipe, HSteamUser hUser )
 {
     PRINT_DEBUG("%s\n", __FUNCTION__);
