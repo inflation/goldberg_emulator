@@ -671,7 +671,7 @@ uint32 GetSubscribedItems( PublishedFileId_t* pvecPublishedFileID, uint32 cMaxEn
 // get EItemState flags about item on this client
 uint32 GetItemState( PublishedFileId_t nPublishedFileID )
 {
-    PRINT_DEBUG("Steam_UGC::GetItemState\n");
+    PRINT_DEBUG("Steam_UGC::GetItemState %llu\n", nPublishedFileID);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     if (subscribed.count(nPublishedFileID)) {
         if (settings->isModInstalled(nPublishedFileID)) {
@@ -727,7 +727,7 @@ bool GetItemUpdateInfo( PublishedFileId_t nPublishedFileID, bool *pbNeedsUpdate,
 bool GetItemInstallInfo( PublishedFileId_t nPublishedFileID, uint64 *punSizeOnDisk, char *pchFolder, uint32 cchFolderSize ) // returns true if item is installed
 {
     PRINT_DEBUG("Steam_UGC::GetItemInstallInfo older\n");
-    return false;
+    return GetItemInstallInfo(nPublishedFileID, punSizeOnDisk, pchFolder, cchFolderSize, (uint32*) nullptr);
 }
 
 
