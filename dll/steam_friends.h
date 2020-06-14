@@ -999,6 +999,15 @@ void ActivateGameOverlayRemotePlayTogetherInviteDialog( CSteamID steamIDLobby )
     PRINT_DEBUG("Steam_Friends::ActivateGameOverlayRemotePlayTogetherInviteDialog\n");
 }
 
+// Call this before calling ActivateGameOverlayToWebPage() to have the Steam Overlay Browser block navigations
+// to your specified protocol (scheme) uris and instead dispatch a OverlayBrowserProtocolNavigation_t callback to your game.
+// ActivateGameOverlayToWebPage() must have been called with k_EActivateGameOverlayToWebPageMode_Modal
+bool RegisterProtocolInOverlayBrowser( const char *pchProtocol )
+{
+    PRINT_DEBUG("Steam_Friends::RegisterProtocolInOverlayBrowser\n");
+    return false;
+}
+
 void RunCallbacks()
 {
 	PRINT_DEBUG("Steam_Friends::RunCallbacks\n");

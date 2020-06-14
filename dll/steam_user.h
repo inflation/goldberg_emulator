@@ -29,6 +29,7 @@ public ISteamUser016,
 public ISteamUser017,
 public ISteamUser018,
 public ISteamUser019,
+public ISteamUser020,
 public ISteamUser
 {
     Settings *settings;
@@ -467,6 +468,15 @@ SteamAPICall_t GetDurationControl()
 {
     PRINT_DEBUG("GetDurationControl\n");
     return 0;
+}
+
+// Advise steam china duration control system about the online state of the game.
+// This will prevent offline gameplay time from counting against a user's
+// playtime limits.
+bool BSetDurationControlOnlineState( EDurationControlOnlineState eNewState )
+{
+    PRINT_DEBUG("BSetDurationControlOnlineState\n");
+    return false;
 }
 
 };

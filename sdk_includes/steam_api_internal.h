@@ -310,6 +310,7 @@ enum { k_iSteamSTARCallbacks = 5500 };
 enum { k_iClientSTARCallbacks = 5600 };
 enum { k_iSteamRemotePlayCallbacks = 5700 };
 enum { k_iClientCompatCallbacks = 5800 };
+enum { k_iSteamChatCallbacks = 5900 };
 
 #ifdef _MSVC_VER
 #pragma warning( pop )

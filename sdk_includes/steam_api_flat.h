@@ -56,6 +56,7 @@ STEAMAPI_API ISteamParties * SteamAPI_ISteamClient_GetISteamParties( ISteamClien
 STEAMAPI_API ISteamRemotePlay * SteamAPI_ISteamClient_GetISteamRemotePlay( ISteamClient* self, HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char * pchVersion );
 
 // ISteamUser
+STEAMAPI_API ISteamUser *SteamAPI_SteamUser_v021();
 STEAMAPI_API ISteamUser *SteamAPI_SteamUser_v020();
 STEAMAPI_API HSteamUser SteamAPI_ISteamUser_GetHSteamUser( ISteamUser* self );
 STEAMAPI_API bool SteamAPI_ISteamUser_BLoggedOn( ISteamUser* self );
@@ -88,6 +89,7 @@ STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneIdentifying( ISteamUser* self );
 STEAMAPI_API bool SteamAPI_ISteamUser_BIsPhoneRequiringVerification( ISteamUser* self );
 STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_GetMarketEligibility( ISteamUser* self );
 STEAMAPI_API SteamAPICall_t SteamAPI_ISteamUser_GetDurationControl( ISteamUser* self );
+STEAMAPI_API bool SteamAPI_ISteamUser_BSetDurationControlOnlineState( ISteamUser* self, EDurationControlOnlineState eNewState );
 
 // ISteamFriends
 STEAMAPI_API ISteamFriends *SteamAPI_SteamFriends_v017();
@@ -165,6 +167,7 @@ STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanPublic( ISteamFriends* self, uint
 STEAMAPI_API bool SteamAPI_ISteamFriends_IsClanOfficialGameGroup( ISteamFriends* self, uint64_steamid steamIDClan );
 STEAMAPI_API int SteamAPI_ISteamFriends_GetNumChatsWithUnreadPriorityMessages( ISteamFriends* self );
 STEAMAPI_API void SteamAPI_ISteamFriends_ActivateGameOverlayRemotePlayTogetherInviteDialog( ISteamFriends* self, uint64_steamid steamIDLobby );
+STEAMAPI_API bool SteamAPI_ISteamFriends_RegisterProtocolInOverlayBrowser( ISteamFriends* self, const char * pchProtocol );
 
 // ISteamUtils
 STEAMAPI_API ISteamUtils *SteamAPI_SteamUtils_v009();
@@ -374,6 +377,7 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_EnumeratePublishedWorks
 STEAMAPI_API SteamAPICall_t SteamAPI_ISteamRemoteStorage_UGCDownloadToLocation( ISteamRemoteStorage* self, UGCHandle_t hContent, const char * pchLocation, uint32 unPriority );
 
 // ISteamUserStats
+STEAMAPI_API ISteamUserStats *SteamAPI_SteamUserStats_v012();
 STEAMAPI_API ISteamUserStats *SteamAPI_SteamUserStats_v011();
 STEAMAPI_API bool SteamAPI_ISteamUserStats_RequestCurrentStats( ISteamUserStats* self );
 STEAMAPI_API bool SteamAPI_ISteamUserStats_GetStatInt32( ISteamUserStats* self, const char * pchName, int32 * pData );
@@ -418,6 +422,8 @@ STEAMAPI_API bool SteamAPI_ISteamUserStats_GetGlobalStatInt64( ISteamUserStats* 
 STEAMAPI_API bool SteamAPI_ISteamUserStats_GetGlobalStatDouble( ISteamUserStats* self, const char * pchStatName, double * pData );
 STEAMAPI_API int32 SteamAPI_ISteamUserStats_GetGlobalStatHistoryInt64( ISteamUserStats* self, const char * pchStatName, int64 * pData, uint32 cubData );
 STEAMAPI_API int32 SteamAPI_ISteamUserStats_GetGlobalStatHistoryDouble( ISteamUserStats* self, const char * pchStatName, double * pData, uint32 cubData );
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievementProgressLimitsInt32( ISteamUserStats* self, const char * pchName, int32 * pnMinProgress, int32 * pnMaxProgress );
+STEAMAPI_API bool SteamAPI_ISteamUserStats_GetAchievementProgressLimitsFloat( ISteamUserStats* self, const char * pchName, float * pfMinProgress, float * pfMaxProgress );
 
 // ISteamApps
 STEAMAPI_API ISteamApps *SteamAPI_SteamApps_v008();
@@ -450,6 +456,7 @@ STEAMAPI_API void SteamAPI_ISteamApps_RequestAllProofOfPurchaseKeys( ISteamApps*
 STEAMAPI_API SteamAPICall_t SteamAPI_ISteamApps_GetFileDetails( ISteamApps* self, const char * pszFileName );
 STEAMAPI_API int SteamAPI_ISteamApps_GetLaunchCommandLine( ISteamApps* self, char * pszCommandLine, int cubCommandLine );
 STEAMAPI_API bool SteamAPI_ISteamApps_BIsSubscribedFromFamilySharing( ISteamApps* self );
+STEAMAPI_API bool SteamAPI_ISteamApps_BIsTimedTrial( ISteamApps* self, uint32 * punSecondsAllowed, uint32 * punSecondsPlayed );
 
 // ISteamNetworking
 STEAMAPI_API ISteamNetworking *SteamAPI_SteamNetworking_v006();
@@ -811,6 +818,7 @@ STEAMAPI_API bool SteamAPI_ISteamInventory_SetPropertyBool( ISteamInventory* sel
 STEAMAPI_API bool SteamAPI_ISteamInventory_SetPropertyInt64( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName, int64 nValue );
 STEAMAPI_API bool SteamAPI_ISteamInventory_SetPropertyFloat( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamItemInstanceID_t nItemID, const char * pchPropertyName, float flValue );
 STEAMAPI_API bool SteamAPI_ISteamInventory_SubmitUpdateProperties( ISteamInventory* self, SteamInventoryUpdateHandle_t handle, SteamInventoryResult_t * pResultHandle );
+STEAMAPI_API bool SteamAPI_ISteamInventory_InspectItem( ISteamInventory* self, SteamInventoryResult_t * pResultHandle, const char * pchItemToken );
 
 // ISteamVideo
 STEAMAPI_API ISteamVideo *SteamAPI_SteamVideo_v002();
@@ -1052,6 +1060,15 @@ STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_ParseString( SteamNetworkingI
 
 // SteamNetworkingMessage_t
 STEAMAPI_API void SteamAPI_SteamNetworkingMessage_t_Release( SteamNetworkingMessage_t* self );
+
+// SteamNetworkingPOPIDRender
+STEAMAPI_API const char * SteamAPI_SteamNetworkingPOPIDRender_c_str( SteamNetworkingPOPIDRender* self );
+
+// SteamNetworkingIdentityRender
+STEAMAPI_API const char * SteamAPI_SteamNetworkingIdentityRender_c_str( SteamNetworkingIdentityRender* self );
+
+// SteamNetworkingIPAddrRender
+STEAMAPI_API const char * SteamAPI_SteamNetworkingIPAddrRender_c_str( SteamNetworkingIPAddrRender* self );
 
 // SteamDatagramHostedAddress
 STEAMAPI_API void SteamAPI_SteamDatagramHostedAddress_Clear( SteamDatagramHostedAddress* self );

@@ -303,3 +303,10 @@ bool Steam_Apps::BIsSubscribedFromFamilySharing()
     PRINT_DEBUG("BIsSubscribedFromFamilySharing\n");
     return false;
 }
+
+// check if game is a timed trial with limited playtime
+bool Steam_Apps::BIsTimedTrial( uint32* punSecondsAllowed, uint32* punSecondsPlayed )
+{
+    PRINT_DEBUG("BIsTimedTrial\n");
+    return false;
+}

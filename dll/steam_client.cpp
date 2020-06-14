@@ -269,6 +269,8 @@ ISteamUser *Steam_Client::GetISteamUser( HSteamUser hSteamUser, HSteamPipe hStea
         return (ISteamUser *)(void *)(ISteamUser018 *)steam_user;
     } else if (strcmp(pchVersion, "SteamUser019") == 0) {
         return (ISteamUser *)(void *)(ISteamUser019 *)steam_user;
+    } else if (strcmp(pchVersion, "SteamUser020") == 0) {
+        return (ISteamUser *)(void *)(ISteamUser020 *)steam_user;
     } else if (strcmp(pchVersion, STEAMUSER_INTERFACE_VERSION) == 0) {
         return (ISteamUser *)(void *)(ISteamUser *)steam_user;
     } else {
@@ -605,6 +607,8 @@ ISteamUserStats *Steam_Client::GetISteamUserStats( HSteamUser hSteamUser, HSteam
         return (ISteamUserStats *)(void *)(ISteamUserStats009 *)steam_user_stats;
     } else if (strcmp(pchVersion, "STEAMUSERSTATS_INTERFACE_VERSION010") == 0) {
         return (ISteamUserStats *)(void *)(ISteamUserStats010 *)steam_user_stats;
+    } else if (strcmp(pchVersion, "STEAMUSERSTATS_INTERFACE_VERSION011") == 0) {
+        return (ISteamUserStats *)(void *)(ISteamUserStats011 *)steam_user_stats;
     } else if (strcmp(pchVersion, STEAMUSERSTATS_INTERFACE_VERSION) == 0) {
         return (ISteamUserStats *)(void *)(ISteamUserStats *)steam_user_stats;
     } else {

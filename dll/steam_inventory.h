@@ -858,6 +858,12 @@ bool SubmitUpdateProperties( SteamInventoryUpdateHandle_t handle, SteamInventory
     return false;
 }
 
+bool InspectItem( SteamInventoryResult_t *pResultHandle, const char *pchItemToken )
+{
+    PRINT_DEBUG("InspectItem\n");
+    return false;
+}
+
 void RunCallbacks()
 {
     if (call_definition_update || !inventory_requests.empty()) {

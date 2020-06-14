@@ -40,6 +40,7 @@ public ISteamUserStats007,
 public ISteamUserStats008,
 public ISteamUserStats009,
 public ISteamUserStats010,
+public ISteamUserStats011,
 public ISteamUserStats
 {
 public:
@@ -855,6 +856,23 @@ int32 GetGlobalStatHistory( const char *pchStatName, STEAM_ARRAY_COUNT(cubData) 
     PRINT_DEBUG("GetGlobalStatHistory double %s\n", pchStatName);
     return 0;
 }
+
+// For achievements that have related Progress stats, use this to query what the bounds of that progress are.
+// You may want this info to selectively call IndicateAchievementProgress when appropriate milestones of progress
+// have been made, to show a progress notification to the user.
+bool GetAchievementProgressLimits( const char *pchName, int32 *pnMinProgress, int32 *pnMaxProgress )
+{
+    PRINT_DEBUG("GetAchievementProgressLimits int\n");
+    return false;
+}
+
+bool GetAchievementProgressLimits( const char *pchName, float *pfMinProgress, float *pfMaxProgress )
+{
+    PRINT_DEBUG("GetAchievementProgressLimits float\n");
+    return false;
+}
+
+
 };
 
 #endif//__INCLUDED_STEAM_USER_STATS_H__

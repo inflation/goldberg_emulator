@@ -97,4 +97,7 @@ public:
 
 	// Check if user borrowed this game via Family Sharing, If true, call GetAppOwner() to get the lender SteamID
 	bool BIsSubscribedFromFamilySharing();
+
+	// check if game is a timed trial with limited playtime
+	bool BIsTimedTrial( uint32* punSecondsAllowed, uint32* punSecondsPlayed );
 };
