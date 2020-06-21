@@ -540,6 +540,11 @@ bool TriggerItemDrop( SteamInventoryResult_t *pResultHandle, SteamItemDef_t drop
 {
     PRINT_DEBUG("TriggerItemDrop %p %i\n", pResultHandle, dropListDefinition);
     //TODO: if gameserver return false
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    struct Steam_Inventory_Requests* request = new_inventory_result(false);
+
+    if (pResultHandle != nullptr)
+        *pResultHandle = request->inventory_result;
     return true;
 }
 
