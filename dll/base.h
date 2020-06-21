@@ -161,9 +161,12 @@ CSteamID generate_steam_id_user();
 CSteamID generate_steam_id_server();
 CSteamID generate_steam_id_anonserver();
 CSteamID generate_steam_id_lobby();
+std::string get_full_lib_path();
 std::string get_full_program_path();
 std::string get_current_path();
 std::string canonical_path(std::string path);
+
+#define DEFAULT_CB_TIMEOUT 0.002
 
 class SteamCallResults {
     std::vector<struct Steam_Call_Result> callresults;
@@ -238,7 +241,7 @@ public:
         }
     }
 
-    SteamAPICall_t addCallResult(SteamAPICall_t api_call, int iCallback, void *result, unsigned int size, double timeout=0.0, bool run_call_completed_cb=true) {
+    SteamAPICall_t addCallResult(SteamAPICall_t api_call, int iCallback, void *result, unsigned int size, double timeout=DEFAULT_CB_TIMEOUT, bool run_call_completed_cb=true) {
         auto cb_result = std::find_if(callresults.begin(), callresults.end(), [api_call](struct Steam_Call_Result const& item) { return item.api_call == api_call; });
         if (cb_result != callresults.end()) {
             if (cb_result->reserved) {
@@ -266,7 +269,7 @@ public:
         return callresults.back().api_call;
     }
 
-    SteamAPICall_t addCallResult(int iCallback, void *result, unsigned int size, double timeout=0.0, bool run_call_completed_cb=true) {
+    SteamAPICall_t addCallResult(int iCallback, void *result, unsigned int size, double timeout=DEFAULT_CB_TIMEOUT, bool run_call_completed_cb=true) {
         return addCallResult(generate_steam_api_call_id(), iCallback, result, size, timeout, run_call_completed_cb);
     }
 
@@ -419,11 +422,11 @@ public:
     }
 
     void addCBResult(int iCallback, void *result, unsigned int size) {
-        addCBResult(iCallback, result, size, 0.0, false);
+        addCBResult(iCallback, result, size, DEFAULT_CB_TIMEOUT, false);
     }
 
     void addCBResult(int iCallback, void *result, unsigned int size, bool dont_post_if_already) {
-        addCBResult(iCallback, result, size, 0.0, dont_post_if_already);
+        addCBResult(iCallback, result, size, DEFAULT_CB_TIMEOUT, dont_post_if_already);
     }
 
     void addCBResult(int iCallback, void *result, unsigned int size, double timeout) {

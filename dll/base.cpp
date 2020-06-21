@@ -191,6 +191,19 @@ std::string get_lib_path() {
 }
 #endif
 
+std::string get_full_lib_path()
+{
+    std::string program_path;
+#if defined(STEAM_WIN32)
+    char   DllPath[MAX_PATH] = {0};
+    GetModuleFileName((HINSTANCE)&__ImageBase, DllPath, _countof(DllPath));
+    program_path = DllPath;
+#else
+    program_path = get_lib_path();
+#endif
+    return program_path;
+}
+
 std::string get_full_program_path()
 {
     std::string env_program_path = get_env_variable("SteamAppPath");
@@ -203,15 +216,8 @@ std::string get_full_program_path()
     }
 
     std::string program_path;
-#if defined(STEAM_WIN32)
-    char   DllPath[MAX_PATH] = {0};
-    GetModuleFileName((HINSTANCE)&__ImageBase, DllPath, _countof(DllPath));
-    program_path = DllPath;
-#else
-    program_path = get_lib_path();
-#endif
-    program_path = program_path.substr(0, program_path.rfind(PATH_SEPARATOR)).append(PATH_SEPARATOR);
-    return program_path;
+    program_path = get_full_lib_path();
+    return program_path.substr(0, program_path.rfind(PATH_SEPARATOR)).append(PATH_SEPARATOR);
 }
 
 std::string get_current_path()
