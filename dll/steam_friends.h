@@ -502,6 +502,10 @@ bool IsUserInSource( CSteamID steamIDUser, CSteamID steamIDSource )
         if (settings->get_lobby() == steamIDSource) {
             return true;
         }
+
+        if (settings->subscribed_groups.find(steamIDSource.ConvertToUint64()) != settings->subscribed_groups.end()) {
+            return true;
+        }
     } else {
         Friend *f = find_friend(steamIDUser);
         if (!f) return false;

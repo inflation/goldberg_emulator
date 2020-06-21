@@ -512,6 +512,28 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     }
 
     {
+        std::string depots_config_path = Local_Storage::get_game_settings_path() + "subscribed_groups.txt";
+        std::ifstream input( depots_config_path );
+        if (input.is_open()) {
+            consume_bom(input);
+            for( std::string line; getline( input, line ); ) {
+                if (!line.empty() && line[line.length()-1] == '\n') {
+                    line.pop_back();
+                }
+
+                if (!line.empty() && line[line.length()-1] == '\r') {
+                    line.pop_back();
+                }
+
+                uint64 source_id = stoull(line);
+                settings_client->subscribed_groups.insert(source_id);
+                settings_server->subscribed_groups.insert(source_id);
+                PRINT_DEBUG("Added source %llu\n", source_id);
+            }
+        }
+    }
+
+    {
         std::string mod_path = Local_Storage::get_game_settings_path() + "mods";
         std::vector<std::string> paths = Local_Storage::get_filenames_path(mod_path);
         for (auto & p: paths) {

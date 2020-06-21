@@ -132,6 +132,9 @@ public:
     std::map<std::string, Stat_config> getStats() { return stats; }
     void setStatDefiniton(std::string name, struct Stat_config stat_config) {stats[name] = stat_config; }
 
+    //subscribed lobby/group ids
+    std::set<uint64> subscribed_groups;
+
     //images
     std::map<int, struct Image_Data> images;
     int add_image(std::string data, uint32 width, uint32 height);
