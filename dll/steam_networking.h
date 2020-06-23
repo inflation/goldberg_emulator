@@ -149,8 +149,9 @@ void remove_connection(CSteamID id)
 SNetSocket_t create_connection_socket(CSteamID target, int nVirtualPort, uint32 nIP, uint16 nPort, SNetListenSocket_t id=0, enum steam_socket_connection_status status=SOCKET_CONNECTING, SNetSocket_t other_id=0)
 {
     static SNetSocket_t socket_number = 0;
-    bool found = 0;
+    bool found;
     do {
+        found = false;
         ++socket_number;
         for (auto & c: connection_sockets) {
             if (c.id == socket_number || socket_number == 0) {
