@@ -116,7 +116,7 @@ bool Steam_HTTP::SetHTTPRequestGetOrPostParameter( HTTPRequestHandle hRequest, c
 // header and only do a local cache lookup rather than sending any actual remote request.
 bool Steam_HTTP::SendHTTPRequest( HTTPRequestHandle hRequest, SteamAPICall_t *pCallHandle )
 {
-    PRINT_DEBUG("SendHTTPRequest\n");
+    PRINT_DEBUG("SendHTTPRequest %u %p\n", hRequest, pCallHandle);
     Steam_Http_Request *request = get_request(hRequest);
     if (!request) {
         return false;
@@ -276,7 +276,12 @@ bool Steam_HTTP::GetHTTPDownloadProgressPct( HTTPRequestHandle hRequest, float *
 bool Steam_HTTP::SetHTTPRequestRawPostBody( HTTPRequestHandle hRequest, const char *pchContentType, uint8 *pubBody, uint32 unBodyLen )
 {
     PRINT_DEBUG("SetHTTPRequestRawPostBody\n");
-    return false;
+    Steam_Http_Request *request = get_request(hRequest);
+    if (!request) {
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -360,5 +365,11 @@ bool Steam_HTTP::SetHTTPRequestAbsoluteTimeoutMS( HTTPRequestHandle hRequest, ui
 bool Steam_HTTP::GetHTTPRequestWasTimedOut( HTTPRequestHandle hRequest, bool *pbWasTimedOut )
 {
     PRINT_DEBUG("GetHTTPRequestWasTimedOut\n");
-    return false;
+    Steam_Http_Request *request = get_request(hRequest);
+    if (!request) {
+        return false;
+    }
+
+    if (pbWasTimedOut) *pbWasTimedOut = false;
+    return true;
 }
