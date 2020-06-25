@@ -453,6 +453,11 @@ STEAM_METHOD_DESC(GrantPromoItems() checks the list of promotional items for whi
 bool GrantPromoItems( SteamInventoryResult_t *pResultHandle )
 {
     PRINT_DEBUG("GrantPromoItems\n");
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    struct Steam_Inventory_Requests* request = new_inventory_result(false);
+
+    if (pResultHandle != nullptr)
+        *pResultHandle = request->inventory_result;
     return true;
 }
 
@@ -464,13 +469,25 @@ bool GrantPromoItems( SteamInventoryResult_t *pResultHandle )
 bool AddPromoItem( SteamInventoryResult_t *pResultHandle, SteamItemDef_t itemDef )
 {
     PRINT_DEBUG("AddPromoItem\n");
-    return false;
+    //TODO
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    struct Steam_Inventory_Requests* request = new_inventory_result(false);
+
+    if (pResultHandle != nullptr)
+        *pResultHandle = request->inventory_result;
+    return true;
 }
 
 bool AddPromoItems( SteamInventoryResult_t *pResultHandle, STEAM_ARRAY_COUNT(unArrayLength) const SteamItemDef_t *pArrayItemDefs, uint32 unArrayLength )
 {
     PRINT_DEBUG("AddPromoItems\n");
-    return false;
+    //TODO
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    struct Steam_Inventory_Requests* request = new_inventory_result(false);
+
+    if (pResultHandle != nullptr)
+        *pResultHandle = request->inventory_result;
+    return true;
 }
 
 
