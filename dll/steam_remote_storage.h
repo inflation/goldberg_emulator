@@ -144,7 +144,7 @@ SteamAPICall_t FileReadAsync( const char *pchFile, uint32 nOffset, uint32 cubToR
     a_read.size = size;
 
     async_reads.push_back(a_read);
-    callback_results->addCallResult(data.m_hFileReadAsync, data.k_iCallback, &data, sizeof(data));
+    callback_results->addCallResult(data.m_hFileReadAsync, data.k_iCallback, &data, sizeof(data), 0.0);
     return data.m_hFileReadAsync;
 }
 
