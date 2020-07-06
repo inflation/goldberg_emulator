@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <stdio.h>
 
 bool IsNotRelativePathOrRemoveFileName(CHAR* output, bool Remove)
 {
@@ -29,7 +30,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	CHAR ClientPath[MAX_PATH] = { 0 };
 	CHAR ExeFile[MAX_PATH] = { 0 };
 	CHAR ExeRunDir[MAX_PATH] = { 0 };
-	CHAR ExeCommandLine[300] = { 0 };
+	CHAR ExeCommandLine[4096] = { 0 };
 	CHAR AppId[128] = { 0 };
 
 	STARTUPINFOA info = { sizeof(info) };
@@ -51,7 +52,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	GetPrivateProfileStringA("SteamClient", "SteamClientDll", "", ClientPath, MAX_PATH, CurrentDirectory);
 	GetPrivateProfileStringA("SteamClient", "Exe", NULL, ExeFile, MAX_PATH, CurrentDirectory);
 	GetPrivateProfileStringA("SteamClient", "ExeRunDir", NULL, ExeRunDir, MAX_PATH, CurrentDirectory);
-	GetPrivateProfileStringA("SteamClient", "ExeCommandLine", NULL, ExeCommandLine, 300, CurrentDirectory);
+	GetPrivateProfileStringA("SteamClient", "ExeCommandLine", NULL, ExeCommandLine, 4096, CurrentDirectory);
 	GetPrivateProfileStringA("SteamClient", "AppId", NULL, AppId, sizeof(AppId), CurrentDirectory);
 
 	if (AppId[0]) {
@@ -100,7 +101,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		ExitProcess(NULL);
 	}
 
-	if (!ExeFile[0] || !CreateProcessA(ExeFile, ExeCommandLine, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, ExeRunDir, &info, &processInfo))
+	CHAR CommandLine[8192];
+	snprintf(CommandLine, sizeof(CommandLine), "\"%s\" %s", ExeFile, ExeCommandLine);
+	if (!ExeFile[0] || !CreateProcessA(ExeFile, CommandLine, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, ExeRunDir, &info, &processInfo))
 	{
 		MessageBoxA(NULL, "Unable to load the requested EXE file.", "ColdClientLoader", MB_ICONERROR);
 		ExitProcess(NULL);
@@ -132,13 +135,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 					RegSetValueExA(Registrykey, "SteamClientDll", NULL, REG_SZ, (LPBYTE)ClientPath, (DWORD)lstrlenA(ClientPath) + 1);
 				}
 				else {
-					RegSetValueExA(Registrykey, "SteamClientDll", NULL, REG_SZ, (LPBYTE)"", (DWORD)lstrlenA(ClientPath) + 1);
+					RegSetValueExA(Registrykey, "SteamClientDll", NULL, REG_SZ, (LPBYTE)"", 0);
 				}
 				if (GetFileAttributesA(Client64Path) != INVALID_FILE_ATTRIBUTES) {
 					RegSetValueExA(Registrykey, "SteamClientDll64", NULL, REG_SZ, (LPBYTE)Client64Path, (DWORD)lstrlenA(Client64Path) + 1);
 				}
 				else {
-					RegSetValueExA(Registrykey, "SteamClientDll64", NULL, REG_SZ, (LPBYTE)"", (DWORD)lstrlenA(Client64Path) + 1);
+					RegSetValueExA(Registrykey, "SteamClientDll64", NULL, REG_SZ, (LPBYTE)"", 0);
 				}
 			}
 			RegSetValueExA(Registrykey, "Universe", NULL, REG_SZ, (LPBYTE)"Public", (DWORD)lstrlenA("Public") + 1);
@@ -176,13 +179,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 				RegSetValueExA(Registrykey, "SteamClientDll", NULL, REG_SZ, (LPBYTE)ClientPath, (DWORD)lstrlenA(ClientPath) + 1);
 			}
 			else {
-				RegSetValueExA(Registrykey, "SteamClientDll", NULL, REG_SZ, (LPBYTE)"", (DWORD)lstrlenA(ClientPath) + 1);
+				RegSetValueExA(Registrykey, "SteamClientDll", NULL, REG_SZ, (LPBYTE)"", 0);
 			}
 			if (GetFileAttributesA(Client64Path) != INVALID_FILE_ATTRIBUTES) {
 				RegSetValueExA(Registrykey, "SteamClientDll64", NULL, REG_SZ, (LPBYTE)Client64Path, (DWORD)lstrlenA(Client64Path) + 1);
 			}
 			else {
-				RegSetValueExA(Registrykey, "SteamClientDll64", NULL, REG_SZ, (LPBYTE)"", (DWORD)lstrlenA(Client64Path) + 1);
+				RegSetValueExA(Registrykey, "SteamClientDll64", NULL, REG_SZ, (LPBYTE)"", 0);
 			}
 		}
 		RegSetValueExA(Registrykey, "Universe", NULL, REG_SZ, (LPBYTE)"Public", (DWORD)lstrlenA("Public") + 1);
