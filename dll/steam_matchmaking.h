@@ -739,6 +739,7 @@ CSteamID GetLobbyMemberByIndex( CSteamID steamIDLobby, int iMember )
 const char *GetLobbyData( CSteamID steamIDLobby, const char *pchKey )
 {
     PRINT_DEBUG("GetLobbyData %llu %s\n", steamIDLobby.ConvertToUint64(), pchKey);
+    if (!pchKey) return "";
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     Lobby *lobby = get_lobby(steamIDLobby);
     const char *ret = "";
@@ -844,6 +845,7 @@ bool DeleteLobbyData( CSteamID steamIDLobby, const char *pchKey )
 const char *GetLobbyMemberData( CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey )
 {
     PRINT_DEBUG("GetLobbyMemberData %s %llu %llu\n", pchKey, steamIDLobby.ConvertToUint64(), steamIDUser.ConvertToUint64());
+    if (!pchKey) return "";
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     struct Lobby_Member *member = get_lobby_member(get_lobby(steamIDLobby), steamIDUser);
     const char *ret = "";
