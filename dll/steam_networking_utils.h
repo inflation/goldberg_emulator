@@ -349,6 +349,23 @@ bool SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr *pAddr, const char
 void SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity &identity, char *buf, size_t cbBuf )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SteamNetworkingIdentity_ToString\n");
+    if (identity.m_eType == k_ESteamNetworkingIdentityType_SteamID)
+    {
+        if (buf != nullptr)
+        {
+            std::string str("steamid:");
+            str += std::move(std::to_string(identity.GetSteamID64()));
+            strncpy(buf, str.c_str(), cbBuf);
+            buf[cbBuf - 1] = '\0';
+        }
+    }
+    else
+    {
+        if (cbBuf != 0 && buf != nullptr)
+        {
+            *buf = '\0';
+        }
+    }
 }
 
 bool SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity *pIdentity, const char *pszStr )
