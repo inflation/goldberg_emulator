@@ -338,40 +338,291 @@ ESteamNetworkingConfigValue GetFirstConfigValue()
 void SteamNetworkingIPAddr_ToString( const SteamNetworkingIPAddr &addr, char *buf, size_t cbBuf, bool bWithPort )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SteamNetworkingIPAddr_ToString\n");
+    if (buf == nullptr || cbBuf == 0)
+        return;
+
+    char buffer[64]; // Its enought for ipv4 & ipv6 + port
+    std::string str_addr;
+    if (addr.IsIPv4())
+    {
+        in_addr ipv4_addr;
+        ipv4_addr.s_addr = htonl(addr.GetIPv4());
+
+        if (inet_ntop(AF_INET, &ipv4_addr, buffer, sizeof(buffer) / sizeof(*buffer)) != nullptr)
+        {
+            if (bWithPort)
+            {
+                str_addr = buffer;
+                str_addr += ':';
+                str_addr += std::to_string(addr.m_port);
+            }
+            else
+            {
+                str_addr = buffer;
+            }
+        }
+    }
+    else
+    {
+        in6_addr ipv6_addr;
+        memcpy(ipv6_addr.s6_addr, addr.m_ipv6, sizeof(addr.m_ipv6));
+
+        if (inet_ntop(AF_INET6, &ipv6_addr, buffer, sizeof(buffer) / sizeof(*buffer)) != nullptr)
+        {
+            if (bWithPort)
+            {
+                str_addr = '[';
+                str_addr += buffer;
+                str_addr += "]:";
+                str_addr += std::to_string(addr.m_port);
+            }
+            else
+            {
+                str_addr = buffer;
+            }
+        }
+    }
+
+    cbBuf = std::min<size_t>(cbBuf, str_addr.length() + 1);
+    strncpy(buf, str_addr.c_str(), cbBuf);
+    buf[cbBuf - 1] = '\0';
 }
 
 bool SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr *pAddr, const char *pszStr )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SteamNetworkingIPAddr_ParseString\n");
-    return false;
+    
+    bool valid = false;
+
+    if (pAddr == nullptr || pszStr == nullptr)
+        return valid;
+
+    std::string str(pszStr);
+    size_t pos = str.find(':');
+
+    if (pos != std::string::npos)
+    {// Try ipv4 with port
+        in_addr ipv4_addr;
+        std::string tmp(str);
+        tmp[pos] = 0;
+        const char* ip = tmp.c_str();
+        const char* port = &tmp[pos + 1];
+
+        if (inet_pton(AF_INET, ip, &ipv4_addr) == 1)
+        {
+            valid = true;
+            pAddr->SetIPv4(ntohl(ipv4_addr.s_addr), strtoul(port, nullptr, 10));
+        }
+    }
+    else
+    {// Try ipv4 without port
+        in_addr ipv4_addr;
+        if (inet_pton(AF_INET, str.c_str(), &ipv4_addr) == 1)
+        {
+            valid = true;
+            pAddr->SetIPv4(ntohl(ipv4_addr.s_addr), 0);
+        }
+    }
+
+    if (!valid)
+    {// Try ipv6
+        addrinfo* info = nullptr;
+        addrinfo hints = {};
+        hints.ai_family = AF_INET6;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+
+        size_t sep_pos = 0;
+        std::string ip;
+        int sep_count = 0;
+        for (int i = 0; i < str.length(); ++i)
+        {
+            if (str[i] == ':')
+            {
+                sep_pos = i;
+                ++sep_count;
+            }
+        }
+        if (sep_count == 8)
+        {
+            ip = std::move(std::string(str.begin(), str.begin() + sep_pos));
+        }
+        else
+        {
+            ip = str;
+        }
+
+        if (getaddrinfo(ip.c_str(), nullptr, &hints, &info) == 0)
+        {
+            sockaddr_in6* maddr = (sockaddr_in6*)info->ai_addr;
+
+            size_t pos = str.find(']');
+            std::string str_port("0");
+            if (pos != std::string::npos)
+            {
+                str_port = std::move(std::string(str.begin() + pos + 2, str.end()));
+            }
+            else if (sep_count == 8)
+            {
+                str_port = std::move(std::string(str.begin() + sep_pos + 1, str.end()));
+            }
+            try
+            {
+                int port = std::stoi(str_port);
+                if (port >= 0 && port <= 65535)
+                {
+                    pAddr->SetIPv6(maddr->sin6_addr.s6_addr, port);
+                    valid = true;
+                }
+            }
+            catch(...)
+            { }
+        }
+
+        if (info)
+        {
+            freeaddrinfo(info);
+        }
+    }
+
+    if (!valid)
+    {
+        pAddr->Clear();
+    }
+
+    return valid;
 }
 
 void SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity &identity, char *buf, size_t cbBuf )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SteamNetworkingIdentity_ToString\n");
-    if (identity.m_eType == k_ESteamNetworkingIdentityType_SteamID)
+    if (buf == nullptr)
+        return;
+
+    std::string str;
+    str.reserve(SteamNetworkingIdentity::k_cchMaxString);
+    switch (identity.m_eType)
     {
-        if (buf != nullptr)
+        case k_ESteamNetworkingIdentityType_SteamID:
         {
-            std::string str("steamid:");
+            str = "steamid:";
             str += std::move(std::to_string(identity.GetSteamID64()));
-            strncpy(buf, str.c_str(), cbBuf);
-            buf[cbBuf - 1] = '\0';
         }
-    }
-    else
-    {
-        if (cbBuf != 0 && buf != nullptr)
+        break;
+
+        case k_ESteamNetworkingIdentityType_IPAddress:
         {
-            *buf = '\0';
+            str = "ip:";
+            char buff[SteamNetworkingIPAddr::k_cchMaxString];
+            auto& addr = *identity.GetIPAddr();
+            SteamNetworkingIPAddr_ToString(addr, buff, sizeof(buff), true);
+            str += buff;
         }
+        break;
+
+        case k_ESteamNetworkingIdentityType_GenericBytes:
+        {
+            int generic_len;
+            const uint8* pBuf = identity.GetGenericBytes(generic_len);
+
+            str = "gen:";
+            str.resize(4 + (generic_len * 2));
+
+            char* pDest = &str[4];
+            while(generic_len--)
+            {
+                // I don't care for the last char, I've reserved the max string size
+                snprintf(pDest, 3, "%02x", *pBuf); 
+                ++pBuf;
+                pDest += 2;
+            }
+        }
+        break;
+
+        case k_ESteamNetworkingIdentityType_GenericString:
+        {
+            str = "str:";
+            str += identity.GetGenericString();
+        }
+        break;
+
+        case k_ESteamNetworkingIdentityType_UnknownType:
+        {
+            str = identity.m_szUnknownRawString;
+        }
+        break;
     }
+    cbBuf = std::min<size_t>(cbBuf, str.length() + 1);
+    strncpy(buf, str.c_str(), cbBuf);
+    buf[cbBuf - 1] = '\0';
 }
 
 bool SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity *pIdentity, const char *pszStr )
 {
     PRINT_DEBUG("Steam_Networking_Utils::SteamNetworkingIdentity_ParseString\n");
-    return false;
+    bool valid = false;
+    if (pIdentity == nullptr)
+    {
+        return valid;
+    }
+
+    if (pszStr != nullptr)
+    {
+        const char* end = strchr(pszStr, ':');
+        if (end != nullptr)
+        {
+            ++end;
+            if (strncmp(pszStr, "gen:", end - pszStr) == 0)
+            {
+                size_t length = strlen(end);
+                if (!(length % 2) && length <= (sizeof(pIdentity->m_genericBytes) * 2))
+                {// Must be even
+                    valid = true;
+                    length /= 2;
+                    pIdentity->m_eType = k_ESteamNetworkingIdentityType_GenericBytes;
+                    pIdentity->m_cbSize = length;
+                    uint8* pBytes = pIdentity->m_genericBytes;
+
+                    char hex[3] = { 0,0,0 };
+                    while (length)
+                    {
+                        hex[0] = end[0];
+                        hex[1] = end[1];
+                        // Steam doesn't check if wasn't a hex char
+                        *pBytes = strtol(hex, nullptr, 16);
+
+                        ++pBytes;
+                        end += 2;
+                        --length;
+                    }
+                }
+            }
+            else if (strncmp(pszStr, "steamid:", end - pszStr) == 0)
+            {
+                CSteamID steam_id(uint64(strtoull(end, nullptr, 10)));
+                if (steam_id.IsValid())
+                {
+                    valid = true;
+                    pIdentity->SetSteamID(steam_id);
+                }
+            }
+            else if (strncmp(pszStr, "str:", end - pszStr) == 0)
+            {
+                valid = pIdentity->SetGenericString(end);
+            }
+            else if (strncmp(pszStr, "ip:", end - pszStr) == 0)
+            {
+                SteamNetworkingIPAddr steam_addr;
+                if (SteamNetworkingIPAddr_ParseString(&steam_addr, end))
+                {
+                    valid = true;
+                    pIdentity->SetIPAddr(steam_addr);
+                }
+            }
+        }
+    }
+
+    return valid;
 }
 
 
