@@ -2,7 +2,6 @@
 #define __INCLUDED_RENDERER_DETECTOR_H__
 
 #include "Base_Hook.h"
-#include <thread>
 
 #ifdef EMU_OVERLAY
 #ifdef __WINDOWS__

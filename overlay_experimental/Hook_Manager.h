@@ -5,8 +5,6 @@
 
 #ifdef EMU_OVERLAY
 
-#include <set>
-
 class Hook_Manager
 {
     friend class Base_Hook;

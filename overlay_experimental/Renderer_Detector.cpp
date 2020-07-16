@@ -1,11 +1,9 @@
 #include "Renderer_Detector.h"
 #include "Hook_Manager.h"
 
-#include <algorithm>
-
 constexpr int max_hook_retries = 500;
 
-#ifdef STEAM_WIN32
+#ifdef __WINDOWS__
 #include "windows/DX12_Hook.h"
 #include "windows/DX11_Hook.h"
 #include "windows/DX10_Hook.h"
