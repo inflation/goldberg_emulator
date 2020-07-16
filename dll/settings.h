@@ -15,11 +15,10 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include "base.h"
-#include <set>
-
 #ifndef SETTINGS_INCLUDE
 #define SETTINGS_INCLUDE
+
+#include "base.h"
 
 struct DLC_entry {
     AppId_t appID;

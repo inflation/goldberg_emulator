@@ -125,7 +125,7 @@ DX9_Hook::DX9_Hook():
     PresentEx(nullptr),
     Reset(nullptr)
 {
-    _library = LoadLibrary(DLL_NAME);
+    _library = LoadLibrary(DX9_DLL);
 }
 
 DX9_Hook::~DX9_Hook()
@@ -153,7 +153,7 @@ DX9_Hook* DX9_Hook::Inst()
 
 const char* DX9_Hook::get_lib_name() const
 {
-    return DLL_NAME;
+    return DX9_DLL;
 }
 
 void DX9_Hook::loadFunctions(IDirect3DDevice9* pDevice, bool ex)

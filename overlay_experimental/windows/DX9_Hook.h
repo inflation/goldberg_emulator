@@ -10,7 +10,7 @@
 class DX9_Hook : public Base_Hook
 {
 public:
-    static constexpr const char *DLL_NAME = "d3d9.dll";
+    #define DX9_DLL "d3d9.dll"
 
 private:
     static DX9_Hook* _inst;

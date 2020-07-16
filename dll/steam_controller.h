@@ -16,8 +16,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
-#include "../controller/gamepad.h"
-#include <cctype>
 
 struct Controller_Map {
     std::map<ControllerDigitalActionHandle_t, std::set<int>> active_digital;

@@ -56,8 +56,6 @@
 
 #include "../overlay_experimental/steam_overlay.h"
 
-#include <thread>
-
 enum Steam_Pipe {
     NO_USER,
     CLIENT,

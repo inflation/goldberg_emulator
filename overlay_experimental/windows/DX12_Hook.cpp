@@ -254,7 +254,7 @@ DX12_Hook::DX12_Hook():
     ResizeTarget(nullptr),
     ExecuteCommandLists(nullptr)
 {
-    _library = LoadLibrary(DLL_NAME);
+    _library = LoadLibrary(DX12_DLL);
 
     PRINT_DEBUG("DX12 support is experimental, don't complain if it doesn't work as expected.\n");
 }
@@ -296,7 +296,7 @@ DX12_Hook* DX12_Hook::Inst()
 
 const char* DX12_Hook::get_lib_name() const
 {
-    return DLL_NAME;
+    return DX12_DLL;
 }
 
 void DX12_Hook::loadFunctions(ID3D12CommandQueue* pCommandQueue, IDXGISwapChain *pSwapChain)

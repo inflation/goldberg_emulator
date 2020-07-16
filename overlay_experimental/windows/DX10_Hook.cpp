@@ -122,7 +122,7 @@ DX10_Hook::DX10_Hook():
     ResizeBuffers(nullptr),
     ResizeTarget(nullptr)
 {
-    _library = LoadLibrary(DLL_NAME);
+    _library = LoadLibrary(DX10_DLL);
 }
 
 DX10_Hook::~DX10_Hook()
@@ -154,7 +154,7 @@ DX10_Hook* DX10_Hook::Inst()
 
 const char* DX10_Hook::get_lib_name() const
 {
-    return DLL_NAME;
+    return DX10_DLL;
 }
 
 void DX10_Hook::loadFunctions(IDXGISwapChain *pSwapChain)

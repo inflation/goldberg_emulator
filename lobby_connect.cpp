@@ -19,7 +19,7 @@
 */
 
 #include "sdk_includes/steam_api.h"
-#include "dll/defines.h"
+#include "dll/common_includes.h"
 
 #include <iostream>
 #include <chrono>

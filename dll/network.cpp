@@ -17,22 +17,6 @@
 
 #include "network.h"
 
-#if defined(STEAM_WIN32)
-
-#define MSG_NOSIGNAL 0
-
-#else
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <linux/netdevice.h>
-#include <netdb.h>
-#endif
-
 #define MAX_BROADCASTS 16
 static int number_broadcasts = -1;
 static IP_PORT broadcasts[MAX_BROADCASTS];
@@ -44,8 +28,6 @@ static uint32_t upper_range_ips[MAX_BROADCASTS];
 #define USER_TIMEOUT 20.0
 
 #if defined(STEAM_WIN32)
-
-#include <iphlpapi.h>
 
 //windows xp support
 static int
@@ -484,18 +466,6 @@ static bool recv_tcp(struct TCP_Socket &socket)
             socket.received_data = true;
             return true;
         }
-    }
-
-    return false;
-}
-
-bool check_timedout(std::chrono::high_resolution_clock::time_point old, double timeout)
-{
-    if (timeout == 0.0) return true;
-
-    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-    if (std::chrono::duration_cast<std::chrono::duration<double>>(now - old).count() > timeout) {
-        return true;
     }
 
     return false;

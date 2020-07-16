@@ -18,78 +18,14 @@
 #ifndef BASE_INCLUDE
 #define BASE_INCLUDE
 
-#if defined(WIN64) || defined(_WIN64) || defined(__MINGW64__)
-    #define __WINDOWS_64__
-#elif defined(WIN32) || defined(_WIN32) || defined(__MINGW32__)
-	#define __WINDOWS_32__
-#endif
-
-#if defined(__WINDOWS_32__) || defined(__WINDOWS_64__)
-	#define __WINDOWS__
-#endif
-
-#if defined(__linux__) || defined(linux)
-    #if defined(__x86_64__)
-        #define __LINUX_64__
-    #else
-        #define __LINUX_32__
-    #endif
-#endif
-
-#if defined(__LINUX_32__) || defined(__LINUX_64__)
-    #define __LINUX__
-#endif
-
-#if defined(__WINDOWS__)
-#define STEAM_WIN32
-#ifndef NOMINMAX
-# define NOMINMAX
-#endif
-#endif
-
-#define STEAM_API_EXPORTS
-#include "../sdk_includes/steam_gameserver.h"
-#include "../sdk_includes/steamdatagram_tickets.h"
-
-#include <algorithm>
-#include <vector>
-#include <map>
-#include <mutex>
-
-//#define PRINT_DEBUG(...) {FILE *t = fopen("STEAM_LOG.txt", "a"); fprintf(t, __VA_ARGS__); fclose(t);}
-#ifdef STEAM_WIN32
-#include <winsock2.h>
-#include <windows.h>
-#include <ws2tcpip.h>
-#include <processthreadsapi.h>
-EXTERN_C IMAGE_DOS_HEADER __ImageBase;
-#define PATH_SEPARATOR "\\"
-#ifndef EMU_RELEASE_BUILD
-#define PRINT_DEBUG(a, ...) do {FILE *t = fopen("STEAM_LOG.txt", "a"); fprintf(t, "%u " a, GetCurrentThreadId(), __VA_ARGS__); fclose(t); WSASetLastError(0);} while (0)
-#endif
-#else
-#include <arpa/inet.h>
-#define PATH_SEPARATOR "/" 
-#ifndef EMU_RELEASE_BUILD
-#define PRINT_DEBUG(...) {FILE *t = fopen("STEAM_LOG.txt", "a"); fprintf(t, __VA_ARGS__); fclose(t);}
-#endif
-#endif
-//#define PRINT_DEBUG(...) fprintf(stdout, __VA_ARGS__)
-#ifdef EMU_RELEASE_BUILD
-#define PRINT_DEBUG(...)
-#endif
-
-#include "settings.h"
-#include "local_storage.h"
-#include "network.h"
-
-#include "defines.h"
+#include "common_includes.h"
 
 #define PUSH_BACK_IF_NOT_IN(vector, element) { if(std::find(vector.begin(), vector.end(), element) == vector.end()) vector.push_back(element); }
 
 extern std::recursive_mutex global_mutex;
 
 std::string get_env_variable(std::string name);
+bool check_timedout(std::chrono::high_resolution_clock::time_point old, double timeout);
 
 class CCallbackMgr
 {

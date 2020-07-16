@@ -9,7 +9,7 @@
 class Windows_Hook : public Base_Hook
 {
 public:
-    static constexpr const char* DLL_NAME = "user32.dll";
+    #define WINDOWS_DLL "user32.dll"
 
 private:
     static Windows_Hook* _inst;

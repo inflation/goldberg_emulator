@@ -28,18 +28,6 @@
 #include "base.h"
 #include "dll.h"
 
-
-#include <dirent.h>
-#include <dlfcn.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <sys/mount.h>
-#include <sys/stat.h>
-#include <sys/statvfs.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <utime.h>
-
 #define PATH_SEPARATOR_CHAR '/'
 #define STEAM_PATH_CACHE_SIZE 4096
 

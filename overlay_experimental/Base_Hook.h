@@ -3,9 +3,6 @@
 
 #ifdef EMU_OVERLAY
 
-#include <vector>
-#include <utility>
-
 #include "../dll/base.h"
 
 class Base_Hook

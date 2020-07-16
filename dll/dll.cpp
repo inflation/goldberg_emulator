@@ -44,7 +44,6 @@ static char old_inventory[128] = "STEAMINVENTORY_INTERFACE_V001";
 static char old_video[128] = "STEAMVIDEO_INTERFACE_V001";
 static char old_masterserver_updater[128] = "SteamMasterServerUpdater001";
 
-#include <fstream>
 static void load_old_interface_versions()
 {
     static bool loaded = false;

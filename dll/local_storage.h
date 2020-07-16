@@ -15,14 +15,10 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include "base.h"
-#include <vector>
-
 #ifndef LOCAL_STORAGE_INCLUDE
 #define LOCAL_STORAGE_INCLUDE
 
-#include <string>
-#include "../json/json.hpp"
+#include "base.h"
 
 #define MAX_FILENAME_LENGTH 300
 

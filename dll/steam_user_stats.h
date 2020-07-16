@@ -21,10 +21,6 @@
 #include "base.h"
 #include "../overlay_experimental/steam_overlay.h"
 
-#include <iomanip>
-#include <fstream>
-#include "../json/json.hpp"
-
 struct Steam_Leaderboard {
     std::string name;
     ELeaderboardSortMethod sort_method;

@@ -16,10 +16,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "settings_parser.h"
-#include <fstream>
-#include <cctype>
-#include <sstream>
-#include <iterator>
 
 static void consume_bom(std::ifstream &input)
 {

@@ -16,7 +16,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
-#include <list>
 
 //packet timeout in seconds for non connections
 #define ORPHANED_PACKET_TIMEOUT (20)
@@ -278,16 +277,16 @@ bool SendP2PPacket( CSteamID steamIDRemote, const void *pubData, uint32 cubData,
     Common_Message msg;
     msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
     msg.set_dest_id(steamIDRemote.ConvertToUint64());
-    msg.set_allocated_network(new Network);
+    msg.set_allocated_network(new Network_pb);
 
     if (!connection_exists(steamIDRemote)) {
-        msg.mutable_network()->set_type(Network::NEW_CONNECTION);
+        msg.mutable_network()->set_type(Network_pb::NEW_CONNECTION);
         network->sendTo(&msg, true);
     }
 
     msg.mutable_network()->set_channel(nChannel);
     msg.mutable_network()->set_data(pubData, cubData);
-    msg.mutable_network()->set_type(Network::DATA);
+    msg.mutable_network()->set_type(Network_pb::DATA);
 
     struct Steam_Networking_Connection *conn = get_or_create_connection(steamIDRemote);
     new_connection_times.erase(steamIDRemote);
@@ -914,11 +913,11 @@ void Callback(Common_Message *msg)
         }PRINT_DEBUG("\n");
 #endif
 
-        if (msg->network().type() == Network::DATA) {
+        if (msg->network().type() == Network_pb::DATA) {
             unprocessed_messages.push_back(Common_Message(*msg));
         }
 
-        if (msg->network().type() == Network::NEW_CONNECTION) {
+        if (msg->network().type() == Network_pb::NEW_CONNECTION) {
             std::lock_guard<std::recursive_mutex> lock(messages_mutex);
             auto msg_temp = std::begin(messages);
             while (msg_temp != std::end(messages)) {

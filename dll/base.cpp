@@ -17,13 +17,7 @@
 
 #include "base.h"
 
-#ifdef STEAM_WIN32
-#include <windows.h>
-#include <direct.h>
-
-#define SystemFunction036 NTAPI SystemFunction036
-#include <ntsecapi.h>
-#undef SystemFunction036
+#ifdef __WINDOWS__
 
 static void
 randombytes(char * const buf, const size_t size)
@@ -45,11 +39,6 @@ std::string get_env_variable(std::string name)
 }
 
 #else
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 static int fd = -1;
 
@@ -149,9 +138,19 @@ CSteamID generate_steam_id_lobby()
     return CSteamID(generate_account_id(), k_unSteamUserDefaultInstance | k_EChatInstanceFlagLobby, k_EUniversePublic, k_EAccountTypeChat);
 }
 
-#ifndef STEAM_WIN32
-#include <sys/types.h>
-#include <dirent.h>
+bool check_timedout(std::chrono::high_resolution_clock::time_point old, double timeout)
+{
+    if (timeout == 0.0) return true;
+
+    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    if (std::chrono::duration_cast<std::chrono::duration<double>>(now - old).count() > timeout) {
+        return true;
+    }
+
+    return false;
+}
+
+#ifdef __LINUX__
 std::string get_lib_path() {
   std::string dir = "/proc/self/map_files";
   DIR *dp;
@@ -194,7 +193,7 @@ std::string get_lib_path() {
 std::string get_full_lib_path()
 {
     std::string program_path;
-#if defined(STEAM_WIN32)
+#if defined(__WINDOWS__)
     char   DllPath[MAX_PATH] = {0};
     GetModuleFileName((HINSTANCE)&__ImageBase, DllPath, _countof(DllPath));
     program_path = DllPath;
@@ -474,8 +473,7 @@ void Auth_Ticket_Manager::Callback(Common_Message *msg)
 }
 
 #ifdef EMU_EXPERIMENTAL_BUILD
-#ifdef STEAM_WIN32
-#include "../detours/detours.h"
+#ifdef __WINDOWS__
 
 struct ips_test {
     uint32_t ip_from;
@@ -596,13 +594,6 @@ inline bool file_exists (const std::string& name) {
   return (stat (name.c_str(), &buffer) == 0); 
 }
 
-#ifdef DETOURS_64BIT
-#define DLL_NAME "steam_api64.dll"
-#else
-#define DLL_NAME "steam_api.dll"
-#endif
-
-
 HMODULE (WINAPI *Real_GetModuleHandleA)(LPCSTR lpModuleName) = GetModuleHandleA;
 HMODULE WINAPI Mine_GetModuleHandleA(LPCSTR lpModuleName)
 {
@@ -647,12 +638,6 @@ static void load_dll()
         PRINT_DEBUG("Loaded crack file\n");
     }
 }
-
-#ifdef DETOURS_64BIT
-#define LUMA_CEG_DLL_NAME "LumaCEG_Plugin_x64.dll"
-#else
-#define LUMA_CEG_DLL_NAME "LumaCEG_Plugin_x86.dll"
-#endif
 
 static void load_lumaCEG()
 {
@@ -700,7 +685,6 @@ bool crack_SteamAPI_Init()
 
     return false;
 }
-#include <winhttp.h>
 
 HINTERNET (WINAPI *Real_WinHttpConnect)(
   IN HINTERNET     hSession,

@@ -18,8 +18,6 @@
 #include "steam_client.h"
 #include "settings_parser.h"
 
-#include <condition_variable>
-
 static std::condition_variable kill_background_thread_cv;
 static std::atomic_bool kill_background_thread;
 static void background_thread(Steam_Client *client)

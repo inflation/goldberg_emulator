@@ -79,7 +79,7 @@ message Low_Level {
     Types type = 1;
 }
 
-message Network {
+message Network_pb {
     uint32 channel = 1;
     bytes data = 2;
 
@@ -204,7 +204,7 @@ message Common_Message {
         Low_Level low_level = 4;
         Lobby lobby = 5;
         Lobby_Messages lobby_messages = 6;
-        Network network = 7;
+        Network_pb network = 7;
         Gameserver gameserver = 8;
         Friend friend = 9;
         Auth_Ticket auth_ticket = 10;

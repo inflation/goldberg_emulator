@@ -15,13 +15,10 @@
    License along with the Goldberg Emulator; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include "base.h"
-
 #ifndef NETWORK_INCLUDE
 #define NETWORK_INCLUDE
 
-#include "net.pb.h"
-#include <chrono>
+#include "base.h"
 
 inline bool protobuf_message_equal(const google::protobuf::MessageLite& msg_a,
                 const google::protobuf::MessageLite& msg_b) {
@@ -37,8 +34,6 @@ typedef unsigned int sock_t;
 #else
 typedef int sock_t;
 #endif
-
-bool check_timedout(std::chrono::high_resolution_clock::time_point old, double timeout);
 
 struct IP_PORT {
     uint32 ip;

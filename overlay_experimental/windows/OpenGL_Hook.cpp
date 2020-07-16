@@ -108,7 +108,7 @@ OpenGL_Hook::OpenGL_Hook():
     hooked(false),
     wglSwapBuffers(nullptr)
 {
-    _library = LoadLibrary(DLL_NAME);
+    _library = LoadLibrary(OPENGL_DLL);
 }
 
 OpenGL_Hook::~OpenGL_Hook()
@@ -136,7 +136,7 @@ OpenGL_Hook* OpenGL_Hook::Inst()
 
 const char* OpenGL_Hook::get_lib_name() const
 {
-    return DLL_NAME;
+    return OPENGL_DLL;
 }
 
 void OpenGL_Hook::loadFunctions(wglSwapBuffers_t pfnwglSwapBuffers)

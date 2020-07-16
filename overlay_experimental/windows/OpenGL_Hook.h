@@ -7,7 +7,7 @@
 class OpenGL_Hook : public Base_Hook
 {
 public:
-    static constexpr const char *DLL_NAME = "opengl32.dll";
+    #define OPENGL_DLL "opengl32.dll"
 
     using wglSwapBuffers_t = BOOL(WINAPI*)(HDC);
 

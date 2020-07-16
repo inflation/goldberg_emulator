@@ -16,7 +16,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
-#include <queue>
 
 class Steam_Game_Coordinator :
 public ISteamGameCoordinator

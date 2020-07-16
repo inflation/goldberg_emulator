@@ -220,7 +220,7 @@ void Renderer_Detector::hook_dx9()
 
         IDirect3D9Ex* pD3D = nullptr;
         IUnknown* pDevice = nullptr;
-        HMODULE library = GetModuleHandle(DX9_Hook::DLL_NAME);
+        HMODULE library = GetModuleHandle(DX9_DLL);
         decltype(Direct3DCreate9Ex)* Direct3DCreate9Ex = nullptr;
         if (library != nullptr)
         {
@@ -279,7 +279,7 @@ void Renderer_Detector::hook_dx10()
 
         IDXGISwapChain* pSwapChain = nullptr;
         ID3D10Device* pDevice = nullptr;
-        HMODULE library = GetModuleHandle(DX10_Hook::DLL_NAME);
+        HMODULE library = GetModuleHandle(DX10_DLL);
         if (library != nullptr)
         {
             decltype(D3D10CreateDeviceAndSwapChain)* D3D10CreateDeviceAndSwapChain =
@@ -332,7 +332,7 @@ void Renderer_Detector::hook_dx11()
 
         IDXGISwapChain* pSwapChain = nullptr;
         ID3D11Device* pDevice = nullptr;
-        HMODULE library = GetModuleHandle(DX11_Hook::DLL_NAME);
+        HMODULE library = GetModuleHandle(DX11_DLL);
         if (library != nullptr)
         {
             decltype(D3D11CreateDeviceAndSwapChain)* D3D11CreateDeviceAndSwapChain =
@@ -391,7 +391,7 @@ void Renderer_Detector::hook_dx12()
         ID3D12CommandAllocator* pCommandAllocator = nullptr;
         ID3D12GraphicsCommandList* pCommandList = nullptr;
 
-        HMODULE library = GetModuleHandle(DX12_Hook::DLL_NAME);
+        HMODULE library = GetModuleHandle(DX12_DLL);
         if (library != nullptr)
         {
             decltype(D3D12CreateDevice)* D3D12CreateDevice =
@@ -473,7 +473,7 @@ void Renderer_Detector::hook_opengl()
 {
     if (!_ogl_hooked && !_renderer_found)
     {
-        HMODULE library = GetModuleHandle(OpenGL_Hook::DLL_NAME);
+        HMODULE library = GetModuleHandle(OPENGL_DLL);
         decltype(wglMakeCurrent)* wglMakeCurrent = nullptr;
         OpenGL_Hook::wglSwapBuffers_t wglSwapBuffers = nullptr;
         if (library != nullptr)
@@ -500,15 +500,15 @@ void Renderer_Detector::hook_opengl()
 
 void Renderer_Detector::create_hook(const char* libname)
 {
-    if (!_stricmp(libname, DX9_Hook::DLL_NAME))
+    if (!_stricmp(libname, DX9_DLL))
         hook_dx9();
-    else if (!_stricmp(libname, DX10_Hook::DLL_NAME))
+    else if (!_stricmp(libname, DX10_DLL))
         hook_dx10();
-    else if (!_stricmp(libname, DX11_Hook::DLL_NAME))
+    else if (!_stricmp(libname, DX11_DLL))
         hook_dx11();
-    else if (!_stricmp(libname, DX12_Hook::DLL_NAME))
+    else if (!_stricmp(libname, DX12_DLL))
         hook_dx12();
-    else if (!_stricmp(libname, OpenGL_Hook::DLL_NAME))
+    else if (!_stricmp(libname, OPENGL_DLL))
         hook_opengl();
 }
 
@@ -519,11 +519,11 @@ void Renderer_Detector::find_renderer_proc(Renderer_Detector* _this)
     hm.AddHook(_this->rendererdetect_hook);
 
     std::vector<std::string> const libraries = {
-        OpenGL_Hook::DLL_NAME,
-        DX12_Hook::DLL_NAME,
-        DX11_Hook::DLL_NAME,
-        DX10_Hook::DLL_NAME,
-        DX9_Hook::DLL_NAME
+        OPENGL_DLL,
+        DX12_DLL,
+        DX11_DLL,
+        DX10_DLL,
+        DX9_DLL
     };
 
     while (!_this->_renderer_found && !_this->stop_retry())

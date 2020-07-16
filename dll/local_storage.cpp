@@ -17,11 +17,6 @@
 
 #include "local_storage.h"
 
-#include <fstream>
-#include <algorithm>
-#include <iterator>
-#include <iomanip>
-
 struct File_Data {
     std::string name;
 };
@@ -149,8 +144,7 @@ std::vector<std::string> Local_Storage::get_filenames_path(std::string path)
 }
 
 #else
-#if defined(WIN32) || defined(_WIN32)
-#include <windows.h>
+#if defined(__WINDOWS__)
 
 static BOOL DirectoryExists(LPCSTR szPath)
 {
@@ -175,11 +169,6 @@ static void create_directory(std::string strPath)
     if (DirectoryExists(strPath.c_str()) == FALSE)
         createDirectoryRecursively(strPath);
 }
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <string.h>
-
 
 static std::vector<struct File_Data> get_filenames(std::string strPath)
 {
@@ -250,14 +239,7 @@ static std::vector<struct File_Data> get_filenames_recursive(std::string base_pa
     return output;
 }
 
-#else 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <dirent.h>
-
-#define PATH_MAX_STRING_SIZE 512
+#else
 
 /* recursive mkdir */
 static int mkdir_p(const char *dir, const mode_t mode) {
@@ -396,11 +378,6 @@ std::string Local_Storage::get_game_settings_path()
 {
     return get_program_path().append(game_settings_folder).append(PATH_SEPARATOR);
 }
-
-#if defined(STEAM_WIN32)
-#include <shlobj.h>
-#include <sstream>
-#endif
 
 std::string Local_Storage::get_user_appdata_path()
 {

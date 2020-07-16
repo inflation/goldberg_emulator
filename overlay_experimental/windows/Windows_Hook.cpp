@@ -203,7 +203,7 @@ Windows_Hook* Windows_Hook::Inst()
 
 const char* Windows_Hook::get_lib_name() const
 {
-    return DLL_NAME;
+    return WINDOWS_DLL;
 }
 
 #endif//EMU_OVERLAY

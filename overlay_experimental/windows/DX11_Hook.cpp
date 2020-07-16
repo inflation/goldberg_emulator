@@ -167,7 +167,7 @@ DX11_Hook::DX11_Hook():
     ResizeBuffers(nullptr),
     ResizeTarget(nullptr)
 {
-    _library = LoadLibrary(DLL_NAME);
+    _library = LoadLibrary(DX11_DLL);
 }
 
 DX11_Hook::~DX11_Hook()
@@ -204,7 +204,7 @@ DX11_Hook* DX11_Hook::Inst()
 
 const char* DX11_Hook::get_lib_name() const
 {
-    return DLL_NAME;
+    return DX11_DLL;
 }
 
 void DX11_Hook::loadFunctions(IDXGISwapChain *pSwapChain)

@@ -16,7 +16,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h" // For SteamItemDef_t
-#include "../json/json.hpp"
 
 struct Steam_Inventory_Requests {
     double timeout = 0.1;
