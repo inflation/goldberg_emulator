@@ -1187,7 +1187,11 @@ void RunCallbacks()
                     } else {
                         try {
                             PRINT_DEBUG("%s\n", value->second.c_str());
-                            int compare_to = std::stoll(value->second, 0, 0);
+                            int compare_to = 0;
+                            //TODO: check if this is how real steam behaves
+                            if (value->second.size()) {
+                                compare_to = std::stoll(value->second, 0, 0);
+                            }
                             PRINT_DEBUG("Compare Values %i %i\n", compare_to, f.value_int);
                             if (f.eComparisonType == k_ELobbyComparisonEqual) {
                                 if (compare_to == f.value_int) {
