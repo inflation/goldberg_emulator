@@ -103,10 +103,9 @@ struct Avatar_Numbers add_friend_avatars(CSteamID id)
 
     //TODO: get real image data from self/other peers
     struct Avatar_Numbers avatar_numbers;
-    char zero_array[184 * 184 * 4] = {};
-    std::string small_avatar(zero_array, 32 * 32 * 4);
-    std::string medium_avatar(zero_array, 64 * 64 * 4);
-    std::string large_avatar(zero_array, 184 * 184 * 4);
+    std::string small_avatar(32 * 32 * 4, 0);
+    std::string medium_avatar(64 * 64 * 4, 0);
+    std::string large_avatar(184 * 184 * 4, 0);
 
     avatar_numbers.smallest = settings->add_image(small_avatar, 32, 32);
     avatar_numbers.medium = settings->add_image(medium_avatar, 64, 64);
