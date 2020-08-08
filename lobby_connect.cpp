@@ -45,10 +45,10 @@ top:
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
 
-        int friend_count = SteamFriends()->GetFriendCount(0);
+        int friend_count = SteamFriends()->GetFriendCount(k_EFriendFlagAll);
         std::cout << "People on the network: " << friend_count << std::endl;
         for (int i = 0; i < friend_count; ++i) {
-            CSteamID id = SteamFriends()->GetFriendByIndex(i, 0);
+            CSteamID id = SteamFriends()->GetFriendByIndex(i, k_EFriendFlagAll);
             const char *name = SteamFriends()->GetFriendPersonaName(id);
 
             FriendGameInfo_t friend_info = {};
@@ -60,7 +60,7 @@ top:
 
         std::vector<std::string> arguments;
         for (int i = 0; i < friend_count; ++i) {
-            CSteamID id = SteamFriends()->GetFriendByIndex(i, 0);
+            CSteamID id = SteamFriends()->GetFriendByIndex(i, k_EFriendFlagAll);
             const char *name = SteamFriends()->GetFriendPersonaName(id);
             const char *connect = SteamFriends()->GetFriendRichPresence( id, "connect");
             FriendGameInfo_t friend_info = {};
