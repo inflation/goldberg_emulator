@@ -300,7 +300,7 @@ bool GetAchievementAndUnlockTime( const char *pchName, bool *pbAchieved, uint32 
 
     if(pbAchieved != nullptr) *pbAchieved = false;
     if(punUnlockTime != nullptr) *punUnlockTime = 0;
-    return true;
+    return false;
 }
 
 
