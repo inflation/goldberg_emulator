@@ -1100,7 +1100,7 @@ bool SetLobbyJoinable( CSteamID steamIDLobby, bool bLobbyJoinable )
 
 
 // returns the current lobby owner
-// you must be a member of the lobby to access this
+// you must be a member of the lobby to access this (Mr_Goldberg note: This is a lie)
 // there always one lobby owner - if the current owner leaves, another user will become the owner
 // it is possible (bur rare) to join a lobby just as the owner is leaving, thus entering a lobby with self as the owner
 CSteamID GetLobbyOwner( CSteamID steamIDLobby )
@@ -1110,11 +1110,8 @@ CSteamID GetLobbyOwner( CSteamID steamIDLobby )
     Lobby *lobby = get_lobby(steamIDLobby);
     if (!lobby || lobby->deleted()) return k_steamIDNil;
 
-    Lobby_Member *member = get_lobby_member(lobby, settings->get_local_steam_id());
-    CSteamID id = k_steamIDNil;
-    if (member) id = (uint64)lobby->owner();
-
-    return id;
+    //TODO: might be better to require the lobby info to be at least requested first.
+    return (uint64)lobby->owner();
 }
 
 
