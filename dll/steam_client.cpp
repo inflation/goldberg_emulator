@@ -471,8 +471,10 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
             return (void *)(ISteamNetworkingSocketsSerialized002 *)steam_networking_sockets_serialized_temp;
         } else if (strcmp(pchVersion, "SteamNetworkingSocketsSerialized003") == 0) {
             return (void *)(ISteamNetworkingSocketsSerialized003 *)steam_networking_sockets_serialized_temp;
+        } else if (strcmp(pchVersion, "SteamNetworkingSocketsSerialized004") == 0) {
+            return (void *)(ISteamNetworkingSocketsSerialized004 *)steam_networking_sockets_serialized_temp;
         } else {
-            return (void *)(ISteamNetworkingSocketsSerialized003 *)steam_networking_sockets_serialized_temp;
+            return (void *)(ISteamNetworkingSocketsSerialized004 *)steam_networking_sockets_serialized_temp;
         }
     } else if (strstr(pchVersion, "SteamNetworkingSockets") == pchVersion) {
         Steam_Networking_Sockets *steam_networking_sockets_temp;
