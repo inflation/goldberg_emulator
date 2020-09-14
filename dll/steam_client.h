@@ -43,6 +43,7 @@
 #include "steam_game_coordinator.h"
 #include "steam_networking_socketsserialized.h"
 #include "steam_networking_sockets.h"
+#include "steam_networking_messages.h"
 #include "steam_networking_utils.h"
 #include "steam_unified_messages.h"
 #include "steam_gamesearch.h"
@@ -108,6 +109,7 @@ public:
     Steam_Parental *steam_parental;
     Steam_Networking_Sockets *steam_networking_sockets;
     Steam_Networking_Sockets_Serialized *steam_networking_sockets_serialized;
+    Steam_Networking_Messages *steam_networking_messages;
     Steam_Game_Coordinator *steam_game_coordinator;
     Steam_Networking_Utils *steam_networking_utils;
     Steam_Unified_Messages *steam_unified_messages;
@@ -126,6 +128,7 @@ public:
     Steam_Apps *steam_gameserver_apps;
     Steam_Networking_Sockets *steam_gameserver_networking_sockets;
     Steam_Networking_Sockets_Serialized *steam_gameserver_networking_sockets_serialized;
+    Steam_Networking_Messages *steam_gameserver_networking_messages;
     Steam_Game_Coordinator *steam_gameserver_game_coordinator;
     Steam_Masterserver_Updater *steam_masterserver_updater;
 

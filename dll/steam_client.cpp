@@ -85,6 +85,7 @@ Steam_Client::Steam_Client()
     steam_parental = new Steam_Parental();
     steam_networking_sockets = new Steam_Networking_Sockets(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_networking_sockets_serialized = new Steam_Networking_Sockets_Serialized(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
+    steam_networking_messages = new Steam_Networking_Messages(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_game_coordinator = new Steam_Game_Coordinator(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_networking_utils = new Steam_Networking_Utils(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
     steam_unified_messages = new Steam_Unified_Messages(settings_client, network, callback_results_client, callbacks_client, run_every_runcb);
@@ -104,6 +105,7 @@ Steam_Client::Steam_Client()
     steam_gameserver_apps = new Steam_Apps(settings_server, callback_results_server);
     steam_gameserver_networking_sockets = new Steam_Networking_Sockets(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
     steam_gameserver_networking_sockets_serialized = new Steam_Networking_Sockets_Serialized(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
+    steam_gameserver_networking_messages = new Steam_Networking_Messages(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
     steam_gameserver_game_coordinator = new Steam_Game_Coordinator(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
     steam_masterserver_updater = new Steam_Masterserver_Updater(settings_server, network, callback_results_server, callbacks_server, run_every_runcb);
 
@@ -390,6 +392,8 @@ ISteamUtils *Steam_Client::GetISteamUtils( HSteamPipe hSteamPipe, const char *pc
         return (ISteamUtils *)(void *)(ISteamUtils007 *)steam_utils_temp;
     } else if (strcmp(pchVersion, "SteamUtils008") == 0) {
         return (ISteamUtils *)(void *)(ISteamUtils008 *)steam_utils_temp;
+    } else if (strcmp(pchVersion, "SteamUtils009") == 0) {
+        return (ISteamUtils *)(void *)(ISteamUtils009 *)steam_utils_temp;
     } else if (strcmp(pchVersion, STEAMUTILS_INTERFACE_VERSION) == 0) {
         return (ISteamUtils *)(void *)(ISteamUtils *)steam_utils_temp;
     } else {
@@ -492,9 +496,20 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
             return (void *)(ISteamNetworkingSockets003 *) steam_networking_sockets_temp;
         } else if (strcmp(pchVersion, "SteamNetworkingSockets006") == 0) {
             return (void *)(ISteamNetworkingSockets006 *) steam_networking_sockets_temp;
+        } else if (strcmp(pchVersion, "SteamNetworkingSockets008") == 0) {
+            return (void *)(ISteamNetworkingSockets008 *) steam_networking_sockets_temp;
         } else {
             return (void *)(ISteamNetworkingSockets *) steam_networking_sockets_temp;
         }
+    } else if (strstr(pchVersion, "SteamNetworkingMessages") == pchVersion) {
+        Steam_Networking_Messages *steam_networking_messages_temp;
+        if (server) {
+            steam_networking_messages_temp = steam_gameserver_networking_messages;
+        } else {
+            steam_networking_messages_temp = steam_networking_messages;
+        }
+
+        return (void *)(ISteamNetworkingMessages *)steam_networking_messages_temp;
     } else if (strstr(pchVersion, "SteamGameCoordinator") == pchVersion) {
         Steam_Game_Coordinator *steam_game_coordinator_temp;
         if (server) {

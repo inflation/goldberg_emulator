@@ -757,6 +757,16 @@ STEAMAPI_API bool SteamAPI_ISteamFriends_RegisterProtocolInOverlayBrowser( IStea
     return (get_steam_client()->steam_friends)->RegisterProtocolInOverlayBrowser(pchProtocol);
 }
 
+STEAMAPI_API ISteamUtils *SteamAPI_SteamUtils_v010()
+{
+    return get_steam_client()->GetISteamUtils(flat_hsteampipe(), "SteamUtils010");
+}
+
+STEAMAPI_API ISteamUtils *SteamAPI_SteamGameServerUtils_v010()
+{
+    return get_steam_client()->GetISteamUtils(flat_gs_hsteampipe(), "SteamUtils010");
+}
+
 STEAMAPI_API ISteamUtils *SteamAPI_SteamUtils_v009()
 {
     return get_steam_client()->GetISteamUtils(flat_hsteampipe(), "SteamUtils009");
@@ -1127,28 +1137,14 @@ STEAMAPI_API bool SteamAPI_ISteamUtils_IsSteamChinaLauncher( ISteamUtils* self )
     return (ptr)->IsSteamChinaLauncher();
 }
 
-STEAMAPI_API bool SteamAPI_ISteamUtils_InitFilterText( ISteamUtils* self )
+STEAMAPI_API bool SteamAPI_ISteamUtils_InitFilterText( ISteamUtils* self, uint32 unFilterOptions )
 {
-    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
-    auto ptr = get_steam_client()->steam_gameserver_utils;
-    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
-        ptr = get_steam_client()->steam_utils;
-    }
-
-    return (ptr)->InitFilterText();
+    return (self)->InitFilterText(unFilterOptions);
 }
 
-STEAMAPI_API int SteamAPI_ISteamUtils_FilterText( ISteamUtils* self, char * pchOutFilteredText, uint32 nByteSizeOutFilteredText, const char * pchInputMessage, bool bLegalOnly )
+int SteamAPI_ISteamUtils_FilterText( ISteamUtils* self, ETextFilteringContext eContext, uint64_steamid sourceSteamID, const char * pchInputMessage, char * pchOutFilteredText, uint32 nByteSizeOutFilteredText )
 {
-    int test1 = ((char *)self - (char*)get_steam_client()->steam_utils);
-    int test2 = ((char *)self - (char*)get_steam_client()->steam_gameserver_utils);
-    auto ptr = get_steam_client()->steam_gameserver_utils;
-    if (test1 >= 0 && (test2 < 0 || test1 < test2)) {
-        ptr = get_steam_client()->steam_utils;
-    }
-
-    return (ptr)->FilterText(pchOutFilteredText, nByteSizeOutFilteredText, pchInputMessage, bLegalOnly);
+    return (self)->FilterText(eContext, sourceSteamID, pchInputMessage, pchOutFilteredText, nByteSizeOutFilteredText);
 }
 
 STEAMAPI_API ESteamIPv6ConnectivityState SteamAPI_ISteamUtils_GetIPv6ConnectivityState( ISteamUtils* self, ESteamIPv6ConnectivityProtocol eProtocol )
@@ -5111,6 +5107,56 @@ STEAMAPI_API bool SteamAPI_ISteamRemotePlay_BSendRemotePlayTogetherInvite( IStea
     return self->BSendRemotePlayTogetherInvite(steamIDFriend);
 }
 
+STEAMAPI_API ISteamNetworkingMessages *SteamAPI_SteamNetworkingMessages_v002()
+{
+    return (ISteamNetworkingMessages *)get_steam_client()->GetISteamGenericInterface(flat_hsteamuser(), flat_hsteampipe(), "SteamNetworkingMessages002");
+}
+
+STEAMAPI_API ISteamNetworkingMessages *SteamAPI_SteamGameServerNetworkingMessages_v002()
+{
+    return (ISteamNetworkingMessages *)get_steam_client()->GetISteamGenericInterface(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "SteamNetworkingMessages002");
+}
+
+STEAMAPI_API EResult SteamAPI_ISteamNetworkingMessages_SendMessageToUser( ISteamNetworkingMessages* self, const SteamNetworkingIdentity & identityRemote, const void * pubData, uint32 cubData, int nSendFlags, int nRemoteChannel )
+{
+    return self->SendMessageToUser(identityRemote, pubData, cubData, nSendFlags, nRemoteChannel);
+}
+
+STEAMAPI_API int SteamAPI_ISteamNetworkingMessages_ReceiveMessagesOnChannel( ISteamNetworkingMessages* self, int nLocalChannel, SteamNetworkingMessage_t ** ppOutMessages, int nMaxMessages )
+{
+    return self->ReceiveMessagesOnChannel(nLocalChannel, ppOutMessages, nMaxMessages);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingMessages_AcceptSessionWithUser( ISteamNetworkingMessages* self, const SteamNetworkingIdentity & identityRemote )
+{
+    return self->AcceptSessionWithUser(identityRemote);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingMessages_CloseSessionWithUser( ISteamNetworkingMessages* self, const SteamNetworkingIdentity & identityRemote )
+{
+    return self->CloseSessionWithUser(identityRemote);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingMessages_CloseChannelWithUser( ISteamNetworkingMessages* self, const SteamNetworkingIdentity & identityRemote, int nLocalChannel )
+{
+    return self->CloseChannelWithUser(identityRemote, nLocalChannel);
+}
+
+STEAMAPI_API ESteamNetworkingConnectionState SteamAPI_ISteamNetworkingMessages_GetSessionConnectionInfo( ISteamNetworkingMessages* self, const SteamNetworkingIdentity & identityRemote, SteamNetConnectionInfo_t * pConnectionInfo, SteamNetworkingQuickConnectionStatus * pQuickStatus )
+{
+    return self->GetSessionConnectionInfo(identityRemote, pConnectionInfo, pQuickStatus);
+}
+
+STEAMAPI_API ISteamNetworkingSockets *SteamAPI_SteamNetworkingSockets_v009()
+{
+    return (ISteamNetworkingSockets *)get_steam_client()->GetISteamGenericInterface(flat_hsteamuser(), flat_hsteampipe(), "SteamNetworkingSockets009");
+}
+
+STEAMAPI_API ISteamNetworkingSockets *SteamAPI_SteamGameServerNetworkingSockets_v009()
+{
+    return (ISteamNetworkingSockets *)get_steam_client()->GetISteamGenericInterface(flat_gs_hsteamuser(), flat_gs_hsteampipe(), "SteamNetworkingSockets009");
+}
+
 STEAMAPI_API ISteamNetworkingSockets *SteamAPI_SteamNetworkingSockets_v008()
 {
     return (ISteamNetworkingSockets *)get_steam_client()->GetISteamGenericInterface(flat_hsteamuser(), flat_hsteampipe(), "SteamNetworkingSockets008");
@@ -5296,9 +5342,9 @@ STEAMAPI_API EResult SteamAPI_ISteamNetworkingSockets_GetGameCoordinatorServerLo
     return self->GetGameCoordinatorServerLogin(pLoginInfo, pcbSignedBlob, pBlob);
 }
 
-STEAMAPI_API HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectP2PCustomSignaling( ISteamNetworkingSockets* self, ISteamNetworkingConnectionCustomSignaling * pSignaling, const SteamNetworkingIdentity * pPeerIdentity, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+STEAMAPI_API HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectP2PCustomSignaling( ISteamNetworkingSockets* self, ISteamNetworkingConnectionCustomSignaling * pSignaling, const SteamNetworkingIdentity * pPeerIdentity, int nRemoteVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
 {
-    return self->ConnectP2PCustomSignaling(pSignaling, pPeerIdentity, nOptions, pOptions);
+    return self->ConnectP2PCustomSignaling(pSignaling, pPeerIdentity, nRemoteVirtualPort, nOptions, pOptions);
 }
 
 STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_ReceivedP2PCustomSignal( ISteamNetworkingSockets* self, const void * pMsg, int cbMsg, ISteamNetworkingCustomSignalingRecvContext * pContext )
@@ -5314,6 +5360,11 @@ STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_GetCertificateRequest( ISteam
 STEAMAPI_API bool SteamAPI_ISteamNetworkingSockets_SetCertificate( ISteamNetworkingSockets* self, const void * pCertificate, int cbCertificate, SteamNetworkingErrMsg & errMsg )
 {
     return self->SetCertificate(pCertificate, cbCertificate, errMsg);
+}
+
+STEAMAPI_API void SteamAPI_ISteamNetworkingSockets_RunCallbacks( ISteamNetworkingSockets* self )
+{
+    return self->RunCallbacks();
 }
 
 STEAMAPI_API bool SteamAPI_ISteamNetworkingConnectionCustomSignaling_SendSignal( ISteamNetworkingConnectionCustomSignaling* self, HSteamNetConnection hConn, const SteamNetConnectionInfo_t & info, const void * pMsg, int cbMsg )
@@ -5431,6 +5482,11 @@ STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValueString( ISt
     return self->SetGlobalConfigValueString(eValue, val);
 }
 
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValuePtr( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, void * val )
+{
+    return self->SetGlobalConfigValuePtr(eValue, val);
+}
+
 STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueInt32( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, int32 val )
 {
     return self->SetConnectionConfigValueInt32(hConn, eValue, val);
@@ -5444,6 +5500,31 @@ STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueFloat( 
 STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueString( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, const char * val )
 {
     return self->SetConnectionConfigValueString(hConn, eValue, val);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_SteamNetConnectionStatusChanged( ISteamNetworkingUtils* self, FnSteamNetConnectionStatusChanged fnCallback )
+{
+    return self->SetGlobalCallback_SteamNetConnectionStatusChanged(fnCallback);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_SteamNetAuthenticationStatusChanged( ISteamNetworkingUtils* self, FnSteamNetAuthenticationStatusChanged fnCallback )
+{
+    return self->SetGlobalCallback_SteamNetAuthenticationStatusChanged(fnCallback);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_SteamRelayNetworkStatusChanged( ISteamNetworkingUtils* self, FnSteamRelayNetworkStatusChanged fnCallback )
+{
+    return self->SetGlobalCallback_SteamRelayNetworkStatusChanged(fnCallback);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_MessagesSessionRequest( ISteamNetworkingUtils* self, FnSteamNetworkingMessagesSessionRequest fnCallback )
+{
+    return self->SetGlobalCallback_MessagesSessionRequest(fnCallback);
+}
+
+STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_MessagesSessionFailed( ISteamNetworkingUtils* self, FnSteamNetworkingMessagesSessionFailed fnCallback )
+{
+    return self->SetGlobalCallback_MessagesSessionFailed(fnCallback);
 }
 
 STEAMAPI_API bool SteamAPI_ISteamNetworkingUtils_SetConfigValue( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj, ESteamNetworkingConfigDataType eDataType, const void * pArg )
@@ -6035,6 +6116,31 @@ STEAMAPI_API bool SteamAPI_SteamNetworkingIdentity_ParseString( SteamNetworkingI
 STEAMAPI_API void SteamAPI_SteamNetworkingMessage_t_Release( SteamNetworkingMessage_t* self )
 {
     return self->Release();
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingConfigValue_t_SetInt32( SteamNetworkingConfigValue_t* self, ESteamNetworkingConfigValue eVal, int32_t data )
+{
+    return self->SetInt32(eVal, data);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingConfigValue_t_SetInt64( SteamNetworkingConfigValue_t* self, ESteamNetworkingConfigValue eVal, int64_t data )
+{
+    return self->SetInt64(eVal, data);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingConfigValue_t_SetFloat( SteamNetworkingConfigValue_t* self, ESteamNetworkingConfigValue eVal, float data )
+{
+    return self->SetFloat(eVal, data);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingConfigValue_t_SetPtr( SteamNetworkingConfigValue_t* self, ESteamNetworkingConfigValue eVal, void * data )
+{
+    return self->SetPtr(eVal, data);
+}
+
+STEAMAPI_API void SteamAPI_SteamNetworkingConfigValue_t_SetString( SteamNetworkingConfigValue_t* self, ESteamNetworkingConfigValue eVal, const char * data )
+{
+    return self->SetString(eVal, data);
 }
 
 STEAMAPI_API const char * SteamAPI_SteamNetworkingPOPIDRender_c_str( SteamNetworkingPOPIDRender* self )

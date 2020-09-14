@@ -51,6 +51,7 @@ public ISteamNetworkingSockets001,
 public ISteamNetworkingSockets002,
 public ISteamNetworkingSockets003,
 public ISteamNetworkingSockets006,
+public ISteamNetworkingSockets008,
 public ISteamNetworkingSockets
 {
     class Settings *settings;
@@ -1422,9 +1423,16 @@ EResult GetGameCoordinatorServerLogin( SteamDatagramGameCoordinatorServerLogin *
 /// setting the options "immediately" after creation.
 HSteamNetConnection ConnectP2PCustomSignaling( ISteamNetworkingConnectionCustomSignaling *pSignaling, const SteamNetworkingIdentity *pPeerIdentity, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2PCustomSignaling old\n");
+    return ConnectP2PCustomSignaling(pSignaling, pPeerIdentity, 0, nOptions, pOptions);
+}
+
+HSteamNetConnection ConnectP2PCustomSignaling( ISteamNetworkingConnectionCustomSignaling *pSignaling, const SteamNetworkingIdentity *pPeerIdentity, int nRemoteVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2PCustomSignaling\n");
     return k_HSteamNetConnection_Invalid;
 }
+
 
 /// Called when custom signaling has received a message.  When your
 /// signaling channel receives a message, it should save off whatever

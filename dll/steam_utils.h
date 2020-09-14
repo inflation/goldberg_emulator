@@ -30,6 +30,7 @@ public ISteamUtils005,
 public ISteamUtils006,
 public ISteamUtils007,
 public ISteamUtils008,
+public ISteamUtils009,
 public ISteamUtils
 {
 private:
@@ -357,6 +358,15 @@ bool IsSteamChinaLauncher()
 //   Returns false if filtering is unavailable for the language the user is currently running in.
 bool InitFilterText()
 {
+    PRINT_DEBUG("InitFilterText old\n");
+    return false;
+}
+
+// Initializes text filtering.
+//   unFilterOptions are reserved for future use and should be set to 0
+// Returns false if filtering is unavailable for the language the user is currently running in.
+bool InitFilterText( uint32 unFilterOptions )
+{
     PRINT_DEBUG("InitFilterText\n");
     return false;
 }
@@ -369,9 +379,23 @@ bool InitFilterText()
 //   Returns the number of characters (not bytes) filtered.
 int FilterText( char* pchOutFilteredText, uint32 nByteSizeOutFilteredText, const char * pchInputMessage, bool bLegalOnly )
 {
+    PRINT_DEBUG("FilterText old\n");
+    return 0;
+}
+
+// Filters the provided input message and places the filtered result into pchOutFilteredText, using legally required filtering and additional filtering based on the context and user settings
+//   eContext is the type of content in the input string
+//   sourceSteamID is the Steam ID that is the source of the input string (e.g. the player with the name, or who said the chat text)
+//   pchInputText is the input string that should be filtered, which can be ASCII or UTF-8
+//   pchOutFilteredText is where the output will be placed, even if no filtering is performed
+//   nByteSizeOutFilteredText is the size (in bytes) of pchOutFilteredText, should be at least strlen(pchInputText)+1
+// Returns the number of characters (not bytes) filtered
+int FilterText( ETextFilteringContext eContext, CSteamID sourceSteamID, const char *pchInputMessage, char *pchOutFilteredText, uint32 nByteSizeOutFilteredText )
+{
     PRINT_DEBUG("FilterText\n");
     return 0;
 }
+
 
 // Return what we believe your current ipv6 connectivity to "the internet" is on the specified protocol.
 // This does NOT tell you if the Steam client is currently connected to Steam via ipv6.
