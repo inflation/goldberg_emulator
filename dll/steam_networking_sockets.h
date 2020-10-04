@@ -44,6 +44,9 @@ struct Connect_Socket {
     int64 user_data;
 
     std::queue<std::string> data;
+    HSteamNetPollGroup poll_group;
+
+    unsigned long long packet_receive_counter;
 };
 
 class Steam_Networking_Sockets :
@@ -62,6 +65,9 @@ public ISteamNetworkingSockets
 
     std::vector<struct Listen_Socket> listen_sockets;
     std::map<HSteamNetConnection, struct Connect_Socket> connect_sockets;
+    std::map<HSteamNetPollGroup, std::list<HSteamNetConnection>> poll_groups;
+    std::chrono::steady_clock::time_point created;
+
 public:
 static void steam_callback(void *object, Common_Message *msg)
 {
@@ -90,6 +96,8 @@ Steam_Networking_Sockets(class Settings *settings, class Networking *network, cl
 
     this->callback_results = callback_results;
     this->callbacks = callbacks;
+
+    this->created = std::chrono::steady_clock::now();
 }
 
 ~Steam_Networking_Sockets()
@@ -154,6 +162,7 @@ HSteamNetConnection new_connect_socket(SteamNetworkingIdentity remote_identity, 
     socket.remote_id = remote_id;
     socket.status = status;
     socket.user_data = -1;
+    socket.poll_group = k_HSteamNetPollGroup_Invalid;
 
     static HSteamNetConnection socket_id;
     ++socket_id;
@@ -725,13 +734,15 @@ SteamNetworkingMessage_t *get_steam_message_connection(HSteamNetConnection hConn
     pMsg->m_conn = hConn;
     pMsg->m_identityPeer = connect_socket->second.remote_identity;
     pMsg->m_nConnUserData = connect_socket->second.user_data;
-    //TODO
-    //pMsg->m_usecTimeReceived =
-    //pMsg->m_nMessageNumber =
+    pMsg->m_usecTimeReceived = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - created).count();
+    pMsg->m_nMessageNumber = connect_socket->second.packet_receive_counter;
+    ++connect_socket->second.packet_receive_counter;
+
     pMsg->m_pfnFreeData = &free_steam_message_data;
     pMsg->m_pfnRelease = &delete_steam_message;
     pMsg->m_nChannel = 0;
     connect_socket->second.data.pop();
+    PRINT_DEBUG("get_steam_message_connection %u %u\n", hConn, size);
     return pMsg;
 }
 
@@ -1023,7 +1034,13 @@ ESteamNetworkingAvailability GetAuthenticationStatus( SteamNetAuthenticationStat
 HSteamNetPollGroup CreatePollGroup()
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreatePollGroup\n");
-    return k_HSteamNetPollGroup_Invalid;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    static HSteamNetPollGroup poll_group_counter;
+    ++poll_group_counter;
+
+    HSteamNetPollGroup poll_group_number = poll_group_counter;
+    poll_groups[poll_group_number] = std::list<HSteamNetConnection>();
+    return poll_group_number;
 }
 
 /// Destroy a poll group created with CreatePollGroup().
@@ -1034,7 +1051,21 @@ HSteamNetPollGroup CreatePollGroup()
 bool DestroyPollGroup( HSteamNetPollGroup hPollGroup )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::DestroyPollGroup\n");
-    return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto group = poll_groups.find(hPollGroup);
+    if (group == poll_groups.end()) {
+        return false;
+    }
+
+    for (auto c : group->second) {
+        auto connect_socket = connect_sockets.find(c);
+        if (connect_socket != connect_sockets.end()) {
+            connect_socket->second.poll_group = k_HSteamNetPollGroup_Invalid;
+        }
+    }
+
+    poll_groups.erase(group);
+    return true;
 }
 
 /// Assign a connection to a poll group.  Note that a connection may only belong to a
@@ -1053,8 +1084,33 @@ bool DestroyPollGroup( HSteamNetPollGroup hPollGroup )
 /// is invalid (and not k_HSteamNetPollGroup_Invalid).
 bool SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPollGroup )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::SetConnectionPollGroup\n");
-    return false;
+    PRINT_DEBUG("Steam_Networking_Sockets::SetConnectionPollGroup %u %u\n", hConn, hPollGroup);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto connect_socket = connect_sockets.find(hConn);
+    if (connect_socket == connect_sockets.end()) {
+        return false;
+    }
+
+    auto group = poll_groups.find(hPollGroup);
+    if (group == poll_groups.end() && hPollGroup != k_HSteamNetPollGroup_Invalid) {
+        return false;
+    }
+
+    HSteamNetPollGroup old_poll_group = connect_socket->second.poll_group;
+    if (old_poll_group != k_HSteamNetPollGroup_Invalid) {
+        auto group = poll_groups.find(hPollGroup);
+        if (group != poll_groups.end()) {
+            group->second.remove(hConn);
+        }
+    }
+
+    connect_socket->second.poll_group = hPollGroup;
+    if (hPollGroup == k_HSteamNetPollGroup_Invalid) {
+        return true;
+    }
+
+    group->second.push_back(hConn);
+    return true;
 }
 
 /// Same as ReceiveMessagesOnConnection, but will return the next messages available
@@ -1074,8 +1130,24 @@ bool SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPoll
 /// other connections.)
 int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnPollGroup\n");
-    return -1; 
+    PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnPollGroup %u %i\n", hPollGroup, nMaxMessages);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto group = poll_groups.find(hPollGroup);
+    if (group == poll_groups.end()) {
+        return 0;
+    }
+
+    SteamNetworkingMessage_t *msg = NULL;
+    int messages = 0;
+
+    for (auto c : group->second) {
+        while ((msg = get_steam_message_connection(c)) && messages < nMaxMessages) {
+            ppOutMessages[messages] = msg;
+            ++messages;
+        }
+    }
+
+    return messages;
 }
 
 
