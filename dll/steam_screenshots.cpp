@@ -17,12 +17,40 @@
 
 #include "steam_screenshots.h" 
 
+Steam_Screenshots::Steam_Screenshots(class Local_Storage* local_storage, class SteamCallBacks* callbacks) :
+    local_storage(local_storage),
+    callbacks(callbacks)
+{
+}
+
+ScreenshotHandle Steam_Screenshots::create_screenshot_handle()
+{
+    static ScreenshotHandle handle = 100;
+    return handle++;
+}
+
 // Writes a screenshot to the user's screenshot library given the raw image data, which must be in RGB format.
 // The return value is a handle that is valid for the duration of the game process and can be used to apply tags.
 ScreenshotHandle Steam_Screenshots::WriteScreenshot( void *pubRGB, uint32 cubRGB, int nWidth, int nHeight )
 {
     PRINT_DEBUG("WriteScreenshot\n");
-    return INVALID_SCREENSHOT_HANDLE;
+    
+    char buff[128];
+    auto now = std::chrono::system_clock::now();
+    time_t now_time;
+    now_time = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+    strftime(buff, 128, "%a_%b_%d_%H_%M_%S_%Y", localtime(&now_time));
+    std::string screenshot_name = buff;
+    screenshot_name += ".png";
+
+    if (!local_storage->save_screenshot( screenshot_name, (uint8_t*)pubRGB, nWidth, nHeight, 3))
+        return INVALID_SCREENSHOT_HANDLE;
+
+    auto handle = create_screenshot_handle();
+    auto& infos = _screenshots[handle];
+    infos.screenshot_name = buff;
+
+    return handle;
 }
 
 
@@ -33,7 +61,30 @@ ScreenshotHandle Steam_Screenshots::WriteScreenshot( void *pubRGB, uint32 cubRGB
 ScreenshotHandle Steam_Screenshots::AddScreenshotToLibrary( const char *pchFilename, const char *pchThumbnailFilename, int nWidth, int nHeight )
 {
     PRINT_DEBUG("AddScreenshotToLibrary\n");
-    return INVALID_SCREENSHOT_HANDLE;
+    
+    if (pchFilename == nullptr)
+        return INVALID_SCREENSHOT_HANDLE;
+
+    std::vector<image_pixel_t> pixels(std::move(local_storage->load_image(pchFilename)));
+    if (pixels.size() != size_t(nWidth) * size_t(nHeight))
+        return INVALID_SCREENSHOT_HANDLE;
+
+    char buff[128];
+    auto now = std::chrono::system_clock::now();
+    time_t now_time;
+    now_time = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+    strftime(buff, 128, "%a_%b_%d_%H_%M_%S_%Y", localtime(&now_time));
+    std::string screenshot_name = buff;
+    screenshot_name += ".png";
+
+    if (!local_storage->save_screenshot(screenshot_name, (uint8_t*)pixels.data(), nWidth, nHeight, 4))
+        return INVALID_SCREENSHOT_HANDLE;
+
+    auto handle = create_screenshot_handle();
+    auto& infos = _screenshots[handle];
+    infos.screenshot_name = buff;
+
+    return handle;
 }
 
 
@@ -41,6 +92,16 @@ ScreenshotHandle Steam_Screenshots::AddScreenshotToLibrary( const char *pchFilen
 void Steam_Screenshots::TriggerScreenshot()
 {
     PRINT_DEBUG("TriggerScreenshot\n");
+
+    if (hooked)
+    {
+        ScreenshotRequested_t data;
+        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+    }
+    else
+    {
+        PRINT_DEBUG("TODO: Make the overlay take a screenshot");
+    }
 }
 
 
@@ -58,7 +119,15 @@ void Steam_Screenshots::HookScreenshots( bool bHook )
 bool Steam_Screenshots::SetLocation( ScreenshotHandle hScreenshot, const char *pchLocation )
 {
     PRINT_DEBUG("SetLocation\n");
-    return false;
+    
+    auto it = _screenshots.find(hScreenshot);
+    if (it == _screenshots.end())
+        return false;
+
+    it->second.metadatas["locations"].push_back(pchLocation);
+    local_storage->write_json_file(Local_Storage::screenshots_folder, it->second.screenshot_name + ".json", it->second.metadatas);
+
+    return true;
 }
 
 
@@ -66,7 +135,15 @@ bool Steam_Screenshots::SetLocation( ScreenshotHandle hScreenshot, const char *p
 bool Steam_Screenshots::TagUser( ScreenshotHandle hScreenshot, CSteamID steamID )
 {
     PRINT_DEBUG("TagUser\n");
-    return false;
+    
+    auto it = _screenshots.find(hScreenshot);
+    if (it == _screenshots.end())
+        return false;
+
+    it->second.metadatas["users"].push_back(uint64_t(steamID.ConvertToUint64()));
+    local_storage->write_json_file(Local_Storage::screenshots_folder, it->second.screenshot_name + ".json", it->second.metadatas);
+
+    return true;
 }
 
 
@@ -74,7 +151,15 @@ bool Steam_Screenshots::TagUser( ScreenshotHandle hScreenshot, CSteamID steamID 
 bool Steam_Screenshots::TagPublishedFile( ScreenshotHandle hScreenshot, PublishedFileId_t unPublishedFileID )
 {
     PRINT_DEBUG("TagPublishedFile\n");
-    return false;
+    
+    auto it = _screenshots.find(hScreenshot);
+    if (it == _screenshots.end())
+        return false;
+
+    it->second.metadatas["published_files"].push_back(uint64_t(unPublishedFileID));
+    local_storage->write_json_file(Local_Storage::screenshots_folder, it->second.screenshot_name + ".json", it->second.metadatas);
+
+    return true;
 }
 
 

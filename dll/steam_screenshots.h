@@ -17,10 +17,25 @@
 
 #include "base.h"
 
+struct screenshot_infos_t
+{
+	std::string screenshot_name;
+	nlohmann::json metadatas;
+};
+
 class Steam_Screenshots : public ISteamScreenshots
 {
     bool hooked = false;
+	std::map<ScreenshotHandle, screenshot_infos_t> _screenshots;
+
+	class Local_Storage* local_storage;
+	class SteamCallBacks* callbacks;
+
+	ScreenshotHandle create_screenshot_handle();
+
 public:
+	Steam_Screenshots(class Local_Storage* local_storage, class SteamCallBacks* callbacks);
+
 	// Writes a screenshot to the user's screenshot library given the raw image data, which must be in RGB format.
 	// The return value is a handle that is valid for the duration of the game process and can be used to apply tags.
 	ScreenshotHandle WriteScreenshot( void *pubRGB, uint32 cubRGB, int nWidth, int nHeight );

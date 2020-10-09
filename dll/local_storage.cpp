@@ -17,6 +17,16 @@
 
 #include "local_storage.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
+#define STBI_ONLY_PNG
+#define STBI_ONLY_JPEG
+#include "../stb/stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_STATIC
+#include "../stb/stb_image_write.h"
+
 struct File_Data {
     std::string name;
 };
@@ -141,6 +151,16 @@ bool Local_Storage::write_json_file(std::string folder, std::string const&file, 
 std::vector<std::string> Local_Storage::get_filenames_path(std::string path)
 {
     return std::vector<std::string>();
+}
+
+std::vector<image_pixel_t> Local_Storage::load_image(std::string const& image_path)
+{
+    return std::vector<image_pixel_t>();
+}
+
+bool Local_Storage::save_screenshot(std::string const& image_path, uint8_t* img_ptr, int32_t width, int32_t height, int32_t channels)
+{
+    return false;
 }
 
 #else
@@ -735,6 +755,34 @@ bool Local_Storage::write_json_file(std::string folder, std::string const&file, 
     PRINT_DEBUG("Couldn't open file \"%s\" to write json\n", full_path.c_str());
 
     return false;
+}
+
+std::vector<image_pixel_t> Local_Storage::load_image(std::string const& image_path)
+{
+    std::vector<image_pixel_t> res;
+    FILE* hFile = fopen(image_path.c_str(), "r");
+    if (hFile != nullptr)
+    {
+        int width, height;
+        image_pixel_t* img = (image_pixel_t*)stbi_load_from_file(hFile, &width, &height, nullptr, 4);
+        if (img != nullptr)
+        {
+            res.resize(width*height);
+            std::copy(img, img + width * height, res.begin());
+
+            stbi_image_free(img);
+        }
+        fclose(hFile);
+    }
+    return res;
+}
+
+bool Local_Storage::save_screenshot(std::string const& image_path, uint8_t* img_ptr, int32_t width, int32_t height, int32_t channels)
+{
+    std::string screenshot_path = std::move(save_directory + appid + screenshots_folder + PATH_SEPARATOR); 
+    create_directory(screenshot_path);
+    screenshot_path += image_path;
+    return stbi_write_png(screenshot_path.c_str(), width, height, channels, img_ptr, 0) == 1;
 }
 
 #endif
