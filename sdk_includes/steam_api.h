@@ -107,6 +107,7 @@
 #include "isteamnetworkingsockets001.h"
 #include "isteamnetworkingsockets002.h"
 #include "isteamnetworkingsockets003.h"
+#include "isteamnetworkingsockets004.h"
 #include "isteamnetworkingsockets006.h"
 #include "isteamnetworkingsockets008.h"
 #include "isteamremotestorage.h"

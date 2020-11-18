@@ -53,6 +53,7 @@ class Steam_Networking_Sockets :
 public ISteamNetworkingSockets001,
 public ISteamNetworkingSockets002,
 public ISteamNetworkingSockets003,
+public ISteamNetworkingSockets004,
 public ISteamNetworkingSockets006,
 public ISteamNetworkingSockets008,
 public ISteamNetworkingSockets
@@ -255,6 +256,12 @@ HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddre
     return k_HSteamListenSocket_Invalid;
 }
 
+HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr *localAddress )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP old1\n");
+    return k_HSteamListenSocket_Invalid;
+}
+
 HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddress, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP\n");
@@ -282,6 +289,12 @@ HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddre
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress old\n");
+    return k_HSteamNetConnection_Invalid;
+}
+
+HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr *address )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress old1\n");
     return k_HSteamNetConnection_Invalid;
 }
 
@@ -347,6 +360,12 @@ HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, i
     HSteamNetConnection socket = new_connect_socket(identityRemote, nVirtualPort);
     send_packet_new_connection(socket);
     return socket;
+}
+
+HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity *identityRemote, int nVirtualPort )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectP2P old1\n");
+    return ConnectP2P(*identityRemote, nVirtualPort);
 }
 
 HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
@@ -1187,6 +1206,12 @@ int FindRelayAuthTicketForServer( CSteamID steamID, int nVirtualPort, SteamDatag
 ///
 /// Typically this is useful just to confirm that you have a ticket, before you
 /// call ConnectToHostedDedicatedServer to connect to the server.
+int FindRelayAuthTicketForServer( const SteamNetworkingIdentity *identityGameServer, int nVirtualPort, SteamDatagramRelayAuthTicket *pOutParsedTicket )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::FindRelayAuthTicketForServer old1\n");
+    return 0;
+}
+
 int FindRelayAuthTicketForServer( const SteamNetworkingIdentity &identityGameServer, int nVirtualPort, SteamDatagramRelayAuthTicket *pOutParsedTicket )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::FindRelayAuthTicketForServer\n");
@@ -1205,6 +1230,12 @@ int FindRelayAuthTicketForServer( const SteamNetworkingIdentity &identityGameSer
 HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentity &identityTarget, int nVirtualPort )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer old\n");
+    return k_HSteamListenSocket_Invalid;
+}
+
+HSteamNetConnection ConnectToHostedDedicatedServer( const SteamNetworkingIdentity *identityTarget, int nVirtualPort )
+{
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectToHostedDedicatedServer old1\n");
     return k_HSteamListenSocket_Invalid;
 }
 
