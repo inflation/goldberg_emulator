@@ -639,14 +639,19 @@ static void load_dll()
     }
 }
 
-static void load_lumaCEG()
+#include "local_storage.h"
+static void load_dlls()
 {
-    std::string path = get_full_program_path();
-    path += LUMA_CEG_DLL_NAME;
-    if (file_exists(path)) {
-        PRINT_DEBUG("loading luma ceg dll %s\n", path.c_str());
-        if (LoadLibraryA(path.c_str())) {
-            PRINT_DEBUG("Loaded luma ceg dll file\n");
+    std::string path = Local_Storage::get_game_settings_path();
+    path += "load_dlls";
+    path += PATH_SEPARATOR;
+
+    std::vector<std::string> paths = Local_Storage::get_filenames_path(path);
+    for (auto & p: paths) {
+        std::string full_path = path + p;
+        PRINT_DEBUG("Trying to load %s\n", full_path.c_str());
+        if (LoadLibraryA(full_path.c_str())) {
+            PRINT_DEBUG("LOADED %s\n", full_path.c_str());
         }
     }
 }
@@ -765,7 +770,7 @@ BOOL WINAPI DllMain( HINSTANCE, DWORD dwReason, LPVOID ) {
                 network_functions_attached = true;
             }
             load_dll();
-            load_lumaCEG();
+            load_dlls();
             break;
 
         case DLL_PROCESS_DETACH:

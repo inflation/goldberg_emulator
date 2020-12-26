@@ -31,5 +31,5 @@ All ips except these ranges are blocked:
 224.0.0.0 - 255.255.255.255
 
 
-Luma CEG support:
-If LumaCEG_Plugin_x86.dll (steam_api.dll) or LumaCEG_Plugin_x64.dll (steam_api64.dll) is present it will be loaded automatically.
+Support for loading any dlls:
+Any files put in the steam_settings\load_dlls\ folder will be loaded automatically using the LoadLibraryA function.

@@ -78,10 +78,8 @@
         #include "../detours/detours.h"
 
         #ifdef DETOURS_64BIT
-            #define LUMA_CEG_DLL_NAME "LumaCEG_Plugin_x64.dll"
             #define DLL_NAME "steam_api64.dll"
         #else
-            #define LUMA_CEG_DLL_NAME "LumaCEG_Plugin_x86.dll"
             #define DLL_NAME "steam_api.dll"
         #endif
     #endif
