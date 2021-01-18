@@ -121,7 +121,8 @@ void DX11_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         initialized = true;
     }
 
-    if (ImGui_ImplDX11_NewFrame())
+    ImGui_ImplDX11_NewFrame();
+
     {
         Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
 

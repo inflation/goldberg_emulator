@@ -2,8 +2,8 @@
 // This needs to be used along with a Platform Binding (e.g. Win32)
 
 // Implemented features:
-//  [X] Renderer: User texture binding. Use 'ID3D10ShaderResourceView*' as ImTextureID. Read the FAQ about ImTextureID in imgui.cpp.
-//  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bits indices.
+//  [X] Renderer: User texture binding. Use 'ID3D10ShaderResourceView*' as ImTextureID. Read the FAQ about ImTextureID!
+//  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bit indices.
 
 // You can copy and use unmodified imgui_impl_* files in your project. See main.cpp for an example of using this.
 // If you are new to dear imgui, read examples/README.txt and read the documentation at the top of imgui.cpp.
@@ -11,6 +11,7 @@
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
+//  2019-07-21: DirectX10: Backup, clear and restore Geometry Shader is any is bound when calling ImGui_ImplDX10_RenderDrawData().
 //  2019-05-29: DirectX10: Added support for large mesh (64K+ vertices), enable ImGuiBackendFlags_RendererHasVtxOffset flag.
 //  2019-04-30: DirectX10: Added support for special ImDrawCallback_ResetRenderState callback to reset render state.
 //  2018-12-03: Misc: Added #pragma comment statement to automatically link with d3dcompiler.lib when using D3DCompile().
@@ -31,12 +32,7 @@
 #include <d3d10_1.h>
 #include <d3d10.h>
 
-#include "../../../overlay_experimental/windows/ImGui_ShaderBlobs.h"
-
-#ifdef USE_D3DCOMPILE
-static ID3DBlob* g_pVertexShaderBlob = NULL;
-static ID3DBlob* g_pPixelShaderBlob = NULL;
-#endif
+#include "imgui_shaderblobs.h"
 
 // DirectX data
 static ID3D10Device*            g_pd3dDevice = NULL;
@@ -82,6 +78,7 @@ static void ImGui_ImplDX10_SetupRenderState(ImDrawData* draw_data, ID3D10Device*
     ctx->VSSetConstantBuffers(0, 1, &g_pVertexConstantBuffer);
     ctx->PSSetShader(g_pPixelShader);
     ctx->PSSetSamplers(0, 1, &g_pFontSampler);
+    ctx->GSSetShader(NULL);
 
     // Setup render state
     const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
@@ -184,13 +181,14 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
         ID3D10SamplerState*         PSSampler;
         ID3D10PixelShader*          PS;
         ID3D10VertexShader*         VS;
+        ID3D10GeometryShader*       GS;
         D3D10_PRIMITIVE_TOPOLOGY    PrimitiveTopology;
         ID3D10Buffer*               IndexBuffer, *VertexBuffer, *VSConstantBuffer;
         UINT                        IndexBufferOffset, VertexBufferStride, VertexBufferOffset;
         DXGI_FORMAT                 IndexBufferFormat;
         ID3D10InputLayout*          InputLayout;
     };
-    BACKUP_DX10_STATE old;
+    BACKUP_DX10_STATE old = {};
     old.ScissorRectsCount = old.ViewportsCount = D3D10_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
     ctx->RSGetScissorRects(&old.ScissorRectsCount, old.ScissorRects);
     ctx->RSGetViewports(&old.ViewportsCount, old.Viewports);
@@ -202,6 +200,7 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
     ctx->PSGetShader(&old.PS);
     ctx->VSGetShader(&old.VS);
     ctx->VSGetConstantBuffers(0, 1, &old.VSConstantBuffer);
+    ctx->GSGetShader(&old.GS);
     ctx->IAGetPrimitiveTopology(&old.PrimitiveTopology);
     ctx->IAGetIndexBuffer(&old.IndexBuffer, &old.IndexBufferFormat, &old.IndexBufferOffset);
     ctx->IAGetVertexBuffers(0, 1, &old.VertexBuffer, &old.VertexBufferStride, &old.VertexBufferOffset);
@@ -256,6 +255,7 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
     ctx->PSSetSamplers(0, 1, &old.PSSampler); if (old.PSSampler) old.PSSampler->Release();
     ctx->PSSetShader(old.PS); if (old.PS) old.PS->Release();
     ctx->VSSetShader(old.VS); if (old.VS) old.VS->Release();
+    ctx->GSSetShader(old.GS); if (old.GS) old.GS->Release();
     ctx->VSSetConstantBuffers(0, 1, &old.VSConstantBuffer); if (old.VSConstantBuffer) old.VSConstantBuffer->Release();
     ctx->IASetPrimitiveTopology(old.PrimitiveTopology);
     ctx->IASetIndexBuffer(old.IndexBuffer, old.IndexBufferFormat, old.IndexBufferOffset); if (old.IndexBuffer) old.IndexBuffer->Release();
@@ -285,7 +285,7 @@ static void ImGui_ImplDX10_CreateFontsTexture()
         desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = 0;
 
-        ID3D10Texture2D *pTexture = NULL;
+        ID3D10Texture2D* pTexture = NULL;
         D3D10_SUBRESOURCE_DATA subResource;
         subResource.pSysMem = pixels;
         subResource.SysMemPitch = desc.Width * 4;
@@ -335,69 +335,21 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
     //  2) use code to detect any version of the DLL and grab a pointer to D3DCompile from the DLL.
     // See https://github.com/ocornut/imgui/pull/638 for sources and details.
 
-#ifdef USE_D3DCOMPILE
-    decltype(D3DCompile)* D3DCompile = load_d3dcompile();
-    if (D3DCompile == nullptr)
-        return false;
-#endif
-
     // Create the vertex shader
     {
-#ifdef USE_D3DCOMPILE
-        static const char* vertexShader =
-            "cbuffer vertexBuffer : register(b0) \
-            {\
-              float4x4 ProjectionMatrix; \
-            };\
-            struct VS_INPUT\
-            {\
-              float2 pos : POSITION;\
-              float4 col : COLOR0;\
-              float2 uv  : TEXCOORD0;\
-            };\
-            \
-            struct PS_INPUT\
-            {\
-              float4 pos : SV_POSITION;\
-              float4 col : COLOR0;\
-              float2 uv  : TEXCOORD0;\
-            };\
-            \
-            PS_INPUT main(VS_INPUT input)\
-            {\
-              PS_INPUT output;\
-              output.pos = mul( ProjectionMatrix, float4(input.pos.xy, 0.f, 1.f));\
-              output.col = input.col;\
-              output.uv  = input.uv;\
-              return output;\
-            }";
-
-        D3DCompile(vertexShader, strlen(vertexShader), NULL, NULL, NULL, "main", "vs_4_0", 0, 0, &g_pVertexShaderBlob, NULL);
-
-        if (g_pVertexShaderBlob == NULL) // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
-            return false;
-
-        if (g_pd3dDevice->CreateVertexShader((DWORD*)g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), &g_pVertexShader) != S_OK)
-            return false;
-#else
         if (g_pd3dDevice->CreateVertexShader(ImGui_vertexShaderDX10, ImGui_vertexShaderDX10_len, &g_pVertexShader) != S_OK)
             return false;
-#endif
 
         // Create the input layout
         D3D10_INPUT_ELEMENT_DESC local_layout[] =
         {
-            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)(&((ImDrawVert*)0)->pos), D3D10_INPUT_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)(&((ImDrawVert*)0)->uv),  D3D10_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)(&((ImDrawVert*)0)->col), D3D10_INPUT_PER_VERTEX_DATA, 0 },
+            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)IM_OFFSETOF(ImDrawVert, pos), D3D10_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,   0, (UINT)IM_OFFSETOF(ImDrawVert, uv),  D3D10_INPUT_PER_VERTEX_DATA, 0 },
+            { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, (UINT)IM_OFFSETOF(ImDrawVert, col), D3D10_INPUT_PER_VERTEX_DATA, 0 },
         };
-#ifdef USE_D3DCOMPILE
-        if (g_pd3dDevice->CreateInputLayout(local_layout, 3, g_pVertexShaderBlob->GetBufferPointer(), g_pVertexShaderBlob->GetBufferSize(), &g_pInputLayout) != S_OK)
-            return false;
-#else
+
         if (g_pd3dDevice->CreateInputLayout(local_layout, 3, ImGui_vertexShaderDX10, ImGui_vertexShaderDX10_len, &g_pInputLayout) != S_OK)
             return false;
-#endif
 
         // Create the constant buffer
         {
@@ -413,38 +365,9 @@ bool    ImGui_ImplDX10_CreateDeviceObjects()
 
     // Create the pixel shader
     {
-#ifdef USE_D3DCOMPILE
-        static const char* pixelShader =
-            "struct PS_INPUT\
-            {\
-            float4 pos : SV_POSITION;\
-            float4 col : COLOR0;\
-            float2 uv  : TEXCOORD0;\
-            };\
-            sampler sampler0;\
-            Texture2D texture0;\
-            \
-            float4 main(PS_INPUT input) : SV_Target\
-            {\
-            float4 out_col = input.col * texture0.Sample(sampler0, input.uv); \
-            return out_col; \
-            }";
-
-        D3DCompile(pixelShader, strlen(pixelShader), NULL, NULL, NULL, "main", "ps_4_0", 0, 0, &g_pPixelShaderBlob, NULL);
-
-        if (g_pPixelShaderBlob == NULL)  // NB: Pass ID3D10Blob* pErrorBlob to D3DCompile() to get error showing in (const char*)pErrorBlob->GetBufferPointer(). Make sure to Release() the blob!
-            return false;
-        if (g_pd3dDevice->CreatePixelShader((DWORD*)g_pPixelShaderBlob->GetBufferPointer(), g_pPixelShaderBlob->GetBufferSize(), &g_pPixelShader) != S_OK)
-            return false;
-#else
         if (g_pd3dDevice->CreatePixelShader(ImGui_pixelShaderDX10, ImGui_pixelShaderDX10_len, &g_pPixelShader) != S_OK)
             return false;
-#endif
     }
-
-#ifdef USE_D3DCOMPILE
-    unload_d3dcompile();
-#endif
 
     // Create the blending setup
     {
@@ -509,10 +432,6 @@ void    ImGui_ImplDX10_InvalidateDeviceObjects()
     if (g_pVertexConstantBuffer) { g_pVertexConstantBuffer->Release(); g_pVertexConstantBuffer = NULL; }
     if (g_pInputLayout) { g_pInputLayout->Release(); g_pInputLayout = NULL; }
     if (g_pVertexShader) { g_pVertexShader->Release(); g_pVertexShader = NULL; }
-#ifdef USE_D3DCOMPILE
-    if (g_pPixelShaderBlob) { g_pPixelShaderBlob->Release(); g_pPixelShaderBlob = NULL; }
-    if (g_pVertexShaderBlob) { g_pVertexShaderBlob->Release(); g_pVertexShaderBlob = NULL; }
-#endif
 }
 
 bool    ImGui_ImplDX10_Init(ID3D10Device* device)
@@ -548,10 +467,8 @@ void ImGui_ImplDX10_Shutdown()
     if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
 }
 
-bool ImGui_ImplDX10_NewFrame()
+void ImGui_ImplDX10_NewFrame()
 {
     if (!g_pFontSampler)
-        return ImGui_ImplDX10_CreateDeviceObjects();
-
-    return true;
+        ImGui_ImplDX10_CreateDeviceObjects();
 }

@@ -80,7 +80,8 @@ void DX10_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         initialized = true;
     }
 
-    if (ImGui_ImplDX10_NewFrame())
+    ImGui_ImplDX10_NewFrame();
+
     {
         Windows_Hook::Inst()->prepareForOverlay(desc.OutputWindow);
 
