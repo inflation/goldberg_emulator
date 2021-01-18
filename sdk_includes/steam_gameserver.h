@@ -28,6 +28,12 @@ enum EServerMode
 	eServerModeAuthenticationAndSecure = 3, // Authenticate users, list on the server list and VAC protect clients
 };													
 
+/// Pass to SteamGameServer_Init to indicate that the same UDP port will be used for game traffic
+/// UDP queries.  In this case, Steam will not open up a socket to handle server browser queries,
+/// and you must use ISteamGameServer::HandleIncomingPacket and ISteamGameServer::GetNextOutgoingPacket
+/// to handle packets related to server discovery on your socket.
+#define MASTERSERVERUPDATERPORT_USEGAMESOCKETSHARE	((uint16)-1)
+
 // Initialize SteamGameServer client and interface objects, and set server properties which may not be changed.
 //
 // After calling this function, you should set any additional server parameters, and then
@@ -39,12 +45,16 @@ enum EServerMode
 //         This protocol is TCP-based and thus always uses an ephemeral local port.
 //         Older steam client binaries used UDP to talk to Steam, and this argument was useful.
 //         A future version of the SDK will remove this argument.
-// - usGamePort is the port that clients will connect to for gameplay.
+// - unIP will usually be zero.  If you are on a machine with multiple IP addresses, you can pass a non-zero
+//   value here and the relevant sockets will be bound to that IP.  This can be used to ensure that
+//   the IP you desire is the one used in the server browser.
+// - usGamePort is the port that clients will connect to for gameplay.  You will usually open up your
+//   own socket bound to this port.
 // - usQueryPort is the port that will manage server browser related duties and info
 //		pings from clients.  If you pass MASTERSERVERUPDATERPORT_USEGAMESOCKETSHARE for usQueryPort, then it
 //		will use "GameSocketShare" mode, which means that the game is responsible for sending and receiving
 //		UDP packets for the master  server updater. See references to GameSocketShare in isteamgameserver.h.
-// - The version string is usually in the form x.x.x.x, and is used by the master server to detect when the
+// - The version string should be in the form x.x.x.x, and is used by the master server to detect when the
 //		server is out of date.  (Only servers with the latest version will be listed.)
 #ifndef STEAM_API_EXPORTS
 S_API bool SteamGameServer_Init( uint32 unIP, uint16 usSteamPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString );

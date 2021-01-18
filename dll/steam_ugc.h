@@ -38,6 +38,7 @@ public ISteamUGC009,
 public ISteamUGC010,
 public ISteamUGC012,
 public ISteamUGC013,
+public ISteamUGC014,
 public ISteamUGC
 {
     class Settings *settings;
@@ -181,6 +182,23 @@ bool GetQueryUGCResult( UGCQueryHandle_t handle, uint32 index, SteamUGCDetails_t
     return true;
 }
 
+uint32 GetQueryUGCNumTags( UGCQueryHandle_t handle, uint32 index )
+{
+    PRINT_DEBUG("Steam_UGC::GetQueryUGCNumTags\n");
+    return 0;
+}
+
+bool GetQueryUGCTag( UGCQueryHandle_t handle, uint32 index, uint32 indexTag, STEAM_OUT_STRING_COUNT( cchValueSize ) char* pchValue, uint32 cchValueSize )
+{
+    PRINT_DEBUG("Steam_UGC::GetQueryUGCTag\n");
+    return false;
+}
+
+bool GetQueryUGCTagDisplayName( UGCQueryHandle_t handle, uint32 index, uint32 indexTag, STEAM_OUT_STRING_COUNT( cchValueSize ) char* pchValue, uint32 cchValueSize )
+{
+    PRINT_DEBUG("Steam_UGC::GetQueryUGCTagDisplayName\n");
+    return false;
+}
 
 bool GetQueryUGCPreviewURL( UGCQueryHandle_t handle, uint32 index, STEAM_OUT_STRING_COUNT(cchURLSize) char *pchURL, uint32 cchURLSize )
 {

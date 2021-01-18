@@ -754,6 +754,7 @@ SteamNetworkingMessage_t *get_steam_message_connection(HSteamNetConnection hConn
     pMsg->m_identityPeer = connect_socket->second.remote_identity;
     pMsg->m_nConnUserData = connect_socket->second.user_data;
     pMsg->m_usecTimeReceived = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - created).count();
+    //TODO: check where messagenumber starts
     pMsg->m_nMessageNumber = connect_socket->second.packet_receive_counter;
     ++connect_socket->second.packet_receive_counter;
 

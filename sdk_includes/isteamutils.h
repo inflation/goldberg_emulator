@@ -183,9 +183,12 @@ public:
 	// Returns whether this steam client is a Steam China specific client, vs the global client.
 	virtual bool IsSteamChinaLauncher() = 0;
 
-	// Initializes text filtering.
+	// Initializes text filtering, loading dictionaries for the language the game is running in.
 	//   unFilterOptions are reserved for future use and should be set to 0
-	// Returns false if filtering is unavailable for the language the user is currently running in.
+	// Returns false if filtering is unavailable for the game's language, in which case FilterText() will act as a passthrough.
+	//
+	// Users can customize the text filter behavior in their Steam Account preferences:
+	// https://store.steampowered.com/account/preferences#CommunityContentPreferences
 	virtual bool InitFilterText( uint32 unFilterOptions = 0 ) = 0;
 
 	// Filters the provided input message and places the filtered result into pchOutFilteredText, using legally required filtering and additional filtering based on the context and user settings

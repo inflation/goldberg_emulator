@@ -1008,6 +1008,12 @@ bool RegisterProtocolInOverlayBrowser( const char *pchProtocol )
     return false;
 }
 
+// Activates the game overlay to open an invite dialog that will send the provided Rich Presence connect string to selected friends
+void ActivateGameOverlayInviteDialogConnectString( const char *pchConnectString )
+{
+    PRINT_DEBUG("Steam_Friends::ActivateGameOverlayInviteDialogConnectString\n");
+}
+
 void RunCallbacks()
 {
 	PRINT_DEBUG("Steam_Friends::RunCallbacks\n");

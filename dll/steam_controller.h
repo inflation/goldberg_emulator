@@ -72,7 +72,9 @@ public ISteamController003,
 public ISteamController004,
 public ISteamController005,
 public ISteamController006,
+public ISteamController007,
 public ISteamController,
+public ISteamInput001,
 public ISteamInput
 {
     class Settings *settings;
