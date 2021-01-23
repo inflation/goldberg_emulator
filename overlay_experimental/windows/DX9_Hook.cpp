@@ -75,8 +75,7 @@ void DX9_Hook::prepareForOverlay(IDirect3DDevice9 *pDevice)
         initialized = true;
     }
     
-    ImGui_ImplDX9_NewFrame();
-
+    if (ImGui_ImplDX9_NewFrame())
     {
         Windows_Hook::Inst()->prepareForOverlay(param.hFocusWindow);
 

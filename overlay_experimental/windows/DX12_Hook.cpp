@@ -176,8 +176,7 @@ void DX12_Hook::prepareForOverlay(IDXGISwapChain* pSwapChain)
         pDevice->Release();
     }
     
-    ImGui_ImplDX12_NewFrame();
-
+    if (ImGui_ImplDX12_NewFrame())
     {
         Windows_Hook::Inst()->prepareForOverlay(sc_desc.OutputWindow);
 

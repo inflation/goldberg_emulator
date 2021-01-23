@@ -84,8 +84,7 @@ void OpenGL_Hook::prepareForOverlay(HDC hDC)
         initialized = true;
     }
 
-    ImGui_ImplOpenGL3_NewFrame();
-
+    if (ImGui_ImplOpenGL3_NewFrame())
     {
         Windows_Hook::Inst()->prepareForOverlay(hWnd);
 

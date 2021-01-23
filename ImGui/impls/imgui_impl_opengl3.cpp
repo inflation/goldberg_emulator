@@ -221,10 +221,11 @@ void    ImGui_ImplOpenGL3_Shutdown()
     ImGui_ImplOpenGL3_DestroyDeviceObjects();
 }
 
-void    ImGui_ImplOpenGL3_NewFrame()
+bool    ImGui_ImplOpenGL3_NewFrame()
 {
     if (!g_ShaderHandle)
-        ImGui_ImplOpenGL3_CreateDeviceObjects();
+        return ImGui_ImplOpenGL3_CreateDeviceObjects();
+    return true;
 }
 
 static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height, GLuint vertex_array_object)

@@ -634,8 +634,9 @@ void ImGui_ImplDX12_Shutdown()
     g_frameIndex = UINT_MAX;
 }
 
-void ImGui_ImplDX12_NewFrame()
+bool ImGui_ImplDX12_NewFrame()
 {
     if (!g_pPipelineState)
-        ImGui_ImplDX12_CreateDeviceObjects();
+        return ImGui_ImplDX12_CreateDeviceObjects();
+    return true;
 }

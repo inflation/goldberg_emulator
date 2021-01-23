@@ -595,8 +595,9 @@ void ImGui_ImplDX11_Shutdown()
     if (g_pd3dDeviceContext) { g_pd3dDeviceContext->Release(); g_pd3dDeviceContext = NULL; }
 }
 
-void ImGui_ImplDX11_NewFrame()
+bool ImGui_ImplDX11_NewFrame()
 {
     if (!g_pFontSampler)
-        ImGui_ImplDX11_CreateDeviceObjects();
+        return ImGui_ImplDX11_CreateDeviceObjects();
+    return true;
 }
