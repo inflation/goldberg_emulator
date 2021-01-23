@@ -55,7 +55,6 @@ public:
 	/// man-in-the-middle attacks.
 	virtual HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address ) = 0;
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 	/// Like CreateListenSocketIP, but clients will connect using ConnectP2P
 	///
 	/// nVirtualPort specifies how clients can connect to this socket using
@@ -80,7 +79,6 @@ public:
 	/// If you use this, you probably want to call ISteamNetworkingUtils::InitializeRelayNetworkAccess()
 	/// when your app initializes
 	virtual HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, int nVirtualPort ) = 0;
-#endif
 
 	/// Accept an incoming connection that has been received on a listen socket.
 	///
@@ -292,8 +290,6 @@ public:
 	/// even if they are not signed into Steam.)
 	virtual bool GetIdentity( SteamNetworkingIdentity *pIdentity ) = 0;
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-
 	//
 	// Clients connecting to dedicated servers hosted in a data center,
 	// using central-authority-granted tickets.
@@ -364,8 +360,6 @@ public:
 	///
 	/// Note that this call MUST be made through the SteamGameServerNetworkingSockets() interface
 	virtual HSteamListenSocket CreateHostedDedicatedServerListenSocket( int nVirtualPort ) = 0;
-
-#endif // #ifndef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 
 	// Invoke all callbacks queued for this interface.
 	// On Steam, callbacks are dispatched via the ordinary Steamworks callbacks mechanism.

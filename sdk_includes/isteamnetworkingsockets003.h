@@ -43,7 +43,6 @@ public:
 	/// man-in-the-middle attacks.
 	virtual HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address ) = 0;
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 	/// Like CreateListenSocketIP, but clients will connect using ConnectP2P
 	///
 	/// nVirtualPort specifies how clients can connect to this socket using
@@ -68,7 +67,6 @@ public:
 	/// If you use this, you probably want to call ISteamNetworkingUtils::InitRelayNetworkAccess()
 	/// when your app initializes
 	virtual HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, int nVirtualPort ) = 0;
-#endif
 
 	/// Accept an incoming connection that has been received on a listen socket.
 	///
@@ -331,8 +329,6 @@ public:
 
 #endif
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-
 	//
 	// Clients connecting to dedicated servers hosted in a data center,
 	// using central-authority-granted tickets.
@@ -446,8 +442,6 @@ public:
 	/// NOTE: The routing blob returned here is not encrypted.  Send it to your backend
 	///       and don't share it directly with clients.
 	virtual EResult GetGameCoordinatorServerLogin( SteamDatagramGameCoordinatorServerLogin *pLoginInfo, int *pcbSignedBlob, void *pBlob ) = 0;
-
-#endif // #ifndef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 
 	// Invoke all callbacks queued for this interface.
 	// On Steam, callbacks are dispatched via the ordinary Steamworks callbacks mechanism.
