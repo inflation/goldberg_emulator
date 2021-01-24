@@ -187,7 +187,7 @@ static void *create_client_interface(const char *ver)
 STEAMAPI_API void * S_CALLTYPE SteamInternal_CreateInterface( const char *ver )
 {
     PRINT_DEBUG("SteamInternal_CreateInterface %s\n", ver);
-    if (!get_steam_client()->user_logged_in) return NULL;
+    if (!get_steam_client()->user_logged_in && !get_steam_client()->IsServerInit()) return NULL;
 
     return create_client_interface(ver);
 }
@@ -509,6 +509,7 @@ STEAMAPI_API bool S_CALLTYPE SteamAPI_InitSafe()
 STEAMAPI_API ISteamClient *SteamClient() {
     PRINT_DEBUG("SteamClient()\n");
     load_old_interface_versions();
+    if (!get_steam_client()->user_logged_in) return NULL;
     return (ISteamClient *)SteamInternal_CreateInterface(old_client);
 }
 
