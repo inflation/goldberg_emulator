@@ -833,7 +833,25 @@ int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMe
 bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pInfo )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionInfo\n");
-    return false;
+    if (!pInfo)
+        return false;
+
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto connect_socket = connect_sockets.find(hConn);
+    if (connect_socket == connect_sockets.end()) return false;
+
+    memset(pInfo, 0, sizeof(SteamNetConnectionInfo_t));
+    pInfo->m_identityRemote = connect_socket->second.remote_identity;
+    pInfo->m_nUserData = connect_socket->second.user_data;
+    pInfo->m_hListenSocket = connect_socket->second.listen_socket_id;
+    //pInfo->m_addrRemote; //TODO
+    pInfo->m_idPOPRemote = 0;
+    pInfo->m_idPOPRelay = 0;
+    pInfo->m_eState = convert_status(connect_socket->second.status);
+    pInfo->m_eEndReason = 0; //TODO
+    pInfo->m_szEndDebug[0] = 0;
+    sprintf(pInfo->m_szConnectionDescription, "%u", hConn);
+    return true;
 }
 
 
@@ -878,7 +896,7 @@ int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMe
 /// Returns information about the specified connection.
 bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo001_t *pInfo )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionInfo\n");
+    PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionInfo001\n");
     return false;
 }
 
@@ -888,7 +906,21 @@ bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo001_t *
 bool GetQuickConnectionStatus( HSteamNetConnection hConn, SteamNetworkingQuickConnectionStatus *pStats )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetQuickConnectionStatus\n");
-    return false;
+    if (!pStats)
+        return false;
+
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto connect_socket = connect_sockets.find(hConn);
+    if (connect_socket == connect_sockets.end()) return false;
+    memset(pStats, 0, sizeof(SteamNetworkingQuickConnectionStatus));
+
+    pStats->m_eState = convert_status(connect_socket->second.status);
+    pStats->m_nPing = 10; //TODO: calculate real numbers?
+    pStats->m_flConnectionQualityLocal = 1.0;
+    pStats->m_flConnectionQualityRemote = 1.0;
+    //TODO: rest
+
+    return true;
 }
 
 
