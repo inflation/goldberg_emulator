@@ -107,11 +107,16 @@ Steam_Networking_Sockets(class Settings *settings, class Networking *network, cl
     this->run_every_runcb->remove(&Steam_Networking_Sockets::steam_run_every_runcb, this);
 }
 
+static unsigned long get_socket_id()
+{
+    static unsigned long socket_id;
+    socket_id++;
+    return socket_id;
+}
 
 HSteamListenSocket new_listen_socket(int nSteamConnectVirtualPort)
 {
-    static HSteamListenSocket socket_id;
-    ++socket_id;
+    HSteamListenSocket socket_id = get_socket_id();
     if (socket_id == k_HSteamListenSocket_Invalid) ++socket_id;
 
     auto conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&nSteamConnectVirtualPort](struct Listen_Socket const& conn) { return conn.virtual_port == nSteamConnectVirtualPort;});
@@ -165,8 +170,7 @@ HSteamNetConnection new_connect_socket(SteamNetworkingIdentity remote_identity, 
     socket.user_data = -1;
     socket.poll_group = k_HSteamNetPollGroup_Invalid;
 
-    static HSteamNetConnection socket_id;
-    ++socket_id;
+    HSteamNetConnection socket_id = get_socket_id();
     if (socket_id == k_HSteamNetConnection_Invalid) ++socket_id;
 
     if (connect_sockets.insert(std::make_pair(socket_id, socket)).second == false) {
