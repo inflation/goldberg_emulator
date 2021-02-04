@@ -8,7 +8,6 @@
 class ISteamNetworkingUtils002
 {
 public:
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 
 	//
 	// Initialization and status check
@@ -152,7 +151,6 @@ public:
 	/// Get list of all POP IDs.  Returns the number of entries that were filled into
 	/// your list.
 	virtual int GetPOPList( SteamNetworkingPOPID *list, int nListSz ) = 0;
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
 
 	//
 	// Misc
