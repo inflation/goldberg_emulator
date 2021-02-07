@@ -26,11 +26,13 @@ private:
     // Hook to Windows window messages
     decltype(GetRawInputBuffer)* GetRawInputBuffer;
     decltype(GetRawInputData)* GetRawInputData;
+    decltype(SetCursorPos)* SetCursorPos;
 
     static LRESULT CALLBACK HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     static UINT WINAPI MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader);
     static UINT WINAPI MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader);
 
+    static BOOL WINAPI MySetCursorPos(int x, int y);
 public:
     virtual ~Windows_Hook();
 

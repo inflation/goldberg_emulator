@@ -18,13 +18,15 @@ bool Windows_Hook::start_hook()
     {
         GetRawInputBuffer = ::GetRawInputBuffer;
         GetRawInputData = ::GetRawInputData;
+        SetCursorPos = ::SetCursorPos;
 
         PRINT_DEBUG("Hooked Windows\n");
 
         BeginHook();
         HookFuncs(
             std::make_pair<void**, void*>(&(PVOID&)GetRawInputBuffer, &Windows_Hook::MyGetRawInputBuffer),
-            std::make_pair<void**, void*>(&(PVOID&)GetRawInputData  , &Windows_Hook::MyGetRawInputData)
+            std::make_pair<void**, void*>(&(PVOID&)GetRawInputData  , &Windows_Hook::MyGetRawInputData),
+            std::make_pair<void**, void*>(&(PVOID&)SetCursorPos  , &Windows_Hook::MySetCursorPos)
         );
         EndHook();
 
@@ -168,6 +170,18 @@ UINT WINAPI Windows_Hook::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand,
     *pcbSize = 0;
 
     return 0;
+}
+
+BOOL WINAPI Windows_Hook::MySetCursorPos(int x, int y)
+{
+    if (get_steam_client()->steam_overlay->ShowOverlay()) {
+        POINT p;
+        GetCursorPos(&p);
+        x = p.x;
+        y = p.y;
+    }
+
+    return Windows_Hook::Inst()->SetCursorPos(x, y);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 
