@@ -649,6 +649,13 @@ static void load_dlls()
     std::vector<std::string> paths = Local_Storage::get_filenames_path(path);
     for (auto & p: paths) {
         std::string full_path = path + p;
+        size_t length = full_path.length();
+        if (length < 4) continue;
+        if (std::toupper(full_path[length - 1]) != 'L') continue;
+        if (std::toupper(full_path[length - 2]) != 'L') continue;
+        if (std::toupper(full_path[length - 3]) != 'D') continue;
+        if (full_path[length - 4] != '.') continue;
+
         PRINT_DEBUG("Trying to load %s\n", full_path.c_str());
         if (LoadLibraryA(full_path.c_str())) {
             PRINT_DEBUG("LOADED %s\n", full_path.c_str());
