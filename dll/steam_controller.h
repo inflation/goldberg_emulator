@@ -16,6 +16,18 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "base.h"
+#ifndef CONTROLLER_SUPPORT
+inline void GamepadInit(void) {}
+inline void GamepadShutdown(void) {}
+inline void GamepadUpdate(void) {}
+inline GAMEPAD_BOOL GamepadIsConnected(GAMEPAD_DEVICE device) { return GAMEPAD_FALSE; }
+inline GAMEPAD_BOOL GamepadButtonDown(GAMEPAD_DEVICE device, GAMEPAD_BUTTON button) { return GAMEPAD_FALSE; }
+inline float GamepadTriggerLength(GAMEPAD_DEVICE device, GAMEPAD_TRIGGER trigger) { return 0.0; }
+inline GAMEPAD_STICKDIR GamepadStickDir(GAMEPAD_DEVICE device, GAMEPAD_STICK stick) { return STICKDIR_CENTER; }
+inline void GamepadStickNormXY(GAMEPAD_DEVICE device, GAMEPAD_STICK stick, float* outX, float* outY) {}
+inline float GamepadStickLength(GAMEPAD_DEVICE device, GAMEPAD_STICK stick) { return 0.0; }
+inline void GamepadSetRumble(GAMEPAD_DEVICE device, float left, float right,  unsigned int rumble_length_ms) {}
+#endif
 
 struct Controller_Map {
     std::map<ControllerDigitalActionHandle_t, std::set<int>> active_digital;
@@ -756,7 +768,7 @@ int GetGamepadIndexForController( ControllerHandle_t ulControllerHandle )
 // Returns the associated controller handle for the specified emulated gamepad
 ControllerHandle_t GetControllerForGamepadIndex( int nIndex )
 {
-    PRINT_DEBUG("Steam_Controller::GetControllerForGamepadIndex\n");
+    PRINT_DEBUG("Steam_Controller::GetControllerForGamepadIndex %i\n", nIndex);
     ControllerHandle_t out = nIndex + 1;
     auto controller = controllers.find(out);
     if (controller == controllers.end()) return 0;
@@ -890,7 +902,7 @@ const char *GetGlyphForActionOrigin( EInputActionOrigin eOrigin )
 // Returns the input type for a particular handle
 ESteamInputType GetInputTypeForHandle( ControllerHandle_t controllerHandle )
 {
-    PRINT_DEBUG("Steam_Controller::GetInputTypeForHandle\n");
+    PRINT_DEBUG("Steam_Controller::GetInputTypeForHandle %llu\n", controllerHandle);
     auto controller = controllers.find(controllerHandle);
     if (controller == controllers.end()) return k_ESteamInputType_Unknown;
     return k_ESteamInputType_XBox360Controller;
