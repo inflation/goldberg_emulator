@@ -125,6 +125,20 @@ message Networking_Sockets {
     bytes data = 5;
 }
 
+message Networking_Messages {
+    enum Types {
+        CONNECTION_NEW = 0;
+        CONNECTION_ACCEPT = 1;
+        CONNECTION_END = 2;
+        DATA = 3;
+    }
+
+    Types type = 1;
+    uint32 channel = 2;
+    uint32 id_from = 3;
+    bytes data = 5;
+}
+
 message Gameserver {
     uint64 id = 1;
     bytes game_description = 2;
@@ -212,6 +226,7 @@ message Common_Message {
         Network_Old network_old = 12;
         Networking_Sockets networking_sockets = 13;
         Steam_Messages steam_messages = 14;
+        Networking_Messages networking_messages = 15;
     }
 
     uint32 source_ip = 128;

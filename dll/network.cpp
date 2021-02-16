@@ -554,6 +554,11 @@ void Networking::do_callbacks_message(Common_Message *msg)
         PRINT_DEBUG("has_steam_messages\n");
         run_callbacks(CALLBACK_ID_STEAM_MESSAGES, msg);
     }
+
+    if (msg->has_networking_messages()) {
+        PRINT_DEBUG("has_networking_messages\n");
+        run_callbacks(CALLBACK_ID_NETWORKING_MESSAGES, msg);
+    }
 }
 
 bool Networking::handle_tcp(Common_Message *msg, struct TCP_Socket &socket)
