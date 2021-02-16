@@ -311,14 +311,14 @@ S_API void S_CALLTYPE SteamAPI_ManualDispatch_RunFrame( HSteamPipe hSteamPipe );
 /// Fetch the next pending callback on the given pipe, if any.  If a callback is available, true is returned
 /// and the structure is populated.  In this case, you MUST call SteamAPI_ManualDispatch_FreeLastCallback
 /// (after dispatching the callback) before calling SteamAPI_ManualDispatch_GetNextCallback again.
-S_API bool S_CALLTYPE SteamAPI_ManualDispatch_GetNextCallback( HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg );
+S_API steam_bool S_CALLTYPE SteamAPI_ManualDispatch_GetNextCallback( HSteamPipe hSteamPipe, CallbackMsg_t *pCallbackMsg );
 
 /// You must call this after dispatching the callback, if SteamAPI_ManualDispatch_GetNextCallback returns true.
 S_API void S_CALLTYPE SteamAPI_ManualDispatch_FreeLastCallback( HSteamPipe hSteamPipe );
 
 /// Return the call result for the specified call on the specified pipe.  You really should
 /// only call this in a handler for SteamAPICallCompleted_t callback.
-S_API bool S_CALLTYPE SteamAPI_ManualDispatch_GetAPICallResult( HSteamPipe hSteamPipe, SteamAPICall_t hSteamAPICall, void *pCallback, int cubCallback, int iCallbackExpected, bool *pbFailed );
+S_API steam_bool S_CALLTYPE SteamAPI_ManualDispatch_GetAPICallResult( HSteamPipe hSteamPipe, SteamAPICall_t hSteamAPICall, void *pCallback, int cubCallback, int iCallbackExpected, bool *pbFailed );
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------//
 //

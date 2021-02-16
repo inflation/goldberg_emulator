@@ -10,6 +10,12 @@
 #pragma once
 #endif
 
+/*
+for some dumb reason some games like carrion think a bool is an int and use the whole register as a return value
+instead of using just al like a normal program.
+*/
+typedef unsigned steam_bool;
+
 #define S_CALLTYPE __cdecl
 
 // Steam-specific types. Defined here so this header file can be included in other code bases.
