@@ -236,7 +236,7 @@ int ReceiveMessagesOnChannel( int nLocalChannel, SteamNetworkingMessage_t **ppOu
     for (auto & conn : connections) {
         auto chan = conn.second.data.find(nLocalChannel);
         if (chan != conn.second.data.end()) {
-            while (!chan->second.empty() && message_counter <= nMaxMessages) {
+            while (!chan->second.empty() && message_counter < nMaxMessages) {
                 SteamNetworkingMessage_t *pMsg = new SteamNetworkingMessage_t(); //TODO size is wrong
                 unsigned long size = chan->second.front().size();
                 pMsg->m_pData = malloc(size);
@@ -323,6 +323,7 @@ bool CloseChannelWithUser( const SteamNetworkingIdentity &identityRemote, int nL
 {
     PRINT_DEBUG("Steam_Networking_Messages::CloseChannelWithUser\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    //TODO
     return false;
 }
 
@@ -344,20 +345,27 @@ ESteamNetworkingConnectionState GetSessionConnectionInfo( const SteamNetworkingI
         return k_ESteamNetworkingConnectionState_None;
     }
 
+    ESteamNetworkingConnectionState state = k_ESteamNetworkingConnectionState_Connected;
+    if (conn->second.remote_id == 0 || !conn->second.accepted) {
+        state = k_ESteamNetworkingConnectionState_Connecting;
+    } else if (conn->second.dead) {
+        state = k_ESteamNetworkingConnectionState_ClosedByPeer;
+    }
+
     if (pConnectionInfo) {
+        memset(pConnectionInfo, 0, sizeof(SteamNetConnectionInfo_t));
+        pConnectionInfo->m_eState = state;
+        pConnectionInfo->m_identityRemote = conn->second.remote_identity;
         //TODO
     }
 
     if (pQuickStatus) {
+        memset(pQuickStatus, 0, sizeof(SteamNetworkingQuickConnectionStatus));
+        pQuickStatus->m_eState = state;
+        pQuickStatus->m_nPing = 10; //TODO: calculate real numbers?
+        pQuickStatus->m_flConnectionQualityLocal = 1.0;
+        pQuickStatus->m_flConnectionQualityRemote = 1.0;
         //TODO
-    }
-
-    if (conn->second.remote_id == 0 || !conn->second.accepted) {
-        return k_ESteamNetworkingConnectionState_Connecting;
-    }
-
-    if (conn->second.dead) {
-        return k_ESteamNetworkingConnectionState_ClosedByPeer;
     }
 
     return k_ESteamNetworkingConnectionState_Connected;
