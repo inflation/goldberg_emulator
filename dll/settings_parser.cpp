@@ -286,6 +286,10 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
             } else if (p == "force_account_name.txt") {
                 int len = Local_Storage::get_file_data(steam_settings_path + "force_account_name.txt", name, sizeof(name) - 1);
                 if (len > 0) name[len] = 0;
+            } else if (p == "force_listen_port.txt") {
+                char array_port[10] = {};
+                int len = Local_Storage::get_file_data(steam_settings_path + "force_listen_port.txt", array_port, sizeof(array_port) - 1);
+                if (len > 0) port = std::stoi(array_port);
             }
         }
     }
