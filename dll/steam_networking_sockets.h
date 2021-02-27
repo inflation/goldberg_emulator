@@ -793,7 +793,7 @@ int ReceiveMessagesOnConnection( HSteamNetConnection hConn, SteamNetworkingMessa
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     SteamNetworkingMessage_t *msg = NULL;
     int messages = 0;
-    while ((msg = get_steam_message_connection(hConn)) && messages < nMaxMessages) {
+    while (messages < nMaxMessages && (msg = get_steam_message_connection(hConn))) {
         ppOutMessages[messages] = msg;
         ++messages;
     }
@@ -821,7 +821,7 @@ int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMe
     auto socket_conn = std::begin(connect_sockets);
     while (socket_conn != std::end(connect_sockets) && messages < nMaxMessages) {
         if (socket_conn->second.listen_socket_id == hSocket) {
-            while ((msg = get_steam_message_connection(socket_conn->first)) && messages < nMaxMessages) {
+            while (messages < nMaxMessages && (msg = get_steam_message_connection(socket_conn->first))) {
                 ppOutMessages[messages] = msg;
                 ++messages;
             }
@@ -1197,7 +1197,7 @@ int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMe
     int messages = 0;
 
     for (auto c : group->second) {
-        while ((msg = get_steam_message_connection(c)) && messages < nMaxMessages) {
+        while (messages < nMaxMessages && (msg = get_steam_message_connection(c))) {
             ppOutMessages[messages] = msg;
             ++messages;
         }
