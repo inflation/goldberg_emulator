@@ -94,6 +94,16 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
 {
     load_achievements_db(); // achievements db
     load_achievements(); // achievements per user
+
+    for (auto & it : defined_achievements) {
+        try {
+            std::string name = static_cast<std::string const&>(it["name"]);
+            if (user_achievements.find(name) == user_achievements.end()) {
+                user_achievements[name]["earned"] = false;
+                user_achievements[name]["earned_time"] = static_cast<uint32>(0);
+            }
+        } catch (...) {}
+    }
 }
 
 // Ask the server to send down this user's data and achievements for this game
