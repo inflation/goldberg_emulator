@@ -103,6 +103,10 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
                 user_achievements[name]["earned_time"] = static_cast<uint32>(0);
             }
         } catch (...) {}
+
+        try {
+            it["hidden"] = std::to_string(it["hidden"].get<int>());
+        } catch (...) {}
     }
 }
 
