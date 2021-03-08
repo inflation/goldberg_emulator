@@ -21,6 +21,7 @@ struct Listen_Socket {
     HSteamListenSocket socket_id;
 
     int virtual_port;
+    int real_port;
 };
 
 enum connect_socket_status {
@@ -34,6 +35,7 @@ enum connect_socket_status {
 
 struct Connect_Socket {
     int virtual_port;
+    int real_port;
 
     SteamNetworkingIdentity remote_identity;
     HSteamNetConnection remote_id;
@@ -68,6 +70,8 @@ public ISteamNetworkingSockets
     std::map<HSteamNetConnection, struct Connect_Socket> connect_sockets;
     std::map<HSteamNetPollGroup, std::list<HSteamNetConnection>> poll_groups;
     std::chrono::steady_clock::time_point created;
+
+    static const int SNS_DISABLED_PORT = -1;
 
 public:
 static void steam_callback(void *object, Common_Message *msg)
@@ -114,7 +118,7 @@ static unsigned long get_socket_id()
     return socket_id;
 }
 
-HSteamListenSocket new_listen_socket(int nSteamConnectVirtualPort)
+HSteamListenSocket new_listen_socket(int nSteamConnectVirtualPort, int real_port)
 {
     HSteamListenSocket socket_id = get_socket_id();
     if (socket_id == k_HSteamListenSocket_Invalid) ++socket_id;
@@ -125,6 +129,7 @@ HSteamListenSocket new_listen_socket(int nSteamConnectVirtualPort)
     struct Listen_Socket listen_socket;
     listen_socket.socket_id = socket_id;
     listen_socket.virtual_port = nSteamConnectVirtualPort;
+    listen_socket.real_port = real_port;
     listen_sockets.push_back(listen_socket);
     return socket_id;
 }
@@ -145,7 +150,6 @@ bool send_packet_new_connection(HSteamNetConnection m_hConn)
 
     Common_Message msg;
     msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
-    msg.set_dest_id(connect_socket->second.remote_identity.GetSteamID64());
     msg.set_allocated_networking_sockets(new Networking_Sockets);
     if (connect_socket->second.status == CONNECT_SOCKET_CONNECTING) {
         msg.mutable_networking_sockets()->set_type(Networking_Sockets::CONNECTION_REQUEST);
@@ -153,17 +157,31 @@ bool send_packet_new_connection(HSteamNetConnection m_hConn)
         msg.mutable_networking_sockets()->set_type(Networking_Sockets::CONNECTION_ACCEPTED);
     }
 
-    msg.mutable_networking_sockets()->set_port(connect_socket->second.virtual_port);
+    msg.mutable_networking_sockets()->set_virtual_port(connect_socket->second.virtual_port);
+    msg.mutable_networking_sockets()->set_real_port(connect_socket->second.real_port);
     msg.mutable_networking_sockets()->set_connection_id_from(connect_socket->first);
     msg.mutable_networking_sockets()->set_connection_id(connect_socket->second.remote_id);
-    return network->sendTo(&msg, true);
+
+    uint64_t steam_id = connect_socket->second.remote_identity.GetSteamID64();
+    if (steam_id) {
+        msg.set_dest_id(steam_id);
+        return network->sendTo(&msg, true);
+    }
+
+    const SteamNetworkingIPAddr *ip_addr = connect_socket->second.remote_identity.GetIPAddr();
+    if (ip_addr) {
+        return network->sendToIPPort(&msg, ip_addr->GetIPv4(), ip_addr->m_port, true);
+    }
+
+    return false;
 }
 
-HSteamNetConnection new_connect_socket(SteamNetworkingIdentity remote_identity, int virtual_port, enum connect_socket_status status=CONNECT_SOCKET_CONNECTING, HSteamListenSocket listen_socket_id=k_HSteamListenSocket_Invalid, HSteamNetConnection remote_id=k_HSteamNetConnection_Invalid)
+HSteamNetConnection new_connect_socket(SteamNetworkingIdentity remote_identity, int virtual_port, int real_port, enum connect_socket_status status=CONNECT_SOCKET_CONNECTING, HSteamListenSocket listen_socket_id=k_HSteamListenSocket_Invalid, HSteamNetConnection remote_id=k_HSteamNetConnection_Invalid)
 {
     Connect_Socket socket = {};
     socket.remote_identity = remote_identity;
     socket.virtual_port = virtual_port;
+    socket.real_port = real_port;
     socket.listen_socket_id = listen_socket_id;
     socket.remote_id = remote_id;
     socket.status = status;
@@ -237,7 +255,7 @@ HSteamListenSocket CreateListenSocket( int nSteamConnectVirtualPort, uint32 nIP,
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocket %i %u %u\n", nSteamConnectVirtualPort, nIP, nPort);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    return new_listen_socket(nSteamConnectVirtualPort);
+    return new_listen_socket(nSteamConnectVirtualPort, nPort);
 }
 
 /// Creates a "server" socket that listens for clients to connect to by 
@@ -257,19 +275,22 @@ HSteamListenSocket CreateListenSocket( int nSteamConnectVirtualPort, uint32 nIP,
 HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddress )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP old\n");
-    return k_HSteamListenSocket_Invalid;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    return new_listen_socket(SNS_DISABLED_PORT, localAddress.m_port);
 }
 
 HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr *localAddress )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP old1\n");
-    return k_HSteamListenSocket_Invalid;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    return new_listen_socket(SNS_DISABLED_PORT, localAddress->m_port);
 }
 
 HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddress, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketIP\n");
-    return k_HSteamListenSocket_Invalid;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    return new_listen_socket(SNS_DISABLED_PORT, localAddress.m_port);
 }
 
 /// Creates a connection and begins talking to a "server" over UDP at the
@@ -293,19 +314,34 @@ HSteamListenSocket CreateListenSocketIP( const SteamNetworkingIPAddr &localAddre
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress old\n");
-    return k_HSteamNetConnection_Invalid;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    SteamNetworkingIdentity ip_id;
+    ip_id.SetIPAddr(address);
+    HSteamNetConnection socket = new_connect_socket(ip_id, SNS_DISABLED_PORT, address.m_port);
+    send_packet_new_connection(socket);
+    return socket;
 }
 
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr *address )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress old1\n");
-    return k_HSteamNetConnection_Invalid;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    SteamNetworkingIdentity ip_id;
+    ip_id.SetIPAddr(*address);
+    HSteamNetConnection socket = new_connect_socket(ip_id, SNS_DISABLED_PORT, address->m_port);
+    send_packet_new_connection(socket);
+    return socket;
 }
 
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress\n");
-    return k_HSteamNetConnection_Invalid;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    SteamNetworkingIdentity ip_id;
+    ip_id.SetIPAddr(address);
+    HSteamNetConnection socket = new_connect_socket(ip_id, SNS_DISABLED_PORT, address.m_port);
+    send_packet_new_connection(socket);
+    return socket;
 }
 
 /// Like CreateListenSocketIP, but clients will connect using ConnectP2P
@@ -322,7 +358,7 @@ HSteamListenSocket CreateListenSocketP2P( int nVirtualPort )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketP2P old %i\n", nVirtualPort);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    return new_listen_socket(nVirtualPort);
+    return new_listen_socket(nVirtualPort, SNS_DISABLED_PORT);
 }
 
 HSteamListenSocket CreateListenSocketP2P( int nVirtualPort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
@@ -330,7 +366,7 @@ HSteamListenSocket CreateListenSocketP2P( int nVirtualPort, int nOptions, const 
     PRINT_DEBUG("Steam_Networking_Sockets::CreateListenSocketP2P %i\n", nVirtualPort);
     //TODO config options
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    return new_listen_socket(nVirtualPort);
+    return new_listen_socket(nVirtualPort, SNS_DISABLED_PORT);
 }
 
 /// Begin connecting to a server that is identified using a platform-specific identifier.
@@ -361,7 +397,7 @@ HSteamNetConnection ConnectP2P( const SteamNetworkingIdentity &identityRemote, i
         return k_HSteamNetConnection_Invalid;
     }
 
-    HSteamNetConnection socket = new_connect_socket(identityRemote, nVirtualPort);
+    HSteamNetConnection socket = new_connect_socket(identityRemote, nVirtualPort, SNS_DISABLED_PORT);
     send_packet_new_connection(socket);
     return socket;
 }
@@ -487,7 +523,8 @@ bool CloseConnection( HSteamNetConnection hPeer, int nReason, const char *pszDeb
         msg.set_dest_id(connect_socket->second.remote_identity.GetSteamID64());
         msg.set_allocated_networking_sockets(new Networking_Sockets);
         msg.mutable_networking_sockets()->set_type(Networking_Sockets::CONNECTION_END);
-        msg.mutable_networking_sockets()->set_port(connect_socket->second.virtual_port);
+        msg.mutable_networking_sockets()->set_virtual_port(connect_socket->second.virtual_port);
+        msg.mutable_networking_sockets()->set_real_port(connect_socket->second.real_port);
         msg.mutable_networking_sockets()->set_connection_id_from(connect_socket->first);
         msg.mutable_networking_sockets()->set_connection_id(connect_socket->second.remote_id);
         network->sendTo(&msg, true);
@@ -665,7 +702,8 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
     msg.set_dest_id(connect_socket->second.remote_identity.GetSteamID64());
     msg.set_allocated_networking_sockets(new Networking_Sockets);
     msg.mutable_networking_sockets()->set_type(Networking_Sockets::DATA);
-    msg.mutable_networking_sockets()->set_port(connect_socket->second.virtual_port);
+    msg.mutable_networking_sockets()->set_virtual_port(connect_socket->second.virtual_port);
+    msg.mutable_networking_sockets()->set_real_port(connect_socket->second.real_port);
     msg.mutable_networking_sockets()->set_connection_id_from(connect_socket->first);
     msg.mutable_networking_sockets()->set_connection_id(connect_socket->second.remote_id);
     msg.mutable_networking_sockets()->set_data(pData, cbData);
@@ -1021,8 +1059,8 @@ bool CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection
 
     SteamNetworkingIdentity remote_identity;
     remote_identity.SetSteamID(settings->get_local_steam_id());
-    HSteamNetConnection con1 = new_connect_socket(remote_identity, 0, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, k_HSteamNetConnection_Invalid);
-    HSteamNetConnection con2 = new_connect_socket(remote_identity, 0, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, con1);
+    HSteamNetConnection con1 = new_connect_socket(remote_identity, 0, SNS_DISABLED_PORT, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, k_HSteamNetConnection_Invalid);
+    HSteamNetConnection con2 = new_connect_socket(remote_identity, 0, SNS_DISABLED_PORT, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, con1);
     connect_sockets[con1].remote_id = con2;
     *pOutConnection1 = con1;
     *pOutConnection2 = con2;
@@ -1383,7 +1421,7 @@ HSteamListenSocket CreateHostedDedicatedServerListenSocket( int nVirtualPort )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::CreateHostedDedicatedServerListenSocket old %i\n", nVirtualPort);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    return new_listen_socket(nVirtualPort);
+    return new_listen_socket(nVirtualPort, SNS_DISABLED_PORT);
 }
 
 /// Create a listen socket on the specified virtual port.  The physical UDP port to use
@@ -1400,7 +1438,7 @@ HSteamListenSocket CreateHostedDedicatedServerListenSocket( int nVirtualPort, in
     PRINT_DEBUG("Steam_Networking_Sockets::CreateHostedDedicatedServerListenSocket old %i\n", nVirtualPort);
     //TODO config options
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    return new_listen_socket(nVirtualPort);
+    return new_listen_socket(nVirtualPort, SNS_DISABLED_PORT);
 }
 
 
@@ -1670,19 +1708,29 @@ void Callback(Common_Message *msg)
     if (msg->has_networking_sockets()) {
         PRINT_DEBUG("Steam_Networking_Sockets: got network socket msg %u\n", msg->networking_sockets().type());
         if (msg->networking_sockets().type() == Networking_Sockets::CONNECTION_REQUEST) {
-            int virtual_port = msg->networking_sockets().port();
+            int virtual_port = msg->networking_sockets().virtual_port();
+            int real_port = msg->networking_sockets().real_port();
+            std::vector<Listen_Socket>::iterator conn;
+            if (virtual_port == SNS_DISABLED_PORT) {
+                conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&real_port](struct Listen_Socket const& conn) { return conn.real_port == real_port;});
+            } else {
+                conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&virtual_port](struct Listen_Socket const& conn) { return conn.virtual_port == virtual_port;});
+            }
 
-            auto conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&virtual_port](struct Listen_Socket const& conn) { return conn.virtual_port == virtual_port;});
             if (conn != listen_sockets.end()) {
                 SteamNetworkingIdentity identity;
                 identity.SetSteamID64(msg->source_id());
-                HSteamNetConnection new_connection = new_connect_socket(identity, virtual_port, CONNECT_SOCKET_NOT_ACCEPTED, conn->socket_id, msg->networking_sockets().connection_id_from());
+                HSteamNetConnection new_connection = new_connect_socket(identity, virtual_port, real_port, CONNECT_SOCKET_NOT_ACCEPTED, conn->socket_id, msg->networking_sockets().connection_id_from());
                 launch_callback(new_connection, CONNECT_SOCKET_NO_CONNECTION);
             }
 
         } else if (msg->networking_sockets().type() == Networking_Sockets::CONNECTION_ACCEPTED) {
             auto connect_socket = connect_sockets.find(msg->networking_sockets().connection_id());
             if (connect_socket != connect_sockets.end()) {
+                if (connect_socket->second.remote_identity.GetSteamID64() == 0) {
+                    connect_socket->second.remote_identity.SetSteamID64(msg->source_id());
+                }
+
                 if (connect_socket->second.remote_identity.GetSteamID64() == msg->source_id() && connect_socket->second.status == CONNECT_SOCKET_CONNECTING) {
                     connect_socket->second.remote_id = msg->networking_sockets().connection_id_from();
                     connect_socket->second.status = CONNECT_SOCKET_CONNECTED;
