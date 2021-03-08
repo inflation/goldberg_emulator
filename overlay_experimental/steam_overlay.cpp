@@ -787,22 +787,34 @@ void Steam_Overlay::RunCallbacks()
                     callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
 
                     friend_info->second.window_state &= ~window_state_lobby_invite;
-                } else
+                } else {
                 // The user got a rich presence invite and accepted it
-                if (friend_info->second.window_state & window_state_rich_invite)
-                {
-                    GameRichPresenceJoinRequested_t data = {};
-                    data.m_steamIDFriend.SetFromUint64(friend_id);
-                    strncpy(data.m_rgchConnect, friend_info->second.connect, k_cchMaxRichPresenceValueLength - 1);
-                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                    if (friend_info->second.window_state & window_state_rich_invite)
+                    {
+                        GameRichPresenceJoinRequested_t data = {};
+                        data.m_steamIDFriend.SetFromUint64(friend_id);
+                        strncpy(data.m_rgchConnect, friend_info->second.connect, k_cchMaxRichPresenceValueLength - 1);
+                        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
 
-                    friend_info->second.window_state &= ~window_state_rich_invite;
-                } else if (connect.length() > 0)
-                {
-                    GameRichPresenceJoinRequested_t data = {};
-                    data.m_steamIDFriend.SetFromUint64(friend_id);
-                    strncpy(data.m_rgchConnect, connect.c_str(), k_cchMaxRichPresenceValueLength - 1);
-                    callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                        friend_info->second.window_state &= ~window_state_rich_invite;
+                    } else if (connect.length() > 0)
+                    {
+                        GameRichPresenceJoinRequested_t data = {};
+                        data.m_steamIDFriend.SetFromUint64(friend_id);
+                        strncpy(data.m_rgchConnect, connect.c_str(), k_cchMaxRichPresenceValueLength - 1);
+                        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                    }
+
+                    //Not sure about this but it fixes sonic racing transformed invites
+                    FriendGameInfo_t friend_game_info = {};
+                    steamFriends->GetFriendGamePlayed(friend_id, &friend_game_info);
+                    uint64 lobby_id = friend_game_info.m_steamIDLobby.ConvertToUint64();
+                    if (lobby_id) {
+                        GameLobbyJoinRequested_t data;
+                        data.m_steamIDLobby.SetFromUint64(lobby_id);
+                        data.m_steamIDFriend.SetFromUint64(friend_id);
+                        callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
+                    }
                 }
 
                 friend_info->second.window_state &= ~window_state_join;
