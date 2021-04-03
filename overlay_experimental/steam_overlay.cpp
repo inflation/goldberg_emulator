@@ -698,7 +698,7 @@ void Steam_Overlay::Callback(Common_Message *msg)
         {
             Steam_Messages const& steam_message = msg->steam_messages();
             // Change color to cyan for friend
-            friend_info->second.chat_history.append("\x1""00FFFFFF", 9).append(steam_message.message()).append("\n", 1);
+            friend_info->second.chat_history.append(steam_message.message()).append("\n", 1);
             if (!(friend_info->second.window_state & window_state_show))
             {
                 friend_info->second.window_state |= window_state_need_attention;
@@ -758,7 +758,7 @@ void Steam_Overlay::RunCallbacks()
                     msg.set_dest_id(friend_id);
                     network->sendTo(&msg, true);
 
-                    friend_info->second.chat_history.append("\x1""00FF00FF", 9).append(input).append("\n", 1);
+                    friend_info->second.chat_history.append(input).append("\n", 1);
                 }
                 *input = 0; // Reset the input field
                 friend_info->second.window_state &= ~window_state_send_message;
