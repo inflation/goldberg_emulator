@@ -136,7 +136,7 @@ Steam_Client *get_steam_clientserver_old()
 static bool steamclient_has_ipv6_functions_flag;
 bool steamclient_has_ipv6_functions()
 {
-    return steamclient_has_ipv6_functions_flag;
+    return steamclient_has_ipv6_functions_flag || get_steam_client()->gameserver_has_ipv6_functions;
 }
 
 static void *create_client_interface(const char *ver)

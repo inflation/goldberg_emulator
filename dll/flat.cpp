@@ -5843,13 +5843,14 @@ STEAMAPI_API SteamAPICall_t SteamAPI_ISteamGameServer_GetServerReputation( IStea
     return self->GetServerReputation();
 }
 
-STEAMAPI_API uint32 SteamAPI_ISteamGameServer_GetPublicIP( intptr_t instancePtr, void *instancePtr_possible )
+STEAMAPI_API void *SteamAPI_ISteamGameServer_GetPublicIP( intptr_t instancePtr, void *instancePtr_possible )
 {
-    //TODO: check if this actually works (ret value changed from uint32 to struct)
+    //abuse call convention rules to get this working.
     if (steamclient_has_ipv6_functions()) {
-        return ((ISteamGameServer012 *)instancePtr_possible)->GetPublicIP_old();
+        get_steam_client()->steam_gameserver->GetPublicIP_fix((SteamIPAddress_t *)instancePtr);
+        return (void *)instancePtr;
     } else {
-        return ((ISteamGameServer012 *)instancePtr)->GetPublicIP_old();
+        return (void *)((ISteamGameServer012 *)instancePtr)->GetPublicIP_old();
     }
 }
 
