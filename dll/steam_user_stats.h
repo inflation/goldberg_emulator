@@ -239,6 +239,7 @@ bool GetAchievement( const char *pchName, bool *pbAchieved )
 
     try {
         auto it = defined_achievements_find(pchName);
+        if (it == defined_achievements.end()) return false;
         std::string pch_name = it->value("name", std::string());
 
         auto ach = user_achievements.find(pch_name);
@@ -261,6 +262,7 @@ bool SetAchievement( const char *pchName )
 
     try {
         auto it = defined_achievements_find(pchName);
+        if (it == defined_achievements.end()) return false;
         std::string pch_name = it->value("name", std::string());
 
         if (it != defined_achievements.end()) {
@@ -288,6 +290,7 @@ bool ClearAchievement( const char *pchName )
 
     try {
         auto it = defined_achievements_find(pchName);
+        if (it == defined_achievements.end()) return false;
         std::string pch_name = it->value("name", std::string());
 
         if (it != defined_achievements.end()) {
@@ -313,6 +316,7 @@ bool GetAchievementAndUnlockTime( const char *pchName, bool *pbAchieved, uint32 
 
     try {
         auto it = defined_achievements_find(pchName);
+        if (it == defined_achievements.end()) return false;
         std::string pch_name = it->value("name", std::string());
 
         auto ach = user_achievements.find(pch_name);
@@ -417,6 +421,8 @@ bool IndicateAchievementProgress( const char *pchName, uint32 nCurProgress, uint
 
     try {
         auto it = defined_achievements_find(pchName);
+        if (it == defined_achievements.end()) return false;
+
         std::string pch_name = it->value("name", std::string());
 
         auto ach = user_achievements.find(pch_name);
