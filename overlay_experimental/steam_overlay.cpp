@@ -657,22 +657,24 @@ void Steam_Overlay::OverlayProc()
             std::lock_guard<std::recursive_mutex> lock(overlay_mutex);
             if (!friends.empty())
             {
-                ImGui::ListBoxHeader("##label", friends.size());
-                std::for_each(friends.begin(), friends.end(), [this](std::pair<Friend const, friend_window_state> &i)
+                if (ImGui::ListBoxHeader("##label", friends.size()))
                 {
-                    ImGui::PushID(i.second.id-base_friend_window_id+base_friend_item_id);
-
-                    ImGui::Selectable(i.second.window_title.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
-                    BuildContextMenu(i.first, i.second);
-                    if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+                    std::for_each(friends.begin(), friends.end(), [this](std::pair<Friend const, friend_window_state> &i)
                     {
-                        i.second.window_state |= window_state_show;
-                    }
-                    ImGui::PopID();
+                        ImGui::PushID(i.second.id-base_friend_window_id+base_friend_item_id);
 
-                    BuildFriendWindow(i.first, i.second);
-                });
-                ImGui::ListBoxFooter();
+                        ImGui::Selectable(i.second.window_title.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick);
+                        BuildContextMenu(i.first, i.second);
+                        if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+                        {
+                            i.second.window_state |= window_state_show;
+                        }
+                        ImGui::PopID();
+
+                        BuildFriendWindow(i.first, i.second);
+                    });
+                    ImGui::ListBoxFooter();
+                }
             }
         }
         ImGui::End();
