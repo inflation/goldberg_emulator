@@ -812,11 +812,25 @@ ISteamHTTP *Steam_Client::GetISteamHTTP( HSteamUser hSteamuser, HSteamPipe hStea
 {
     PRINT_DEBUG("GetISteamHTTP %s\n", pchVersion);
     if (!steam_pipes.count(hSteamPipe) || !hSteamuser) return NULL;
+    Steam_HTTP *steam_http_temp;
+
     if (steam_pipes[hSteamPipe] == Steam_Pipe::SERVER) {
-        return steam_gameserver_http;
+        steam_http_temp = steam_gameserver_http;
+    } else {
+        steam_http_temp = steam_http;
     }
 
-    return steam_http;
+    if (strcmp(pchVersion, "STEAMHTTP_INTERFACE_VERSION001") == 0) {
+        return (ISteamHTTP *)(void *)(ISteamHTTP001 *)steam_http_temp;
+    } else if (strcmp(pchVersion, "STEAMHTTP_INTERFACE_VERSION002") == 0) {
+        return (ISteamHTTP *)(void *)(ISteamHTTP002 *)steam_http_temp;
+    } else if (strcmp(pchVersion, STEAMHTTP_INTERFACE_VERSION) == 0) {
+        return (ISteamHTTP *)(void *)(ISteamHTTP *)steam_http_temp;
+    } else {
+        return (ISteamHTTP *)(void *)(ISteamHTTP *)steam_http_temp;
+    }
+
+    return steam_http_temp;
 }
 
 // Deprecated - the ISteamUnifiedMessages interface is no longer intended for public consumption.
