@@ -20,6 +20,8 @@
 
 #include "base.h"
 
+struct IP_PORT;
+
 struct DLC_entry {
     AppId_t appID;
     std::string name;
@@ -125,7 +127,7 @@ public:
     bool createUnknownLeaderboards() { return create_unknown_leaderboards; }
 
     //custom broadcasts
-    std::set<uint32> custom_broadcasts;
+    std::set<IP_PORT> custom_broadcasts;
 
     //stats
     std::map<std::string, Stat_config> getStats() { return stats; }

@@ -28,7 +28,7 @@ static void consume_bom(std::ifstream &input)
     }
 }
 
-static void load_custom_broadcasts(std::string broadcasts_filepath, std::set<uint32> &custom_broadcasts)
+static void load_custom_broadcasts(std::string broadcasts_filepath, std::set<IP_PORT> &custom_broadcasts)
 {
     PRINT_DEBUG("Broadcasts file path: %s\n", broadcasts_filepath.c_str());
     std::ifstream broadcasts_file(utf8_decode(broadcasts_filepath));
@@ -36,7 +36,7 @@ static void load_custom_broadcasts(std::string broadcasts_filepath, std::set<uin
     if (broadcasts_file.is_open()) {
         std::string line;
         while (std::getline(broadcasts_file, line)) {
-            std::set<uint32> ips = Networking::resolve_ip(line);
+            std::set<IP_PORT> ips = Networking::resolve_ip(line);
             custom_broadcasts.insert(ips.begin(), ips.end());
         }
     }
@@ -204,7 +204,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
 
 
     // Custom broadcasts
-    std::set<uint32> custom_broadcasts;
+    std::set<IP_PORT> custom_broadcasts;
     load_custom_broadcasts(local_storage->get_global_settings_path() + "custom_broadcasts.txt", custom_broadcasts);
     load_custom_broadcasts(Local_Storage::get_game_settings_path() + "custom_broadcasts.txt", custom_broadcasts);
 
