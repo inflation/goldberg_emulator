@@ -993,6 +993,7 @@ void SetLobbyGameServer( CSteamID steamIDLobby, uint32 unGameServerIP, uint16 un
         lobby->mutable_gameserver()->set_id(steamIDGameServer.ConvertToUint64());
         lobby->mutable_gameserver()->set_ip(unGameServerIP);
         lobby->mutable_gameserver()->set_port(unGameServerPort);
+        lobby->mutable_gameserver()->set_num_update(lobby->gameserver().num_update() + 1);
 
         send_gameservercreated_cb(lobby->room_id(), lobby->gameserver().id(), lobby->gameserver().ip(), lobby->gameserver().port());
         trigger_lobby_dataupdate(steamIDLobby, steamIDLobby, true);
@@ -1385,7 +1386,7 @@ void Callback(Common_Message *msg)
                         }
                     }
 
-                    if (((joined) || (we_are_in_lobby && !protobuf_message_equal(lobby->gameserver(), msg->lobby().gameserver()))) && (CSteamID((uint64)msg->lobby().gameserver().id()).IsValid() || msg->lobby().gameserver().ip())) {
+                    if ((joined && msg->lobby().gameserver().num_update()) || (we_are_in_lobby && (lobby->gameserver().num_update() != msg->lobby().gameserver().num_update()))) {
                         send_gameservercreated_cb(lobby->room_id(), msg->lobby().gameserver().id(), msg->lobby().gameserver().ip(), msg->lobby().gameserver().port());
                         trigger_lobby_dataupdate((uint64)lobby->room_id(), (uint64)lobby->room_id(), true);
                     }
