@@ -195,7 +195,9 @@ brazilian
 romanian
 russian
 spanish
+latam
 swedish
 thai
 turkish
 ukrainian
+vietnamese
