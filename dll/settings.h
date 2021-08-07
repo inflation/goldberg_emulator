@@ -149,6 +149,12 @@ public:
 
     //overlay
     bool disable_overlay = false;
+
+    //app build id
+    int build_id = 10;
+
+    //make lobby creation fail in the matchmaking interface
+    bool disable_lobby_creation = false;
 };
 
 #endif

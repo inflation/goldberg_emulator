@@ -262,7 +262,7 @@ bool Steam_Apps::GetDlcDownloadProgress( AppId_t nAppID, uint64 *punBytesDownloa
 int Steam_Apps::GetAppBuildId()
 {
     PRINT_DEBUG("GetAppBuildId\n");
-    return 10;
+    return this->settings->build_id;
 }
 
 

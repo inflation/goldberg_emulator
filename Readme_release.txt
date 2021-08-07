@@ -105,6 +105,11 @@ The format is: STAT_NAME=type=default value
 The type can be: int, float or avgrate
 The default value is simply a number that represents the default value for the stat.
 
+Build id:
+Add a steam_settings\build_id.txt with the build id if the game doesn't show the correct build id and you want the emu to give it the correct one.
+An example can be found in steam_settings.EXAMPLE
+
+
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
 
 Notes:
