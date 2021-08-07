@@ -591,6 +591,12 @@ SteamAPICall_t FindOrCreateLeaderboard( const char *pchLeaderboardName, ELeaderb
 {
     PRINT_DEBUG("FindOrCreateLeaderboard %s\n", pchLeaderboardName);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (!pchLeaderboardName) {
+        LeaderboardFindResult_t data;
+        data.m_hSteamLeaderboard = 0;
+        data.m_bLeaderboardFound = 0;
+        return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
+    }
 
     unsigned int leader = find_leaderboard(pchLeaderboardName);
     if (!leader) {
@@ -616,6 +622,12 @@ SteamAPICall_t FindLeaderboard( const char *pchLeaderboardName )
 {
     PRINT_DEBUG("FindLeaderboard %s\n", pchLeaderboardName);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (!pchLeaderboardName) {
+        LeaderboardFindResult_t data;
+        data.m_hSteamLeaderboard = 0;
+        data.m_bLeaderboardFound = 0;
+        return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
+    }
 
     auto settings_Leaderboards = settings->getLeaderboards();
     if (settings_Leaderboards.count(pchLeaderboardName)) {
