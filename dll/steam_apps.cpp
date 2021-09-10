@@ -57,7 +57,7 @@ const char *Steam_Apps::GetAvailableGameLanguages()
 {
     PRINT_DEBUG("GetAvailableGameLanguages\n");
     //TODO?
-    return "";
+    return settings->get_language();
 }
 
 
