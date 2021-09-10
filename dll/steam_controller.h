@@ -77,6 +77,7 @@ enum EXTRA_GAMEPAD_BUTTONS {
 };
 
 #define JOY_ID_START 10
+#define STICK_DPAD 3
 
 class Steam_Controller :
 public ISteamController001,
@@ -126,6 +127,7 @@ public ISteamInput
         {"RTRIGGER", TRIGGER_RIGHT},
         {"LJOY", STICK_LEFT + JOY_ID_START},
         {"RJOY", STICK_RIGHT + JOY_ID_START},
+        {"DPAD", STICK_DPAD + JOY_ID_START},
     };
 
     std::map<std::string, enum EInputSourceMode> analog_input_modes = {
@@ -615,6 +617,8 @@ ControllerAnalogActionHandle_t GetAnalogActionHandle( const char *pszActionName 
 ControllerAnalogActionData_t GetAnalogActionData( ControllerHandle_t controllerHandle, ControllerAnalogActionHandle_t analogActionHandle )
 {
     PRINT_DEBUG("Steam_Controller::GetAnalogActionData %llu %llu\n", controllerHandle, analogActionHandle);
+    GAMEPAD_DEVICE device = (GAMEPAD_DEVICE)(controllerHandle - 1);
+
     ControllerAnalogActionData_t data;
     data.eMode = k_EInputSourceMode_None;
     data.x = data.y = 0;
@@ -632,12 +636,24 @@ ControllerAnalogActionData_t GetAnalogActionData( ControllerHandle_t controllerH
     for (auto a : analog.first) {
         if (a >= JOY_ID_START) {
             int joystick_id = a - JOY_ID_START;
-            GamepadStickNormXY((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_STICK) joystick_id, &data.x, &data.y);
-            float length = GamepadStickLength((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_STICK) joystick_id);
-            data.x = data.x * length;
-            data.y = data.y * length;
+            if (joystick_id == STICK_DPAD) {
+                int mov_y = (int)GamepadButtonDown(device, BUTTON_DPAD_UP) - (int)GamepadButtonDown(device, BUTTON_DPAD_DOWN);
+                int mov_x = (int)GamepadButtonDown(device, BUTTON_DPAD_RIGHT) - (int)GamepadButtonDown(device, BUTTON_DPAD_LEFT);
+                if (mov_y || mov_x) {
+                    data.x = mov_x;
+                    data.y = mov_y;
+                    double length = 1.0 / std::sqrt(data.x * data.x + data.y * data.y);
+                    data.x = data.x * length;
+                    data.y = data.y * length;
+                }
+            } else {
+                GamepadStickNormXY(device, (GAMEPAD_STICK) joystick_id, &data.x, &data.y);
+                float length = GamepadStickLength(device, (GAMEPAD_STICK) joystick_id);
+                data.x = data.x * length;
+                data.y = data.y * length;
+            }
         } else {
-            data.x = GamepadTriggerLength((GAMEPAD_DEVICE)(controllerHandle - 1), (GAMEPAD_TRIGGER) a);
+            data.x = GamepadTriggerLength(device, (GAMEPAD_TRIGGER) a);
         }
 
         if (data.x || data.y) {
@@ -689,6 +705,9 @@ int GetAnalogActionOrigins( InputHandle_t inputHandle, InputActionSetHandle_t ac
                 break;
             case STICK_RIGHT + JOY_ID_START:
                 originsOut[count] = k_EInputActionOrigin_XBox360_RightStick_Move;
+                break;
+            case STICK_DPAD + JOY_ID_START:
+                originsOut[count] = k_EInputActionOrigin_XBox360_DPad_Move;
                 break;
             default:
                 originsOut[count] = k_EInputActionOrigin_None;
