@@ -794,9 +794,14 @@ bool Steam_Client::BShutdownIfAllPipesClosed()
 {
     PRINT_DEBUG("BShutdownIfAllPipesClosed\n");
     if (!steam_pipes.size()) {
-        if (background_keepalive.joinable()) {
+        bool joinable = background_keepalive.joinable();
+        if (joinable) {
             kill_background_thread = true;
             kill_background_thread_cv.notify_one();
+        }
+
+        steam_controller->Shutdown();
+        if (joinable) {
             background_keepalive.join();
         }
 

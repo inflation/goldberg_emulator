@@ -262,6 +262,7 @@ STEAMAPI_API void S_CALLTYPE SteamAPI_Shutdown()
     PRINT_DEBUG("SteamAPI_Shutdown\n");
     get_steam_client()->clientShutdown();
     get_steam_client()->BReleaseSteamPipe(user_steam_pipe);
+    get_steam_client()->BShutdownIfAllPipesClosed();
     user_steam_pipe = 0;
     --global_counter;
     old_user_instance = NULL;
@@ -652,6 +653,7 @@ STEAMAPI_API void SteamGameServer_Shutdown()
     PRINT_DEBUG("SteamGameServer_Shutdown\n");
     get_steam_client()->serverShutdown();
     get_steam_client()->BReleaseSteamPipe(server_steam_pipe);
+    get_steam_client()->BShutdownIfAllPipesClosed();
     server_steam_pipe = 0;
     --global_counter;
     g_pSteamClientGameServer = NULL; //TODO: check if this actually gets nulled when SteamGameServer_Shutdown is called

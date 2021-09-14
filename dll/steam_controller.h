@@ -63,6 +63,19 @@ struct Controller_Action {
     }
 };
 
+
+struct Rumble_Thread_Data {
+    std::condition_variable rumble_thread_cv;
+    std::atomic_bool kill_rumble_thread;
+    std::mutex rumble_mutex;
+
+    struct Rumble_Data {
+        unsigned short left, right, last_left, last_right;
+        unsigned int rumble_length_ms;
+        bool new_data;
+    } data[GAMEPAD_COUNT];
+};
+
 enum EXTRA_GAMEPAD_BUTTONS {
     BUTTON_LTRIGGER = BUTTON_COUNT + 1,
     BUTTON_RTRIGGER = BUTTON_COUNT + 2,
@@ -146,6 +159,9 @@ public ISteamInput
     std::map<EInputActionOrigin, std::string> steaminput_glyphs;
     std::map<EControllerActionOrigin, std::string> steamcontroller_glyphs;
 
+    std::thread background_rumble_thread;
+    Rumble_Thread_Data *rumble_thread_data;
+
     bool disabled;
     bool initialized;
 
@@ -210,6 +226,66 @@ public ISteamInput
 
 public:
 
+static void background_rumble(Rumble_Thread_Data *data)
+{
+    std::mutex mtx;
+    std::unique_lock<std::mutex> lck(mtx);
+    bool rumbled = false;
+    while (true) {
+        bool new_data = false;
+        if (rumbled) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            data->rumble_mutex.lock();
+            for (int i = 0; i < GAMEPAD_COUNT; ++i) {
+                if (data->data[i].new_data) {
+                    new_data = true;
+                    break;
+                }
+            }
+            data->rumble_mutex.unlock();
+
+            if (data->kill_rumble_thread) {
+                return;
+            }
+        }
+
+        bool x = new_data || data->rumble_thread_cv.wait_for(lck, std::chrono::milliseconds(100)) != std::cv_status::timeout;
+        if (data->kill_rumble_thread) {
+            return;
+        }
+
+        rumbled = false;
+        while (true) {
+            unsigned short left, right;
+            unsigned int rumble_length_ms;
+            int gamepad = -1;
+            data->rumble_mutex.lock();
+            for (int i = 0; i < GAMEPAD_COUNT; ++i) {
+                if (data->data[i].new_data) {
+                    left = data->data[i].left;
+                    right = data->data[i].right;
+                    rumble_length_ms = data->data[i].rumble_length_ms;
+                    data->data[i].new_data = false;
+                    if (data->data[i].last_left != left || data->data[i].last_right != right) {
+                        gamepad = i;
+                        data->data[i].last_left = left;
+                        data->data[i].last_right = right;
+                        break;
+                    }
+                }
+            }
+
+            data->rumble_mutex.unlock();
+            if (gamepad == -1) {
+                break;
+            }
+
+            GamepadSetRumble((GAMEPAD_DEVICE)gamepad, ((double)left) / 65535.0, ((double)right) / 65535.0, rumble_length_ms);
+            rumbled = true;
+        }
+    }
+}
+
 static void steam_run_every_runcb(void *object)
 {
     PRINT_DEBUG("steam_controller_run_every_runcb\n");
@@ -235,6 +311,7 @@ Steam_Controller(class Settings *settings, class SteamCallResults *callback_resu
 ~Steam_Controller()
 {
     //TODO rm network callbacks
+    //TODO rumble thread
     this->run_every_runcb->remove(&Steam_Controller::steam_run_every_runcb, this);
 }
 
@@ -243,7 +320,7 @@ bool Init()
 {
     PRINT_DEBUG("Steam_Controller::Init()\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    if (disabled) {
+    if (disabled || initialized) {
         return true;
     }
 
@@ -261,6 +338,9 @@ bool Init()
         controllers.insert(std::pair<ControllerHandle_t, struct Controller_Action>(i, cont_action));
     }
 
+    rumble_thread_data = new Rumble_Thread_Data();
+    background_rumble_thread = std::thread(background_rumble, rumble_thread_data);
+
     initialized = true;
     return true;
 }
@@ -275,11 +355,17 @@ bool Shutdown()
 {
     PRINT_DEBUG("Steam_Controller::Shutdown()\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    if (disabled) {
+    if (disabled || !initialized) {
         return true;
     }
 
+    controllers = std::map<ControllerHandle_t, struct Controller_Action>();
+    rumble_thread_data->kill_rumble_thread = true;
+    rumble_thread_data->rumble_thread_cv.notify_one();
+    background_rumble_thread.join();
+    delete rumble_thread_data;
     GamepadShutdown();
+    initialized = false;
     return true;
 }
 
@@ -350,6 +436,7 @@ ControllerActionSetHandle_t GetActionSetHandle( const char *pszActionSetName )
     auto set_handle = action_handles.find(upper_action_name);
     if (set_handle == action_handles.end()) return 0;
 
+    PRINT_DEBUG("Steam_Controller::GetActionSetHandle %s ret %llu\n", pszActionSetName, set_handle->second);
     return set_handle->second;
 }
 
@@ -417,6 +504,7 @@ ControllerDigitalActionHandle_t GetDigitalActionHandle( const char *pszActionNam
     auto handle = digital_action_handles.find(upper_action_name);
     if (handle == digital_action_handles.end()) return 0;
 
+    PRINT_DEBUG("Steam_Controller::GetDigitalActionHandle %s ret %llu\n", pszActionName, handle->second);
     return handle->second;
 }
 
@@ -762,7 +850,16 @@ void TriggerVibration( ControllerHandle_t controllerHandle, unsigned short usLef
     //FIXME: shadow of the tomb raider on linux doesn't seem to turn off the rumble so I made it expire after 100ms. Need to check if this is how linux steam actually behaves.
     rumble_length_ms = 100;
 #endif
-    GamepadSetRumble((GAMEPAD_DEVICE)(controllerHandle - 1), ((double)usLeftSpeed) / 65535.0, ((double)usRightSpeed) / 65535.0, rumble_length_ms);
+
+    unsigned gamepad_device = (controllerHandle - 1);
+    if (gamepad_device > GAMEPAD_COUNT) return;
+    rumble_thread_data->rumble_mutex.lock();
+    rumble_thread_data->data[gamepad_device].new_data = true;
+    rumble_thread_data->data[gamepad_device].left = usLeftSpeed;
+    rumble_thread_data->data[gamepad_device].right = usRightSpeed;
+    rumble_thread_data->data[gamepad_device].rumble_length_ms = rumble_length_ms;
+    rumble_thread_data->rumble_mutex.unlock();
+    rumble_thread_data->rumble_thread_cv.notify_one();
 }
 
 
