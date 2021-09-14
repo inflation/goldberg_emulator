@@ -133,6 +133,7 @@ For analog actions (joysticks, triggers): ACTION_NAME=ANALOG_NAME=input source m
 Actions can be bound to more than one button by separating the buttons with , like this: ACTION_NAME=A,B
 
 If you want to configure a game yourself, find the xbox360 or xbox one vdf file for the game and you should be able to figure things out.
+You can also use the scripts\controller_config_generator\parse_controller_vdf.py script in the emu source code repo.
 
 For example to get the vdf file for the game Crystar: https://steamdb.info/app/981750/config/
 If you look at: steamcontrollerconfigdetails, you will see something like: 1779660455/controller_type: controller_xbox360
