@@ -38,7 +38,10 @@ def add_input_bindings(group, bindings, force_binding=None, keymap=keymap_digita
                             for ss in x:
                                 st = ss.split()
                                 if st[0] == 'game_action':
-                                    action_name = st[2][:-1]
+                                    if st[2][-1] == ",":
+                                        action_name = st[2][:-1]
+                                    else:
+                                        action_name = st[2][:]
                                     if force_binding is None:
                                         binding = keymap[i.lower()]
                                     else:
