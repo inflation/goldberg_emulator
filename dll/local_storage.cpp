@@ -607,24 +607,7 @@ bool Local_Storage::file_exists(std::string folder, std::string file)
     }
 
     std::string full_path = save_directory + appid + folder + file;
-
-#if defined(STEAM_WIN32)
-    struct _stat buffer;
-    if (_wstat(utf8_decode(full_path).c_str(), &buffer) != 0)
-        return false;
-
-    if ( buffer.st_mode & _S_IFDIR)
-        return false;
-#else
-    struct stat buffer;
-    if (stat(full_path.c_str(), &buffer) != 0)
-        return false;
-
-    if (S_ISDIR(buffer.st_mode))
-        return false;
-#endif
-
-    return true;
+    return file_exists_(full_path);
 }
 
 unsigned int Local_Storage::file_size(std::string folder, std::string file)
@@ -635,15 +618,7 @@ unsigned int Local_Storage::file_size(std::string folder, std::string file)
     }
 
     std::string full_path = save_directory + appid + folder + file;
-
-#if defined(STEAM_WIN32)
-    struct _stat buffer = {};
-    if (_wstat(utf8_decode(full_path).c_str(), &buffer) != 0) return 0;
-#else
-    struct stat buffer = {};
-    if (stat (full_path.c_str(), &buffer) != 0) return 0;
-#endif
-    return buffer.st_size;
+    return file_size_(full_path);
 }
 
 bool Local_Storage::file_delete(std::string folder, std::string file)

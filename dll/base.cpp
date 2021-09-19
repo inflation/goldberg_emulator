@@ -256,6 +256,39 @@ std::string canonical_path(std::string path)
     return output;
 }
 
+bool file_exists_(std::string full_path)
+{
+#if defined(STEAM_WIN32)
+    struct _stat buffer;
+    if (_wstat(utf8_decode(full_path).c_str(), &buffer) != 0)
+        return false;
+
+    if ( buffer.st_mode & _S_IFDIR)
+        return false;
+#else
+    struct stat buffer;
+    if (stat(full_path.c_str(), &buffer) != 0)
+        return false;
+
+    if (S_ISDIR(buffer.st_mode))
+        return false;
+#endif
+
+    return true;
+}
+
+unsigned int file_size_(std::string full_path)
+{
+#if defined(STEAM_WIN32)
+    struct _stat buffer = {};
+    if (_wstat(utf8_decode(full_path).c_str(), &buffer) != 0) return 0;
+#else
+    struct stat buffer = {};
+    if (stat (full_path.c_str(), &buffer) != 0) return 0;
+#endif
+    return buffer.st_size;
+}
+
 static void steam_auth_ticket_callback(void *object, Common_Message *msg)
 {
     PRINT_DEBUG("steam_auth_ticket_callback\n");
