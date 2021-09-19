@@ -54,6 +54,7 @@ private:
 
     nlohmann::json defined_achievements;
     nlohmann::json user_achievements;
+    std::vector<std::string> sorted_achievement_names;
 
 unsigned int find_leaderboard(std::string name)
 {
@@ -109,6 +110,7 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
     for (auto & it : defined_achievements) {
         try {
             std::string name = static_cast<std::string const&>(it["name"]);
+            sorted_achievement_names.push_back(name);
             if (user_achievements.find(name) == user_achievements.end()) {
                 user_achievements[name]["earned"] = false;
                 user_achievements[name]["earned_time"] = static_cast<uint32>(0);
@@ -119,6 +121,13 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
             it["hidden"] = std::to_string(it["hidden"].get<int>());
         } catch (...) {}
     }
+
+    //TODO: not sure if the sort is actually case insensitive, ach names seem to be treated by steam as case insensitive so I assume they are.
+    //need to find a game with achievements of different case names to confirm
+    std::sort(sorted_achievement_names.begin(), sorted_achievement_names.end(), [](const std::string lhs, const std::string rhs){
+        const auto result = std::mismatch(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const unsigned char lhs, const unsigned char rhs){return std::tolower(lhs) == std::tolower(rhs);});
+        return result.second != rhs.cend() && (result.first == lhs.cend() || std::tolower(*result.first) < std::tolower(*result.second));}
+    );
 }
 
 // Ask the server to send down this user's data and achievements for this game
@@ -470,12 +479,11 @@ uint32 GetNumAchievements()
 const char * GetAchievementName( uint32 iAchievement )
 {
     PRINT_DEBUG("GetAchievementName\n");
-    try {
-        static std::string achievement_name;
-        achievement_name = defined_achievements[iAchievement]["name"].get<std::string>();
-        return achievement_name.c_str();
-    } catch (...) {}
-    return "";
+    if (iAchievement >= sorted_achievement_names.size()) {
+        return "";
+    }
+
+    return sorted_achievement_names[iAchievement].c_str();
 }
 
 
