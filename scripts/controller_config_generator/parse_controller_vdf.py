@@ -148,10 +148,10 @@ for p in presets:
 
             elif group["mode"] == "dpad":
                 if s[0] == "joystick":
-                    binding_map = {"dpad_north":"DLJOYUP", "dpad_south": "DLJOYDOWN", "dpad_west": "DLJOYLEFT", "dpad_east": "DLJOYRIGHT"}
+                    binding_map = {"dpad_north":"DLJOYUP", "dpad_south": "DLJOYDOWN", "dpad_west": "DLJOYLEFT", "dpad_east": "DLJOYRIGHT", "click": "LSTICK"}
                     bindings = add_input_bindings(group, bindings, keymap=binding_map)
                 elif s[0] == "right_joystick":
-                    binding_map = {"dpad_north":"DRJOYUP", "dpad_south": "DRJOYDOWN", "dpad_west": "DRJOYLEFT", "dpad_east": "DRJOYRIGHT"}
+                    binding_map = {"dpad_north":"DRJOYUP", "dpad_south": "DRJOYDOWN", "dpad_west": "DRJOYLEFT", "dpad_east": "DRJOYRIGHT", "click": "RSTICK"}
                     bindings = add_input_bindings(group, bindings, keymap=binding_map)
                 else:
                     if s[0] != "dpad":
