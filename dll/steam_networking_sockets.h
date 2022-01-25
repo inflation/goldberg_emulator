@@ -900,6 +900,48 @@ bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pIn
     return true;
 }
 
+/// Returns a small set of information about the real-time state of the connection
+/// and the queue status of each lane.
+/// 
+/// - pStatus may be NULL if the information is not desired.  (E.g. you are only interested
+///   in the lane information.)
+/// - On entry, nLanes specifies the length of the pLanes array.  This may be 0
+///   if you do not wish to receive any lane data.  It's OK for this to be smaller than
+///   the total number of configured lanes.
+/// - pLanes points to an array that will receive lane-specific info.  It can be NULL
+///   if this is not needed.
+/// 
+/// Return value:
+/// - k_EResultNoConnection - connection handle is invalid or connection has been closed.
+/// - k_EResultInvalidParam - nLanes is bad
+EResult GetConnectionRealTimeStatus( HSteamNetConnection hConn, SteamNetConnectionRealTimeStatus_t *pStatus, int nLanes, SteamNetConnectionRealTimeLaneStatus_t *pLanes )
+{
+    PRINT_DEBUG("%s %u %p %i %p\n", __FUNCTION__, hConn, pStatus, nLanes, pLanes);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto connect_socket = connect_sockets.find(hConn);
+    if (connect_socket == connect_sockets.end()) return k_EResultNoConnection;
+
+    if (pStatus) {
+        pStatus->m_eState = convert_status(connect_socket->second.status);
+        pStatus->m_nPing = 10; //TODO: calculate real numbers?
+        pStatus->m_flConnectionQualityLocal = 1.0;
+        pStatus->m_flConnectionQualityRemote = 1.0;
+        //TODO: rest
+        pStatus->m_flOutPacketsPerSec = 0.0;
+        pStatus->m_flOutBytesPerSec = 0.0;
+        pStatus->m_flInPacketsPerSec = 0.0;
+        pStatus->m_flInBytesPerSec = 0.0;
+        pStatus->m_cbSentUnackedReliable = 0.0;
+        pStatus->m_usecQueueTime = 0.0;
+
+        //Note some games (volcanoids) might not allocate a struct the whole size of SteamNetworkingQuickConnectionStatus
+        //keep this in mind in future interface updates
+        //NOTE: need to implement GetQuickConnectionStatus seperately if this changes.
+    }
+
+    //TODO: lanes
+    return k_EResultOK;
+}
 
 /// Fetch the next available message(s) from the socket, if any.
 /// Returns the number of messages returned into your array, up to nMaxMessages.
@@ -955,26 +997,7 @@ bool GetQuickConnectionStatus( HSteamNetConnection hConn, SteamNetworkingQuickCo
     if (!pStats)
         return false;
 
-    std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) return false;
-
-    pStats->m_eState = convert_status(connect_socket->second.status);
-    pStats->m_nPing = 10; //TODO: calculate real numbers?
-    pStats->m_flConnectionQualityLocal = 1.0;
-    pStats->m_flConnectionQualityRemote = 1.0;
-    //TODO: rest
-    pStats->m_flOutPacketsPerSec = 0.0;
-    pStats->m_flOutBytesPerSec = 0.0;
-    pStats->m_flInPacketsPerSec = 0.0;
-    pStats->m_flInBytesPerSec = 0.0;
-    pStats->m_cbSentUnackedReliable = 0.0;
-    pStats->m_usecQueueTime = 0.0;
-
-    //Note some games (volcanoids) might not allocate a struct the whole size of SteamNetworkingQuickConnectionStatus
-    //keep this in mind in future interface updates
-
-    return true;
+    return GetConnectionRealTimeStatus(hConn, pStats, 0, NULL) == k_EResultOK;
 }
 
 
@@ -1078,6 +1101,85 @@ bool CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection
     *pOutConnection2 = con2;
     return true;
 }
+
+/// Configure multiple outbound messages streams ("lanes") on a connection, and
+/// control head-of-line blocking between them.  Messages within a given lane
+/// are always sent in the order they are queued, but messages from different
+/// lanes may be sent out of order.  Each lane has its own message number
+/// sequence.  The first message sent on each lane will be assigned the number 1.
+///
+/// Each lane has a "priority".  Lower priority lanes will only be processed
+/// when all higher-priority lanes are empty.  The magnitudes of the priority
+/// values are not relevant, only their sort order.  Higher numeric values
+/// take priority over lower numeric values.
+/// 
+/// Each lane also is assigned a weight, which controls the approximate proportion
+/// of the bandwidth that will be consumed by the lane, relative to other lanes
+/// of the same priority.  (This is assuming the lane stays busy.  An idle lane
+/// does not build up "credits" to be be spent once a message is queued.)
+/// This value is only meaningful as a proportion, relative to other lanes with
+/// the same priority.  For lanes with different priorities, the strict priority
+/// order will prevail, and their weights relative to each other are not relevant.
+/// Thus, if a lane has a unique priority value, the weight value for that lane is
+/// not relevant.  
+///
+/// Example: 3 lanes, with priorities [ 0, 10, 10 ] and weights [ (NA), 20, 5 ].
+/// Messages sent on the first will always be sent first, before messages in the
+/// other two lanes.  Its weight value is irrelevant, since there are no other
+/// lanes with priority=0.  The other two lanes will share bandwidth, with the second
+/// and third lanes sharing bandwidth using a ratio of approximately 4:1.
+/// (The weights [ NA, 4, 1 ] would be equivalent.)
+///
+/// Notes:
+/// - At the time of this writing, some code has performance cost that is linear
+///   in the number of lanes, so keep the number of lanes to an absolute minimum.
+///   3 or so is fine; >8 is a lot.  The max number of lanes on Steam is 255,
+///   which is a very large number and not recommended!  If you are compiling this
+///   library from source, see STEAMNETWORKINGSOCKETS_MAX_LANES.)
+/// - Lane priority values may be any int.  Their absolute value is not relevant,
+///   only the order matters.
+/// - Weights must be positive, and due to implementation details, they are restricted
+///   to 16-bit values.  The absolute magnitudes don't matter, just the proportions.
+/// - Messages sent on a lane index other than 0 have a small overhead on the wire,
+///   so for maximum wire efficiency, lane 0 should be the "most common" lane, regardless
+///   of priorities or weights.
+/// - A connection has a single lane by default.  Calling this function with
+///   nNumLanes=1 is legal, but pointless, since the priority and weight values are
+///   irrelevant in that case.
+/// - You may reconfigure connection lanes at any time, however reducing the number of
+///   lanes is not allowed.
+/// - Reconfiguring lanes might restart any bandwidth sharing balancing.  Usually you
+///   will call this function once, near the start of the connection, perhaps after
+///   exchanging a few messages.
+/// - To assign all lanes the same priority, you may use pLanePriorities=NULL.
+/// - If you wish all lanes with the same priority to share bandwidth equally (or
+///   if no two lanes have the same priority value, and thus priority values are
+///   irrelevant), you may use pLaneWeights=NULL
+/// - Priorities and weights determine the order that messages are SENT on the wire.
+///   There are NO GUARANTEES on the order that messages are RECEIVED!  Due to packet
+///   loss, out-of-order delivery, and subtle details of packet serialization, messages
+///   might still be received slightly out-of-order!  The *only* strong guarantee is that
+///   *reliable* messages on the *same lane* will be delivered in the order they are sent.
+/// - Each host configures the lanes for the packets they send; the lanes for the flow
+///   in one direction are completely unrelated to the lanes in the opposite direction.
+/// 
+/// Return value:
+/// - k_EResultNoConnection - bad hConn
+/// - k_EResultInvalidParam - Invalid number of lanes, bad weights, or you tried to reduce the number of lanes
+/// - k_EResultInvalidState - Connection is already dead, etc
+/// 
+/// See also:
+/// SteamNetworkingMessage_t::m_idxLane
+EResult ConfigureConnectionLanes( HSteamNetConnection hConn, int nNumLanes, const int *pLanePriorities, const uint16 *pLaneWeights )
+{
+    PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    auto connect_socket = connect_sockets.find(hConn);
+    if (connect_socket == connect_sockets.end()) return k_EResultNoConnection;
+    //TODO
+    return k_EResultOK;
+}
+
 
 /// Get the identity assigned to this interface.
 /// E.g. on Steam, this is the user's SteamID, or for the gameserver interface, the SteamID assigned
@@ -1684,6 +1786,152 @@ bool SetCertificate( const void *pCertificate, int cbCertificate, SteamNetworkin
     return false;
 }
 
+/// Reset the identity associated with this instance.
+/// Any open connections are closed.  Any previous certificates, etc are discarded.
+/// You can pass a specific identity that you want to use, or you can pass NULL,
+/// in which case the identity will be invalid until you set it using SetCertificate
+///
+/// NOTE: This function is not actually supported on Steam!  It is included
+///       for use on other platforms where the active user can sign out and
+///       a new user can sign in.
+void ResetIdentity( const SteamNetworkingIdentity *pIdentity )
+{
+    PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
+}
+
+//
+// "FakeIP" system.
+//
+// A FakeIP is essentially a temporary, arbitrary identifier that
+// happens to be a valid IPv4 address.  The purpose of this system is to make it
+// easy to integrate with existing code that identifies hosts using IPv4 addresses.
+// The FakeIP address will never actually be used to send or receive any packets
+// on the Internet, it is strictly an identifier.
+//
+// FakeIP addresses are designed to (hopefully) pass through existing code as
+// transparently as possible, while conflicting with "real" addresses that might
+// be in use on networks (both the Internet and LANs) in the same code as little
+// as possible.  At the time this comment is being written, they come from the
+// 169.254.0.0/16 range, and the port number will always be >1024.  HOWEVER,
+// this is subject to change!  Do not make assumptions about these addresses,
+// or your code might break in the future.  In particular, you should use
+// functions such as  ISteamNetworkingUtils::IsFakeIP to determine if an IP
+// address is a "fake" one used by this system.
+//
+
+/// Begin asynchronous process of allocating a fake IPv4 address that other
+/// peers can use to contact us via P2P.  IP addresses returned by this
+/// function are globally unique for a given appid.
+///
+/// nNumPorts is the numbers of ports you wish to reserve.  This is useful
+/// for the same reason that listening on multiple UDP ports is useful for
+/// different types of traffic.  Because these allocations come from a global
+/// namespace, there is a relatively strict limit on the maximum number of
+/// ports you may request.  (At the time of this writing, the limit is 4.)
+/// The Port assignments are *not* guaranteed to have any particular order
+/// or relationship!  Do *not* assume they are contiguous, even though that
+/// may often occur in practice.
+///
+/// Returns false if a request was already in progress, true if a new request
+/// was started.  A SteamNetworkingFakeIPResult_t will be posted when the request
+/// completes.
+///
+/// For gameservers, you *must* call this after initializing the SDK but before
+/// beginning login.  Steam needs to know in advance that FakeIP will be used.
+/// Everywhere your public IP would normally appear (such as the server browser) will be
+/// replaced by the FakeIP, and the fake port at index 0.  The request is actually queued
+/// until the logon completes, so you must not wait until the allocation completes
+/// before logging in.  Except for trivial failures that can be detected locally
+/// (e.g. invalid parameter), a SteamNetworkingFakeIPResult_t callback (whether success or
+/// failure) will not be posted until after we have logged in.  Furthermore, it is assumed
+/// that FakeIP allocation is essential for your application to function, and so failure
+/// will not be reported until *several* retries have been attempted.  This process may
+/// last several minutes.  It is *highly* recommended to treat failure as fatal.
+///
+/// To communicate using a connection-oriented (TCP-style) API:
+/// - Server creates a listen socket using CreateListenSocketP2PFakeIP
+/// - Client connects using ConnectByIPAddress, passing in the FakeIP address.
+/// - The connection will behave mostly like a P2P connection.  The identities
+///   that appear in SteamNetConnectionInfo_t will be the FakeIP identity until
+///   we know the real identity.  Then it will be the real identity.  If the
+///   SteamNetConnectionInfo_t::m_addrRemote is valid, it will be a real IPv4
+///   address of a NAT-punched connection.  Otherwise, it will not be valid.
+/// 
+/// To communicate using an ad-hoc sendto/recv from (UDP-style) API,
+/// use CreateFakeUDPPort.
+bool BeginAsyncRequestFakeIP( int nNumPorts )
+{
+    PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
+    return false;
+}
+
+/// Return info about the FakeIP and port(s) that we have been assigned,
+/// if any.  idxFirstPort is currently reserved and must be zero.
+/// Make sure and check SteamNetworkingFakeIPResult_t::m_eResult
+void GetFakeIP( int idxFirstPort, SteamNetworkingFakeIPResult_t *pInfo )
+{
+    PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
+}
+
+/// Create a listen socket that will listen for P2P connections sent
+/// to our FakeIP.  A peer can initiate connections to this listen
+/// socket by calling ConnectByIPAddress.
+///
+/// idxFakePort refers to the *index* of the fake port requested,
+/// not the actual port number.  For example, pass 0 to refer to the
+/// first port in the reservation.  You must call this only after calling
+/// BeginAsyncRequestFakeIP.  However, you do not need to wait for the
+/// request to complete before creating the listen socket.
+HSteamListenSocket CreateListenSocketP2PFakeIP( int idxFakePort, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+{
+    PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
+    return k_HSteamListenSocket_Invalid;
+}
+
+/// If the connection was initiated using the "FakeIP" system, then we
+/// we can get an IP address for the remote host.  If the remote host had
+/// a global FakeIP at the time the connection was established, this
+/// function will return that global IP.  Otherwise, a FakeIP that is
+/// unique locally will be allocated from the local FakeIP address space,
+/// and that will be returned.
+/// 
+/// The allocation of local FakeIPs attempts to assign addresses in
+/// a consistent manner.  If multiple connections are made to the
+/// same remote host, they *probably* will return the same FakeIP.
+/// However, since the namespace is limited, this cannot be guaranteed.
+///
+/// On failure, returns:
+/// - k_EResultInvalidParam: invalid connection handle
+/// - k_EResultIPNotFound: This connection wasn't made using FakeIP system
+EResult GetRemoteFakeIPForConnection( HSteamNetConnection hConn, SteamNetworkingIPAddr *pOutAddr )
+{
+    PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
+    return k_EResultNone;
+}
+
+/// Get an interface that can be used like a UDP port to send/receive
+/// datagrams to a FakeIP address.  This is intended to make it easy
+/// to port existing UDP-based code to take advantage of SDR.
+/// 
+/// idxFakeServerPort refers to the *index* of the port allocated using
+/// BeginAsyncRequestFakeIP and is used to create "server" ports.  You may
+/// call this before the allocation has completed.  However, any attempts
+/// to send packets will fail until the allocation has succeeded.  When
+/// the peer receives packets sent from this interface, the from address
+/// of the packet will be the globally-unique FakeIP.  If you call this
+/// function multiple times and pass the same (nonnegative) fake port index,
+/// the same object will be returned, and this object is not reference counted.
+/// 
+/// To create a "client" port (e.g. the equivalent of an ephemeral UDP port)
+/// pass -1.  In this case, a distinct object will be returned for each call.
+/// When the peer receives packets sent from this interface, the peer will
+/// assign a FakeIP from its own locally-controlled namespace.
+ISteamNetworkingFakeUDPPort *CreateFakeUDPPort( int idxFakeServerPort )
+{
+    PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
+    return NULL;
+}
+
 // TEMP KLUDGE Call to invoke all queued callbacks.
 // Eventually this function will go away, and callwacks will be ordinary Steamworks callbacks.
 // You should call this at the same time you call SteamAPI_RunCallbacks and SteamGameServer_RunCallbacks
@@ -1698,6 +1946,7 @@ void RunCallbacks()
 {
     //TODO: timeout unaccepted connections after a few seconds or so
 }
+
 
 void Callback(Common_Message *msg)
 {

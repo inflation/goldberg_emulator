@@ -538,6 +538,8 @@ void *Steam_Client::GetISteamGenericInterface( HSteamUser hSteamUser, HSteamPipe
                 return (void *)(ISteamNetworkingUtils001 *)steam_networking_utils;
             } else if (strcmp(pchVersion, "SteamNetworkingUtils002") == 0) {
                 return (void *)(ISteamNetworkingUtils002 *)steam_networking_utils;
+            } else if (strcmp(pchVersion, "SteamNetworkingUtils003") == 0) {
+                return (void *)(ISteamNetworkingUtils003 *)steam_networking_utils;
             } else if (strcmp(pchVersion, STEAMNETWORKINGUTILS_INTERFACE_VERSION) == 0) {
                 return (void *)(ISteamNetworkingUtils *)steam_networking_utils;
             } else {
@@ -936,6 +938,8 @@ ISteamUGC *Steam_Client::GetISteamUGC( HSteamUser hSteamUser, HSteamPipe hSteamP
         return (ISteamUGC *)(void *)(ISteamUGC013 *)steam_ugc_temp;
     } else if (strcmp(pchVersion, "STEAMUGC_INTERFACE_VERSION014") == 0) {
         return (ISteamUGC *)(void *)(ISteamUGC014 *)steam_ugc_temp;
+    } else if (strcmp(pchVersion, "STEAMUGC_INTERFACE_VERSION015") == 0) {
+        return (ISteamUGC *)(void *)(ISteamUGC015 *)steam_ugc_temp;
     } else if (strcmp(pchVersion, STEAMUGC_INTERFACE_VERSION) == 0) {
         return (ISteamUGC *)(void *)(ISteamUGC *)steam_ugc_temp;
     } else {
@@ -1096,6 +1100,8 @@ ISteamInput *Steam_Client::GetISteamInput( HSteamUser hSteamUser, HSteamPipe hSt
         return (ISteamInput *)(void *)(ISteamInput001 *)steam_controller;
     } else if (strcmp(pchVersion, "SteamInput002") == 0) {
         return (ISteamInput *)(void *)(ISteamInput002 *)steam_controller;
+    } else if (strcmp(pchVersion, "SteamInput005") == 0) {
+        return (ISteamInput *)(void *)(ISteamInput005 *)steam_controller;
     } else if (strcmp(pchVersion, STEAMINPUT_INTERFACE_VERSION) == 0) {
         return (ISteamInput *)(void *)(ISteamInput *)steam_controller;
     } else {
