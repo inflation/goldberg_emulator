@@ -563,7 +563,11 @@ ControllerDigitalActionHandle_t GetDigitalActionHandle( const char *pszActionNam
     std::transform(upper_action_name.begin(), upper_action_name.end(), upper_action_name.begin(),[](unsigned char c){ return std::toupper(c); });
 
     auto handle = digital_action_handles.find(upper_action_name);
-    if (handle == digital_action_handles.end()) return 0;
+    if (handle == digital_action_handles.end()) {
+        //apparently GetDigitalActionHandle also works with analog handles
+        handle = analog_action_handles.find(upper_action_name);
+        if (handle == analog_action_handles.end()) return 0;
+    }
 
     PRINT_DEBUG("Steam_Controller::GetDigitalActionHandle %s ret %llu\n", pszActionName, handle->second);
     return handle->second;
