@@ -210,6 +210,27 @@ ESteamNetworkingConnectionState convert_status(enum connect_socket_status old_st
     return k_ESteamNetworkingConnectionState_None;
 }
 
+void set_steamnetconnectioninfo(std::map<HSteamNetConnection, Connect_Socket>::iterator connect_socket, SteamNetConnectionInfo_t *pInfo)
+{
+    pInfo->m_identityRemote = connect_socket->second.remote_identity;
+    pInfo->m_nUserData = connect_socket->second.user_data;
+    pInfo->m_hListenSocket = connect_socket->second.listen_socket_id;
+    pInfo->m_addrRemote.Clear(); //TODO
+    if (connect_socket->second.real_port != SNS_DISABLED_PORT) {
+        pInfo->m_addrRemote.SetIPv4(network->getIP(connect_socket->second.remote_identity.GetSteamID()), connect_socket->first);
+    }
+
+    pInfo->m_idPOPRemote = 0;
+    pInfo->m_idPOPRelay = 0;
+    pInfo->m_eState = convert_status(connect_socket->second.status);
+    pInfo->m_eEndReason = 0; //TODO
+    pInfo->m_szEndDebug[0] = 0;
+    sprintf(pInfo->m_szConnectionDescription, "%u", connect_socket->first);
+
+    //Note some games might not allocate a struct the whole size of SteamNetConnectionInfo_t when calling GetConnectionInfo
+    //keep this in mind in future interface updates
+}
+
 void launch_callback(HSteamNetConnection m_hConn, enum connect_socket_status old_status)
 {
     auto connect_socket = connect_sockets.find(m_hConn);
@@ -217,14 +238,8 @@ void launch_callback(HSteamNetConnection m_hConn, enum connect_socket_status old
 
     struct SteamNetConnectionStatusChangedCallback_t data = {};
     data.m_hConn = connect_socket->first;
-    data.m_info.m_identityRemote = connect_socket->second.remote_identity;
-    data.m_info.m_hListenSocket = connect_socket->second.listen_socket_id;
-    data.m_info.m_nUserData = connect_socket->second.user_data;
-    //TODO
-    //m_addrRemote
-    //m_eEndReason
-    data.m_info.m_eState = convert_status(connect_socket->second.status);
     data.m_eOldState = convert_status(old_status);
+    set_steamnetconnectioninfo(connect_socket, &data.m_info);
     callbacks->addCBResult(data.k_iCallback, &data, sizeof(data));
 }
 
@@ -883,16 +898,7 @@ bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pIn
     auto connect_socket = connect_sockets.find(hConn);
     if (connect_socket == connect_sockets.end()) return false;
 
-    pInfo->m_identityRemote = connect_socket->second.remote_identity;
-    pInfo->m_nUserData = connect_socket->second.user_data;
-    pInfo->m_hListenSocket = connect_socket->second.listen_socket_id;
-    pInfo->m_addrRemote.Clear(); //TODO
-    pInfo->m_idPOPRemote = 0;
-    pInfo->m_idPOPRelay = 0;
-    pInfo->m_eState = convert_status(connect_socket->second.status);
-    pInfo->m_eEndReason = 0; //TODO
-    pInfo->m_szEndDebug[0] = 0;
-    sprintf(pInfo->m_szConnectionDescription, "%u", hConn);
+    set_steamnetconnectioninfo(connect_socket, pInfo);
 
     //Note some games might not allocate a struct the whole size of SteamNetConnectionInfo_t
     //keep this in mind in future interface updates
