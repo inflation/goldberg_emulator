@@ -50,6 +50,11 @@ static void load_old_interface_versions()
     if (loaded) return;
     std::string interfaces_path = Local_Storage::get_program_path() + "steam_interfaces.txt";
     std::ifstream input( utf8_decode(interfaces_path) );
+    if (!input.is_open()) {
+        interfaces_path = Local_Storage::get_game_settings_path() + "steam_interfaces.txt";
+        input = std::ifstream(utf8_decode(interfaces_path));
+    }
+
     PRINT_DEBUG("load from: %s\n", interfaces_path.c_str());
 
     for( std::string line; getline( input, line ); )
