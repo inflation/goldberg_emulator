@@ -22,6 +22,8 @@ struct Listen_Socket {
 
     int virtual_port;
     int real_port;
+
+    CSteamID created_by;
 };
 
 enum connect_socket_status {
@@ -49,6 +51,14 @@ struct Connect_Socket {
     HSteamNetPollGroup poll_group;
 
     unsigned long long packet_receive_counter;
+    CSteamID created_by;
+};
+
+struct shared_between_client_server {
+    std::vector<struct Listen_Socket> listen_sockets;
+    std::map<HSteamNetConnection, struct Connect_Socket> connect_sockets;
+    std::map<HSteamNetPollGroup, std::list<HSteamNetConnection>> poll_groups;
+    unsigned used;
 };
 
 class Steam_Networking_Sockets :
@@ -67,9 +77,7 @@ public ISteamNetworkingSockets
     class SteamCallBacks *callbacks;
     class RunEveryRunCB *run_every_runcb;
 
-    std::vector<struct Listen_Socket> listen_sockets;
-    std::map<HSteamNetConnection, struct Connect_Socket> connect_sockets;
-    std::map<HSteamNetPollGroup, std::list<HSteamNetConnection>> poll_groups;
+    struct shared_between_client_server *s;
     std::chrono::steady_clock::time_point created;
 
     static const int SNS_DISABLED_PORT = -1;
@@ -91,7 +99,7 @@ static void steam_run_every_runcb(void *object)
     steam_networkingsockets->RunCallbacks();
 }
 
-Steam_Networking_Sockets(class Settings *settings, class Networking *network, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb)
+Steam_Networking_Sockets(class Settings *settings, class Networking *network, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, class RunEveryRunCB *run_every_runcb, shared_between_client_server *sbcs)
 {
     this->settings = settings;
     this->network = network;
@@ -103,6 +111,14 @@ Steam_Networking_Sockets(class Settings *settings, class Networking *network, cl
     this->callback_results = callback_results;
     this->callbacks = callbacks;
 
+    if (!sbcs) {
+        this->s = new shared_between_client_server();
+        this->s->used = 0;
+    } else {
+        this->s = sbcs;
+        this->s->used += 1;
+    }
+
     this->created = std::chrono::steady_clock::now();
 }
 
@@ -110,6 +126,11 @@ Steam_Networking_Sockets(class Settings *settings, class Networking *network, cl
 {
     //TODO rm network callbacks
     this->run_every_runcb->remove(&Steam_Networking_Sockets::steam_run_every_runcb, this);
+    if (this->s->used) {
+        this->s->used -= 1;
+    } else {
+        delete this->s;
+    }
 }
 
 static unsigned long get_socket_id()
@@ -119,38 +140,45 @@ static unsigned long get_socket_id()
     return socket_id;
 }
 
+shared_between_client_server *get_shared_between_client_server()
+{
+    return s;
+}
+
 HSteamListenSocket new_listen_socket(int nSteamConnectVirtualPort, int real_port)
 {
     HSteamListenSocket socket_id = get_socket_id();
     if (socket_id == k_HSteamListenSocket_Invalid) ++socket_id;
+    CSteamID steam_id = settings->get_local_steam_id();
 
-    auto conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&nSteamConnectVirtualPort](struct Listen_Socket const& conn) { return conn.virtual_port == nSteamConnectVirtualPort;});
-    if (conn != listen_sockets.end()) return k_HSteamListenSocket_Invalid;
+    auto conn = std::find_if(s->listen_sockets.begin(), s->listen_sockets.end(), [&nSteamConnectVirtualPort,&steam_id](struct Listen_Socket const& conn) { return conn.virtual_port == nSteamConnectVirtualPort && conn.created_by == steam_id;});
+    if (conn != s->listen_sockets.end()) return k_HSteamListenSocket_Invalid;
 
     struct Listen_Socket listen_socket;
     listen_socket.socket_id = socket_id;
     listen_socket.virtual_port = nSteamConnectVirtualPort;
     listen_socket.real_port = real_port;
-    listen_sockets.push_back(listen_socket);
+    listen_socket.created_by = steam_id;
+    s->listen_sockets.push_back(listen_socket);
     return socket_id;
 }
 
 struct Listen_Socket *get_connection_socket(HSteamListenSocket id)
 {
-    auto conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&id](struct Listen_Socket const& conn) { return conn.socket_id == id;});
-    if (conn == listen_sockets.end()) return NULL;
+    auto conn = std::find_if(s->listen_sockets.begin(), s->listen_sockets.end(), [&id](struct Listen_Socket const& conn) { return conn.socket_id == id;});
+    if (conn == s->listen_sockets.end()) return NULL;
     return &(*conn);
 }
 
 bool send_packet_new_connection(HSteamNetConnection m_hConn)
 {
-    auto connect_socket = connect_sockets.find(m_hConn);
-    if (connect_socket == connect_sockets.end()) return false;
+    auto connect_socket = s->connect_sockets.find(m_hConn);
+    if (connect_socket == s->connect_sockets.end()) return false;
 
     //TODO: right now this only supports connecting with steam id, might need to make ip/port connections work in the future when I find a game that uses them.
 
     Common_Message msg;
-    msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
+    msg.set_source_id(connect_socket->second.created_by.ConvertToUint64());
     msg.set_allocated_networking_sockets(new Networking_Sockets);
     if (connect_socket->second.status == CONNECT_SOCKET_CONNECTING) {
         msg.mutable_networking_sockets()->set_type(Networking_Sockets::CONNECTION_REQUEST);
@@ -188,11 +216,12 @@ HSteamNetConnection new_connect_socket(SteamNetworkingIdentity remote_identity, 
     socket.status = status;
     socket.user_data = -1;
     socket.poll_group = k_HSteamNetPollGroup_Invalid;
+    socket.created_by = settings->get_local_steam_id();
 
     HSteamNetConnection socket_id = get_socket_id();
     if (socket_id == k_HSteamNetConnection_Invalid) ++socket_id;
 
-    if (connect_sockets.insert(std::make_pair(socket_id, socket)).second == false) {
+    if (s->connect_sockets.insert(std::make_pair(socket_id, socket)).second == false) {
         return k_HSteamNetConnection_Invalid;
     }
 
@@ -233,8 +262,8 @@ void set_steamnetconnectioninfo(std::map<HSteamNetConnection, Connect_Socket>::i
 
 void launch_callback(HSteamNetConnection m_hConn, enum connect_socket_status old_status)
 {
-    auto connect_socket = connect_sockets.find(m_hConn);
-    if (connect_socket == connect_sockets.end()) return;
+    auto connect_socket = s->connect_sockets.find(m_hConn);
+    if (connect_socket == s->connect_sockets.end()) return;
 
     struct SteamNetConnectionStatusChangedCallback_t data = {};
     data.m_hConn = connect_socket->first;
@@ -492,8 +521,8 @@ EResult AcceptConnection( HSteamNetConnection hConn )
     PRINT_DEBUG("Steam_Networking_Sockets::AcceptConnection %u\n", hConn);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) return k_EResultInvalidParam;
+    auto connect_socket = s->connect_sockets.find(hConn);
+    if (connect_socket == s->connect_sockets.end()) return k_EResultInvalidParam;
     if (connect_socket->second.status != CONNECT_SOCKET_NOT_ACCEPTED) return k_EResultInvalidState;
     connect_socket->second.status = CONNECT_SOCKET_CONNECTED;
     send_packet_new_connection(connect_socket->first);
@@ -529,13 +558,13 @@ bool CloseConnection( HSteamNetConnection hPeer, int nReason, const char *pszDeb
     PRINT_DEBUG("Steam_Networking_Sockets::CloseConnection %u\n", hPeer);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    auto connect_socket = connect_sockets.find(hPeer);
-    if (connect_socket == connect_sockets.end()) return false;
+    auto connect_socket = s->connect_sockets.find(hPeer);
+    if (connect_socket == s->connect_sockets.end()) return false;
 
     if (connect_socket->second.status != CONNECT_SOCKET_CLOSED && connect_socket->second.status != CONNECT_SOCKET_TIMEDOUT) {
         //TODO send/nReason and pszDebug
         Common_Message msg;
-        msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
+        msg.set_source_id(connect_socket->second.created_by.ConvertToUint64());
         msg.set_dest_id(connect_socket->second.remote_identity.GetSteamID64());
         msg.set_allocated_networking_sockets(new Networking_Sockets);
         msg.mutable_networking_sockets()->set_type(Networking_Sockets::CONNECTION_END);
@@ -546,7 +575,7 @@ bool CloseConnection( HSteamNetConnection hPeer, int nReason, const char *pszDeb
         network->sendTo(&msg, true);
     }
 
-    connect_sockets.erase(connect_socket);
+    s->connect_sockets.erase(connect_socket);
     return true;
 }
 
@@ -573,13 +602,13 @@ bool CloseListenSocket( HSteamListenSocket hSocket )
     PRINT_DEBUG("Steam_Networking_Sockets::CloseListenSocket\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    auto conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&hSocket](struct Listen_Socket const& conn) { return conn.socket_id == hSocket;});
-    if (conn == listen_sockets.end()) return false;
+    auto conn = std::find_if(s->listen_sockets.begin(), s->listen_sockets.end(), [&hSocket](struct Listen_Socket const& conn) { return conn.socket_id == hSocket;});
+    if (conn == s->listen_sockets.end()) return false;
 
     std::queue<HSteamNetConnection> to_close;
 
-    auto socket_conn = std::begin(connect_sockets);
-    while (socket_conn != std::end(connect_sockets)) {
+    auto socket_conn = std::begin(s->connect_sockets);
+    while (socket_conn != std::end(s->connect_sockets)) {
         if (socket_conn->second.listen_socket_id == hSocket) {
             to_close.push(socket_conn->first);
         }
@@ -592,7 +621,7 @@ bool CloseListenSocket( HSteamListenSocket hSocket )
         to_close.pop();
     }
 
-    listen_sockets.erase(conn);
+    s->listen_sockets.erase(conn);
     return true;
 }
 
@@ -601,8 +630,8 @@ bool SetConnectionUserData( HSteamNetConnection hPeer, int64 nUserData )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SetConnectionUserData\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto connect_socket = connect_sockets.find(hPeer);
-    if (connect_socket == connect_sockets.end()) return false;
+    auto connect_socket = s->connect_sockets.find(hPeer);
+    if (connect_socket == s->connect_sockets.end()) return false;
     connect_socket->second.user_data = nUserData;
     return true;
 }
@@ -614,8 +643,8 @@ int64 GetConnectionUserData( HSteamNetConnection hPeer )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::GetConnectionUserData\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto connect_socket = connect_sockets.find(hPeer);
-    if (connect_socket == connect_sockets.end()) return -1;
+    auto connect_socket = s->connect_sockets.find(hPeer);
+    if (connect_socket == s->connect_sockets.end()) return -1;
     return connect_socket->second.user_data;
 }
 
@@ -707,14 +736,14 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
     PRINT_DEBUG("Steam_Networking_Sockets::SendMessageToConnection %u, len %u, flags %i\n", hConn, cbData, nSendFlags);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) return k_EResultInvalidParam;
+    auto connect_socket = s->connect_sockets.find(hConn);
+    if (connect_socket == s->connect_sockets.end()) return k_EResultInvalidParam;
     if (connect_socket->second.status == CONNECT_SOCKET_CLOSED) return k_EResultNoConnection;
     if (connect_socket->second.status == CONNECT_SOCKET_TIMEDOUT) return k_EResultNoConnection;
     if (connect_socket->second.status != CONNECT_SOCKET_CONNECTED) return k_EResultInvalidState;
 
     Common_Message msg;
-    msg.set_source_id(settings->get_local_steam_id().ConvertToUint64());
+    msg.set_source_id(connect_socket->second.created_by.ConvertToUint64());
     msg.set_dest_id(connect_socket->second.remote_identity.GetSteamID64());
     msg.set_allocated_networking_sockets(new Networking_Sockets);
     msg.mutable_networking_sockets()->set_type(Networking_Sockets::DATA);
@@ -800,8 +829,8 @@ static void delete_steam_message(SteamNetworkingMessage_t *pMsg)
 
 SteamNetworkingMessage_t *get_steam_message_connection(HSteamNetConnection hConn)
 {
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) return NULL;
+    auto connect_socket = s->connect_sockets.find(hConn);
+    if (connect_socket == s->connect_sockets.end()) return NULL;
     if (connect_socket->second.data.empty()) return NULL;
     SteamNetworkingMessage_t *pMsg = new SteamNetworkingMessage_t();
     unsigned long size = connect_socket->second.data.front().size();
@@ -872,8 +901,8 @@ int ReceiveMessagesOnListenSocket( HSteamListenSocket hSocket, SteamNetworkingMe
     SteamNetworkingMessage_t *msg = NULL;
     int messages = 0;
 
-    auto socket_conn = std::begin(connect_sockets);
-    while (socket_conn != std::end(connect_sockets) && messages < nMaxMessages) {
+    auto socket_conn = std::begin(s->connect_sockets);
+    while (socket_conn != std::end(s->connect_sockets) && messages < nMaxMessages) {
         if (socket_conn->second.listen_socket_id == hSocket) {
             while (messages < nMaxMessages && (msg = get_steam_message_connection(socket_conn->first))) {
                 ppOutMessages[messages] = msg;
@@ -895,8 +924,8 @@ bool GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pIn
         return false;
 
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) return false;
+    auto connect_socket = s->connect_sockets.find(hConn);
+    if (connect_socket == s->connect_sockets.end()) return false;
 
     set_steamnetconnectioninfo(connect_socket, pInfo);
 
@@ -924,8 +953,8 @@ EResult GetConnectionRealTimeStatus( HSteamNetConnection hConn, SteamNetConnecti
 {
     PRINT_DEBUG("%s %u %p %i %p\n", __FUNCTION__, hConn, pStatus, nLanes, pLanes);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) return k_EResultNoConnection;
+    auto connect_socket = s->connect_sockets.find(hConn);
+    if (connect_socket == s->connect_sockets.end()) return k_EResultNoConnection;
 
     if (pStatus) {
         pStatus->m_eState = convert_status(connect_socket->second.status);
@@ -1102,7 +1131,7 @@ bool CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection
     remote_identity.SetSteamID(settings->get_local_steam_id());
     HSteamNetConnection con1 = new_connect_socket(remote_identity, 0, SNS_DISABLED_PORT, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, k_HSteamNetConnection_Invalid);
     HSteamNetConnection con2 = new_connect_socket(remote_identity, 0, SNS_DISABLED_PORT, CONNECT_SOCKET_CONNECTED, k_HSteamListenSocket_Invalid, con1);
-    connect_sockets[con1].remote_id = con2;
+    s->connect_sockets[con1].remote_id = con2;
     *pOutConnection1 = con1;
     *pOutConnection2 = con2;
     return true;
@@ -1180,8 +1209,8 @@ EResult ConfigureConnectionLanes( HSteamNetConnection hConn, int nNumLanes, cons
 {
     PRINT_DEBUG("TODO: %s\n", __FUNCTION__);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) return k_EResultNoConnection;
+    auto connect_socket = s->connect_sockets.find(hConn);
+    if (connect_socket == s->connect_sockets.end()) return k_EResultNoConnection;
     //TODO
     return k_EResultOK;
 }
@@ -1253,7 +1282,7 @@ HSteamNetPollGroup CreatePollGroup()
     ++poll_group_counter;
 
     HSteamNetPollGroup poll_group_number = poll_group_counter;
-    poll_groups[poll_group_number] = std::list<HSteamNetConnection>();
+    s->poll_groups[poll_group_number] = std::list<HSteamNetConnection>();
     return poll_group_number;
 }
 
@@ -1266,19 +1295,19 @@ bool DestroyPollGroup( HSteamNetPollGroup hPollGroup )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::DestroyPollGroup\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto group = poll_groups.find(hPollGroup);
-    if (group == poll_groups.end()) {
+    auto group = s->poll_groups.find(hPollGroup);
+    if (group == s->poll_groups.end()) {
         return false;
     }
 
     for (auto c : group->second) {
-        auto connect_socket = connect_sockets.find(c);
-        if (connect_socket != connect_sockets.end()) {
+        auto connect_socket = s->connect_sockets.find(c);
+        if (connect_socket != s->connect_sockets.end()) {
             connect_socket->second.poll_group = k_HSteamNetPollGroup_Invalid;
         }
     }
 
-    poll_groups.erase(group);
+    s->poll_groups.erase(group);
     return true;
 }
 
@@ -1300,20 +1329,20 @@ bool SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPoll
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SetConnectionPollGroup %u %u\n", hConn, hPollGroup);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto connect_socket = connect_sockets.find(hConn);
-    if (connect_socket == connect_sockets.end()) {
+    auto connect_socket = s->connect_sockets.find(hConn);
+    if (connect_socket == s->connect_sockets.end()) {
         return false;
     }
 
-    auto group = poll_groups.find(hPollGroup);
-    if (group == poll_groups.end() && hPollGroup != k_HSteamNetPollGroup_Invalid) {
+    auto group = s->poll_groups.find(hPollGroup);
+    if (group == s->poll_groups.end() && hPollGroup != k_HSteamNetPollGroup_Invalid) {
         return false;
     }
 
     HSteamNetPollGroup old_poll_group = connect_socket->second.poll_group;
     if (old_poll_group != k_HSteamNetPollGroup_Invalid) {
-        auto group = poll_groups.find(hPollGroup);
-        if (group != poll_groups.end()) {
+        auto group = s->poll_groups.find(hPollGroup);
+        if (group != s->poll_groups.end()) {
             group->second.remove(hConn);
         }
     }
@@ -1346,8 +1375,8 @@ int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMe
 {
     PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnPollGroup %u %i\n", hPollGroup, nMaxMessages);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto group = poll_groups.find(hPollGroup);
-    if (group == poll_groups.end()) {
+    auto group = s->poll_groups.find(hPollGroup);
+    if (group == s->poll_groups.end()) {
         return 0;
     }
 
@@ -1361,6 +1390,7 @@ int ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMe
         }
     }
 
+    PRINT_DEBUG("Steam_Networking_Sockets::ReceiveMessagesOnPollGroup out %i\n", messages);
     return messages;
 }
 
@@ -1962,7 +1992,7 @@ void Callback(Common_Message *msg)
         }
 
         if (msg->low_level().type() == Low_Level::DISCONNECT) {
-            for (auto & connect_socket : connect_sockets) {
+            for (auto & connect_socket : s->connect_sockets) {
                 if (connect_socket.second.remote_identity.GetSteamID64() == msg->source_id()) {
                     enum connect_socket_status old_status = connect_socket.second.status;
                     connect_socket.second.status = CONNECT_SOCKET_TIMEDOUT;
@@ -1973,18 +2003,19 @@ void Callback(Common_Message *msg)
     }
 
     if (msg->has_networking_sockets()) {
-        PRINT_DEBUG("Steam_Networking_Sockets: got network socket msg %u\n", msg->networking_sockets().type());
+        PRINT_DEBUG("Steam_Networking_Sockets: got network socket msg %u %llu\n", msg->networking_sockets().type(), msg->source_id());
         if (msg->networking_sockets().type() == Networking_Sockets::CONNECTION_REQUEST) {
             int virtual_port = msg->networking_sockets().virtual_port();
             int real_port = msg->networking_sockets().real_port();
+            uint64 dest_id = msg->dest_id();
             std::vector<Listen_Socket>::iterator conn;
             if (virtual_port == SNS_DISABLED_PORT) {
-                conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&real_port](struct Listen_Socket const& conn) { return conn.real_port == real_port;});
+                conn = std::find_if(s->listen_sockets.begin(), s->listen_sockets.end(), [&real_port,&dest_id](struct Listen_Socket const& conn) { return conn.real_port == real_port && dest_id == conn.created_by.ConvertToUint64();});
             } else {
-                conn = std::find_if(listen_sockets.begin(), listen_sockets.end(), [&virtual_port](struct Listen_Socket const& conn) { return conn.virtual_port == virtual_port;});
+                conn = std::find_if(s->listen_sockets.begin(), s->listen_sockets.end(), [&virtual_port,&dest_id](struct Listen_Socket const& conn) { return conn.virtual_port == virtual_port && dest_id == conn.created_by.ConvertToUint64();});
             }
 
-            if (conn != listen_sockets.end()) {
+            if (conn != s->listen_sockets.end()) {
                 SteamNetworkingIdentity identity;
                 identity.SetSteamID64(msg->source_id());
                 HSteamNetConnection new_connection = new_connect_socket(identity, virtual_port, real_port, CONNECT_SOCKET_NOT_ACCEPTED, conn->socket_id, msg->networking_sockets().connection_id_from());
@@ -1992,8 +2023,8 @@ void Callback(Common_Message *msg)
             }
 
         } else if (msg->networking_sockets().type() == Networking_Sockets::CONNECTION_ACCEPTED) {
-            auto connect_socket = connect_sockets.find(msg->networking_sockets().connection_id());
-            if (connect_socket != connect_sockets.end()) {
+            auto connect_socket = s->connect_sockets.find(msg->networking_sockets().connection_id());
+            if (connect_socket != s->connect_sockets.end()) {
                 if (connect_socket->second.remote_identity.GetSteamID64() == 0) {
                     connect_socket->second.remote_identity.SetSteamID64(msg->source_id());
                 }
@@ -2005,15 +2036,16 @@ void Callback(Common_Message *msg)
                 }
             }
         } else if (msg->networking_sockets().type() == Networking_Sockets::DATA) {
-            auto connect_socket = connect_sockets.find(msg->networking_sockets().connection_id());
-            if (connect_socket != connect_sockets.end()) {
+            auto connect_socket = s->connect_sockets.find(msg->networking_sockets().connection_id());
+            if (connect_socket != s->connect_sockets.end()) {
                 if (connect_socket->second.remote_identity.GetSteamID64() == msg->source_id() && connect_socket->second.status == CONNECT_SOCKET_CONNECTED) {
+                    PRINT_DEBUG("Steam_Networking_Sockets: got data len %u on connection %u\n", msg->networking_sockets().data().size(), connect_socket->first);
                     connect_socket->second.data.push(msg->networking_sockets().data());
                 }
             }
         } else if (msg->networking_sockets().type() == Networking_Sockets::CONNECTION_END) {
-            auto connect_socket = connect_sockets.find(msg->networking_sockets().connection_id());
-            if (connect_socket != connect_sockets.end()) {
+            auto connect_socket = s->connect_sockets.find(msg->networking_sockets().connection_id());
+            if (connect_socket != s->connect_sockets.end()) {
                 if (connect_socket->second.remote_identity.GetSteamID64() == msg->source_id() && connect_socket->second.status == CONNECT_SOCKET_CONNECTED) {
                     enum connect_socket_status old_status = connect_socket->second.status;
                     connect_socket->second.status = CONNECT_SOCKET_CLOSED;
