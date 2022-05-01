@@ -456,7 +456,7 @@ public:
     }
 };
 
-void set_adapter_ips(uint32_t *from, uint32_t *to, unsigned num_ips);
+void set_whitelist_ips(uint32_t *from, uint32_t *to, unsigned num_ips);
 #ifdef EMU_EXPERIMENTAL_BUILD
 bool crack_SteamAPI_RestartAppIfNecessary(uint32 unOwnAppID);
 bool crack_SteamAPI_Init();

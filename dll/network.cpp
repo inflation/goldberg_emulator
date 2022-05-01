@@ -314,7 +314,13 @@ static bool send_broadcasts(sock_t sock, uint16 port, char *data, unsigned long 
     if (number_broadcasts < 0 || check_timedout(last_get_broadcast_info, 60.0)) {
         PRINT_DEBUG("get_broadcast_info\n");
         get_broadcast_info(port);
-        set_adapter_ips(lower_range_ips, upper_range_ips, number_broadcasts);
+        std::vector<uint32_t> lower_range(lower_range_ips, lower_range_ips + number_broadcasts), upper_range(upper_range_ips, upper_range_ips + number_broadcasts);
+        for(auto &addr : *custom_broadcasts) {
+            lower_range.push_back(addr.ip);
+            upper_range.push_back(addr.ip);
+        }
+
+        set_whitelist_ips(lower_range.data(), upper_range.data(), lower_range.size());
         last_get_broadcast_info = std::chrono::high_resolution_clock::now();
     }
 
