@@ -1153,6 +1153,9 @@ bool Networking::sendTo(Common_Message *msg, bool reliable, Connection *conn)
 {
     if (!enabled) return false;
 
+    size_t size = msg->ByteSizeLong();
+    if (size >= 65000) reliable = true; //too big for UDP
+
     bool ret = false;
     CSteamID dest_id((uint64)msg->dest_id());
     if (std::find(ids.begin(), ids.end(), dest_id) != ids.end()) {
@@ -1178,7 +1181,6 @@ bool Networking::sendTo(Common_Message *msg, bool reliable, Connection *conn)
                 ret = true;
             }
         } else {
-            size_t size = msg->ByteSizeLong(); 
             char *buffer = new char[size];
             msg->SerializeToArray(buffer, size);
             send_packet_to(udp_socket, conn->udp_ip_port, buffer, size);
