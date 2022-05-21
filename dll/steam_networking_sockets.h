@@ -755,6 +755,7 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
     bool reliable = false;
     if (nSendFlags & k_nSteamNetworkingSend_Reliable) reliable = true;
 
+    if (pOutMessageNumber) *pOutMessageNumber = 1; //TODO
     if (network->sendTo(&msg, reliable)) return k_EResultOK;
     return k_EResultFail;
 }
@@ -800,6 +801,20 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
 void SendMessages( int nMessages, SteamNetworkingMessage_t *const *pMessages, int64 *pOutMessageNumberOrResult )
 {
     PRINT_DEBUG("Steam_Networking_Sockets::SendMessages\n");
+    for (int i = 0; i < nMessages; ++i) {
+        int64 out_number = 0;
+        int result = SendMessageToConnection(pMessages[i]->m_conn, pMessages[i]->m_pData, pMessages[i]->m_cbSize, pMessages[i]->m_nFlags, &out_number);
+        if (pOutMessageNumberOrResult) {
+            if (result == k_EResultOK) {
+                pOutMessageNumberOrResult[i] = out_number;
+            } else {
+                pOutMessageNumberOrResult[i] = -result;
+            }
+        }
+
+        pMessages[i]->m_pfnFreeData(pMessages[i]);
+        pMessages[i]->Release();
+    }
 }
 
 
