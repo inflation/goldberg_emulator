@@ -138,7 +138,7 @@ CSteamID generate_steam_id_anonserver()
 
 CSteamID generate_steam_id_lobby()
 {
-    return CSteamID(generate_account_id(), k_unSteamUserDefaultInstance | k_EChatInstanceFlagLobby, k_EUniversePublic, k_EAccountTypeChat);
+    return CSteamID(generate_account_id(), k_EChatInstanceFlagLobby | k_EChatInstanceFlagMMSLobby, k_EUniversePublic, k_EAccountTypeChat);
 }
 
 bool check_timedout(std::chrono::high_resolution_clock::time_point old, double timeout)
