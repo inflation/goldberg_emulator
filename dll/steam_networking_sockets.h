@@ -52,6 +52,9 @@ struct Connect_Socket {
 
     unsigned long long packet_receive_counter;
     CSteamID created_by;
+
+    std::chrono::steady_clock::time_point connect_request_last_sent;
+    unsigned connect_requests_sent;
 };
 
 struct shared_between_client_server {
@@ -217,6 +220,8 @@ HSteamNetConnection new_connect_socket(SteamNetworkingIdentity remote_identity, 
     socket.user_data = -1;
     socket.poll_group = k_HSteamNetPollGroup_Invalid;
     socket.created_by = settings->get_local_steam_id();
+    socket.connect_request_last_sent = std::chrono::steady_clock::now();
+    socket.connect_requests_sent = 0;
 
     HSteamNetConnection socket_id = get_socket_id();
     if (socket_id == k_HSteamNetConnection_Invalid) ++socket_id;
@@ -1996,6 +2001,17 @@ void RunCallbacks( ISteamNetworkingSocketsCallbacks *pCallbacks )
 void RunCallbacks()
 {
     //TODO: timeout unaccepted connections after a few seconds or so
+    auto current_time = std::chrono::steady_clock::now();
+    auto socket_conn = std::begin(s->connect_sockets);
+    while (socket_conn != std::end(s->connect_sockets)) {
+        if (socket_conn->second.connect_requests_sent < 10 && socket_conn->second.status == CONNECT_SOCKET_CONNECTING && (std::chrono::duration_cast<std::chrono::milliseconds>(current_time - socket_conn->second.connect_request_last_sent).count() > 3000)) {
+            send_packet_new_connection(socket_conn->first);
+            socket_conn->second.connect_request_last_sent = current_time;
+            socket_conn->second.connect_requests_sent += 1;
+        }
+
+        ++socket_conn;
+    }
 }
 
 
@@ -2031,10 +2047,13 @@ void Callback(Common_Message *msg)
             }
 
             if (conn != s->listen_sockets.end()) {
-                SteamNetworkingIdentity identity;
-                identity.SetSteamID64(msg->source_id());
-                HSteamNetConnection new_connection = new_connect_socket(identity, virtual_port, real_port, CONNECT_SOCKET_NOT_ACCEPTED, conn->socket_id, msg->networking_sockets().connection_id_from());
-                launch_callback(new_connection, CONNECT_SOCKET_NO_CONNECTION);
+                auto connect_socket = std::find_if(s->connect_sockets.begin(), s->connect_sockets.end(), [msg](const auto &in) {return in.second.remote_identity.GetSteamID64() == msg->source_id() && (in.second.status == CONNECT_SOCKET_NOT_ACCEPTED || in.second.status == CONNECT_SOCKET_CONNECTED) && in.second.remote_id == msg->networking_sockets().connection_id_from();});
+                if (connect_socket == s->connect_sockets.end()) {
+                    SteamNetworkingIdentity identity;
+                    identity.SetSteamID64(msg->source_id());
+                    HSteamNetConnection new_connection = new_connect_socket(identity, virtual_port, real_port, CONNECT_SOCKET_NOT_ACCEPTED, conn->socket_id, msg->networking_sockets().connection_id_from());
+                    launch_callback(new_connection, CONNECT_SOCKET_NO_CONNECTION);
+                }
             }
 
         } else if (msg->networking_sockets().type() == Networking_Sockets::CONNECTION_ACCEPTED) {
