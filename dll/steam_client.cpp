@@ -305,6 +305,7 @@ ISteamGameServer *Steam_Client::GetISteamGameServer( HSteamUser hSteamUser, HSte
     } else if (strcmp(pchVersion, "SteamGameServer012") == 0) {
         return (ISteamGameServer *)(void *)(ISteamGameServer012 *)steam_gameserver;
     } else if (strcmp(pchVersion, "SteamGameServer013") == 0) {
+        gameserver_has_ipv6_functions = true;
         return (ISteamGameServer *)(void *)(ISteamGameServer013 *)steam_gameserver;
     } else if (strcmp(pchVersion, STEAMGAMESERVER_INTERFACE_VERSION) == 0) {
         gameserver_has_ipv6_functions = true;
