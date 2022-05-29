@@ -41,6 +41,11 @@ std::string get_env_variable(std::string name)
     return utf8_encode(env_variable);
 }
 
+bool set_env_variable(std::string name, std::string value)
+{
+    return SetEnvironmentVariableW(utf8_decode(name).c_str(), utf8_decode(value).c_str());
+}
+
 #else
 
 static int fd = -1;
@@ -79,6 +84,11 @@ std::string get_env_variable(std::string name)
     }
 
     return std::string(env);
+}
+
+bool set_env_variable(std::string name, std::string value)
+{
+    return setenv(name.c_str(), value.c_str(), 1) == 0;
 }
 
 #endif

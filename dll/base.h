@@ -25,6 +25,7 @@
 extern std::recursive_mutex global_mutex;
 
 std::string get_env_variable(std::string name);
+bool set_env_variable(std::string name, std::string value);
 bool check_timedout(std::chrono::high_resolution_clock::time_point old, double timeout);
 
 class CCallbackMgr
