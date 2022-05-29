@@ -1126,9 +1126,12 @@ void Networking::setAppID(uint32 appid)
 
 bool Networking::sendToIPPort(Common_Message *msg, uint32 ip, uint16 port, bool reliable)
 {
+    bool is_local_ip = ((ip >> 24) == 0x7F);
+    uint32_t local_ip = getIP(ids.front());
+    PRINT_DEBUG("sendToIPPort %X %u %X\n", ip, is_local_ip, local_ip);
     //TODO: actually send to ip/port
     for (auto &conn: connections) {
-        if (ntohl(conn.tcp_ip_port.ip) == ip) {
+        if (ntohl(conn.tcp_ip_port.ip) == ip || (is_local_ip && ntohl(conn.tcp_ip_port.ip) == local_ip)) {
             for (auto &steam_id : conn.ids) {
                 msg->set_dest_id(steam_id.ConvertToUint64());
                 sendTo(msg, reliable, &conn);
