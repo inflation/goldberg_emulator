@@ -35,6 +35,12 @@ enum connect_socket_status {
     CONNECT_SOCKET_TIMEDOUT
 };
 
+struct compare_snm_for_queue {
+    bool operator()(Networking_Sockets &left, Networking_Sockets &right) {
+        return left.message_number() > right.message_number();
+    }
+};
+
 struct Connect_Socket {
     int virtual_port;
     int real_port;
@@ -47,10 +53,10 @@ struct Connect_Socket {
     enum connect_socket_status status;
     int64 user_data;
 
-    std::queue<std::string> data;
+    std::priority_queue<Networking_Sockets, std::vector<Networking_Sockets>, compare_snm_for_queue> data;
     HSteamNetPollGroup poll_group;
 
-    unsigned long long packet_receive_counter;
+    unsigned long long packet_send_counter;
     CSteamID created_by;
 
     std::chrono::steady_clock::time_point connect_request_last_sent;
@@ -222,6 +228,7 @@ HSteamNetConnection new_connect_socket(SteamNetworkingIdentity remote_identity, 
     socket.created_by = settings->get_local_steam_id();
     socket.connect_request_last_sent = std::chrono::steady_clock::now();
     socket.connect_requests_sent = 0;
+    socket.packet_send_counter = 1;
 
     HSteamNetConnection socket_id = get_socket_id();
     if (socket_id == k_HSteamNetConnection_Invalid) ++socket_id;
@@ -385,7 +392,7 @@ HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr *address )
 
 HSteamNetConnection ConnectByIPAddress( const SteamNetworkingIPAddr &address, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
 {
-    PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress\n");
+    PRINT_DEBUG("Steam_Networking_Sockets::ConnectByIPAddress %X\n", address.GetIPv4());
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     SteamNetworkingIdentity ip_id;
     ip_id.SetIPAddr(address);
@@ -757,11 +764,17 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
     msg.mutable_networking_sockets()->set_connection_id_from(connect_socket->first);
     msg.mutable_networking_sockets()->set_connection_id(connect_socket->second.remote_id);
     msg.mutable_networking_sockets()->set_data(pData, cbData);
+    uint64 message_number = connect_socket->second.packet_send_counter;
+    msg.mutable_networking_sockets()->set_message_number(message_number);
+    connect_socket->second.packet_send_counter += 1;
+
     bool reliable = false;
     if (nSendFlags & k_nSteamNetworkingSend_Reliable) reliable = true;
+    if (network->sendTo(&msg, reliable)) {
+        if (pOutMessageNumber) *pOutMessageNumber = message_number;
+        return k_EResultOK;
+    }
 
-    if (pOutMessageNumber) *pOutMessageNumber = 1; //TODO
-    if (network->sendTo(&msg, reliable)) return k_EResultOK;
     return k_EResultFail;
 }
 
@@ -853,17 +866,16 @@ SteamNetworkingMessage_t *get_steam_message_connection(HSteamNetConnection hConn
     if (connect_socket == s->connect_sockets.end()) return NULL;
     if (connect_socket->second.data.empty()) return NULL;
     SteamNetworkingMessage_t *pMsg = new SteamNetworkingMessage_t();
-    unsigned long size = connect_socket->second.data.front().size();
+    unsigned long size = connect_socket->second.data.top().data().size();
     pMsg->m_pData = malloc(size);
     pMsg->m_cbSize = size;
-    memcpy(pMsg->m_pData, connect_socket->second.data.front().data(), size);
+    memcpy(pMsg->m_pData, connect_socket->second.data.top().data().data(), size);
     pMsg->m_conn = hConn;
     pMsg->m_identityPeer = connect_socket->second.remote_identity;
     pMsg->m_nConnUserData = connect_socket->second.user_data;
     pMsg->m_usecTimeReceived = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - created).count();
     //TODO: check where messagenumber starts
-    pMsg->m_nMessageNumber = connect_socket->second.packet_receive_counter;
-    ++connect_socket->second.packet_receive_counter;
+    pMsg->m_nMessageNumber = connect_socket->second.data.top().message_number();
 
     pMsg->m_pfnFreeData = &free_steam_message_data;
     pMsg->m_pfnRelease = &delete_steam_message;
@@ -2074,7 +2086,7 @@ void Callback(Common_Message *msg)
             if (connect_socket != s->connect_sockets.end()) {
                 if (connect_socket->second.remote_identity.GetSteamID64() == msg->source_id() && connect_socket->second.status == CONNECT_SOCKET_CONNECTED) {
                     PRINT_DEBUG("Steam_Networking_Sockets: got data len %u on connection %u\n", msg->networking_sockets().data().size(), connect_socket->first);
-                    connect_socket->second.data.push(msg->networking_sockets().data());
+                    connect_socket->second.data.push(msg->networking_sockets());
                 }
             }
         } else if (msg->networking_sockets().type() == Networking_Sockets::CONNECTION_END) {
