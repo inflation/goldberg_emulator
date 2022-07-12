@@ -165,6 +165,12 @@ inline std::wstring utf8_decode(const std::string &str)
 #include <string.h>
 #include <stdio.h>
 
+inline std::string ascii_to_lowercase(std::string data) {
+    std::transform(data.begin(), data.end(), data.begin(),
+        [](unsigned char c){ return std::tolower(c); });
+    return data;
+}
+
 // Other libs includes
 #include "../json/json.hpp"
 #include "../controller/gamepad.h"

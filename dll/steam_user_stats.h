@@ -27,6 +27,29 @@ struct Steam_Leaderboard {
     ELeaderboardDisplayType display_type;
 };
 
+struct achievement_trigger {
+    std::string name;
+    std::string value_operation;
+    std::string min_value;
+    std::string max_value;
+
+    bool check_triggered(float stat) {
+        try {
+            if (std::stof(max_value) <= stat) return true;
+        } catch (...) {}
+
+        return false;
+    }
+
+    bool check_triggered(int32 stat) {
+        try {
+            if (std::stoi(max_value) <= stat) return true;
+        } catch (...) {}
+
+        return false;
+    }
+};
+
 class Steam_User_Stats :
 public ISteamUserStats003,
 public ISteamUserStats004,
@@ -58,6 +81,7 @@ private:
     std::map<std::string, int32> stats_cache_int;
     std::map<std::string, float> stats_cache_float;
 
+    std::map<std::string, achievement_trigger> achievement_stat_trigger;
 
 unsigned int find_leaderboard(std::string name)
 {
@@ -118,6 +142,14 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
                 user_achievements[name]["earned"] = false;
                 user_achievements[name]["earned_time"] = static_cast<uint32>(0);
             }
+
+            achievement_trigger trig;
+            trig.name = name;
+            trig.value_operation = static_cast<std::string const&>(it["progress"]["value"]["operation"]);
+            std::string stat_name = ascii_to_lowercase(static_cast<std::string const&>(it["progress"]["value"]["operand1"]));
+            trig.min_value = static_cast<std::string const&>(it["progress"]["min_val"]);
+            trig.max_value = static_cast<std::string const&>(it["progress"]["max_val"]);
+            achievement_stat_trigger[stat_name] = trig;
         } catch (...) {}
 
         try {
@@ -154,14 +186,16 @@ bool GetStat( const char *pchName, int32 *pData )
 {
     PRINT_DEBUG("GetStat int32 %s\n", pchName);
     if (!pchName || !pData) return false;
+    std::string stat_name = ascii_to_lowercase(pchName);
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     auto stats_config = settings->getStats();
-    auto stats_data = stats_config.find(pchName);
+    auto stats_data = stats_config.find(stat_name);
     if (stats_data != stats_config.end()) {
         if (stats_data->second.type != Stat_Type::STAT_TYPE_INT) return false;
     }
 
-    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, pchName, (char* )pData, sizeof(*pData));
+    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, stat_name, (char* )pData, sizeof(*pData));
     if (read_data == sizeof(int32))
         return true;
 
@@ -177,14 +211,16 @@ bool GetStat( const char *pchName, float *pData )
 {
     PRINT_DEBUG("GetStat float %s\n", pchName);
     if (!pchName || !pData) return false;
+    std::string stat_name = ascii_to_lowercase(pchName);
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     auto stats_config = settings->getStats();
-    auto stats_data = stats_config.find(pchName);
+    auto stats_data = stats_config.find(stat_name);
     if (stats_data != stats_config.end()) {
         if (stats_data->second.type == Stat_Type::STAT_TYPE_INT) return false;
     }
 
-    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, pchName, (char* )pData, sizeof(*pData));
+    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, stat_name, (char* )pData, sizeof(*pData));
     if (read_data == sizeof(float))
         return true;
 
@@ -202,14 +238,23 @@ bool SetStat( const char *pchName, int32 nData )
 {
     PRINT_DEBUG("SetStat int32 %s\n", pchName);
     if (!pchName) return false;
+    std::string stat_name = ascii_to_lowercase(pchName);
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto cached_stat = stats_cache_int.find(pchName);
+    auto cached_stat = stats_cache_int.find(stat_name);
     if (cached_stat != stats_cache_int.end()) {
         if (cached_stat->second == nData) return true;
     }
 
-    if (local_storage->store_data(Local_Storage::stats_storage_folder, pchName, (char* )&nData, sizeof(nData)) == sizeof(nData)) {
-        stats_cache_int[pchName] = nData;
+    auto stat_trigger = achievement_stat_trigger.find(stat_name);
+    if (stat_trigger != achievement_stat_trigger.end()) {
+        if (stat_trigger->second.check_triggered(nData)) {
+            SetAchievement(stat_trigger->second.name.c_str());
+        }
+    }
+
+    if (local_storage->store_data(Local_Storage::stats_storage_folder, stat_name, (char* )&nData, sizeof(nData)) == sizeof(nData)) {
+        stats_cache_int[stat_name] = nData;
         return true;
     }
 
@@ -220,14 +265,23 @@ bool SetStat( const char *pchName, float fData )
 {
     PRINT_DEBUG("SetStat float %s\n", pchName);
     if (!pchName) return false;
+    std::string stat_name = ascii_to_lowercase(pchName);
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    auto cached_stat = stats_cache_float.find(pchName);
+    auto cached_stat = stats_cache_float.find(stat_name);
     if (cached_stat != stats_cache_float.end()) {
         if (cached_stat->second == fData) return true;
     }
 
-    if (local_storage->store_data(Local_Storage::stats_storage_folder, pchName, (char* )&fData, sizeof(fData)) == sizeof(fData)) {
-        stats_cache_float[pchName] = fData;
+    auto stat_trigger = achievement_stat_trigger.find(stat_name);
+    if (stat_trigger != achievement_stat_trigger.end()) {
+        if (stat_trigger->second.check_triggered(fData)) {
+            SetAchievement(stat_trigger->second.name.c_str());
+        }
+    }
+
+    if (local_storage->store_data(Local_Storage::stats_storage_folder, stat_name, (char* )&fData, sizeof(fData)) == sizeof(fData)) {
+        stats_cache_float[stat_name] = fData;
         return true;
     }
 
@@ -237,10 +291,13 @@ bool SetStat( const char *pchName, float fData )
 bool UpdateAvgRateStat( const char *pchName, float flCountThisSession, double dSessionLength )
 {
     PRINT_DEBUG("UpdateAvgRateStat %s\n", pchName);
+    if (!pchName) return false;
+    std::string stat_name = ascii_to_lowercase(pchName);
+
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     char data[sizeof(float) + sizeof(float) + sizeof(double)];
-    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, pchName, (char* )data, sizeof(*data));
+    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, stat_name, (char* )data, sizeof(*data));
     float oldcount = 0;
     double oldsessionlength = 0;
     if (read_data == sizeof(data)) {
@@ -256,7 +313,7 @@ bool UpdateAvgRateStat( const char *pchName, float flCountThisSession, double dS
     memcpy(data + sizeof(float), &oldcount, sizeof(oldcount));
     memcpy(data + sizeof(float) * 2, &oldsessionlength, sizeof(oldsessionlength));
 
-    return local_storage->store_data(Local_Storage::stats_storage_folder, pchName, data, sizeof(data)) == sizeof(data);
+    return local_storage->store_data(Local_Storage::stats_storage_folder, stat_name, data, sizeof(data)) == sizeof(data);
 }
 
 

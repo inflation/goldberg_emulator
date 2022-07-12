@@ -131,7 +131,7 @@ public:
 
     //stats
     std::map<std::string, Stat_config> getStats() { return stats; }
-    void setStatDefiniton(std::string name, struct Stat_config stat_config) {stats[name] = stat_config; }
+    void setStatDefiniton(std::string name, struct Stat_config stat_config) {stats[ascii_to_lowercase(name)] = stat_config; }
 
     //subscribed lobby/group ids
     std::set<uint64> subscribed_groups;
