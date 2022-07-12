@@ -1014,6 +1014,33 @@ void ActivateGameOverlayInviteDialogConnectString( const char *pchConnectString 
     PRINT_DEBUG("Steam_Friends::ActivateGameOverlayInviteDialogConnectString\n");
 }
 
+// Steam Community items equipped by a user on their profile
+// You can register for EquippedProfileItemsChanged_t to know when a friend has changed their equipped profile items
+STEAM_CALL_RESULT( EquippedProfileItems_t )
+SteamAPICall_t RequestEquippedProfileItems( CSteamID steamID )
+{
+    PRINT_DEBUG("Steam_Friends::RequestEquippedProfileItems\n");
+    return 0;
+}
+
+bool BHasEquippedProfileItem( CSteamID steamID, ECommunityProfileItemType itemType )
+{
+    PRINT_DEBUG("Steam_Friends::BHasEquippedProfileItem\n");
+    return false;
+}
+
+const char *GetProfileItemPropertyString( CSteamID steamID, ECommunityProfileItemType itemType, ECommunityProfileItemProperty prop )
+{
+    PRINT_DEBUG("Steam_Friends::GetProfileItemPropertyString\n");
+    return "";
+}
+
+uint32 GetProfileItemPropertyUint( CSteamID steamID, ECommunityProfileItemType itemType, ECommunityProfileItemProperty prop )
+{
+    PRINT_DEBUG("Steam_Friends::GetProfileItemPropertyUint\n");
+    return 0;
+}
+
 void RunCallbacks()
 {
 	PRINT_DEBUG("Steam_Friends::RunCallbacks\n");
