@@ -57,6 +57,8 @@ def generate_stats_achievements(schema, config_directory):
                     out['type'] = 'avgrate'
                 if 'Default' in stat:
                     out['default'] = stat['Default']
+                elif 'default' in stat:
+                    out['default'] = stat['default']
 
                 stats_out += [out]
             # print(stat_info[s])
