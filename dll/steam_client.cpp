@@ -295,7 +295,9 @@ ISteamGameServer *Steam_Client::GetISteamGameServer( HSteamUser hSteamUser, HSte
     PRINT_DEBUG("GetISteamGameServer %s\n", pchVersion);
     if (!steam_pipes.count(hSteamPipe) || !hSteamUser) return NULL;
 
-    if (strcmp(pchVersion, "SteamGameServer005") == 0) {
+    if (strcmp(pchVersion, "SteamGameServer004") == 0) {
+        return (ISteamGameServer *)(void *)(ISteamGameServer004 *)steam_gameserver;
+    } else if (strcmp(pchVersion, "SteamGameServer005") == 0) {
         return (ISteamGameServer *)(void *)(ISteamGameServer005 *)steam_gameserver;
     } else if (strcmp(pchVersion, "SteamGameServer006") == 0) {
         return (ISteamGameServer *)(void *)(ISteamGameServer008 *)steam_gameserver;
@@ -343,7 +345,9 @@ ISteamFriends *Steam_Client::GetISteamFriends( HSteamUser hSteamUser, HSteamPipe
     PRINT_DEBUG("GetISteamFriends %s\n", pchVersion);
     if (!steam_pipes.count(hSteamPipe) || !hSteamUser) return NULL;
 
-    if (strcmp(pchVersion, "SteamFriends004") == 0) {
+    if (strcmp(pchVersion, "SteamFriends003") == 0) {
+        return (ISteamFriends *)(void *)(ISteamFriends003 *)steam_friends;
+    } else if (strcmp(pchVersion, "SteamFriends004") == 0) {
         return (ISteamFriends *)(void *)(ISteamFriends004 *)steam_friends;
     } else if (strcmp(pchVersion, "SteamFriends005") == 0) {
         return (ISteamFriends *)(void *)(ISteamFriends005 *)steam_friends;
@@ -425,19 +429,15 @@ ISteamMatchmaking *Steam_Client::GetISteamMatchmaking( HSteamUser hSteamUser, HS
 
     if (strcmp(pchVersion, "SteamMatchMaking001") == 0) {
         //TODO
-        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking006 *)steam_matchmaking;
+        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking002 *)steam_matchmaking;
     } else if (strcmp(pchVersion, "SteamMatchMaking002") == 0) {
-        //TODO
-        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking006 *)steam_matchmaking;
+        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking002 *)steam_matchmaking;
     } else if (strcmp(pchVersion, "SteamMatchMaking003") == 0) {
-        //TODO
-        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking006 *)steam_matchmaking;
+        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking003 *)steam_matchmaking;
     } else if (strcmp(pchVersion, "SteamMatchMaking004") == 0) {
-        //TODO
-        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking006 *)steam_matchmaking;
+        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking004 *)steam_matchmaking;
     } else if (strcmp(pchVersion, "SteamMatchMaking005") == 0) {
-        //TODO
-        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking006 *)steam_matchmaking;
+        return (ISteamMatchmaking *)(void *)(ISteamMatchmaking005 *)steam_matchmaking;
     } else if (strcmp(pchVersion, "SteamMatchMaking006") == 0) {
         return (ISteamMatchmaking *)(void *)(ISteamMatchmaking006 *)steam_matchmaking;
     } else if (strcmp(pchVersion, "SteamMatchMaking007") == 0) {
@@ -459,6 +459,15 @@ ISteamMatchmakingServers *Steam_Client::GetISteamMatchmakingServers( HSteamUser 
 {
     PRINT_DEBUG("GetISteamMatchmakingServers %s\n", pchVersion);
     if (!steam_pipes.count(hSteamPipe) || !hSteamUser) return NULL;
+
+    if (strcmp(pchVersion, "SteamMatchMakingServers001") == 0) {
+        return (ISteamMatchmakingServers *)(void *)(ISteamMatchmakingServers001 *)steam_matchmaking_servers;
+    } else if (strcmp(pchVersion, STEAMMATCHMAKINGSERVERS_INTERFACE_VERSION) == 0) {
+        return steam_matchmaking_servers;
+    } else {
+        return steam_matchmaking_servers;
+    }
+
     return steam_matchmaking_servers;
 }
 
@@ -676,7 +685,9 @@ ISteamApps *Steam_Client::GetISteamApps( HSteamUser hSteamUser, HSteamPipe hStea
     } else {
         steam_apps_temp = steam_apps;
     }
-    if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION002") == 0) {
+    if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION001") == 0) {
+        return (ISteamApps *)(void *)(ISteamApps001 *)steam_apps_temp;
+    } else if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION002") == 0) {
         return (ISteamApps *)(void *)(ISteamApps002 *)steam_apps_temp;
     } else if (strcmp(pchVersion, "STEAMAPPS_INTERFACE_VERSION003") == 0) {
         return (ISteamApps *)(void *)(ISteamApps003 *)steam_apps_temp;

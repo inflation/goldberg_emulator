@@ -30,6 +30,7 @@ struct Avatar_Numbers {
 };
 
 class Steam_Friends : 
+public ISteamFriends003,
 public ISteamFriends004,
 public ISteamFriends005,
 public ISteamFriends006,
@@ -627,6 +628,12 @@ int GetFriendAvatar( CSteamID steamIDFriend, int eAvatarSize )
 	} else {
 		return 0;
 	}
+}
+
+int GetFriendAvatar(CSteamID steamIDFriend)
+{
+    PRINT_DEBUG("Steam_Friends::GetFriendAvatar old\n");
+    return GetFriendAvatar(steamIDFriend, k_EAvatarSize32x32);
 }
 
 // requests information about a user - persona name & avatar

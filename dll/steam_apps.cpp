@@ -24,6 +24,16 @@ Steam_Apps::Steam_Apps(Settings *settings, class SteamCallResults *callback_resu
     this->callback_results = callback_results;
 }
 
+// returns 0 if the key does not exist
+// this may be true on first call, since the app data may not be cached locally yet
+// If you expect it to exists wait for the AppDataChanged_t after the first failure and ask again
+int Steam_Apps::GetAppData( AppId_t nAppID, const char *pchKey, char *pchValue, int cchValueMax )
+{
+    //TODO
+    PRINT_DEBUG("GetAppData %u %s\n", nAppID, pchKey);
+    return 0;
+}
+
 bool Steam_Apps::BIsSubscribed()
 {
     PRINT_DEBUG("BIsSubscribed\n");

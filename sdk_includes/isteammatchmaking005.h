@@ -1,6 +1,6 @@
 
-#ifndef ISTEAMMATCHMAKING007_H
-#define ISTEAMMATCHMAKING007_H
+#ifndef ISTEAMMATCHMAKING005_H
+#define ISTEAMMATCHMAKING005_H
 #ifdef STEAM_WIN32
 #pragma once
 #endif
@@ -9,7 +9,7 @@
 // Purpose: Functions for match making services for clients to get to favorites
 //			and to operate on game lobbies.
 //-----------------------------------------------------------------------------
-class ISteamMatchmaking007
+class ISteamMatchmaking005
 {
 public:
 	// game server favorites storage
@@ -58,23 +58,22 @@ public:
 		}
 	*/
 	// 
-	virtual SteamAPICall_t RequestLobbyList() = 0;
+	virtual void RequestLobbyList_OLD() = 0;
 	// filters for lobbies
 	// this needs to be called before RequestLobbyList() to take effect
 	// these are cleared on each call to RequestLobbyList()
-	virtual void AddRequestLobbyListStringFilter( const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType ) = 0;
+	virtual void AddRequestLobbyListFilter( const char *pchKeyToMatch, const char *pchValueToMatch ) = 0;
 	// numerical comparison
-	virtual void AddRequestLobbyListNumericalFilter( const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType ) = 0;
+	virtual void AddRequestLobbyListNumericalFilter( const char *pchKeyToMatch, int nValueToMatch, int nComparisonType ) = 0;
+	virtual void AddRequestLobbyListSlotsAvailableFilter() = 0;
 	// returns results closest to the specified value. Multiple near filters can be added, with early filters taking precedence
 	virtual void AddRequestLobbyListNearValueFilter( const char *pchKeyToMatch, int nValueToBeCloseTo ) = 0;
-	// returns only lobbies with the specified number of slots available
-	virtual void AddRequestLobbyListFilterSlotsAvailable( int nSlotsAvailable ) = 0;
 
 	// returns the CSteamID of a lobby, as retrieved by a RequestLobbyList call
 	// should only be called after a LobbyMatchList_t callback is received
 	// iLobby is of the range [0, LobbyMatchList_t::m_nLobbiesMatching)
 	// the returned CSteamID::IsValid() will be false if iLobby is out of range
-	STEAMWORKS_STRUCT_RETURN_1(CSteamID, GetLobbyByIndex, int, iLobby) /*virtual CSteamID GetLobbyByIndex( int iLobby ) = 0;*/
+	virtual CSteamID GetLobbyByIndex( int iLobby ) = 0;
 
 	// Create a lobby on the Steam servers.
 	// If private, then the lobby will not be returned by any RequestLobbyList() call; the CSteamID
@@ -82,13 +81,13 @@ public:
 	// this is an asynchronous request
 	// results will be returned by LobbyCreated_t callback and call result; lobby is joined & ready to use at this pointer
 	// a LobbyEnter_t callback will also be received (since the local user is joining their own lobby)
-	virtual SteamAPICall_t CreateLobby( ELobbyType eLobbyType, int cMaxMembers ) = 0;
+	virtual void CreateLobby_OLD( ELobbyType eLobbyType ) = 0;
 
 	// Joins an existing lobby
 	// this is an asynchronous request
 	// results will be returned by LobbyEnter_t callback & call result, check m_EChatRoomEnterResponse to see if was successful
 	// lobby metadata is available to use immediately on this call completing
-	virtual SteamAPICall_t JoinLobby( CSteamID steamIDLobby ) = 0;
+	virtual void JoinLobby_OLD( CSteamID steamIDLobby ) = 0;
 
 	// Leave a lobby; this will take effect immediately on the client side
 	// other users in the lobby will be notified by a LobbyChatUpdate_t callback
@@ -98,8 +97,6 @@ public:
 	// the target user will receive a LobbyInvite_t callback
 	// will return true if the invite is successfully sent, whether or not the target responds
 	// returns false if the local user is not connected to the Steam servers
-	// if the other user clicks the join link, a GameLobbyJoinRequested_t will be posted if the user is in-game,
-	// or if the game isn't running yet the game will be launched with the parameter +connect_lobby <64-bit lobby id>
 	virtual bool InviteUserToLobby( CSteamID steamIDLobby, CSteamID steamIDInvitee ) = 0;
 
 	// Lobby iteration, for viewing details of users in a lobby
@@ -111,7 +108,7 @@ public:
 	virtual int GetNumLobbyMembers( CSteamID steamIDLobby ) = 0;
 	// returns the CSteamID of a user in the lobby
 	// iMember is of range [0,GetNumLobbyMembers())
-	STEAMWORKS_STRUCT_RETURN_2(CSteamID, GetLobbyMemberByIndex, CSteamID, steamIDLobby, int, iMember) /*virtual CSteamID GetLobbyMemberByIndex( CSteamID steamIDLobby, int iMember ) = 0;*/
+	virtual CSteamID GetLobbyMemberByIndex( CSteamID steamIDLobby, int iMember ) = 0;
 
 	// Get data associated with this lobby
 	// takes a simple key, and returns the string associated with it
@@ -124,16 +121,7 @@ public:
 	// other users in the lobby will receive notification of the lobby data change via a LobbyDataUpdate_t callback
 	virtual bool SetLobbyData( CSteamID steamIDLobby, const char *pchKey, const char *pchValue ) = 0;
 
-	// returns the number of metadata keys set on the specified lobby
-	virtual int GetLobbyDataCount( CSteamID steamIDLobby ) = 0;
-
-	// returns a lobby metadata key/values pair by index, of range [0, GetLobbyDataCount())
-	virtual bool GetLobbyDataByIndex( CSteamID steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize ) = 0;
-
-	// removes a metadata key from the lobby
-	virtual bool DeleteLobbyData( CSteamID steamIDLobby, const char *pchKey ) = 0;
-
-	// Gets per-user metadata for someone in this lobby
+	// As above, but gets per-user data for someone in this lobby
 	virtual const char *GetLobbyMemberData( CSteamID steamIDLobby, CSteamID steamIDUser, const char *pchKey ) = 0;
 	// Sets per-user metadata (for the local user implicitly)
 	virtual void SetLobbyMemberData( CSteamID steamIDLobby, const char *pchKey, const char *pchValue ) = 0;
@@ -171,138 +159,19 @@ public:
 	// returns the current limit on the # of users who can join the lobby; returns 0 if no limit is defined
 	virtual int GetLobbyMemberLimit( CSteamID steamIDLobby ) = 0;
 
-	// updates which type of lobby it is
-	// only lobbies that are k_ELobbyTypePublic or k_ELobbyTypeInvisible, and are set to joinable, will be returned by RequestLobbyList() calls
-	virtual bool SetLobbyType( CSteamID steamIDLobby, ELobbyType eLobbyType ) = 0;
+	virtual bool RequestFriendsLobbies() = 0;
 
-	// sets whether or not a lobby is joinable - defaults to true for a new lobby
-	// if set to false, no user can join, even if they are a friend or have been invited
-	virtual bool SetLobbyJoinable( CSteamID steamIDLobby, bool bLobbyJoinable ) = 0;
+	// updates which type of lobby it is
+	// only lobbies that are k_ELobbyTypePublic will be returned by RequestLobbyList() calls
+	virtual bool SetLobbyType( CSteamID steamIDLobby, ELobbyType eLobbyType ) = 0;
 
 	// returns the current lobby owner
 	// you must be a member of the lobby to access this
 	// there always one lobby owner - if the current owner leaves, another user will become the owner
 	// it is possible (bur rare) to join a lobby just as the owner is leaving, thus entering a lobby with self as the owner
-	STEAMWORKS_STRUCT_RETURN_1(CSteamID, GetLobbyOwner, CSteamID, steamIDLobby) /*virtual CSteamID GetLobbyOwner( CSteamID steamIDLobby ) = 0;*/
+	virtual CSteamID GetLobbyOwner( CSteamID steamIDLobby ) = 0;
 
-	// changes who the lobby owner is
-	// you must be the lobby owner for this to succeed, and steamIDNewOwner must be in the lobby
-	// after completion, the local user will no longer be the owner
-	virtual bool SetLobbyOwner( CSteamID steamIDLobby, CSteamID steamIDNewOwner ) = 0;
+	virtual float GetLobbyDistance( CSteamID steamIDLobby ) = 0;
 };
 
-//-----------------------------------------------------------------------------
-// Callback interfaces for server list functions (see ISteamMatchmakingServers below)
-//
-// The idea here is that your game code implements objects that implement these
-// interfaces to receive callback notifications after calling asynchronous functions
-// inside the ISteamMatchmakingServers() interface below.
-//
-// This is different than normal Steam callback handling due to the potentially
-// large size of server lists.
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-// Purpose: Callback interface for receiving responses after a server list refresh
-// or an individual server update.
-//
-// Since you get these callbacks after requesting full list refreshes you will
-// usually implement this interface inside an object like CServerBrowser.  If that
-// object is getting destructed you should use ISteamMatchMakingServers()->CancelQuery()
-// to cancel any in-progress queries so you don't get a callback into the destructed
-// object and crash.
-//-----------------------------------------------------------------------------
-class ISteamMatchmakingServerListResponse001
-{
-public:
-	// Server has responded ok with updated data
-	virtual void ServerResponded( int iServer ) = 0; 
-
-	// Server has failed to respond
-	virtual void ServerFailedToRespond( int iServer ) = 0; 
-
-	// A list refresh you had initiated is now 100% completed
-	virtual void RefreshComplete( EMatchMakingServerResponse response ) = 0; 
-};
-
-enum EMatchMakingType
-{
-	eInternetServer = 0,
-	eLANServer,
-	eFriendsServer,
-	eFavoritesServer,
-	eHistoryServer,
-	eSpectatorServer,
-	eInvalidServer 
-};
-
-//-----------------------------------------------------------------------------
-// Purpose: Functions for match making services for clients to get to game lists and details
-//-----------------------------------------------------------------------------
-class ISteamMatchmakingServers001
-{
-public:
-	// Request a new list of servers of a particular type.  These calls each correspond to one of the EMatchMakingType values.
-	virtual void RequestInternetServerList( AppId_t iApp, MatchMakingKeyValuePair_t **ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse001 *pRequestServersResponse ) = 0;
-	virtual void RequestLANServerList( AppId_t iApp, ISteamMatchmakingServerListResponse001 *pRequestServersResponse ) = 0;
-	virtual void RequestFriendsServerList( AppId_t iApp, MatchMakingKeyValuePair_t **ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse001 *pRequestServersResponse ) = 0;
-	virtual void RequestFavoritesServerList( AppId_t iApp, MatchMakingKeyValuePair_t **ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse001 *pRequestServersResponse ) = 0;
-	virtual void RequestHistoryServerList( AppId_t iApp, MatchMakingKeyValuePair_t **ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse001 *pRequestServersResponse ) = 0;
-	virtual void RequestSpectatorServerList( AppId_t iApp, MatchMakingKeyValuePair_t **ppchFilters, uint32 nFilters, ISteamMatchmakingServerListResponse001 *pRequestServersResponse ) = 0;
-
-	/* the filters that are available in the ppchFilters params are:
-
-		"map"		- map the server is running, as set in the dedicated server api
-		"dedicated" - reports bDedicated from the API
-		"secure"	- VAC-enabled
-		"full"		- not full
-		"empty"		- not empty
-		"noplayers" - is empty
-		"proxy"		- a relay server
-
-	*/
-
-	// Get details on a given server in the list, you can get the valid range of index
-	// values by calling GetServerCount().  You will also receive index values in 
-	// ISteamMatchmakingServerListResponse::ServerResponded() callbacks
-	virtual gameserveritem_t *GetServerDetails( EMatchMakingType eType, int iServer ) = 0; 
-
-	// Cancel an request which is operation on the given list type.  You should call this to cancel
-	// any in-progress requests before destructing a callback object that may have been passed 
-	// to one of the above list request calls.  Not doing so may result in a crash when a callback
-	// occurs on the destructed object.
-	virtual void CancelQuery( EMatchMakingType eType ) = 0; 
-
-	// Ping every server in your list again but don't update the list of servers
-	virtual void RefreshQuery( EMatchMakingType eType ) = 0; 
-
-	// Returns true if the list is currently refreshing its server list
-	virtual bool IsRefreshing( EMatchMakingType eType ) = 0; 
-
-	// How many servers in the given list, GetServerDetails above takes 0... GetServerCount() - 1
-	virtual int GetServerCount( EMatchMakingType eType ) = 0; 
-
-	// Refresh a single server inside of a query (rather than all the servers )
-	virtual void RefreshServer( EMatchMakingType eType, int iServer ) = 0; 
-
-
-	//-----------------------------------------------------------------------------
-	// Queries to individual servers directly via IP/Port
-	//-----------------------------------------------------------------------------
-
-	// Request updated ping time and other details from a single server
-	virtual HServerQuery PingServer( uint32 unIP, uint16 usPort, ISteamMatchmakingPingResponse *pRequestServersResponse ) = 0; 
-
-	// Request the list of players currently playing on a server
-	virtual HServerQuery PlayerDetails( uint32 unIP, uint16 usPort, ISteamMatchmakingPlayersResponse *pRequestServersResponse ) = 0;
-
-	// Request the list of rules that the server is running (See ISteamMasterServerUpdater->SetKeyValue() to set the rules server side)
-	virtual HServerQuery ServerRules( uint32 unIP, uint16 usPort, ISteamMatchmakingRulesResponse *pRequestServersResponse ) = 0; 
-
-	// Cancel an outstanding Ping/Players/Rules query from above.  You should call this to cancel
-	// any in-progress requests before destructing a callback object that may have been passed 
-	// to one of the above calls to avoid crashing when callbacks occur.
-	virtual void CancelServerQuery( HServerQuery hServerQuery ) = 0; 
-};
-
-#endif // ISTEAMMATCHMAKING007_H
+#endif // ISTEAMMATCHMAKING005_H
