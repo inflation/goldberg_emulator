@@ -134,6 +134,16 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
     load_achievements_db(); // achievements db
     load_achievements(); // achievements per user
 
+    auto x = defined_achievements.begin();
+    while (x != defined_achievements.end()) {
+
+        if (!x->contains("name")) {
+            x = defined_achievements.erase(x);
+        } else {
+            ++x;
+        }
+    }
+
     for (auto & it : defined_achievements) {
         try {
             std::string name = static_cast<std::string const&>(it["name"]);
@@ -155,6 +165,9 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
         try {
             it["hidden"] = std::to_string(it["hidden"].get<int>());
         } catch (...) {}
+
+        it["displayName"] = it.value("displayName", "");
+        it["description"] = it.value("description", "");
     }
 
     //TODO: not sure if the sort is actually case insensitive, ach names seem to be treated by steam as case insensitive so I assume they are.
