@@ -195,11 +195,22 @@ bool GetStat( const char *pchName, int32 *pData )
         if (stats_data->second.type != Stat_Type::STAT_TYPE_INT) return false;
     }
 
-    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, stat_name, (char* )pData, sizeof(*pData));
-    if (read_data == sizeof(int32))
+    auto cached_stat = stats_cache_int.find(stat_name);
+    if (cached_stat != stats_cache_int.end()) {
+        *pData = cached_stat->second;
         return true;
+    }
+
+    int32 output = 0;
+    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, stat_name, (char* )&output, sizeof(output));
+    if (read_data == sizeof(int32)) {
+        stats_cache_int[stat_name] = output;
+        *pData = output;
+        return true;
+    }
 
     if (stats_data != stats_config.end()) {
+        stats_cache_int[stat_name] = stats_data->second.default_value_int;
         *pData = stats_data->second.default_value_int;
         return true;
     }
@@ -220,11 +231,22 @@ bool GetStat( const char *pchName, float *pData )
         if (stats_data->second.type == Stat_Type::STAT_TYPE_INT) return false;
     }
 
-    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, stat_name, (char* )pData, sizeof(*pData));
-    if (read_data == sizeof(float))
+    auto cached_stat = stats_cache_float.find(stat_name);
+    if (cached_stat != stats_cache_float.end()) {
+        *pData = cached_stat->second;
         return true;
+    }
+
+    float output = 0.0;
+    int read_data = local_storage->get_data(Local_Storage::stats_storage_folder, stat_name, (char* )&output, sizeof(output));
+    if (read_data == sizeof(float)) {
+        stats_cache_float[stat_name] = output;
+        *pData = output;
+        return true;
+    }
 
     if (stats_data != stats_config.end()) {
+        stats_cache_float[stat_name] = stats_data->second.default_value_float;
         *pData = stats_data->second.default_value_float;
         return true;
     }
@@ -313,7 +335,12 @@ bool UpdateAvgRateStat( const char *pchName, float flCountThisSession, double dS
     memcpy(data + sizeof(float), &oldcount, sizeof(oldcount));
     memcpy(data + sizeof(float) * 2, &oldsessionlength, sizeof(oldsessionlength));
 
-    return local_storage->store_data(Local_Storage::stats_storage_folder, stat_name, data, sizeof(data)) == sizeof(data);
+    if (local_storage->store_data(Local_Storage::stats_storage_folder, stat_name, data, sizeof(data)) == sizeof(data)) {
+        stats_cache_float[stat_name] = average;
+        return true;
+    }
+
+    return false;
 }
 
 
