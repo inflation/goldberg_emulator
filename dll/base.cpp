@@ -643,6 +643,12 @@ inline bool file_exists (const std::string& name) {
   return (stat (name.c_str(), &buffer) == 0); 
 }
 
+#ifdef DETOURS_64BIT
+    #define DLL_NAME "steam_api64.dll"
+#else
+    #define DLL_NAME "steam_api.dll"
+#endif
+
 HMODULE (WINAPI *Real_GetModuleHandleA)(LPCSTR lpModuleName) = GetModuleHandleA;
 HMODULE WINAPI Mine_GetModuleHandleA(LPCSTR lpModuleName)
 {

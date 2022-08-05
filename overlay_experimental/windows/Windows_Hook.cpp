@@ -1,75 +1,152 @@
-#include "Windows_Hook.h"
-#include "../Renderer_Detector.h"
-#include "../../dll/dll.h"
+/*
+ * Copyright (C) Nemirtingas
+ * This file is part of the ingame overlay project
+ *
+ * The ingame overlay project is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * 
+ * The ingame overlay project is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with the ingame overlay project; if not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
-#ifdef EMU_OVERLAY
+#include "Windows_Hook.h"
 
 #include <imgui.h>
-#include <impls/windows/imgui_impl_win32.h>
+#include <backends/imgui_impl_win32.h>
+#include <System/Library.h>
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+constexpr decltype(Windows_Hook::DLL_NAME) Windows_Hook::DLL_NAME;
+
 Windows_Hook* Windows_Hook::_inst = nullptr;
 
-bool Windows_Hook::start_hook()
+bool Windows_Hook::StartHook(std::function<bool(bool)>& _key_combination_callback)
 {
-    bool res = true;
-    if (!hooked)
+    if (!_Hooked)
     {
-        GetRawInputBuffer = ::GetRawInputBuffer;
-        GetRawInputData = ::GetRawInputData;
-        SetCursorPos = ::SetCursorPos;
+        void* hUser32 = System::Library::GetLibraryHandle(DLL_NAME);
+        if (hUser32 == nullptr)
+        {
+            SPDLOG_WARN("Failed to hook Windows: Cannot find {}", DLL_NAME);
+            return false;
+        }
 
-        PRINT_DEBUG("Hooked Windows\n");
+        System::Library::Library libUser32;
+        LibraryName = System::Library::GetLibraryPath(hUser32);
+        if (!libUser32.OpenLibrary(LibraryName, false))
+        {
+            SPDLOG_WARN("Failed to hook Windows: Cannot load {}", LibraryName);
+            return false;
+        }
+
+        GetRawInputBuffer = libUser32.GetSymbol<decltype(::GetRawInputBuffer)>("GetRawInputBuffer");
+        GetRawInputData   = libUser32.GetSymbol<decltype(::GetRawInputData)>("GetRawInputData");
+        GetKeyState       = libUser32.GetSymbol<decltype(::GetKeyState)>("GetKeyState");
+        GetAsyncKeyState  = libUser32.GetSymbol<decltype(::GetAsyncKeyState)>("GetAsyncKeyState");
+        GetKeyboardState  = libUser32.GetSymbol<decltype(::GetKeyboardState)>("GetKeyboardState");
+        GetCursorPos      = libUser32.GetSymbol<decltype(::GetCursorPos)>("GetCursorPos");
+        SetCursorPos      = libUser32.GetSymbol<decltype(::SetCursorPos)>("SetCursorPos");
+
+        if(GetRawInputBuffer == nullptr ||
+           GetRawInputData   == nullptr ||
+           GetKeyState       == nullptr ||
+           GetAsyncKeyState  == nullptr ||
+           GetKeyboardState  == nullptr ||
+           GetCursorPos      == nullptr ||
+           SetCursorPos      == nullptr)
+        {
+            SPDLOG_ERROR("Failed to hook Windows: Events functions missing.");
+            return false;
+        }
+
+        SPDLOG_INFO("Hooked Windows");
+        _KeyCombinationCallback = std::move(_key_combination_callback);
 
         BeginHook();
         HookFuncs(
             std::make_pair<void**, void*>(&(PVOID&)GetRawInputBuffer, &Windows_Hook::MyGetRawInputBuffer),
             std::make_pair<void**, void*>(&(PVOID&)GetRawInputData  , &Windows_Hook::MyGetRawInputData),
-            std::make_pair<void**, void*>(&(PVOID&)SetCursorPos  , &Windows_Hook::MySetCursorPos)
+            std::make_pair<void**, void*>(&(PVOID&)GetKeyState      , &Windows_Hook::MyGetKeyState),
+            std::make_pair<void**, void*>(&(PVOID&)GetAsyncKeyState , &Windows_Hook::MyGetAsyncKeyState),
+            std::make_pair<void**, void*>(&(PVOID&)GetKeyboardState , &Windows_Hook::MyGetKeyboardState),
+            std::make_pair<void**, void*>(&(PVOID&)GetCursorPos     , &Windows_Hook::MyGetCursorPos),
+            std::make_pair<void**, void*>(&(PVOID&)SetCursorPos     , &Windows_Hook::MySetCursorPos)
         );
         EndHook();
 
-        hooked = true;
+        _Hooked = true;
     }
-    return res;
+    return true;
 }
 
-void Windows_Hook::resetRenderState()
+void Windows_Hook::_ResetRenderState()
 {
-    if (initialized)
+    if (_Initialized)
     {
-        initialized = false;
-        SetWindowLongPtr(_game_hwnd, GWLP_WNDPROC, (LONG_PTR)_game_wndproc);
-        _game_hwnd = nullptr;
-        _game_wndproc = nullptr;
+        _Initialized = false;
+        SetWindowLongPtr(_GameHwnd, GWLP_WNDPROC, (LONG_PTR)_GameWndProc);
+        _GameHwnd = nullptr;
+        _GameWndProc = nullptr;
         ImGui_ImplWin32_Shutdown();
     }
 }
 
-void Windows_Hook::prepareForOverlay(HWND hWnd)
+bool Windows_Hook::_PrepareForOverlay(HWND hWnd)
 {
-    if (!initialized)
+    if (_GameHwnd != hWnd)
+        _ResetRenderState();
+
+    if (!_Initialized)
     {
-        ImGui_ImplWin32_Init(hWnd);
+        _GameHwnd = hWnd;
+        ImGui_ImplWin32_Init(_GameHwnd);
 
-        _game_hwnd = hWnd;
-        _game_wndproc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)&Windows_Hook::HookWndProc);
-
-        initialized = true;
+        _GameWndProc = (WNDPROC)SetWindowLongPtr(_GameHwnd, GWLP_WNDPROC, (LONG_PTR)&Windows_Hook::HookWndProc);
+        _Initialized = true;
     }
 
-    ImGui_ImplWin32_NewFrame();
+    if (_Initialized)
+    {
+        void* current_proc = (void*)GetWindowLongPtr(_GameHwnd, GWLP_WNDPROC);
+        if (current_proc == nullptr)
+            return false;
+
+        ImGui_ImplWin32_NewFrame();
+        // Read keyboard modifiers inputs
+        auto& io = ImGui::GetIO();
+
+        POINT pos;
+        if (this->GetCursorPos(&pos) && ScreenToClient(hWnd, &pos))
+        {
+            io.MousePos = ImVec2((float)pos.x, (float)pos.y);
+        }
+
+        io.KeyCtrl  = (this->GetKeyState(VK_CONTROL) & 0x8000) != 0;
+        io.KeyShift = (this->GetKeyState(VK_SHIFT) & 0x8000) != 0;
+        io.KeyAlt   = (this->GetKeyState(VK_MENU) & 0x8000) != 0;
+        return true;
+    }
+
+    return false;
 }
 
 HWND Windows_Hook::GetGameHwnd() const
 {
-    return _game_hwnd;
+    return _GameHwnd;
 }
 
 WNDPROC Windows_Hook::GetGameWndProc() const
 {
-    return _game_wndproc;
+    return _GameWndProc;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -97,112 +174,207 @@ bool IgnoreMsg(UINT uMsg)
     return false;
 }
 
-void RawMouseEvent(RAWINPUT& raw)
+void RawEvent(RAWINPUT& raw)
 {
-    if (raw.header.dwType == RIM_TYPEMOUSE)
+    HWND hWnd = Windows_Hook::Inst()->GetGameHwnd();
+    switch(raw.header.dwType)
     {
-        if (raw.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
-            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_LBUTTONDOWN, 0, 0);
-        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP)
-            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_LBUTTONUP, 0, 0);
-        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
-            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_MBUTTONDOWN, 0, 0);
-        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP)
-            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_MBUTTONUP, 0, 0);
-        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
-            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_RBUTTONDOWN, 0, 0);
-        else if (raw.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
-            ImGui_ImplWin32_WndProcHandler(Windows_Hook::Inst()->GetGameHwnd(), WM_RBUTTONUP, 0, 0);
+        case RIM_TYPEMOUSE:
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_LBUTTONDOWN, 0, 0);
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_LBUTTONUP, 0, 0);
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_RBUTTONDOWN, 0, 0);
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_RBUTTONUP, 0, 0);
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_MBUTTONDOWN, 0, 0);
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_MBUTTONUP, 0, 0);
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_MOUSEWHEEL, ((WPARAM)raw.data.mouse.usButtonData) << 16, 0);
+            if (raw.data.mouse.usButtonFlags & RI_MOUSE_HWHEEL)
+                ImGui_ImplWin32_WndProcHandler(hWnd, WM_MOUSEHWHEEL, ((WPARAM)raw.data.mouse.usButtonData) << 16, 0);
+            break;
+
+        //case RIM_TYPEKEYBOARD:
+            //ImGui_ImplWin32_WndProcHandler(hWnd, raw.data.keyboard.Message, raw.data.keyboard.VKey, 0);
+            //break;
     }
 }
 
 LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    Steam_Overlay* overlay = get_steam_client()->steam_overlay;
-    bool show = overlay->ShowOverlay();
-    // Is the event is a key press
-    if (uMsg == WM_KEYDOWN)
+    Windows_Hook* inst = Windows_Hook::Inst();
+    bool skip_input = inst->_KeyCombinationCallback(false);
+    bool clean_keys = false;
+    if (inst->_Initialized)
     {
-        // Tab is pressed and was not pressed before
-        if (wParam == VK_TAB && !(lParam & (1 << 30)))
+        // Is the event is a key press
+        if (uMsg == WM_KEYDOWN)
         {
-            // If Left Shift is pressed
-            if (GetAsyncKeyState(VK_LSHIFT) & (1 << 15))
+            // Tab is pressed and was not pressed before
+            if (wParam == VK_TAB && !(lParam & (1 << 30)))
             {
-                show = !overlay->ShowOverlay();
-                overlay->ShowOverlay(show);
+                // If Left Shift is pressed
+                if (inst->GetAsyncKeyState(VK_LSHIFT) & (1 << 15))
+                {
+                    if (inst->_KeyCombinationCallback(true))
+                    {
+                        skip_input = true;
+                        // Save the last known cursor pos when opening the overlay
+                        // so we can spoof the GetCursorPos return value.
+                        inst->GetCursorPos(&inst->_SavedCursorPos);
+                    }
+                    else
+                    {
+                        clean_keys = true;
+                    }
+                }
             }
+        }
+
+        if (skip_input && IgnoreMsg(uMsg))
+        {
+            ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+            if (clean_keys)
+            {
+                auto& io = ImGui::GetIO();
+                memset(io.KeysDown, 0, sizeof(io.KeysDown));
+            }
+            return 0;
         }
     }
 
-    ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-    if (show)
-    {
-        if (IgnoreMsg(uMsg))
-            return 0;
-    }
+    // Protect against recursive call of the WindowProc...
+    if (inst->_RecurseCallCount > 16)
+        return 0;
 
+    ++inst->_RecurseCallCount;
     // Call the overlay window procedure
-    return CallWindowProc(Windows_Hook::Inst()->_game_wndproc, hWnd, uMsg, wParam, lParam);
+    auto res = CallWindowProc(Windows_Hook::Inst()->_GameWndProc, hWnd, uMsg, wParam, lParam);
+    --inst->_RecurseCallCount;
+    return res;
 }
 
 UINT WINAPI Windows_Hook::MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader)
 {
-    if (pData == nullptr || !get_steam_client()->steam_overlay->ShowOverlay())
-        return Windows_Hook::Inst()->GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
+    Windows_Hook* inst = Windows_Hook::Inst();
+    int res = inst->GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
+    if (!inst->_Initialized)
+        return res;
 
-    int num = Windows_Hook::Inst()->GetRawInputBuffer(pData, pcbSize, cbSizeHeader);
-    for (int i = 0; i < num; ++i)
-        RawMouseEvent(pData[i]);
+    if (pData != nullptr)
+    {
+        for (int i = 0; i < res; ++i)
+            RawEvent(pData[i]);
+    }
+
+    if (!inst->_KeyCombinationCallback(false))
+        return res;
 
     return 0;
 }
 
 UINT WINAPI Windows_Hook::MyGetRawInputData(HRAWINPUT hRawInput, UINT uiCommand, LPVOID pData, PUINT pcbSize, UINT cbSizeHeader)
 {
-    if (pData == nullptr || !get_steam_client()->steam_overlay->ShowOverlay())
-        return Windows_Hook::Inst()->GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
+    Windows_Hook* inst = Windows_Hook::Inst();
+    auto res = inst->GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
+    if (!inst->_Initialized || pData == nullptr)
+        return res;
 
-    Windows_Hook::Inst()->GetRawInputData(hRawInput, uiCommand, pData, pcbSize, cbSizeHeader);
+    if (uiCommand == RID_INPUT && res == sizeof(RAWINPUT))
+        RawEvent(*reinterpret_cast<RAWINPUT*>(pData));
 
-    RawMouseEvent(*reinterpret_cast<RAWINPUT*>(pData));
+    if (!inst->_KeyCombinationCallback(false))
+        return res;
 
+    memset(pData, 0, *pcbSize);
     *pcbSize = 0;
-
     return 0;
 }
 
-BOOL WINAPI Windows_Hook::MySetCursorPos(int x, int y)
+SHORT WINAPI Windows_Hook::MyGetKeyState(int nVirtKey)
 {
-    if (get_steam_client()->steam_overlay->ShowOverlay()) {
-        POINT p;
-        GetCursorPos(&p);
-        x = p.x;
-        y = p.y;
+    Windows_Hook* inst = Windows_Hook::Inst();
+
+    if (inst->_Initialized && inst->_KeyCombinationCallback(false))
+        return 0;
+
+    return inst->GetKeyState(nVirtKey);
+}
+
+SHORT WINAPI Windows_Hook::MyGetAsyncKeyState(int vKey)
+{
+    Windows_Hook* inst = Windows_Hook::Inst();
+
+    if (inst->_Initialized && inst->_KeyCombinationCallback(false))
+        return 0;
+
+    return inst->GetAsyncKeyState(vKey);
+}
+
+BOOL WINAPI Windows_Hook::MyGetKeyboardState(PBYTE lpKeyState)
+{
+    Windows_Hook* inst = Windows_Hook::Inst();
+
+    if (inst->_Initialized && inst->_KeyCombinationCallback(false))
+        return FALSE;
+
+    return inst->GetKeyboardState(lpKeyState);
+}
+
+BOOL  WINAPI Windows_Hook::MyGetCursorPos(LPPOINT lpPoint)
+{
+    Windows_Hook* inst = Windows_Hook::Inst();
+    
+    BOOL res = inst->GetCursorPos(lpPoint);
+    if (inst->_Initialized && inst->_KeyCombinationCallback(false) && lpPoint != nullptr)
+    {
+        *lpPoint = inst->_SavedCursorPos;
     }
 
-    return Windows_Hook::Inst()->SetCursorPos(x, y);
+    return res;
 }
+
+BOOL WINAPI Windows_Hook::MySetCursorPos(int X, int Y)
+{
+    Windows_Hook* inst = Windows_Hook::Inst();
+
+    if (inst->_Initialized && inst->_KeyCombinationCallback(false))
+    {// That way, it will fail only if the real API fails.
+     // Hides error messages on some Unity debug builds.
+        POINT pos;
+        inst->GetCursorPos(&pos);
+        X = pos.x;
+        Y = pos.y;
+    }
+
+    return inst->SetCursorPos(X, Y);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 Windows_Hook::Windows_Hook() :
-    initialized(false),
-    hooked(false),
-    _game_hwnd(nullptr),
-    _game_wndproc(nullptr),
+    _Initialized(false),
+    _Hooked(false),
+    _RecurseCallCount(0),
+    _GameHwnd(nullptr),
+    _GameWndProc(nullptr),
     GetRawInputBuffer(nullptr),
-    GetRawInputData(nullptr)
+    GetRawInputData(nullptr),
+    GetKeyState(nullptr),
+    GetAsyncKeyState(nullptr),
+    GetKeyboardState(nullptr)
 {
-    //_library = LoadLibrary(DLL_NAME);
 }
 
 Windows_Hook::~Windows_Hook()
 {
-    PRINT_DEBUG("Windows Hook removed\n");
+    SPDLOG_INFO("Windows Hook removed");
 
-    resetRenderState();
-
-    //FreeLibrary(reinterpret_cast<HMODULE>(_library));
+    _ResetRenderState();
 
     _inst = nullptr;
 }
@@ -215,9 +387,7 @@ Windows_Hook* Windows_Hook::Inst()
     return _inst;
 }
 
-const char* Windows_Hook::get_lib_name() const
+std::string Windows_Hook::GetLibraryName() const
 {
-    return WINDOWS_DLL;
+    return LibraryName;
 }
-
-#endif//EMU_OVERLAY

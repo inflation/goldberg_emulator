@@ -1,6 +1,23 @@
-#pragma once
+/*
+ * Copyright (C) Nemirtingas
+ * This file is part of the ingame overlay project
+ *
+ * The ingame overlay project is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * 
+ * The ingame overlay project is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with the ingame overlay project; if not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
-#include <DXGI.h>
+#pragma once
 
 enum class IDXGISwapChainVTable
 {
@@ -445,4 +462,45 @@ enum class IDirect3DDevice9VTable
     CreateDepthStencilSurfaceEx,
     ResetEx,
     GetDisplayModeEx,
+};
+
+struct IDirect3DSwapChain9VTable
+{
+    enum class Index
+    {
+        // IUnknown
+        QueryInterface,
+        AddRef,
+        Release,
+
+        // IDirect3DSwapChain9
+        Present,
+        GetFrontBufferData,
+        GetBackBuffer,
+        GetRasterStatus,
+        GetDisplayMode,
+        GetDevice,
+        GetPresentParameters,
+
+        // IDirect3DSwapChain9Ex
+        GetLastPresentCount,
+        GetPresentStats,
+        GetDisplayModeEx,
+    };
+
+    decltype(&IDirect3DSwapChain9::QueryInterface)        pQueryInterface;
+    decltype(&IDirect3DSwapChain9::AddRef)                pAddRef;
+    decltype(&IDirect3DSwapChain9::Release)               pRelease;
+
+    decltype(&IDirect3DSwapChain9::Present)               pPresent;
+    decltype(&IDirect3DSwapChain9::GetFrontBufferData)    pGetFrontBufferData;
+    decltype(&IDirect3DSwapChain9::GetBackBuffer)         pGetBackBuffer;
+    decltype(&IDirect3DSwapChain9::GetRasterStatus)       pGetRasterStatus;
+    decltype(&IDirect3DSwapChain9::GetDisplayMode)        pGetDisplayMode;
+    decltype(&IDirect3DSwapChain9::GetDevice)             pGetDevice;
+    decltype(&IDirect3DSwapChain9::GetPresentParameters)  pGetPresentParameters;
+
+    decltype(&IDirect3DSwapChain9Ex::GetLastPresentCount) pGetLastPresentCount;
+    decltype(&IDirect3DSwapChain9Ex::GetPresentStats)     pGetPresentStats;
+    decltype(&IDirect3DSwapChain9Ex::GetDisplayModeEx)    pGetDisplayModeEx;
 };

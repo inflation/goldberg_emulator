@@ -1,54 +1,107 @@
-#include "X11_Hook.h"
-#include "../Renderer_Detector.h"
-#include "../dll/dll.h"
+/*
+ * Copyright (C) 2019-2020 Nemirtingas
+ * This file is part of the ingame overlay project
+ *
+ * The ingame overlay project is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * The ingame overlay project is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with the ingame overlay project; if not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
-#ifdef __LINUX__
-#ifdef EMU_OVERLAY
+#include "X11_Hook.h"
 
 #include <imgui.h>
-#include <impls/linux/imgui_impl_x11.h>
-
-#include <dlfcn.h>
-#include <unistd.h>
-#include <fstream>
+#include <backends/imgui_impl_x11.h>
+#include <System/Library.h>
 
 extern int ImGui_ImplX11_EventHandler(XEvent &event);
 
+constexpr decltype(X11_Hook::DLL_NAME) X11_Hook::DLL_NAME;
+
 X11_Hook* X11_Hook::_inst = nullptr;
 
-bool X11_Hook::start_hook()
+bool X11_Hook::StartHook(std::function<bool(bool)>& _key_combination_callback)
 {
-    bool res = true;
-    if (!hooked)
+    if (!_Hooked)
     {
-        PRINT_DEBUG("Hooked X11\n");
-        hooked = true;
+        void* hX11 = System::Library::GetLibraryHandle(DLL_NAME);
+        if (hX11 == nullptr)
+        {
+            SPDLOG_WARN("Failed to hook X11: Cannot find {}", DLL_NAME);
+            return false;
+        }
+
+        System::Library::Library libX11;
+        LibraryName = System::Library::GetLibraryPath(hX11);
+
+        if (!libX11.OpenLibrary(LibraryName, false))
+        {
+            SPDLOG_WARN("Failed to hook X11: Cannot load {}", LibraryName);
+            return false;
+        }
+
+        XEventsQueued = libX11.GetSymbol<decltype(::XEventsQueued)>("XEventsQueued");
+        XPending = libX11.GetSymbol<decltype(::XPending)>("XPending");
+
+        if (XPending == nullptr || XEventsQueued == nullptr)
+        {
+            SPDLOG_WARN("Failed to hook X11: Cannot load functions.({}, {})", DLL_NAME, (void*)XEventsQueued, (void*)XPending);
+            return false;
+        }
+        SPDLOG_INFO("Hooked X11");
+
+        _KeyCombinationCallback = std::move(_key_combination_callback);
+        _Hooked = true;
+
+        UnhookAll();
+        BeginHook();
+        HookFuncs(
+            std::make_pair<void**, void*>(&(void*&)XEventsQueued, (void*)&X11_Hook::MyXEventsQueued),
+            std::make_pair<void**, void*>(&(void*&)XPending, (void*)&X11_Hook::MyXPending)
+        );
+        EndHook();
     }
-    return res;
+    return true;
 }
 
-void X11_Hook::resetRenderState()
+void X11_Hook::ResetRenderState()
 {
-    if (initialized)
+    if (_Initialized)
     {
-        game_wnd = 0;
-        initialized = false;
+        _GameWnd = 0;
+        _Initialized = false;
         ImGui_ImplX11_Shutdown();
     }
 }
 
-void X11_Hook::prepareForOverlay(Display *display, Window wnd)
+bool X11_Hook::PrepareForOverlay(Display *display, Window wnd)
 {
-    if (!initialized)
+    if(!_Hooked)
+        return false;
+
+    if (_GameWnd != wnd)
+        ResetRenderState();
+
+    if (!_Initialized)
     {
         ImGui_ImplX11_Init(display, (void*)wnd);
+        _GameWnd = wnd;
 
-        game_wnd = wnd;
-
-        initialized = true;
+        _Initialized = true;
     }
 
     ImGui_ImplX11_NewFrame();
+
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -63,65 +116,56 @@ bool IgnoreEvent(XEvent &event)
         case ButtonPress: case ButtonRelease:
         // Mouse move
         case MotionNotify:
+        // Copy to clipboard request
+        case SelectionRequest:
             return true;
     }
     return false;
 }
 
-int X11_Hook::check_for_overlay(Display *d, int num_events)
+int X11_Hook::_CheckForOverlay(Display *d, int num_events)
 {
     static Time prev_time = {};
-
     X11_Hook* inst = Inst();
 
-    if( inst->initialized )
+    if( inst->_Initialized )
     {
         XEvent event;
         while(num_events)
         {
-            //inst->_XPeekEvent(d, &event);
-            XPeekEvent(d, &event);
+            bool skip_input = inst->_KeyCombinationCallback(false);
 
-            Steam_Overlay* overlay = get_steam_client()->steam_overlay;
-            bool show = overlay->ShowOverlay();
+            XPeekEvent(d, &event);
+            ImGui_ImplX11_EventHandler(event);
+
             // Is the event is a key press
             if (event.type == KeyPress)
             {
                 // Tab is pressed and was not pressed before
-                //if (event.xkey.keycode == inst->_XKeysymToKeycode(d, XK_Tab) && event.xkey.state & ShiftMask)
                 if (event.xkey.keycode == XKeysymToKeycode(d, XK_Tab) && event.xkey.state & ShiftMask)
                 {
                     // if key TAB is held, don't make the overlay flicker :p
-                    if( event.xkey.time != prev_time)
+                    if (event.xkey.time != prev_time)
                     {
-                        overlay->ShowOverlay(!overlay->ShowOverlay());
-
-                        if (overlay->ShowOverlay())
-                            show = true;
+                        skip_input = true;
+                        inst->_KeyCombinationCallback(true);
                     }
                 }
             }
-            //else if(event.type == KeyRelease && event.xkey.keycode == inst->_XKeysymToKeycode(d, XK_Tab))
             else if(event.type == KeyRelease && event.xkey.keycode == XKeysymToKeycode(d, XK_Tab))
             {
                 prev_time = event.xkey.time;
             }
 
-            if (show)
+            if (!skip_input || !IgnoreEvent(event))
             {
-                ImGui_ImplX11_EventHandler(event);
-
-                if (IgnoreEvent(event))
-                {
-                    //inst->_XNextEvent(d, &event);
-                    XNextEvent(d, &event);
-                    --num_events;
-                }
-                else
-                    break;
-            }
-            else
+                if(num_events)
+                    num_events = 1;
                 break;
+            }
+
+            XNextEvent(d, &event);
+            --num_events;
         }
     }
     return num_events;
@@ -131,33 +175,23 @@ int X11_Hook::MyXEventsQueued(Display *display, int mode)
 {
     X11_Hook* inst = X11_Hook::Inst();
 
-    int res = inst->_XEventsQueued(display, mode);
+    int res = inst->XEventsQueued(display, mode);
 
     if( res )
     {
-        res = inst->check_for_overlay(display, res);
+        res = inst->_CheckForOverlay(display, res);
     }
 
     return res;
 }
 
-int X11_Hook::MyXNextEvent(Display* display, XEvent *event)
-{
-    return Inst()->_XNextEvent(display, event);
-}
-
-int X11_Hook::MyXPeekEvent(Display* display, XEvent *event)
-{
-    return Inst()->_XPeekEvent(display, event);
-}
-
 int X11_Hook::MyXPending(Display* display)
 {
-    int res = Inst()->_XPending(display);
+    int res = Inst()->XPending(display);
 
     if( res )
     {
-        res = Inst()->check_for_overlay(display, res);
+        res = Inst()->_CheckForOverlay(display, res);
     }
 
     return res;
@@ -166,24 +200,19 @@ int X11_Hook::MyXPending(Display* display)
 /////////////////////////////////////////////////////////////////////////////////////
 
 X11_Hook::X11_Hook() :
-    initialized(false),
-    hooked(false),
-    game_wnd(0),
-    _XEventsQueued(nullptr),
-    _XPeekEvent(nullptr),
-    _XNextEvent(nullptr),
-    _XPending(nullptr)
+    _Initialized(false),
+    _Hooked(false),
+    _GameWnd(0),
+    XEventsQueued(nullptr),
+    XPending(nullptr)
 {
-    //_library = dlopen(DLL_NAME, RTLD_NOW);
 }
 
 X11_Hook::~X11_Hook()
 {
-    PRINT_DEBUG("X11 Hook removed\n");
+    SPDLOG_INFO("X11 Hook removed");
 
-    resetRenderState();
-
-    //dlclose(_library);
+    ResetRenderState();
 
     _inst = nullptr;
 }
@@ -196,10 +225,7 @@ X11_Hook* X11_Hook::Inst()
     return _inst;
 }
 
-const char* X11_Hook::get_lib_name() const
+std::string X11_Hook::GetLibraryName() const
 {
-    return DLL_NAME;
+    return LibraryName;
 }
-
-#endif//EMU_OVERLAY
-#endif//#__LINUX__

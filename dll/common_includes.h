@@ -76,12 +76,6 @@
         #include <winhttp.h>
 
         #include "../detours/detours.h"
-
-        #ifdef DETOURS_64BIT
-            #define DLL_NAME "steam_api64.dll"
-        #else
-            #define DLL_NAME "steam_api.dll"
-        #endif
     #endif
 
 #include <string>
