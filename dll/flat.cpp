@@ -2497,6 +2497,11 @@ STEAMAPI_API steam_bool SteamAPI_ISteamApps_BIsTimedTrial( ISteamApps* self, uin
     return self->BIsTimedTrial(punSecondsAllowed, punSecondsPlayed);
 }
 
+STEAMAPI_API steam_bool SteamAPI_ISteamApps_SetDlcContext( ISteamApps* self, AppId_t nAppID )
+{
+    return self->SetDlcContext(nAppID);
+}
+
 STEAMAPI_API ISteamNetworking *SteamAPI_SteamNetworking_v006()
 {
     return get_steam_client()->GetISteamNetworking(flat_hsteamuser(), flat_hsteampipe(), "SteamNetworking006");
@@ -3286,6 +3291,11 @@ STEAMAPI_API uint32 SteamAPI_ISteamInput_GetRemotePlaySessionID( ISteamInput* se
 STEAMAPI_API uint16 SteamAPI_ISteamInput_GetSessionInputConfigurationSettings( ISteamInput* self )
 {
     return (get_steam_client()->steam_controller)->GetSessionInputConfigurationSettings();
+}
+
+STEAMAPI_API void SteamAPI_ISteamInput_SetDualSenseTriggerEffect( ISteamInput* self, InputHandle_t inputHandle, const ScePadTriggerEffectParam * pParam )
+{
+    return (get_steam_client()->steam_controller)->SetDualSenseTriggerEffect(inputHandle, pParam);
 }
 
 STEAMAPI_API ISteamController *SteamAPI_SteamController_v007()

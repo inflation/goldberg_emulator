@@ -1231,6 +1231,12 @@ uint16 GetSessionInputConfigurationSettings()
     return 0;
 }
 
+// Set the trigger effect for a DualSense controller
+void SetDualSenseTriggerEffect( InputHandle_t inputHandle, const ScePadTriggerEffectParam *pParam )
+{
+    PRINT_DEBUG("TODO %s\n", __FUNCTION__);
+}
+
 void RunCallbacks()
 {
     if (explicitly_call_run_frame) {

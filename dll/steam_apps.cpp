@@ -337,3 +337,10 @@ bool Steam_Apps::BIsTimedTrial( uint32* punSecondsAllowed, uint32* punSecondsPla
     PRINT_DEBUG("BIsTimedTrial\n");
     return false;
 }
+
+// set current DLC AppID being played (or 0 if none). Allows Steam to track usage of major DLC extensions
+bool Steam_Apps::SetDlcContext( AppId_t nAppID )
+{
+    PRINT_DEBUG("SetDlcContext %u\n", nAppID);
+    return true;
+}

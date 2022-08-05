@@ -106,4 +106,7 @@ public:
 
 	// check if game is a timed trial with limited playtime
 	bool BIsTimedTrial( uint32* punSecondsAllowed, uint32* punSecondsPlayed );
+
+	// set current DLC AppID being played (or 0 if none). Allows Steam to track usage of major DLC extensions
+    bool SetDlcContext( AppId_t nAppID );
 };
