@@ -78,7 +78,7 @@ build_windows:
       - DLL_FILES="$(ls overlay_experimental/System/*.cpp | tr "\n" " ")"; sed "s|overlay_experimental/System/\*.cpp|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls dll/*.proto | tr "\n" " " | sed "s/.proto/.pb.cc/g")"; sed "s|dll/\*.cc|$DLL_FILES|g" -i *.bat
       - DLL_FILES="$(ls steamclient_loader/*.cpp | tr "\n" " ")"; sed "s|steamclient_loader/\*.cpp|$DLL_FILES|g" -i *.bat
-      - sed "s| /MP12 | /MP4 |g" -i *.bat
+      - sed "s| /MP12 | /MP2 |g" -i *.bat
       - export WINEDEBUG=-all
       - wine cmd /c build_win_debug_experimental.bat
       - mkdir debug_experimental
