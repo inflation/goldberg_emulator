@@ -81,9 +81,10 @@ build_windows:
       - sed "s| /MP12 | /MP4 |g" -i *.bat
       - export WINEDEBUG=-all
       - wine cmd /c build_win_debug_experimental.bat
+      - mkdir debug_experimental
+      - mv steam_api.dll steam_api64.dll debug_experimental/
       - wine cmd /c build_win_release.bat
-      - mkdir release/debug_experimental
-      - mv steam_api.dll steam_api64.dll release/debug_experimental/
+      - mv debug_experimental release/
       - rm -f steamclient.dll steamclient64.dll
       - wine cmd /c build_win_debug_experimental_steamclient.bat
       - mkdir release/debug_experimental_steamclient
