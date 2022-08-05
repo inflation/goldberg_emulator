@@ -81,7 +81,7 @@ private:
     std::map<std::string, int32> stats_cache_int;
     std::map<std::string, float> stats_cache_float;
 
-    std::map<std::string, achievement_trigger> achievement_stat_trigger;
+    std::map<std::string, std::vector<achievement_trigger>> achievement_stat_trigger;
 
 unsigned int find_leaderboard(std::string name)
 {
@@ -159,7 +159,7 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
             std::string stat_name = ascii_to_lowercase(static_cast<std::string const&>(it["progress"]["value"]["operand1"]));
             trig.min_value = static_cast<std::string const&>(it["progress"]["min_val"]);
             trig.max_value = static_cast<std::string const&>(it["progress"]["max_val"]);
-            achievement_stat_trigger[stat_name] = trig;
+            achievement_stat_trigger[stat_name].push_back(trig);
         } catch (...) {}
 
         try {
@@ -283,8 +283,10 @@ bool SetStat( const char *pchName, int32 nData )
 
     auto stat_trigger = achievement_stat_trigger.find(stat_name);
     if (stat_trigger != achievement_stat_trigger.end()) {
-        if (stat_trigger->second.check_triggered(nData)) {
-            SetAchievement(stat_trigger->second.name.c_str());
+        for (auto &t : stat_trigger->second) {
+            if (t.check_triggered(nData)) {
+                SetAchievement(t.name.c_str());
+            }
         }
     }
 
@@ -310,8 +312,10 @@ bool SetStat( const char *pchName, float fData )
 
     auto stat_trigger = achievement_stat_trigger.find(stat_name);
     if (stat_trigger != achievement_stat_trigger.end()) {
-        if (stat_trigger->second.check_triggered(fData)) {
-            SetAchievement(stat_trigger->second.name.c_str());
+        for (auto &t : stat_trigger->second) {
+            if (t.check_triggered(fData)) {
+                SetAchievement(t.name.c_str());
+            }
         }
     }
 
