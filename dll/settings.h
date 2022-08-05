@@ -92,7 +92,10 @@ public:
     CSteamID get_local_steam_id();
     CGameID get_local_game_id();
     const char *get_local_name();
+    void set_local_name(char *name);
     const char *get_language();
+    void set_language(char *language);
+
     void set_game_id(CGameID game_id);
     void set_lobby(CSteamID lobby_id);
     CSteamID get_lobby();
@@ -155,6 +158,12 @@ public:
 
     //make lobby creation fail in the matchmaking interface
     bool disable_lobby_creation = false;
+
+    //warn people who use force_ settings
+    bool warn_forced = false;
+
+    //warn people who use local save
+    bool warn_local_save = false;
 };
 
 #endif

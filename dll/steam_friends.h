@@ -133,6 +133,11 @@ static void steam_friends_run_every_runcb(void *object)
     steam_friends->RunCallbacks();
 }
 
+void resend_friend_data()
+{
+    modified = true;
+}
+
 Steam_Friends(Settings* settings, Networking* network, SteamCallResults* callback_results, SteamCallBacks* callbacks, RunEveryRunCB* run_every_runcb, Steam_Overlay* overlay):
     settings(settings),
     network(network),
@@ -550,7 +555,8 @@ void ActivateGameOverlayToUser( const char *pchDialog, CSteamID steamID )
 // full address with protocol type is required, e.g. http://www.steamgames.com/
 void ActivateGameOverlayToWebPage( const char *pchURL, EActivateGameOverlayToWebPageMode eMode = k_EActivateGameOverlayToWebPageMode_Default )
 {
-    PRINT_DEBUG("Steam_Friends::ActivateGameOverlayToWebPage\n");
+    PRINT_DEBUG("Steam_Friends::ActivateGameOverlayToWebPage %s %u\n", pchURL, eMode);
+    overlay->OpenOverlayWebpage(pchURL);
 }
 
 void ActivateGameOverlayToWebPage( const char *pchURL )
@@ -721,13 +727,13 @@ bool SetRichPresence( const char *pchKey, const char *pchValue )
         auto prev_value = (*us.mutable_rich_presence()).find(pchKey);
         if (prev_value == (*us.mutable_rich_presence()).end() || prev_value->second != pchValue) {
             (*us.mutable_rich_presence())[pchKey] = pchValue;
-            modified = true;
+            resend_friend_data();
         }
     } else {
         auto to_remove = us.mutable_rich_presence()->find(pchKey);
         if (to_remove != us.mutable_rich_presence()->end()) {
             us.mutable_rich_presence()->erase(to_remove);
-            modified = true;
+            resend_friend_data();
         }
     }
 
@@ -739,7 +745,7 @@ void ClearRichPresence()
     PRINT_DEBUG("Steam_Friends::ClearRichPresence\n");
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
     us.mutable_rich_presence()->clear();
-    modified = true;
+    resend_friend_data();
     
 }
 
@@ -1053,7 +1059,7 @@ void RunCallbacks()
 	PRINT_DEBUG("Steam_Friends::RunCallbacks\n");
     if (settings->get_lobby() != lobby_id) {
         lobby_id = settings->get_lobby();
-        modified = true;
+        resend_friend_data();
     }
 
     if (modified) {
