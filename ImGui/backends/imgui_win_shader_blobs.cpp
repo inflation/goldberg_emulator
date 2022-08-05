@@ -1,25 +1,6 @@
-/*
- * Copyright (C) 2019-2020 Nemirtingas
- * This file is part of the Nemirtingas's Steam Emulator
- *
- * The Nemirtingas's Steam Emulator is free software; you can redistribute it
- * and/or modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- * 
- * The Nemirtingas's Steam Emulator is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with the Goldberg Emulator; if not, see
- * <http://www.gnu.org/licenses/>.
- */
+#include "imgui_win_shader_blobs.h"
 
-#include "imgui_shaderblobs.h"
-
-extern unsigned char ImGui_vertexShaderDX10[] = {
+static unsigned char ImGui_vertexShaderDX10[] = {
   0x44, 0x58, 0x42, 0x43, 0x7a, 0x54, 0x84, 0x96, 0xdf, 0xd1, 0x9e, 0x21,
   0xfd, 0x85, 0x86, 0x3d, 0x28, 0xd1, 0x03, 0xae, 0x01, 0x00, 0x00, 0x00,
   0x6c, 0x03, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
@@ -95,7 +76,7 @@ extern unsigned char ImGui_vertexShaderDX10[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-extern unsigned char ImGui_vertexShaderDX11[] = {
+static unsigned char ImGui_vertexShaderDX11[] = {
   0x44, 0x58, 0x42, 0x43, 0x34, 0xbd, 0x62, 0xe1, 0x71, 0x13, 0xaa, 0x19,
   0x76, 0x89, 0xdb, 0x8a, 0x6e, 0x58, 0xa5, 0x88, 0x01, 0x00, 0x00, 0x00,
   0x50, 0x04, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
@@ -190,7 +171,7 @@ extern unsigned char ImGui_vertexShaderDX11[] = {
   0x52, 0x00, 0x54, 0x45, 0x58, 0x43, 0x4f, 0x4f, 0x52, 0x44, 0x00, 0xab
 };
 
-extern unsigned char ImGui_vertexShaderDX11_9_1[] = {
+static unsigned char ImGui_vertexShaderDX11_9_1[] = {
   0x44, 0x58, 0x42, 0x43, 0x34, 0xbd, 0x62, 0xe1, 0x71, 0x13, 0xaa, 0x19,
   0x76, 0x89, 0xdb, 0x8a, 0x6e, 0x58, 0xa5, 0x88, 0x01, 0x00, 0x00, 0x00,
   0x50, 0x04, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
@@ -285,7 +266,7 @@ extern unsigned char ImGui_vertexShaderDX11_9_1[] = {
   0x52, 0x00, 0x54, 0x45, 0x58, 0x43, 0x4f, 0x4f, 0x52, 0x44, 0x00, 0xab
 };
 
-extern unsigned char ImGui_vertexShaderDX11_9_3[] = {
+static unsigned char ImGui_vertexShaderDX11_9_3[] = {
   0x44, 0x58, 0x42, 0x43, 0x5d, 0xe0, 0x7a, 0x20, 0xf6, 0x2e, 0x27, 0xbf,
   0x22, 0xd7, 0x94, 0x61, 0x73, 0xfa, 0xb3, 0x6d, 0x01, 0x00, 0x00, 0x00,
   0x50, 0x04, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
@@ -380,7 +361,7 @@ extern unsigned char ImGui_vertexShaderDX11_9_3[] = {
   0x52, 0x00, 0x54, 0x45, 0x58, 0x43, 0x4f, 0x4f, 0x52, 0x44, 0x00, 0xab
 };
 
-extern unsigned char ImGui_vertexShaderDX11_10_1[] = {
+static unsigned char ImGui_vertexShaderDX11_10_1[] = {
   0x44, 0x58, 0x42, 0x43, 0xd3, 0xde, 0x09, 0xcf, 0xb2, 0x75, 0xc7, 0x09,
   0x8b, 0xe6, 0x9d, 0xdc, 0x14, 0xc9, 0x0b, 0x59, 0x01, 0x00, 0x00, 0x00,
   0x70, 0x03, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
@@ -457,7 +438,7 @@ extern unsigned char ImGui_vertexShaderDX11_10_1[] = {
   0x00, 0x00, 0x00, 0x00
 };
 
-extern unsigned char ImGui_vertexShaderDX11_11_0[] = {
+static unsigned char ImGui_vertexShaderDX11_11_0[] = {
   0x44, 0x58, 0x42, 0x43, 0xb6, 0xcc, 0x5b, 0x29, 0xde, 0xfb, 0x4d, 0x91,
   0x1f, 0x52, 0xbe, 0xc7, 0x8b, 0x0f, 0xbf, 0x5c, 0x01, 0x00, 0x00, 0x00,
   0xdc, 0x03, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
@@ -545,7 +526,7 @@ extern unsigned char ImGui_vertexShaderDX11_11_0[] = {
 
 
 
-extern unsigned char ImGui_pixelShaderDX10[] = {
+static unsigned char ImGui_pixelShaderDX10[] = {
   0x44, 0x58, 0x42, 0x43, 0x9e, 0xce, 0x85, 0x72, 0xa7, 0x97, 0x52, 0xb4,
   0x6d, 0xc4, 0x28, 0xfa, 0x10, 0xc0, 0xd2, 0xc1, 0x01, 0x00, 0x00, 0x00,
   0x94, 0x02, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
@@ -603,7 +584,7 @@ extern unsigned char ImGui_pixelShaderDX10[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-extern unsigned char ImGui_pixelShaderDX11[] = {
+static unsigned char ImGui_pixelShaderDX11[] = {
   0x44, 0x58, 0x42, 0x43, 0x34, 0xbd, 0x62, 0xe1, 0x71, 0x13, 0xaa, 0x19,
   0x76, 0x89, 0xdb, 0x8a, 0x6e, 0x58, 0xa5, 0x88, 0x01, 0x00, 0x00, 0x00,
   0x50, 0x04, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
@@ -698,7 +679,7 @@ extern unsigned char ImGui_pixelShaderDX11[] = {
   0x52, 0x00, 0x54, 0x45, 0x58, 0x43, 0x4f, 0x4f, 0x52, 0x44, 0x00, 0xab
 };
 
-extern unsigned char ImGui_pixelShaderDX11_9_1[] = {
+static unsigned char ImGui_pixelShaderDX11_9_1[] = {
   0x44, 0x58, 0x42, 0x43, 0xfd, 0xf5, 0xd6, 0xef, 0xb1, 0xea, 0x3d, 0x58,
   0xcc, 0xd8, 0xf8, 0x93, 0x11, 0xcb, 0x84, 0xfc, 0x01, 0x00, 0x00, 0x00,
   0x20, 0x03, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
@@ -768,7 +749,7 @@ extern unsigned char ImGui_pixelShaderDX11_9_1[] = {
   0x61, 0x72, 0x67, 0x65, 0x74, 0x00, 0xab, 0xab
 };
 
-extern unsigned char ImGui_pixelShaderDX11_9_3[] = {
+static unsigned char ImGui_pixelShaderDX11_9_3[] = {
   0x44, 0x58, 0x42, 0x43, 0x68, 0xbf, 0x8b, 0x46, 0x89, 0xb4, 0xbe, 0x06,
   0xa2, 0x48, 0x16, 0x93, 0xb3, 0x46, 0x9d, 0xaa, 0x01, 0x00, 0x00, 0x00,
   0x20, 0x03, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
@@ -838,7 +819,7 @@ extern unsigned char ImGui_pixelShaderDX11_9_3[] = {
   0x61, 0x72, 0x67, 0x65, 0x74, 0x00, 0xab, 0xab
 };
 
-extern unsigned char ImGui_pixelShaderDX11_10_1[] = {
+static unsigned char ImGui_pixelShaderDX11_10_1[] = {
   0x44, 0x58, 0x42, 0x43, 0xed, 0x0b, 0x5f, 0x62, 0x62, 0x1f, 0xad, 0x3c,
   0x16, 0xc6, 0xe5, 0x68, 0x51, 0x61, 0xc0, 0x0f, 0x01, 0x00, 0x00, 0x00,
   0x98, 0x02, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
@@ -897,7 +878,7 @@ extern unsigned char ImGui_pixelShaderDX11_10_1[] = {
   0x00, 0x00, 0x00, 0x00
 };
 
-extern unsigned char ImGui_pixelShaderDX11_11_0[] = {
+static unsigned char ImGui_pixelShaderDX11_11_0[] = {
   0x44, 0x58, 0x42, 0x43, 0x7d, 0x67, 0x4f, 0x5f, 0xde, 0x79, 0x94, 0x13,
   0xc2, 0x10, 0x83, 0x8f, 0x8e, 0x27, 0x9c, 0x34, 0x01, 0x00, 0x00, 0x00,
   0xe0, 0x02, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
@@ -961,3 +942,84 @@ extern unsigned char ImGui_pixelShaderDX11_11_0[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00
 };
+
+////// Vertex Shaders //////
+
+//#include <d3dcommon.h>
+enum D3D_FEATURE_LEVEL
+{
+    D3D_FEATURE_LEVEL_1_0_CORE = 0x1000,
+    D3D_FEATURE_LEVEL_9_1 = 0x9100,
+    D3D_FEATURE_LEVEL_9_2 = 0x9200,
+    D3D_FEATURE_LEVEL_9_3 = 0x9300,
+    D3D_FEATURE_LEVEL_10_0 = 0xa000,
+    D3D_FEATURE_LEVEL_10_1 = 0xa100,
+    D3D_FEATURE_LEVEL_11_0 = 0xb000,
+    D3D_FEATURE_LEVEL_11_1 = 0xb100,
+    D3D_FEATURE_LEVEL_12_0 = 0xc000,
+    D3D_FEATURE_LEVEL_12_1 = 0xc100
+} 	D3D_FEATURE_LEVEL;
+
+shader_t getDX10VertexShader()
+{
+    return { ImGui_vertexShaderDX10, sizeof(ImGui_vertexShaderDX10)/sizeof(*ImGui_vertexShaderDX10) };
+}
+
+shader_t getDX11VertexShader(unsigned long feature_level)
+{
+    switch (feature_level)
+    {
+        case D3D_FEATURE_LEVEL_9_1 : return { ImGui_vertexShaderDX11_9_1 , sizeof(ImGui_vertexShaderDX11_9_1 ) / sizeof(*ImGui_vertexShaderDX11_9_1 ) };
+        // 9.2 is the same shader as 9.1
+        case D3D_FEATURE_LEVEL_9_2 : return { ImGui_vertexShaderDX11_9_1 , sizeof(ImGui_vertexShaderDX11_9_1 ) / sizeof(*ImGui_vertexShaderDX11_9_1 ) };
+        case D3D_FEATURE_LEVEL_9_3 : return { ImGui_vertexShaderDX11_9_3 , sizeof(ImGui_vertexShaderDX11_9_3 ) / sizeof(*ImGui_vertexShaderDX11_9_3 ) };
+        case D3D_FEATURE_LEVEL_10_0: return { ImGui_vertexShaderDX10     , sizeof(ImGui_vertexShaderDX10     ) / sizeof(*ImGui_vertexShaderDX10     ) };
+        case D3D_FEATURE_LEVEL_10_1: return { ImGui_vertexShaderDX11_10_1, sizeof(ImGui_vertexShaderDX11_10_1) / sizeof(*ImGui_vertexShaderDX11_10_1) };
+        case D3D_FEATURE_LEVEL_11_0: return { ImGui_vertexShaderDX11_11_0, sizeof(ImGui_vertexShaderDX11_11_0) / sizeof(*ImGui_vertexShaderDX11_11_0) };
+        // 11.1 is the same shader as 11.0
+        case D3D_FEATURE_LEVEL_11_1: return { ImGui_vertexShaderDX11_11_0, sizeof(ImGui_vertexShaderDX11_11_0) / sizeof(*ImGui_vertexShaderDX11_11_0) };
+        // 12.0 is the same shader as 11.0
+        case D3D_FEATURE_LEVEL_12_0: return { ImGui_vertexShaderDX11_11_0, sizeof(ImGui_vertexShaderDX11_11_0) / sizeof(*ImGui_vertexShaderDX11_11_0) };
+        // 12.1 is the same shader as 11.0
+        case D3D_FEATURE_LEVEL_12_1: return { ImGui_vertexShaderDX11_11_0, sizeof(ImGui_vertexShaderDX11_11_0) / sizeof(*ImGui_vertexShaderDX11_11_0) };
+        default                    : return { ImGui_vertexShaderDX11_11_0, sizeof(ImGui_vertexShaderDX11_11_0) / sizeof(*ImGui_vertexShaderDX11_11_0) };
+    }
+}
+
+shader_t getDX12VertexShader()
+{
+    return { ImGui_vertexShaderDX11_11_0, sizeof(ImGui_vertexShaderDX11_11_0) / sizeof(*ImGui_vertexShaderDX11_11_0) };
+}
+
+////// Pixel Shaders //////
+
+shader_t getDX10PixelShader()
+{
+    return { ImGui_pixelShaderDX10, sizeof(ImGui_pixelShaderDX10) / sizeof(*ImGui_pixelShaderDX10) };
+}
+
+shader_t getDX11PixelShader(unsigned long feature_level)
+{
+    switch (feature_level)
+    {
+        case D3D_FEATURE_LEVEL_9_1 : return { ImGui_pixelShaderDX11_9_1  , sizeof(ImGui_pixelShaderDX11_9_1  ) / sizeof(*ImGui_pixelShaderDX11_9_1  ) };
+        // 9.2 is the same shader as 9.1
+        case D3D_FEATURE_LEVEL_9_2 : return { ImGui_pixelShaderDX11_9_1  , sizeof(ImGui_pixelShaderDX11_9_1  ) / sizeof(*ImGui_pixelShaderDX11_9_1  ) };
+        case D3D_FEATURE_LEVEL_9_3 : return { ImGui_pixelShaderDX11_9_3  , sizeof(ImGui_pixelShaderDX11_9_3  ) / sizeof(*ImGui_pixelShaderDX11_9_3  ) };
+        case D3D_FEATURE_LEVEL_10_0: return { ImGui_pixelShaderDX10      , sizeof(ImGui_pixelShaderDX10      ) / sizeof(*ImGui_pixelShaderDX10      ) };
+        case D3D_FEATURE_LEVEL_10_1: return { ImGui_pixelShaderDX11_10_1 , sizeof(ImGui_pixelShaderDX11_10_1 ) / sizeof(*ImGui_pixelShaderDX11_10_1 ) };
+        case D3D_FEATURE_LEVEL_11_0: return { ImGui_pixelShaderDX11_11_0 , sizeof(ImGui_pixelShaderDX11_11_0 ) / sizeof(*ImGui_pixelShaderDX11_11_0 ) };
+        // 11.1 is the same shader as 11.0
+        case D3D_FEATURE_LEVEL_11_1: return { ImGui_pixelShaderDX11_11_0 , sizeof(ImGui_pixelShaderDX11_11_0 ) / sizeof(*ImGui_pixelShaderDX11_11_0 ) };
+        // 12.0 is the same shader as 11.0
+        case D3D_FEATURE_LEVEL_12_0: return { ImGui_pixelShaderDX11_11_0 , sizeof(ImGui_pixelShaderDX11_11_0 ) / sizeof(*ImGui_pixelShaderDX11_11_0 ) };
+        // 12.1 is the same shader as 11.0
+        case D3D_FEATURE_LEVEL_12_1: return { ImGui_pixelShaderDX11_11_0 , sizeof(ImGui_pixelShaderDX11_11_0 ) / sizeof(*ImGui_pixelShaderDX11_11_0 ) };
+        default                    : return { ImGui_pixelShaderDX11_11_0 , sizeof(ImGui_pixelShaderDX11_11_0 ) / sizeof(*ImGui_pixelShaderDX11_11_0 ) };
+    }
+}
+
+shader_t getDX12PixelShader()
+{
+    return { ImGui_pixelShaderDX11_11_0, sizeof(ImGui_pixelShaderDX11_11_0) / sizeof(*ImGui_pixelShaderDX11_11_0) };
+}
