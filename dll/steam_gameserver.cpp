@@ -45,10 +45,17 @@ bool Steam_GameServer::InitGameServer( uint32 unIP, uint16 usGamePort, uint16 us
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     if (logged_in) return false; // may not be changed after logged in.
+    if (!pchVersionString) pchVersionString = "";
+
     std::string version(pchVersionString);
     version.erase(std::remove(version.begin(), version.end(), ' '), version.end());
     version.erase(std::remove(version.begin(), version.end(), '.'), version.end());
-    server_data.set_version(stoi(version));
+    try {
+        server_data.set_version(std::stoi(version));
+    } catch (...) {
+        PRINT_DEBUG("InitGameServer: not a number: %s\n", pchVersionString);
+        server_data.set_version(0);
+    }
 
     server_data.set_ip(unIP);
     server_data.set_port(usGamePort);
