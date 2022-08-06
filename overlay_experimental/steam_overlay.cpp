@@ -802,7 +802,7 @@ void Steam_Overlay::OverlayProc()
 
                         ImGui::Separator();
                         ImGui::Text("%s", x.title.c_str());
-                        if (x.hidden) {
+                        if (hidden) {
                             ImGui::Text("hidden achievement");
                         } else {
                             ImGui::TextWrapped("%s", x.description.c_str());
