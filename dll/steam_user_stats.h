@@ -21,10 +21,17 @@
 #include "base.h"
 #include "../overlay_experimental/steam_overlay.h"
 
+struct Steam_Leaderboard_Score {
+    CSteamID steam_id;
+    int32 score = 0;
+    std::vector<int32> score_details;
+};
+
 struct Steam_Leaderboard {
     std::string name;
     ELeaderboardSortMethod sort_method;
     ELeaderboardDisplayType display_type;
+    Steam_Leaderboard_Score self_score;
 };
 
 struct achievement_trigger {
@@ -119,6 +126,60 @@ void load_achievements()
 void save_achievements()
 {
     local_storage->write_json_file("", achievements_user_file, user_achievements);
+}
+
+void save_leaderboard_score(Steam_Leaderboard *leaderboard)
+{
+    std::vector<uint32_t> output;
+    uint64_t steam_id = leaderboard->self_score.steam_id.ConvertToUint64();
+    output.push_back(steam_id & 0xFFFFFFFF);
+    output.push_back(steam_id >> 32);
+
+    output.push_back(leaderboard->self_score.score);
+    output.push_back(leaderboard->self_score.score_details.size());
+    for (auto &s : leaderboard->self_score.score_details) {
+        output.push_back(s);
+    }
+
+    std::string leaderboard_name = ascii_to_lowercase(leaderboard->name);
+    local_storage->store_data(Local_Storage::leaderboard_storage_folder, leaderboard_name, (char* )output.data(), sizeof(uint32_t) * output.size());
+}
+
+std::vector<Steam_Leaderboard_Score> load_leaderboard_scores(std::string name)
+{
+    std::vector<Steam_Leaderboard_Score> out;
+
+    std::string leaderboard_name = ascii_to_lowercase(name);
+    unsigned size = local_storage->file_size(Local_Storage::leaderboard_storage_folder, leaderboard_name);
+    if (size == 0 || (size % sizeof(uint32_t)) != 0) return out;
+
+    std::vector<uint32_t> output(size / sizeof(uint32_t));
+    if (local_storage->get_data(Local_Storage::leaderboard_storage_folder, leaderboard_name, (char* )output.data(), size) != size) return out;
+
+    unsigned i = 0;
+    while (true) {
+        if ((i + 4) > output.size()) break;
+
+        Steam_Leaderboard_Score score;
+        score.steam_id = CSteamID((uint64)output[i] + (((uint64)output[i + 1]) << 32));
+        i += 2;
+        score.score = output[i];
+        i += 1;
+        unsigned count = output[i];
+        i += 1;
+
+        if ((i + count) > output.size()) break;
+
+        for (unsigned j = 0; j < count; ++j) {
+            score.score_details.push_back(output[i]);
+            i += 1;
+        }
+
+        PRINT_DEBUG("loaded leaderboard score %llu %u\n", score.steam_id.ConvertToUint64(), score.score);
+        out.push_back(score);
+    }
+
+    return out;
 }
 
 public:
@@ -734,6 +795,14 @@ SteamAPICall_t FindOrCreateLeaderboard( const char *pchLeaderboardName, ELeaderb
         leaderboard.name = std::string(pchLeaderboardName);
         leaderboard.sort_method = eLeaderboardSortMethod;
         leaderboard.display_type = eLeaderboardDisplayType;
+
+        std::vector<Steam_Leaderboard_Score> scores = load_leaderboard_scores(pchLeaderboardName);
+        for (auto &s : scores) {
+            if (s.steam_id == settings->get_local_steam_id()) {
+                leaderboard.self_score = s;
+            }
+        }
+
         leaderboards.push_back(leaderboard);
         leader = leaderboards.size();
     }
@@ -826,10 +895,12 @@ SteamAPICall_t DownloadLeaderboardEntries( SteamLeaderboard_t hSteamLeaderboard,
 {
     PRINT_DEBUG("DownloadLeaderboardEntries %llu %i %i %i\n", hSteamLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (hSteamLeaderboard > leaderboards.size() || hSteamLeaderboard <= 0) return k_uAPICallInvalid; //might return callresult even if hSteamLeaderboard is invalid
+
     LeaderboardScoresDownloaded_t data;
     data.m_hSteamLeaderboard = hSteamLeaderboard;
-    data.m_hSteamLeaderboardEntries = 123;
-    data.m_cEntryCount = 0;
+    data.m_hSteamLeaderboardEntries = hSteamLeaderboard;
+    data.m_cEntryCount = leaderboards[hSteamLeaderboard - 1].self_score.steam_id.IsValid();
     return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
 }
 
@@ -843,10 +914,19 @@ SteamAPICall_t DownloadLeaderboardEntriesForUsers( SteamLeaderboard_t hSteamLead
 {
     PRINT_DEBUG("DownloadLeaderboardEntriesForUsers %i %llu\n", cUsers, cUsers > 0 ? prgUsers[0].ConvertToUint64() : 0);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (hSteamLeaderboard > leaderboards.size() || hSteamLeaderboard <= 0) return k_uAPICallInvalid; //might return callresult even if hSteamLeaderboard is invalid
+
+    bool get_for_current_id = false;
+    for (int i = 0; i < cUsers; ++i) {
+        if (prgUsers[i] == settings->get_local_steam_id()) {
+            get_for_current_id = true;
+        }
+    }
+
     LeaderboardScoresDownloaded_t data;
     data.m_hSteamLeaderboard = hSteamLeaderboard;
-    data.m_hSteamLeaderboardEntries = 123;
-    data.m_cEntryCount = 0;
+    data.m_hSteamLeaderboardEntries = hSteamLeaderboard;
+    data.m_cEntryCount = get_for_current_id && leaderboards[hSteamLeaderboard - 1].self_score.steam_id.IsValid();
     return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
 }
 
@@ -868,7 +948,20 @@ SteamAPICall_t DownloadLeaderboardEntriesForUsers( SteamLeaderboard_t hSteamLead
 bool GetDownloadedLeaderboardEntry( SteamLeaderboardEntries_t hSteamLeaderboardEntries, int index, LeaderboardEntry_t *pLeaderboardEntry, int32 *pDetails, int cDetailsMax )
 {
     PRINT_DEBUG("GetDownloadedLeaderboardEntry\n");
-    return false;
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (hSteamLeaderboardEntries > leaderboards.size() || hSteamLeaderboardEntries <= 0) return false;
+    if (index > 0) return false;
+
+    LeaderboardEntry_t entry = {};
+    entry.m_steamIDUser = leaderboards[hSteamLeaderboardEntries - 1].self_score.steam_id;
+    entry.m_nGlobalRank = 1;
+    entry.m_nScore = leaderboards[hSteamLeaderboardEntries - 1].self_score.score;
+    for (int i = 0; i < leaderboards[hSteamLeaderboardEntries - 1].self_score.score_details.size() && i < cDetailsMax; ++i) {
+        pDetails[i] = leaderboards[hSteamLeaderboardEntries - 1].self_score.score_details[i];
+    }
+
+    *pLeaderboardEntry = entry;
+    return true;
 }
 
 
@@ -879,17 +972,39 @@ bool GetDownloadedLeaderboardEntry( SteamLeaderboardEntries_t hSteamLeaderboardE
 STEAM_CALL_RESULT( LeaderboardScoreUploaded_t )
 SteamAPICall_t UploadLeaderboardScore( SteamLeaderboard_t hSteamLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int32 nScore, const int32 *pScoreDetails, int cScoreDetailsCount )
 {
-    PRINT_DEBUG("UploadLeaderboardScore\n");
+    PRINT_DEBUG("UploadLeaderboardScore %i\n", nScore);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (hSteamLeaderboard > leaderboards.size() || hSteamLeaderboard <= 0) return k_uAPICallInvalid; //TODO: might return callresult even if hSteamLeaderboard is invalid
+
+    Steam_Leaderboard_Score score;
+    score.score = nScore;
+    score.steam_id = settings->get_local_steam_id();
+    for (int i = 0; i < cScoreDetailsCount; ++i) {
+        score.score_details.push_back(pScoreDetails[i]);
+    }
+
+    bool changed = false;
+    if (eLeaderboardUploadScoreMethod == k_ELeaderboardUploadScoreMethodKeepBest) {
+        if (leaderboards[hSteamLeaderboard - 1].self_score.score <= score.score) {
+            leaderboards[hSteamLeaderboard - 1].self_score = score;
+            changed = true;
+        }
+    } else {
+        if (leaderboards[hSteamLeaderboard - 1].self_score.score != score.score) changed = true;
+        leaderboards[hSteamLeaderboard - 1].self_score = score;
+    }
+
+    if (changed) {
+        save_leaderboard_score(&(leaderboards[hSteamLeaderboard - 1]));
+    }
+
     LeaderboardScoreUploaded_t data;
     data.m_bSuccess = 1; //needs to be success or DOA6 freezes when uploading score.
     //data.m_bSuccess = 0;
     data.m_hSteamLeaderboard = hSteamLeaderboard;
     data.m_nScore = nScore;
-    //data.m_bScoreChanged = 1;
-    data.m_bScoreChanged = 0;
-    //data.m_nGlobalRankNew = 1;
-    data.m_nGlobalRankNew = 0;
+    data.m_bScoreChanged = changed;
+    data.m_nGlobalRankNew = 1;
     data.m_nGlobalRankPrevious = 0;
     return callback_results->addCallResult(data.k_iCallback, &data, sizeof(data));
 }
