@@ -4,10 +4,11 @@ This script depends on python files that are in subfolders so make sure to downl
 
 Using the script: python generate_emu_config.py appid
 
+You can also pass multiple appids to generate multiple configs: python generate_emu_config.py appid appid appid
+
 The appid is the number in the steam url.
 
-The first time you run the script it will ask you for your steam username, password and email code. 
-The email code will only be asked the first time and the sentry will be saved to the login_temp folder.
+The email code should only be asked the first time and the sentry will be saved to the login_temp folder.
 
 This script will not save your username/password anywhere. If you don't want to always type it you must
 open up the script in a text editor and change:
