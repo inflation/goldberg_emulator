@@ -195,7 +195,7 @@ for appid in appids:
             except:
                 dlc_config_list.append((dlc, None))
 
-    with open(os.path.join(out_dir, "DLC.txt"), 'w') as f:
+    with open(os.path.join(out_dir, "DLC.txt"), 'w', encoding="utf-8") as f:
         for x in dlc_config_list:
             if (x[1] is not None):
                 f.write("{}={}\n".format(x[0], x[1]))
