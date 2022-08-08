@@ -3,9 +3,10 @@ USERNAME = ""
 PASSWORD = ""
 
 #steam ids with public profiles that own a lot of games
-TOP_OWNER_IDS = [76561198028121353, 76561198001237877, 76561198355625888, 76561198001678750, 76561198237402290]
+TOP_OWNER_IDS = [76561198028121353, 76561198001237877, 76561198355625888, 76561198001678750, 76561198237402290, 76561197979911851, 76561198152618007, 76561197969050296, 76561198213148949, 76561198037867621, 76561198108581917]
 
 from stats_schema_achievement_gen import achievements_gen
+from controller_config_generator import parse_controller_vdf
 from steam.client import SteamClient
 from steam.client.cdn import CDNClient
 from steam.enums import common
@@ -15,6 +16,7 @@ from steam.core.msg import MsgProto
 import os
 import sys
 import json
+import urllib.request
 
 prompt_for_unavailable = True
 
@@ -35,6 +37,7 @@ if (len(USERNAME) == 0 or len(PASSWORD) == 0):
     client.cli_login()
 else:
     result = client.login(USERNAME, password=PASSWORD)
+    auth_code, two_factor_code = None, None
     while result in (EResult.AccountLogonDenied, EResult.InvalidLoginAuthCode,
                         EResult.AccountLoginDeniedNeedTwoFactor, EResult.TwoFactorCodeMismatch,
                         EResult.TryAnotherCM, EResult.ServiceUnavailable,
@@ -92,6 +95,65 @@ def generate_achievement_stats(client, game_id, output_directory, backup_directo
             else:
                 print("no schema", out)
 
+def get_ugc_info(client, published_file_id):
+    return client.send_um_and_wait('PublishedFile.GetDetails#1', {
+            'publishedfileids': [published_file_id],
+            'includetags': False,
+            'includeadditionalpreviews': False,
+            'includechildren': False,
+            'includekvtags': False,
+            'includevotes': False,
+            'short_description': True,
+            'includeforsaledata': False,
+            'includemetadata': False,
+            'language': 0
+        })
+
+def download_published_file(client, published_file_id, backup_directory):
+    ugc_info = get_ugc_info(client, published_file_id)
+
+    if (ugc_info is None):
+        print("failed getting published file", published_file_id)
+        return None
+
+    file_details = ugc_info.body.publishedfiledetails[0]
+    if (file_details.result != EResult.OK):
+        print("failed getting published file", published_file_id, file_details.result)
+        return None
+
+    if not os.path.exists(backup_directory):
+        os.makedirs(backup_directory)
+
+    with open(os.path.join(backup_directory, "info.txt"), "w") as f:
+        f.write(str(ugc_info.body))
+
+    with urllib.request.urlopen(file_details.file_url) as response:
+        data = response.read()
+        with open(os.path.join(backup_directory, file_details.filename.replace("/", "_").replace("\\", "_")), "wb") as f:
+            f.write(data)
+        return data
+    return None
+
+def get_dlc(raw_infos):
+    try:
+        try:
+            dlc_list = set(map(lambda a: int(a), raw_infos["extended"]["listofdlc"].split(",")))
+        except:
+            dlc_list = set()
+        depot_app_list = set()
+        if "depots" in raw_infos:
+            depots = raw_infos["depots"]
+            for dep in depots:
+                depot_info = depots[dep]
+                if "dlcappid" in depot_info:
+                    dlc_list.add(int(depot_info["dlcappid"]))
+                if "depotfromapp" in depot_info:
+                    depot_app_list.add(int(depot_info["depotfromapp"]))
+        return (dlc_list, depot_app_list)
+    except:
+        print("could not get dlc infos, are there any dlcs ?")
+        return (set(), set())
+
 for appid in appids:
     backup_dir = os.path.join("backup","{}".format(appid))
     out_dir = os.path.join("{}".format( "{}_output".format(appid)), "steam_settings")
@@ -122,6 +184,40 @@ for appid in appids:
                     buildid = game_info["depots"]["branches"]["public"]["buildid"]
                     with open(os.path.join(out_dir, "build_id.txt"), 'w') as f:
                         f.write(str(buildid))
+
+    dlc_config_list = []
+    dlc_list, depot_app_list = get_dlc(game_info)
+    if (len(dlc_list) > 0):
+        dlc_raw = client.get_product_info(apps=dlc_list)["apps"]
+        for dlc in dlc_raw:
+            try:
+                dlc_config_list.append((dlc, dlc_raw[dlc]["common"]["name"]))
+            except:
+                dlc_config_list.append((dlc, None))
+
+    with open(os.path.join(out_dir, "DLC.txt"), 'w') as f:
+        for x in dlc_config_list:
+            if (x[1] is not None):
+                f.write("{}={}\n".format(x[0], x[1]))
+
+    config_generated = False
+    if "config" in game_info:
+        if "steamcontrollerconfigdetails" in game_info["config"]:
+            controller_details = game_info["config"]["steamcontrollerconfigdetails"]
+            for id in controller_details:
+                details = controller_details[id]
+                controller_type = ""
+                enabled_branches = ""
+                if "controller_type" in details:
+                    controller_type = details["controller_type"]
+                if "enabled_branches" in details:
+                    enabled_branches = details["enabled_branches"]
+                print(id, controller_type)
+                out_vdf = download_published_file(client, int(id), os.path.join(backup_dir, controller_type + str(id)))
+                if out_vdf is not None and not config_generated:
+                    if (controller_type in ["controller_xbox360", "controller_xboxone"] and (("default" in enabled_branches) or ("public" in enabled_branches))):
+                        parse_controller_vdf.generate_controller_config(out_vdf.decode('utf-8'), os.path.join(out_dir, "controller"))
+                        config_generated = True
 
     game_info_backup = json.dumps(game_info, indent=4)
     with open(os.path.join(backup_dir, "product_info.json"), "w") as f:

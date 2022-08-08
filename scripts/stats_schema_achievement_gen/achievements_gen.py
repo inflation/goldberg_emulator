@@ -4,8 +4,6 @@ import os
 import json
 
 
-language = 'english'
-
 STAT_TYPE_INT = '1'
 STAT_TYPE_FLOAT = '2'
 STAT_TYPE_AVGRATE = '3'
@@ -35,11 +33,6 @@ def generate_stats_achievements(schema, config_directory):
                             x = 'description'
                         if x == 'Hidden':
                             x = 'hidden'
-                        if type(value) is dict:
-                            if language in value:
-                                value = value[language]
-                            else:
-                                value = ''
                         out[x] = value
                     out['name'] = ach['name']
                     if 'progress' in ach:
