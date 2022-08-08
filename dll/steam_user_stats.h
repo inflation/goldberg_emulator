@@ -182,6 +182,42 @@ std::vector<Steam_Leaderboard_Score> load_leaderboard_scores(std::string name)
     return out;
 }
 
+std::string get_value_for_language(nlohmann::json &json, std::string key, std::string language)
+{
+    auto x = json.find(key);
+    if (x == json.end()) return "";
+    if (x.value().is_string()) {
+        return x.value().get<std::string>();
+    } else if (x.value().is_object()) {
+        auto l = x.value().find(language);
+        if (l != x.value().end()) {
+            return l.value().get<std::string>();
+        }
+
+        l = x.value().find("english");
+        if (l != x.value().end()) {
+            return l.value().get<std::string>();
+        }
+
+        l = x.value().begin();
+        if (l != x.value().end()) {
+            if (l.key() == "token") {
+                std::string token_value = l.value().get<std::string>();
+                l++;
+                if (l != x.value().end()) {
+                    return l.value().get<std::string>();
+                }
+
+                return token_value;
+            }
+
+            return l.value().get<std::string>();
+        }
+    }
+
+    return "";
+}
+
 public:
 Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCallResults *callback_results, class SteamCallBacks *callbacks, Steam_Overlay* overlay):
     settings(settings),
@@ -227,8 +263,8 @@ Steam_User_Stats(Settings *settings, Local_Storage *local_storage, class SteamCa
             it["hidden"] = std::to_string(it["hidden"].get<int>());
         } catch (...) {}
 
-        it["displayName"] = it.value("displayName", "");
-        it["description"] = it.value("description", "");
+        it["displayName"] = get_value_for_language(it, "displayName", settings->get_language());
+        it["description"] = get_value_for_language(it, "description", settings->get_language());
     }
 
     //TODO: not sure if the sort is actually case insensitive, ach names seem to be treated by steam as case insensitive so I assume they are.
