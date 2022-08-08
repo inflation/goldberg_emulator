@@ -200,6 +200,17 @@ void Steam_Overlay::SetupOverlay()
     }
 }
 
+
+void Steam_Overlay::UnSetupOverlay()
+{
+    stop_renderer_detector();
+    if (!Ready() && future_renderer.valid()) {
+        if (future_renderer.wait_for(std::chrono::milliseconds{500}) ==  std::future_status::ready) {
+            future_renderer.get();
+        }
+    }
+}
+
 void Steam_Overlay::HookReady(bool ready)
 {
     {

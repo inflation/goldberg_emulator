@@ -161,6 +161,7 @@ public:
 
     void SetNotificationInset(int nHorizontalInset, int nVerticalInset);
     void SetupOverlay();
+    void UnSetupOverlay();
 
     void HookReady(bool ready);
 
@@ -202,6 +203,7 @@ public:
 
     void SetNotificationInset(int nHorizontalInset, int nVerticalInset) {}
     void SetupOverlay() {}
+    void UnSetupOverlay() {}
 
     void HookReady(bool ready) {}
 

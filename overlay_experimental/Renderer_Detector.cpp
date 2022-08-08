@@ -77,6 +77,10 @@ public:
         delete vulkan_hook;
     }
 
+    bool force_stop_detection;
+    std::condition_variable detect_renderer_thread_cv;
+    std::mutex destroy_render_thread_mutex;
+
 private:
     Renderer_Detector():
         dxgi_hooked(false),
@@ -94,7 +98,8 @@ private:
         dx12_hook(nullptr),
         opengl_hook(nullptr),
         vulkan_hook(nullptr),
-        detection_done(false)
+        detection_done(false),
+        force_stop_detection(false)
     {
         std::wstring tmp(4096, L'\0');
         tmp.resize(GetSystemDirectoryW(&tmp[0], tmp.size()));
@@ -1064,6 +1069,9 @@ public:
         auto start_time = std::chrono::steady_clock::now();
         do
         {
+            std::unique_lock<std::mutex> lck(destroy_render_thread_mutex);
+            if (force_stop_detection) break;
+
             for (auto const& library : libraries)
             {
                 void* lib_handle = System::Library::GetLibraryHandle(library.first.c_str());
@@ -1074,7 +1082,10 @@ public:
                     (this->*library.second)(name);
                 }
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
+
+            detect_renderer_thread_cv.wait_for(lck, std::chrono::milliseconds(100));
+            if (force_stop_detection) break;
+
         } while (!detection_done && (timeout.count() == -1 || (std::chrono::steady_clock::now() - start_time) <= timeout));
 
         {
@@ -1414,4 +1425,12 @@ Renderer_Detector* Renderer_Detector::instance = nullptr;
 std::future<Renderer_Hook*> detect_renderer(std::chrono::milliseconds timeout)
 {
     return std::async(std::launch::async, &Renderer_Detector::detect_renderer, Renderer_Detector::Inst(), timeout);
+}
+
+void stop_renderer_detector()
+{
+    Renderer_Detector::Inst()->destroy_render_thread_mutex.lock();
+    Renderer_Detector::Inst()->force_stop_detection = true;
+    Renderer_Detector::Inst()->destroy_render_thread_mutex.unlock();
+    Renderer_Detector::Inst()->detect_renderer_thread_cv.notify_all();
 }

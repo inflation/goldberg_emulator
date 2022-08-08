@@ -830,6 +830,11 @@ bool Steam_Client::BShutdownIfAllPipesClosed()
         }
 
         steam_controller->Shutdown();
+#ifdef EMU_OVERLAY
+    if(!settings_client->disable_overlay)
+        steam_overlay->UnSetupOverlay();
+#endif
+
         if (joinable) {
             background_keepalive.join();
         }
