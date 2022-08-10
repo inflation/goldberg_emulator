@@ -18,19 +18,21 @@
 #include "steam_client.h"
 #include "settings_parser.h"
 
+static std::mutex kill_background_thread_mutex;
 static std::condition_variable kill_background_thread_cv;
-static std::atomic_bool kill_background_thread;
+static bool kill_background_thread;
 static void background_thread(Steam_Client *client)
 {
     PRINT_DEBUG("background thread starting\n");
-    std::mutex mtx;
-    std::unique_lock<std::mutex> lck(mtx);
 
     while (1) {
-        if (kill_background_thread || kill_background_thread_cv.wait_for(lck, std::chrono::seconds(1)) != std::cv_status::timeout) {
-            if (kill_background_thread) {
-                PRINT_DEBUG("background thread exit\n");
-                return;
+        {
+            std::unique_lock<std::mutex> lck(kill_background_thread_mutex);
+            if (kill_background_thread || kill_background_thread_cv.wait_for(lck, std::chrono::seconds(1)) != std::cv_status::timeout) {
+                if (kill_background_thread) {
+                    PRINT_DEBUG("background thread exit\n");
+                    return;
+                }
             }
         }
 
@@ -122,7 +124,59 @@ Steam_Client::Steam_Client()
 
 Steam_Client::~Steam_Client()
 {
-    network->shutDown();
+    delete steam_gameserver;
+    delete steam_gameserver_utils;
+    delete steam_gameserverstats;
+    delete steam_gameserver_networking;
+    delete steam_gameserver_http;
+    delete steam_gameserver_inventory;
+    delete steam_gameserver_ugc;
+    delete steam_gameserver_apps;
+    delete steam_gameserver_networking_sockets;
+    delete steam_gameserver_networking_sockets_serialized;
+    delete steam_gameserver_networking_messages;
+    delete steam_gameserver_game_coordinator;
+    delete steam_masterserver_updater;
+
+    delete steam_matchmaking;
+    delete steam_matchmaking_servers;
+    delete steam_user_stats;
+    delete steam_apps;
+    delete steam_networking;
+    delete steam_remote_storage;
+    delete steam_screenshots;
+    delete steam_http;
+    delete steam_controller;
+    delete steam_ugc;
+    delete steam_applist;
+    delete steam_music;
+    delete steam_musicremote;
+    delete steam_HTMLsurface;
+    delete steam_inventory;
+    delete steam_video;
+    delete steam_parental;
+    delete steam_networking_sockets;
+    delete steam_networking_sockets_serialized;
+    delete steam_networking_messages;
+    delete steam_game_coordinator;
+    delete steam_networking_utils;
+    delete steam_unified_messages;
+    delete steam_game_search;
+    delete steam_parties;
+    delete steam_remoteplay;
+    delete steam_tv;
+
+    delete steam_utils;
+    delete steam_friends;
+    delete steam_user;
+    delete steam_overlay;
+
+    delete run_every_runcb;
+    delete callbacks_server;
+    delete callbacks_client;
+    delete callback_results_server;
+    delete callback_results_client;
+    delete network;
 }
 
 void Steam_Client::userLogIn()
@@ -825,7 +879,9 @@ bool Steam_Client::BShutdownIfAllPipesClosed()
     if (!steam_pipes.size()) {
         bool joinable = background_keepalive.joinable();
         if (joinable) {
+            kill_background_thread_mutex.lock();
             kill_background_thread = true;
+            kill_background_thread_mutex.unlock();
             kill_background_thread_cv.notify_one();
         }
 

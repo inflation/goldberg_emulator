@@ -128,11 +128,24 @@ STEAMAPI_API ISteamClient *g_pSteamClientGameServer;
 ISteamClient *g_pSteamClientGameServer;
 #endif
 
+static Steam_Client *client;
 Steam_Client *get_steam_client()
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    static Steam_Client *client = new Steam_Client();
+    if (!client) {
+        client = new Steam_Client();
+    }
+
     return client;
+}
+
+void destroy_client()
+{
+    std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (client) {
+        delete client;
+        client = NULL;
+    }
 }
 
 Steam_Client *get_steam_client_old()
@@ -298,6 +311,9 @@ STEAMAPI_API void S_CALLTYPE SteamAPI_Shutdown()
     old_video_instance = NULL;
     old_parental_instance = NULL;
     old_unified_instance = NULL;
+    if (global_counter == 0) {
+        destroy_client();
+    }
 }
 
 // SteamAPI_RestartAppIfNecessary ensures that your executable was launched through Steam.
@@ -607,11 +623,14 @@ STEAMAPI_API ISteamClient *SteamGameServerClient();
 STEAMAPI_API steam_bool S_CALLTYPE SteamInternal_GameServer_Init( uint32 unIP, uint16 usPort, uint16 usGamePort, uint16 usQueryPort, EServerMode eServerMode, const char *pchVersionString )
 {
     PRINT_DEBUG("SteamInternal_GameServer_Init %u %hu %hu %hu %u %s\n", unIP, usPort, usGamePort, usQueryPort, eServerMode, pchVersionString);
-    load_old_interface_versions();
-    get_steam_client()->CreateLocalUser(&server_steam_pipe, k_EAccountTypeGameServer);
-    ++global_counter;
-    //g_pSteamClientGameServer is only used in pre 1.37 (where the interface versions are not provided by the game)
-    g_pSteamClientGameServer = SteamGameServerClient();
+    if (!server_steam_pipe) {
+        load_old_interface_versions();
+        get_steam_client()->CreateLocalUser(&server_steam_pipe, k_EAccountTypeGameServer);
+        ++global_counter;
+        //g_pSteamClientGameServer is only used in pre 1.37 (where the interface versions are not provided by the game)
+        g_pSteamClientGameServer = SteamGameServerClient();
+    }
+
     uint32 unFlags = 0;
     if (eServerMode == eServerModeAuthenticationAndSecure) unFlags = k_unServerFlagSecure;
     return get_steam_client()->steam_gameserver->InitGameServer(unIP, usGamePort, usQueryPort, unFlags, 0, pchVersionString);
@@ -678,6 +697,10 @@ STEAMAPI_API void SteamGameServer_Shutdown()
     old_gamserver_ugc_instance = NULL;
     old_gamserver_apps_instance = NULL;
     old_gamserver_masterupdater_instance = NULL;
+
+    if (global_counter == 0) {
+        destroy_client();
+    }
 }
 
 STEAMAPI_API void SteamGameServer_RunCallbacks()

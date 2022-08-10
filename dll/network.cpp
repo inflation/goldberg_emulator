@@ -751,7 +751,6 @@ Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::set<IP_PORT>
 {
     tcp_port = udp_port = port;
     own_ip = 0x7F000001;
-    alive = true;
     last_run = std::chrono::high_resolution_clock::now();
     this->appid = appid;
 
@@ -841,6 +840,21 @@ Networking::Networking(CSteamID id, uint32 appid, uint16 port, std::set<IP_PORT>
     ids.push_back(id);
 
     reset_last_error();
+}
+
+Networking::~Networking()
+{
+    for (auto &c : connections) {
+        kill_tcp_socket(c.tcp_socket_incoming);
+        kill_tcp_socket(c.tcp_socket_outgoing);
+    }
+
+    for (auto &c : accepted) {
+        kill_tcp_socket(c);
+    }
+
+    kill_socket(udp_socket);
+    kill_socket(tcp_socket);
 }
 
 Common_Message Networking::create_announce(bool request)
@@ -1264,14 +1278,4 @@ bool Networking::setCallback(Callback_Ids id, CSteamID steam_id, void (*message_
 uint32 Networking::getOwnIP()
 {
     return own_ip;
-}
-
-void Networking::shutDown()
-{
-    alive = false;
-}
-
-bool Networking::isAlive()
-{
-    return alive;
 }
