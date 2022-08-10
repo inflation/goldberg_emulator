@@ -82,7 +82,7 @@ void DX10_Hook::_ResetRenderState()
         OverlayHookReady(false);
 
         ImGui_ImplDX10_Shutdown();
-        Windows_Hook::Inst()->_ResetRenderState();
+        Windows_Hook::Inst()->ResetRenderState();
         ImGui::DestroyContext();
 
         SafeRelease(mainRenderTargetView);
@@ -118,11 +118,13 @@ void DX10_Hook::_PrepareForOverlay(IDXGISwapChain* pSwapChain)
         ImGui::CreateContext();
         ImGui_ImplDX10_Init(pDevice);
 
+        Windows_Hook::Inst()->SetInitialWindowSize(desc.OutputWindow);
+
         _Initialized = true;
         OverlayHookReady(true);
     }
 
-    if (ImGui_ImplDX10_NewFrame() && Windows_Hook::Inst()->_PrepareForOverlay(desc.OutputWindow))
+    if (ImGui_ImplDX10_NewFrame() && Windows_Hook::Inst()->PrepareForOverlay(desc.OutputWindow))
     {
         ImGui::NewFrame();
 

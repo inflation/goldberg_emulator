@@ -464,43 +464,24 @@ enum class IDirect3DDevice9VTable
     GetDisplayModeEx,
 };
 
-struct IDirect3DSwapChain9VTable
+enum class IDirect3DSwapChain9VTable
 {
-    enum class Index
-    {
-        // IUnknown
-        QueryInterface,
-        AddRef,
-        Release,
+    // IUnknown
+    QueryInterface,
+    AddRef,
+    Release,
 
-        // IDirect3DSwapChain9
-        Present,
-        GetFrontBufferData,
-        GetBackBuffer,
-        GetRasterStatus,
-        GetDisplayMode,
-        GetDevice,
-        GetPresentParameters,
+    // IDirect3DSwapChain9
+    Present,
+    GetFrontBufferData,
+    GetBackBuffer,
+    GetRasterStatus,
+    GetDisplayMode,
+    GetDevice,
+    GetPresentParameters,
 
-        // IDirect3DSwapChain9Ex
-        GetLastPresentCount,
-        GetPresentStats,
-        GetDisplayModeEx,
-    };
-
-    decltype(&IDirect3DSwapChain9::QueryInterface)        pQueryInterface;
-    decltype(&IDirect3DSwapChain9::AddRef)                pAddRef;
-    decltype(&IDirect3DSwapChain9::Release)               pRelease;
-
-    decltype(&IDirect3DSwapChain9::Present)               pPresent;
-    decltype(&IDirect3DSwapChain9::GetFrontBufferData)    pGetFrontBufferData;
-    decltype(&IDirect3DSwapChain9::GetBackBuffer)         pGetBackBuffer;
-    decltype(&IDirect3DSwapChain9::GetRasterStatus)       pGetRasterStatus;
-    decltype(&IDirect3DSwapChain9::GetDisplayMode)        pGetDisplayMode;
-    decltype(&IDirect3DSwapChain9::GetDevice)             pGetDevice;
-    decltype(&IDirect3DSwapChain9::GetPresentParameters)  pGetPresentParameters;
-
-    decltype(&IDirect3DSwapChain9Ex::GetLastPresentCount) pGetLastPresentCount;
-    decltype(&IDirect3DSwapChain9Ex::GetPresentStats)     pGetPresentStats;
-    decltype(&IDirect3DSwapChain9Ex::GetDisplayModeEx)    pGetDisplayModeEx;
+    // IDirect3DSwapChain9Ex
+    GetLastPresentCount,
+    GetPresentStats,
+    GetDisplayModeEx,
 };

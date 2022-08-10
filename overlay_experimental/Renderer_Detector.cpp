@@ -25,6 +25,7 @@
 #include "System/String.hpp"
 #include "System/System.h"
 #include "System/Library.h"
+#include "System/ScopedLock.hpp"
 
 #if defined(WIN64) || defined(_WIN64) || defined(__MINGW64__) \
  || defined(WIN32) || defined(_WIN32) || defined(__MINGW32__)
@@ -77,10 +78,6 @@ public:
         delete vulkan_hook;
     }
 
-    bool force_stop_detection;
-    std::condition_variable detect_renderer_thread_cv;
-    std::mutex destroy_render_thread_mutex;
-
 private:
     Renderer_Detector():
         dxgi_hooked(false),
@@ -98,8 +95,7 @@ private:
         dx12_hook(nullptr),
         opengl_hook(nullptr),
         vulkan_hook(nullptr),
-        detection_done(false),
-        force_stop_detection(false)
+        detection_done(false)
     {
         std::wstring tmp(4096, L'\0');
         tmp.resize(GetSystemDirectoryW(&tmp[0], tmp.size()));
@@ -147,6 +143,8 @@ private:
     Vulkan_Hook* vulkan_hook;
     
     bool detection_done;
+    std::condition_variable stop_detection_cv;
+    std::mutex stop_detection_mutex;
 
     HWND dummyWindow = nullptr;
     std::wstring _WindowClassName;
@@ -431,14 +429,14 @@ private:
     }
 
     void HookDX9Present(IDirect3DDevice9* pDevice, bool ex, IDirect3DSwapChain9* pSwapChain,
-        decltype(&IDirect3DDevice9::Present)& pfnPresent,
-        decltype(&IDirect3DDevice9::Reset)& pfnReset,
-        decltype(&IDirect3DDevice9Ex::PresentEx)& pfnPresentEx,
-        decltype(&IDirect3DSwapChain9::Present)& pfnSwapChainPresent)
+        void*& pfnPresent,
+        void*& pfnReset,
+        void*& pfnPresentEx,
+        void*& pfnSwapChainPresent)
     {
         void** vTable = *reinterpret_cast<void***>(pDevice);
-        (void*&)pfnPresent   = vTable[(int)IDirect3DDevice9VTable::Present];
-        (void*&)pfnReset     = vTable[(int)IDirect3DDevice9VTable::Reset];
+        pfnPresent   = vTable[(int)IDirect3DDevice9VTable::Present];
+        pfnReset     = vTable[(int)IDirect3DDevice9VTable::Reset];
         
         (void*&)IDirect3DDevice9Present = vTable[(int)IDirect3DDevice9VTable::Present];
         
@@ -448,7 +446,7 @@ private:
         
         if (ex)
         {
-            (void*&)pfnPresentEx = vTable[(int)IDirect3DDevice9VTable::PresentEx];
+            pfnPresentEx = vTable[(int)IDirect3DDevice9VTable::PresentEx];
             (void*&)IDirect3DDevice9ExPresentEx = vTable[(int)IDirect3DDevice9VTable::PresentEx];
         
             detection_hooks.BeginHook();
@@ -463,9 +461,9 @@ private:
         
         if (pSwapChain != nullptr)
         {
-            IDirect3DSwapChain9VTable* vTable = *reinterpret_cast<IDirect3DSwapChain9VTable**>(pSwapChain);
-            pfnSwapChainPresent = vTable->pPresent;
-            IDirect3DSwapChain9Present = vTable->pPresent;
+            vTable = *reinterpret_cast<void***>(pSwapChain);
+            pfnSwapChainPresent = vTable[(int)IDirect3DSwapChain9VTable::Present];
+            (void*&)IDirect3DSwapChain9Present = vTable[(int)IDirect3DSwapChain9VTable::Present];
         
             detection_hooks.BeginHook();
             detection_hooks.HookFunc(std::pair<void**, void*>{ (void**)&IDirect3DSwapChain9Present, (void*)&MyDX9SwapChainPresent });
@@ -553,7 +551,7 @@ private:
                 decltype(&IDirect3DDevice9Ex::PresentEx) pfnPresentEx;
                 decltype(&IDirect3DSwapChain9::Present) pfnSwapChainPresent;
 
-                HookDX9Present(pDevice, Direct3DCreate9Ex != nullptr, pSwapChain, pfnPresent, pfnReset, pfnPresentEx, pfnSwapChainPresent);
+                HookDX9Present(pDevice, Direct3DCreate9Ex != nullptr, pSwapChain, (void*&)pfnPresent, (void*&)pfnReset, (void*&)pfnPresentEx, (void*&)pfnSwapChainPresent);
 
                 dx9_hook = DX9_Hook::Inst();
                 dx9_hook->LibraryName = library_path;
@@ -1045,7 +1043,10 @@ public:
             std::lock_guard<std::mutex> lk(renderer_mutex);
             if (detection_done)
             {
-                return renderer_hook;
+                if (renderer_hook != nullptr)
+                    return renderer_hook;
+
+                detection_done = false;
             }
 
             if (CreateHWND() == nullptr)
@@ -1069,8 +1070,9 @@ public:
         auto start_time = std::chrono::steady_clock::now();
         do
         {
-            std::unique_lock<std::mutex> lck(destroy_render_thread_mutex);
-            if (force_stop_detection) break;
+            std::unique_lock<std::mutex> lck(stop_detection_mutex);
+            if (detection_done)
+                break;
 
             for (auto const& library : libraries)
             {
@@ -1083,9 +1085,7 @@ public:
                 }
             }
 
-            detect_renderer_thread_cv.wait_for(lck, std::chrono::milliseconds(100));
-            if (force_stop_detection) break;
-
+            stop_detection_cv.wait_for(lck, std::chrono::milliseconds{ 100 });
         } while (!detection_done && (timeout.count() == -1 || (std::chrono::steady_clock::now() - start_time) <= timeout));
 
         {
@@ -1093,18 +1093,37 @@ public:
             DestroyHWND();
 
             detection_done = true;
+            detection_hooks.UnhookAll();
+
+            dxgi_hooked = false;
+            dxgi1_2_hooked = false;
+            dx12_hooked = false;
+            dx11_hooked = false;
+            dx10_hooked = false;
+            dx9_hooked = false;
+            opengl_hooked = false;
+            vulkan_hooked = false;
+
             delete dx9_hook   ; dx9_hook    = nullptr;
             delete dx10_hook  ; dx10_hook   = nullptr;
             delete dx11_hook  ; dx11_hook   = nullptr;
             delete dx12_hook  ; dx12_hook   = nullptr;
             delete opengl_hook; opengl_hook = nullptr;
             delete vulkan_hook; vulkan_hook = nullptr;
-            detection_hooks.UnhookAll();
         }
 
         SPDLOG_TRACE("Renderer detection done {}.", (void*)renderer_hook);
 
         return renderer_hook;
+    }
+
+    void stop_detection()
+    {
+        {
+            System::scoped_lock lk(renderer_mutex, stop_detection_mutex);
+            detection_done = true;
+        }
+        stop_detection_cv.notify_all();
     }
 };
 
@@ -1158,6 +1177,8 @@ private:
     OpenGLX_Hook* openglx_hook;
 
     bool detection_done;
+    std::condition_variable stop_detection_cv;
+    std::mutex stop_detection_mutex;
 
     static void MyglXSwapBuffers(Display* dpy, GLXDrawable drawable)
     {
@@ -1231,7 +1252,12 @@ public:
         {
             std::lock_guard<std::mutex> lk(renderer_mutex);
             if (detection_done)
-                return renderer_hook;
+            {
+                if (renderer_hook != nullptr)
+                    return renderer_hook;
+
+                detection_done = false;
+            }
         }
 
         SPDLOG_TRACE("Started renderer detection.");
@@ -1239,6 +1265,10 @@ public:
         auto start_time = std::chrono::steady_clock::now();
         do
         {
+            std::unique_lock<std::mutex> lck(stop_detection_mutex);
+            if (detection_done)
+                break;
+
             for (auto const& library : libraries)
             {
                 void* lib_handle = System::Library::GetLibraryHandle(library.first);
@@ -1249,12 +1279,18 @@ public:
                     (this->*library.second)(lib_path);
                 }
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
+            
+            stop_detection_cv.wait_for(lck, std::chrono::milliseconds{ 100 });
         } while (!detection_done && (timeout.count() == -1 || (std::chrono::steady_clock::now() - start_time) <= timeout));
 
         {
             std::lock_guard<std::mutex> lk(renderer_mutex);
+            
             detection_done = true;
+            detection_hooks.UnhookAll();
+
+            openglx_hooked = false;
+
             delete openglx_hook; openglx_hook = nullptr;
             //delete vulkan_hook; vulkan_hook = nullptr;
         }
@@ -1262,6 +1298,15 @@ public:
         SPDLOG_TRACE("Renderer detection done {}.", (void*)renderer_hook);
 
         return renderer_hook;
+    }
+
+    void stop_detection()
+    {
+        {
+            System::scoped_lock lk(renderer_mutex, stop_detection_mutex);
+            detection_done = true;
+        }
+        stop_detection_cv.notify_all();
     }
 };
 
@@ -1311,6 +1356,8 @@ private:
    OpenGL_Hook* opengl_hook;
 
    bool detection_done;
+   std::condition_variable stop_detection_cv;
+   std::mutex stop_detection_mutex;
 
    static int64_t MyCGLFlushDrawable(CGLDrawable_t* glDrawable)
    {
@@ -1384,7 +1431,12 @@ public:
        {
            std::lock_guard<std::mutex> lk(renderer_mutex);
            if (detection_done)
-               return renderer_hook;
+           {
+               if (renderer_hook != nullptr)
+                   return renderer_hook;
+
+               detection_done = false;
+           }
        }
 
        SPDLOG_TRACE("Started renderer detection.");
@@ -1392,6 +1444,10 @@ public:
        auto start_time = std::chrono::steady_clock::now();
        do
        {
+           std::unique_lock<std::mutex> lck(stop_detection_mutex);
+           if (detection_done)
+               break;
+
            for (auto const& library : libraries)
            {
                void* lib_handle = System::Library::GetLibraryHandle(library.first);
@@ -1402,12 +1458,18 @@ public:
                    (this->*library.second)(lib_path);
                }
            }
-           std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
+           
+           stop_detection_cv.wait_for(lck, std::chrono::milliseconds{ 100 });
        } while (!detection_done && (timeout.count() == -1 || (std::chrono::steady_clock::now() - start_time) <= timeout));
 
        {
            std::lock_guard<std::mutex> lk(renderer_mutex);
+           
            detection_done = true;
+           detection_hooks.UnhookAll();
+
+           opengl_hooked = false;
+
            delete opengl_hook; opengl_hook = nullptr;
            //delete vulkan_hook; vulkan_hook = nullptr;
        }
@@ -1416,21 +1478,31 @@ public:
 
        return renderer_hook;
    }
+
+   void stop_detection()
+   {
+       {
+           System::scoped_lock lk(renderer_mutex, stop_detection_mutex);
+           detection_done = true;
+        }
+       stop_detection_cv.notify_all();
+    }
 };
 
 Renderer_Detector* Renderer_Detector::instance = nullptr;
 
 #endif
 
-std::future<Renderer_Hook*> detect_renderer(std::chrono::milliseconds timeout)
+namespace ingame_overlay {
+
+std::future<Renderer_Hook*> DetectRenderer(std::chrono::milliseconds timeout)
 {
     return std::async(std::launch::async, &Renderer_Detector::detect_renderer, Renderer_Detector::Inst(), timeout);
 }
 
-void stop_renderer_detector()
+void StopRendererDetection()
 {
-    Renderer_Detector::Inst()->destroy_render_thread_mutex.lock();
-    Renderer_Detector::Inst()->force_stop_detection = true;
-    Renderer_Detector::Inst()->destroy_render_thread_mutex.unlock();
-    Renderer_Detector::Inst()->detect_renderer_thread_cv.notify_all();
+    Renderer_Detector::Inst()->stop_detection();
+}
+
 }

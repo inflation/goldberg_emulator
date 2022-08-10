@@ -68,10 +68,10 @@ void OpenGL_Hook::_ResetRenderState()
         OverlayHookReady(false);
 
         ImGui_ImplOpenGL3_Shutdown();
-        Windows_Hook::Inst()->_ResetRenderState();
+        Windows_Hook::Inst()->ResetRenderState();
         ImGui::DestroyContext();
 
-        last_window = nullptr;
+        _LastWindow = nullptr;
         _Initialized = false;
     }
 }
@@ -81,7 +81,7 @@ void OpenGL_Hook::_PrepareForOverlay(HDC hDC)
 {
     HWND hWnd = WindowFromDC(hDC);
 
-    if (hWnd != last_window)
+    if (hWnd != _LastWindow)
         _ResetRenderState();
 
     if (!_Initialized)
@@ -89,12 +89,15 @@ void OpenGL_Hook::_PrepareForOverlay(HDC hDC)
         ImGui::CreateContext();
         ImGui_ImplOpenGL3_Init();
 
-        last_window = hWnd;
+        _LastWindow = hWnd;
+
+        Windows_Hook::Inst()->SetInitialWindowSize(hWnd);
+
         _Initialized = true;
         OverlayHookReady(true);
     }
 
-    if (ImGui_ImplOpenGL3_NewFrame() && Windows_Hook::Inst()->_PrepareForOverlay(hWnd))
+    if (ImGui_ImplOpenGL3_NewFrame() && Windows_Hook::Inst()->PrepareForOverlay(hWnd))
     {
         ImGui::NewFrame();
 
@@ -117,7 +120,7 @@ OpenGL_Hook::OpenGL_Hook():
     _Hooked(false),
     _WindowsHooked(false),
     _Initialized(false),
-    last_window(nullptr),
+    _LastWindow(nullptr),
     wglSwapBuffers(nullptr)
 {
 }

@@ -110,6 +110,8 @@ void OpenGLX_Hook::_PrepareForOverlay(Display* display, GLXDrawable drawable)
 
         _Display = display;
 
+        X11_Hook::Inst()->SetInitialWindowSize(_Display, (Window)drawable);
+
         _Initialized = true;
         OverlayHookReady(true);
     }

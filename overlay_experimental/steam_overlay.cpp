@@ -196,14 +196,14 @@ void Steam_Overlay::SetupOverlay()
     if (!setup_overlay_called)
     {
         setup_overlay_called = true;
-        future_renderer = detect_renderer();
+        future_renderer = ingame_overlay::DetectRenderer();
     }
 }
 
 
 void Steam_Overlay::UnSetupOverlay()
 {
-    stop_renderer_detector();
+    ingame_overlay::StopRendererDetection();
     if (!Ready() && future_renderer.valid()) {
         if (future_renderer.wait_for(std::chrono::milliseconds{500}) ==  std::future_status::ready) {
             future_renderer.get();

@@ -37,7 +37,7 @@ private:
     bool _Hooked;
     bool _WindowsHooked;
     bool _Initialized;
-    HWND last_window;
+    HWND _LastWindow;
     std::set<std::shared_ptr<uint64_t>> _ImageResources;
 
     // Functions

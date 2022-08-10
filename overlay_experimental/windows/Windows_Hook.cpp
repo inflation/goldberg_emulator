@@ -88,7 +88,7 @@ bool Windows_Hook::StartHook(std::function<bool(bool)>& _key_combination_callbac
     return true;
 }
 
-void Windows_Hook::_ResetRenderState()
+void Windows_Hook::ResetRenderState()
 {
     if (_Initialized)
     {
@@ -100,10 +100,17 @@ void Windows_Hook::_ResetRenderState()
     }
 }
 
-bool Windows_Hook::_PrepareForOverlay(HWND hWnd)
+void Windows_Hook::SetInitialWindowSize(HWND hWnd)
+{
+    RECT rect = { 0, 0, 0, 0 };
+    ::GetClientRect(hWnd, &rect);
+    ImGui::GetIO().DisplaySize = ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
+}
+
+bool Windows_Hook::PrepareForOverlay(HWND hWnd)
 {
     if (_GameHwnd != hWnd)
-        _ResetRenderState();
+        ResetRenderState();
 
     if (!_Initialized)
     {
@@ -374,7 +381,7 @@ Windows_Hook::~Windows_Hook()
 {
     SPDLOG_INFO("Windows Hook removed");
 
-    _ResetRenderState();
+    ResetRenderState();
 
     _inst = nullptr;
 }

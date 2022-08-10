@@ -137,7 +137,7 @@ void DX12_Hook::_ResetRenderState()
         OverlayHookReady(false);
 
         ImGui_ImplDX12_Shutdown();
-        Windows_Hook::Inst()->_ResetRenderState();
+        Windows_Hook::Inst()->ResetRenderState();
         ImGui::DestroyContext();
 
         OverlayFrames.clear();
@@ -271,11 +271,13 @@ void DX12_Hook::_PrepareForOverlay(IDXGISwapChain* pSwapChain, ID3D12CommandQueu
 			//heaps.cpu_handle,
             //heaps.gpu_handle);
         
+        Windows_Hook::Inst()->SetInitialWindowSize(sc_desc.OutputWindow);
+
         _Initialized = true;
         OverlayHookReady(true);
     }
 
-    if (ImGui_ImplDX12_NewFrame() && Windows_Hook::Inst()->_PrepareForOverlay(sc_desc.OutputWindow))
+    if (ImGui_ImplDX12_NewFrame() && Windows_Hook::Inst()->PrepareForOverlay(sc_desc.OutputWindow))
     {
         ImGui::NewFrame();
 

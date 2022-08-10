@@ -83,6 +83,18 @@ void X11_Hook::ResetRenderState()
     }
 }
 
+void X11_Hook::SetInitialWindowSize(Display* display, Window wnd)
+{
+    unsigned int width, height;
+    Window unused_window;
+    int unused_int;
+    unsigned int unused_unsigned_int;
+
+    XGetGeometry(display, wnd, &unused_window, &unused_int, &unused_int, &width, &height, &unused_unsigned_int, &unused_unsigned_int);
+
+    ImGui::GetIO().DisplaySize = ImVec2((float)width, (float)height);
+}
+
 bool X11_Hook::PrepareForOverlay(Display *display, Window wnd)
 {
     if(!_Hooked)

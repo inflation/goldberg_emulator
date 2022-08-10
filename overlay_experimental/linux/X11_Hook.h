@@ -60,6 +60,7 @@ public:
     virtual ~X11_Hook();
 
     void ResetRenderState();
+    void SetInitialWindowSize(Display* display, Window wnd);
     bool PrepareForOverlay(Display *display, Window wnd);
 
     Window GetGameWnd() const{ return _GameWnd; }
