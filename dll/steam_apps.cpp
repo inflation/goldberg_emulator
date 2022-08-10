@@ -173,6 +173,8 @@ void Steam_Apps::RequestAppProofOfPurchaseKey( AppId_t nAppID )
 bool Steam_Apps::GetCurrentBetaName( char *pchName, int cchNameBufferSize )
 {
     PRINT_DEBUG("GetCurrentBetaName %i\n", cchNameBufferSize);
+    if (!pchName) return false;
+
     if (sizeof("public") > cchNameBufferSize) {
         return false;
     }
