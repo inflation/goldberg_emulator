@@ -112,6 +112,7 @@ static void load_old_interface_versions()
     PRINT_DEBUG("networking: %s\n", old_networking);
     PRINT_DEBUG("html surface: %s\n", old_html_surface);
     PRINT_DEBUG("utils: %s\n", old_utils);
+    reset_LastError();
     loaded = true;
 }
 

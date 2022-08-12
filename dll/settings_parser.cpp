@@ -588,6 +588,7 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     *settings_server_out = settings_server;
     *local_storage_out = local_storage;
 
+    reset_LastError();
     return appid;
 }
 

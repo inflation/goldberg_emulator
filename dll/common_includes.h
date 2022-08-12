@@ -99,6 +99,11 @@ inline std::wstring utf8_decode(const std::string &str)
     return wstrTo;
 }
 
+inline void reset_LastError()
+{
+    SetLastError(0);
+}
+
 #elif defined(__LINUX__)
     #include <arpa/inet.h>
 
@@ -129,6 +134,7 @@ inline std::wstring utf8_decode(const std::string &str)
     #define PATH_SEPARATOR "/" 
 
     #define utf8_decode(a) a
+    #define reset_LastError()
 #endif
 //#define PRINT_DEBUG(...) fprintf(stdout, __VA_ARGS__)
 #ifdef EMU_RELEASE_BUILD
