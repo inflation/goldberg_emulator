@@ -346,7 +346,7 @@ static void ImGui_ImplDX10_CreateFontsTexture()
         desc.MipLODBias = 0.f;
         desc.ComparisonFunc = D3D10_COMPARISON_ALWAYS;
         desc.MinLOD = 0.f;
-        desc.MaxLOD = 0.f;
+        desc.MaxLOD = D3D10_FLOAT32_MAX;
         bd->pd3dDevice->CreateSamplerState(&desc, &bd->pFontSampler);
     }
 }
