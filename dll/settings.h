@@ -156,6 +156,9 @@ public:
     //app build id
     int build_id = 10;
 
+    //supported languages
+    std::set<std::string> supported_languages;
+
     //make lobby creation fail in the matchmaking interface
     bool disable_lobby_creation = false;
 

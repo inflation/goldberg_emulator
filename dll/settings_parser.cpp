@@ -260,6 +260,41 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
         local_storage->store_data_settings("user_steam_id.txt", temp_text, strlen(temp_text));
     }
 
+    std::set<std::string> supported_languages;
+
+    {
+        std::string lang_config_path = Local_Storage::get_game_settings_path() + "supported_languages.txt";
+        std::ifstream input( utf8_decode(lang_config_path) );
+
+        std::string first_language;
+        if (input.is_open()) {
+            consume_bom(input);
+            for( std::string line; getline( input, line ); ) {
+                if (!line.empty() && line[line.length()-1] == '\n') {
+                    line.pop_back();
+                }
+
+                if (!line.empty() && line[line.length()-1] == '\r') {
+                    line.pop_back();
+                }
+
+                try {
+                    std::string lang = line;
+                    if (!first_language.size()) first_language = lang;
+                    supported_languages.insert(lang);
+                    PRINT_DEBUG("Added supported_language %s\n", lang.c_str());
+                } catch (...) {}
+            }
+        }
+
+        if (!supported_languages.count(language)) {
+            if (first_language.size()) {
+                memset(language, 0, sizeof(language));
+                first_language.copy(language, sizeof(language) - 1);
+            }
+        }
+    }
+
     bool steam_offline_mode = false;
     bool disable_networking = false;
     bool disable_overlay = false;
@@ -336,6 +371,8 @@ uint32 create_localstorage_settings(Settings **settings_client_out, Settings **s
     settings_server->warn_forced = warn_forced;
     settings_client->warn_local_save = local_save;
     settings_server->warn_local_save = local_save;
+    settings_client->supported_languages = supported_languages;
+    settings_server->supported_languages = supported_languages;
 
     {
         std::string dlc_config_path = Local_Storage::get_game_settings_path() + "DLC.txt";

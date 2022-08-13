@@ -44,6 +44,10 @@ If the DLC file is present, the emulator will only unlock the DLCs in that file.
 The contents of this file are: appid=DLC name
 See the steam_settings.EXAMPLE folder for an example.
 
+Languages:
+You can include a steam_settings\supported_languages.txt file with a list of languages that the game supports. If the global emu language setting is not in this list of languages the emu will default to the first language in the list.
+See the steam_settings.EXAMPLE folder for an example.
+
 Depots:
 This is pretty rare but some games might use depot ids to see if dlcs are installed. You can provide a list of installed depots to the game with a steam_settings\depots.txt file.
 See the steam_settings.EXAMPLE folder for an example.
