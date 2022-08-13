@@ -228,11 +228,11 @@ for appid in appids:
         game_info_common = game_info["common"]
         if "community_visible_stats" in game_info_common:
             generate_achievement_stats(client, appid, out_dir, backup_dir)
-        if "languages" in game_info_common:
+        if "supported_languages" in game_info_common:
             with open(os.path.join(out_dir, "supported_languages.txt"), 'w') as f:
-                languages = game_info_common["languages"]
+                languages = game_info_common["supported_languages"]
                 for l in languages:
-                    if languages[l] != "0":
+                    if "supported" in languages[l] and languages[l]["supported"] == "true":
                         f.write("{}\n".format(l))
 
 
