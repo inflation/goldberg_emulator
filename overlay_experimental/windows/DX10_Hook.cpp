@@ -35,7 +35,7 @@ inline void SafeRelease(T*& pUnk)
     }
 }
 
-bool DX10_Hook::StartHook(std::function<bool(bool)> key_combination_callback)
+bool DX10_Hook::StartHook(std::function<bool(bool)> key_combination_callback, std::set<ingame_overlay::ToggleKey> toggle_keys)
 {
     if (!_Hooked)
     {
@@ -45,7 +45,7 @@ bool DX10_Hook::StartHook(std::function<bool(bool)> key_combination_callback)
             return false;
         }
 
-        if (!Windows_Hook::Inst()->StartHook(key_combination_callback))
+        if (!Windows_Hook::Inst()->StartHook(key_combination_callback, toggle_keys))
             return false;
 
         _WindowsHooked = true;

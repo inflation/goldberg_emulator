@@ -41,6 +41,12 @@ private:
     bool _Initialized;
     Window _GameWnd;
 
+    // In (bool): Is toggle wanted
+    // Out(bool): Is the overlay visible, if true, inputs will be disabled
+    std::function<bool(bool)> _KeyCombinationCallback;
+    std::set<uint32_t> _NativeKeyCombination;
+    bool _KeyCombinationPushed;
+
     // Functions
     X11_Hook();
     int _CheckForOverlay(Display *d, int num_events);
@@ -51,8 +57,6 @@ private:
 
     static int MyXEventsQueued(Display * display, int mode);
     static int MyXPending(Display* display);
-
-    std::function<bool(bool)> _KeyCombinationCallback;
 
 public:
     std::string LibraryName;
@@ -65,7 +69,7 @@ public:
 
     Window GetGameWnd() const{ return _GameWnd; }
 
-    bool StartHook(std::function<bool(bool)>& key_combination_callback);
+    bool StartHook(std::function<bool(bool)>& key_combination_callback, std::set<ingame_overlay::ToggleKey> const& toggle_keys);
     static X11_Hook* Inst();
     virtual std::string GetLibraryName() const;
 };

@@ -29,7 +29,7 @@ OpenGLX_Hook* OpenGLX_Hook::_inst = nullptr;
 
 constexpr decltype(OpenGLX_Hook::DLL_NAME) OpenGLX_Hook::DLL_NAME;
 
-bool OpenGLX_Hook::StartHook(std::function<bool(bool)> key_combination_callback)
+bool OpenGLX_Hook::StartHook(std::function<bool(bool)> key_combination_callback, std::set<ingame_overlay::ToggleKey> toggle_keys)
 {
     if (!_Hooked)
     {
@@ -39,7 +39,7 @@ bool OpenGLX_Hook::StartHook(std::function<bool(bool)> key_combination_callback)
             return false;
         }
 
-        if (!X11_Hook::Inst()->StartHook(key_combination_callback))
+        if (!X11_Hook::Inst()->StartHook(key_combination_callback, toggle_keys))
             return false;
 
         _X11Hooked = true;

@@ -123,8 +123,8 @@ class Steam_Overlay
 
     std::recursive_mutex overlay_mutex;
     std::atomic<bool> i_have_lobby;
-    std::future<Renderer_Hook*> future_renderer;
-    Renderer_Hook* _renderer;
+    std::future<ingame_overlay::Renderer_Hook*> future_renderer;
+    ingame_overlay::Renderer_Hook* _renderer;
 
     Steam_Overlay(Steam_Overlay const&) = delete;
     Steam_Overlay(Steam_Overlay&&) = delete;

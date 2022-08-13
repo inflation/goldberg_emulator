@@ -967,7 +967,8 @@ void Steam_Overlay::RunCallbacks()
             _renderer->OverlayProc = std::bind(&Steam_Overlay::OverlayProc, this);
             auto callback = std::bind(&Steam_Overlay::OpenOverlayHook, this, std::placeholders::_1);
             PRINT_DEBUG("start renderer\n", _renderer);
-            bool started = _renderer->StartHook(callback);
+            std::set<ingame_overlay::ToggleKey> keys = {ingame_overlay::ToggleKey::SHIFT, ingame_overlay::ToggleKey::TAB};
+            bool started = _renderer->StartHook(callback, keys);
             PRINT_DEBUG("tried to start renderer %u\n", started);
     }
 

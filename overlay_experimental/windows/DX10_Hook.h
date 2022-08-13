@@ -25,7 +25,7 @@
 #include <dxgi1_2.h>
 
 class DX10_Hook :
-    public Renderer_Hook,
+    public ingame_overlay::Renderer_Hook,
     public Base_Hook
 {
 public:
@@ -64,7 +64,7 @@ public:
 
     virtual ~DX10_Hook();
 
-    virtual bool StartHook(std::function<bool(bool)> key_combination_callback);
+    virtual bool StartHook(std::function<bool(bool)> key_combination_callback, std::set<ingame_overlay::ToggleKey> toggle_keys);
     virtual bool IsStarted();
     static DX10_Hook* Inst();
     virtual std::string GetLibraryName() const;

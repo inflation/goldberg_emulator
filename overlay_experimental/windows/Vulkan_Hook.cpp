@@ -25,7 +25,7 @@
 
 Vulkan_Hook* Vulkan_Hook::_inst = nullptr;
 
-bool Vulkan_Hook::StartHook(std::function<bool(bool)> key_combination_callback)
+bool Vulkan_Hook::StartHook(std::function<bool(bool)> key_combination_callback, std::set<ingame_overlay::ToggleKey> toggle_keys)
 {
     SPDLOG_WARN("Vulkan overlay is not yet supported.");
     return false;
@@ -37,7 +37,7 @@ bool Vulkan_Hook::StartHook(std::function<bool(bool)> key_combination_callback)
             return false;
         }
 
-        if (!Windows_Hook::Inst()->StartHook(key_combination_callback))
+        if (!Windows_Hook::Inst()->StartHook(key_combination_callback, toggle_keys))
             return false;
 
         _WindowsHooked = true;

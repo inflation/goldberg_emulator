@@ -29,10 +29,62 @@ constexpr decltype(X11_Hook::DLL_NAME) X11_Hook::DLL_NAME;
 
 X11_Hook* X11_Hook::_inst = nullptr;
 
-bool X11_Hook::StartHook(std::function<bool(bool)>& _key_combination_callback)
+uint32_t ToggleKeyToNativeKey(ingame_overlay::ToggleKey k)
+{
+    struct {
+        ingame_overlay::ToggleKey lib_key;
+        uint32_t native_key;
+    } mapping[] = {
+        { ingame_overlay::ToggleKey::ALT  , XK_Alt_L     },
+        { ingame_overlay::ToggleKey::CTRL , XK_Control_L },
+        { ingame_overlay::ToggleKey::SHIFT, XK_Shift_L   },
+        { ingame_overlay::ToggleKey::TAB  , XK_Tab       },
+        { ingame_overlay::ToggleKey::F1   , XK_F1        },
+        { ingame_overlay::ToggleKey::F2   , XK_F2        },
+        { ingame_overlay::ToggleKey::F3   , XK_F3        },
+        { ingame_overlay::ToggleKey::F4   , XK_F4        },
+        { ingame_overlay::ToggleKey::F5   , XK_F5        },
+        { ingame_overlay::ToggleKey::F6   , XK_F6        },
+        { ingame_overlay::ToggleKey::F7   , XK_F7        },
+        { ingame_overlay::ToggleKey::F8   , XK_F8        },
+        { ingame_overlay::ToggleKey::F9   , XK_F9        },
+        { ingame_overlay::ToggleKey::F10  , XK_F10       },
+        { ingame_overlay::ToggleKey::F11  , XK_F11       },
+        { ingame_overlay::ToggleKey::F12  , XK_F12       },
+    };
+
+    for (auto const& item : mapping)
+    {
+        if (item.lib_key == k)
+            return item.native_key;
+    }
+
+    return 0;
+}
+
+bool GetKeyState(Display* d, KeySym keySym, char szKey[32])
+{
+    int iKeyCodeToFind = XKeysymToKeycode(d, keySym);
+
+    return szKey[iKeyCodeToFind / 8] & (1 << (iKeyCodeToFind % 8));
+}
+
+bool X11_Hook::StartHook(std::function<bool(bool)>& _key_combination_callback, std::set<ingame_overlay::ToggleKey> const& toggle_keys)
 {
     if (!_Hooked)
     {
+        if (!_key_combination_callback)
+        {
+            SPDLOG_ERROR("Failed to hook X11: No key combination callback.");
+            return false;
+        }
+
+        if (toggle_keys.empty())
+        {
+            SPDLOG_ERROR("Failed to hook X11: No key combination.");
+            return false;
+        }
+
         void* hX11 = System::Library::GetLibraryHandle(DLL_NAME);
         if (hX11 == nullptr)
         {
@@ -60,6 +112,16 @@ bool X11_Hook::StartHook(std::function<bool(bool)>& _key_combination_callback)
         SPDLOG_INFO("Hooked X11");
 
         _KeyCombinationCallback = std::move(_key_combination_callback);
+        
+        for (auto& key : toggle_keys)
+        {
+            uint32_t k = ToggleKeyToNativeKey(key);
+            if (k != 0)
+            {
+                _NativeKeyCombination.insert(k);
+            }
+        }
+
         _Hooked = true;
 
         UnhookAll();
@@ -140,33 +202,47 @@ int X11_Hook::_CheckForOverlay(Display *d, int num_events)
     static Time prev_time = {};
     X11_Hook* inst = Inst();
 
-    if( inst->_Initialized )
+    char szKey[32];
+
+    if( _Initialized )
     {
         XEvent event;
         while(num_events)
         {
-            bool skip_input = inst->_KeyCombinationCallback(false);
+            bool skip_input = _KeyCombinationCallback(false);
 
             XPeekEvent(d, &event);
             ImGui_ImplX11_EventHandler(event);
 
             // Is the event is a key press
-            if (event.type == KeyPress)
+            if (event.type == KeyPress || event.type == KeyRelease)
             {
-                // Tab is pressed and was not pressed before
-                if (event.xkey.keycode == XKeysymToKeycode(d, XK_Tab) && event.xkey.state & ShiftMask)
+                XQueryKeymap(d, szKey);
+                int key_count = 0;
+                for (auto const& key : inst->_NativeKeyCombination)
                 {
-                    // if key TAB is held, don't make the overlay flicker :p
-                    if (event.xkey.time != prev_time)
+                    if (GetKeyState(d, key, szKey))
+                        ++key_count;
+                }
+
+                if (key_count == inst->_NativeKeyCombination.size())
+                {// All shortcut keys are pressed
+                    if (!inst->_KeyCombinationPushed)
                     {
-                        skip_input = true;
-                        inst->_KeyCombinationCallback(true);
+                        if (inst->_KeyCombinationCallback(true))
+                        {
+                            skip_input = true;
+                            // Save the last known cursor pos when opening the overlay
+                            // so we can spoof the GetCursorPos return value.
+                            //inst->GetCursorPos(&inst->_SavedCursorPos);
+                        }
+                        inst->_KeyCombinationPushed = true;
                     }
                 }
-            }
-            else if(event.type == KeyRelease && event.xkey.keycode == XKeysymToKeycode(d, XK_Tab))
-            {
-                prev_time = event.xkey.time;
+                else
+                {
+                    inst->_KeyCombinationPushed = false;
+                }
             }
 
             if (!skip_input || !IgnoreEvent(event))
@@ -215,6 +291,7 @@ X11_Hook::X11_Hook() :
     _Initialized(false),
     _Hooked(false),
     _GameWnd(0),
+    _KeyCombinationPushed(false),
     XEventsQueued(nullptr),
     XPending(nullptr)
 {
@@ -241,3 +318,4 @@ std::string X11_Hook::GetLibraryName() const
 {
     return LibraryName;
 }
+
