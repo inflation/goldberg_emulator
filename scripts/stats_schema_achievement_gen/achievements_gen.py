@@ -75,7 +75,7 @@ def generate_stats_achievements(schema, config_directory):
     with open(os.path.join(config_directory, "stats.txt"), 'w') as f:
         f.write(output_stats)
 
-    return (output_ach, output_stats)
+    return (achievements_out, stats_out)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

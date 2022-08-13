@@ -17,6 +17,9 @@ import os
 import sys
 import json
 import urllib.request
+import urllib.error
+import threading
+import queue
 
 prompt_for_unavailable = True
 
@@ -82,7 +85,49 @@ def get_stats_schema(client, game_id, owner_id):
     client.send(message)
     return client.wait_msg(EMsg.ClientGetUserStatsResponse, timeout=5)
 
+def download_achievement_images(game_id, image_names, output_folder):
+    q = queue.Queue()
+
+    def downloader_thread():
+        while True:
+            name = q.get()
+            succeeded = False
+            if name is None:
+                q.task_done()
+                return
+            for u in ["https://cdn.akamai.steamstatic.com/steamcommunity/public/images/apps/", "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/apps/"]:
+                url = "{}{}/{}".format(u, game_id, name)
+                try:
+                    with urllib.request.urlopen(url) as response:
+                        image_data = response.read()
+                        with open(os.path.join(output_folder, name), "wb") as f:
+                            f.write(image_data)
+                        succeeded = True
+                        break
+                except urllib.error.HTTPError as e:
+                    print("HTTPError downloading", url, e.code)
+                except urllib.error.URLError as e:
+                    print("URLError downloading", url, e.code)
+            if not succeeded:
+                print("error could not download", name)
+            q.task_done()
+
+    num_threads = 5
+    for i in range(num_threads):
+        threading.Thread(target=downloader_thread, daemon=True).start()
+
+    for name in image_names:
+        q.put(name)
+    q.join()
+
+    for i in range(num_threads):
+        q.put(None)
+    q.join()
+
+
 def generate_achievement_stats(client, game_id, output_directory, backup_directory):
+    achievement_images_dir = os.path.join(output_directory, "achievement_images")
+    images_to_download = []
     steam_id_list = TOP_OWNER_IDS + [client.steam_id]
     for x in steam_id_list:
         out = get_stats_schema(client, game_id, x)
@@ -91,9 +136,19 @@ def generate_achievement_stats(client, game_id, output_directory, backup_directo
                 with open(os.path.join(backup_directory, 'UserGameStatsSchema_{}.bin'.format(appid)), 'wb') as f:
                     f.write(out.body.schema)
                 achievements, stats = achievements_gen.generate_stats_achievements(out.body.schema, output_directory)
-                return
+                for ach in achievements:
+                    if "icon" in ach:
+                        images_to_download.append(ach["icon"])
+                    if "icon_gray" in ach:
+                        images_to_download.append(ach["icon_gray"])
+                break
             else:
                 print("no schema", out)
+
+    if (len(images_to_download) > 0):
+        if not os.path.exists(achievement_images_dir):
+            os.makedirs(achievement_images_dir)
+        download_achievement_images(game_id, images_to_download, achievement_images_dir)
 
 def get_ugc_info(client, published_file_id):
     return client.send_um_and_wait('PublishedFile.GetDetails#1', {
@@ -173,6 +228,13 @@ for appid in appids:
         game_info_common = game_info["common"]
         if "community_visible_stats" in game_info_common:
             generate_achievement_stats(client, appid, out_dir, backup_dir)
+        if "languages" in game_info_common:
+            with open(os.path.join(out_dir, "supported_languages.txt"), 'w') as f:
+                languages = game_info_common["languages"]
+                for l in languages:
+                    if languages[l] != "0":
+                        f.write("{}\n".format(l))
+
 
     with open(os.path.join(out_dir, "steam_appid.txt"), 'w') as f:
         f.write(str(appid))
@@ -187,6 +249,7 @@ for appid in appids:
 
     dlc_config_list = []
     dlc_list, depot_app_list = get_dlc(game_info)
+    dlc_infos_backup = ""
     if (len(dlc_list) > 0):
         dlc_raw = client.get_product_info(apps=dlc_list)["apps"]
         for dlc in dlc_raw:
@@ -194,6 +257,7 @@ for appid in appids:
                 dlc_config_list.append((dlc, dlc_raw[dlc]["common"]["name"]))
             except:
                 dlc_config_list.append((dlc, None))
+        dlc_infos_backup = json.dumps(dlc_raw, indent=4)
 
     with open(os.path.join(out_dir, "DLC.txt"), 'w', encoding="utf-8") as f:
         for x in dlc_config_list:
@@ -218,7 +282,21 @@ for appid in appids:
                     if (controller_type in ["controller_xbox360", "controller_xboxone"] and (("default" in enabled_branches) or ("public" in enabled_branches))):
                         parse_controller_vdf.generate_controller_config(out_vdf.decode('utf-8'), os.path.join(out_dir, "controller"))
                         config_generated = True
+        if "steamcontrollertouchconfigdetails" in game_info["config"]:
+            controller_details = game_info["config"]["steamcontrollertouchconfigdetails"]
+            for id in controller_details:
+                details = controller_details[id]
+                controller_type = ""
+                enabled_branches = ""
+                if "controller_type" in details:
+                    controller_type = details["controller_type"]
+                if "enabled_branches" in details:
+                    enabled_branches = details["enabled_branches"]
+                print(id, controller_type)
+                out_vdf = download_published_file(client, int(id), os.path.join(backup_dir, controller_type + str(id)))
 
     game_info_backup = json.dumps(game_info, indent=4)
     with open(os.path.join(backup_dir, "product_info.json"), "w") as f:
         f.write(game_info_backup)
+    with open(os.path.join(backup_dir, "dlc_product_info.json"), "w") as f:
+        f.write(dlc_infos_backup)
