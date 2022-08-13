@@ -129,23 +129,23 @@ STEAMAPI_API ISteamClient *g_pSteamClientGameServer;
 ISteamClient *g_pSteamClientGameServer;
 #endif
 
-static Steam_Client *client;
+static Steam_Client *steamclient_instance;
 Steam_Client *get_steam_client()
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    if (!client) {
-        client = new Steam_Client();
+    if (!steamclient_instance) {
+        steamclient_instance = new Steam_Client();
     }
 
-    return client;
+    return steamclient_instance;
 }
 
 void destroy_client()
 {
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
-    if (client) {
-        delete client;
-        client = NULL;
+    if (steamclient_instance) {
+        delete steamclient_instance;
+        steamclient_instance = NULL;
     }
 }
 
@@ -416,6 +416,7 @@ STEAMAPI_API void S_CALLTYPE SteamAPI_UnregisterCallback( class CCallbackBase *p
 {
     PRINT_DEBUG("SteamAPI_UnregisterCallback %p\n", pCallback);
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
+    if (!steamclient_instance) return;
     get_steam_client()->UnregisterCallback(pCallback);
 }
 
@@ -435,6 +436,7 @@ STEAMAPI_API void S_CALLTYPE SteamAPI_UnregisterCallResult( class CCallbackBase 
     if (!hAPICall)
         return;
 
+    if (!steamclient_instance) return;
     get_steam_client()->UnregisterCallResult(pCallback, hAPICall);
 }
 
