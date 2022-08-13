@@ -213,6 +213,7 @@ void Steam_Overlay::UnSetupOverlay()
 
 void Steam_Overlay::HookReady(bool ready)
 {
+    PRINT_DEBUG("%s %u\n", __FUNCTION__, ready);
     {
         // TODO: Uncomment this and draw our own cursor (cosmetics)
         ImGuiIO &io = ImGui::GetIO();
@@ -223,9 +224,6 @@ void Steam_Overlay::HookReady(bool ready)
         io.IniFilename = NULL;
 
         is_ready = ready;
-        if (is_ready) {
-            CreateFonts();
-        }
     }
 }
 
@@ -710,18 +708,64 @@ void Steam_Overlay::BuildNotifications(int width, int height)
 
 void Steam_Overlay::CreateFonts()
 {
+    //TODO: remove from dx_whatever hook
+    if(ImGui::GetCurrentContext() == nullptr)
+        ImGui::CreateContext();
+
     ImGuiIO& io = ImGui::GetIO();
     ImFontConfig fontcfg;
 
+    float font_size = 16.0;
     fontcfg.OversampleH = fontcfg.OversampleV = 1;
     fontcfg.PixelSnapH = true;
-    fontcfg.GlyphRanges = io.Fonts->GetGlyphRangesDefault();
+    fontcfg.SizePixels = font_size;
 
-    font_default = io.Fonts->AddFontDefault(&fontcfg);
-    font_notif = io.Fonts->AddFontDefault(&fontcfg);
+    ImFontGlyphRangesBuilder font_builder;
+    for (auto & x : achievements) {
+        font_builder.AddText(x.title.c_str());
+        font_builder.AddText(x.description.c_str());
+    }
+
+    font_builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+
+    ImVector<ImWchar> ranges;
+    font_builder.BuildRanges(&ranges);
+
+    bool need_extra_fonts = false;
+    for (auto &x : ranges) {
+        if (x > 0xFF) {
+            need_extra_fonts = true;
+            break;
+        }
+    }
+
+    fontcfg.GlyphRanges = ranges.Data;
+    ImFont *font = NULL;
+
+#if defined(__WINDOWS__)
+    font = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\micross.ttf", font_size, &fontcfg);
+#endif
+
+    if (!font) {
+        font = io.Fonts->AddFontDefault(&fontcfg);
+    }
+
+    font_notif = font_default = font;
+
+    if (need_extra_fonts) {
+        PRINT_DEBUG("loading extra fonts\n");
+        fontcfg.MergeMode = true;
+#if defined(__WINDOWS__)
+        io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\simsun.ttc", font_size, &fontcfg);
+        io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", font_size, &fontcfg);
+#endif
+    }
+
+    io.Fonts->Build();
 
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowRounding = 0.0; // Disable round window
+    reset_LastError();
 }
 
 // Try to make this function as short as possible or it might affect game's fps.
@@ -893,7 +937,7 @@ void Steam_Overlay::OverlayProc()
 
             bool show_warning = local_save || warning_forced || appid == 0;
             if (show_warning) {
-                ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetFontSize() * 64, ImGui::GetFontSize() * 64), ImVec2(8192, 8192));
+                ImGui::SetNextWindowSizeConstraints(ImVec2(ImGui::GetFontSize() * 32, ImGui::GetFontSize() * 32), ImVec2(8192, 8192));
                 ImGui::SetNextWindowFocus();
                 if (ImGui::Begin("WARNING", &show_warning)) {
                     if (appid == 0) {
@@ -955,10 +999,45 @@ void Steam_Overlay::Callback(Common_Message *msg)
 
 void Steam_Overlay::RunCallbacks()
 {
+    if (!achievements.size()) {
+        Steam_User_Stats* steamUserStats = get_steam_client()->steam_user_stats;
+        uint32 achievements_num = steamUserStats->GetNumAchievements();
+        if (achievements_num) {
+            PRINT_DEBUG("POPULATE OVERLAY ACHIEVEMENTS\n");
+            for (unsigned i = 0; i < achievements_num; ++i) {
+                Overlay_Achievement ach;
+                ach.name = steamUserStats->GetAchievementName(i);
+                ach.title = steamUserStats->GetAchievementDisplayAttribute(ach.name.c_str(), "name");
+                ach.description = steamUserStats->GetAchievementDisplayAttribute(ach.name.c_str(), "desc");
+                const char *hidden = steamUserStats->GetAchievementDisplayAttribute(ach.name.c_str(), "hidden");
+                if (strlen(hidden) && hidden[0] == '1') {
+                    ach.hidden = true;
+                } else {
+                    ach.hidden = false;
+                }
+
+                bool achieved = false;
+                uint32 unlock_time = 0;
+                if (steamUserStats->GetAchievementAndUnlockTime(ach.name.c_str(), &achieved, &unlock_time)) {
+                    ach.achieved = achieved;
+                    ach.unlock_time = unlock_time;
+                } else {
+                    ach.achieved = false;
+                    ach.unlock_time = 0;
+                }
+
+                achievements.push_back(ach);
+            }
+
+            PRINT_DEBUG("POPULATE OVERLAY ACHIEVEMENTS DONE\n");
+        }
+    }
+
     if (!Ready() && future_renderer.valid()) {
         if (future_renderer.wait_for(std::chrono::milliseconds{0}) ==  std::future_status::ready) {
             _renderer = future_renderer.get();
             PRINT_DEBUG("got renderer %p\n", _renderer);
+            CreateFonts();
         }
     }
 
@@ -1094,40 +1173,6 @@ void Steam_Overlay::RunCallbacks()
             }
         }
         has_friend_action.pop();
-    }
-
-    if (!achievements.size()) {
-        Steam_User_Stats* steamUserStats = get_steam_client()->steam_user_stats;
-        uint32 achievements_num = steamUserStats->GetNumAchievements();
-        if (achievements_num) {
-            PRINT_DEBUG("POPULATE OVERLAY ACHIEVEMENTS\n");
-            for (unsigned i = 0; i < achievements_num; ++i) {
-                Overlay_Achievement ach;
-                ach.name = steamUserStats->GetAchievementName(i);
-                ach.title = steamUserStats->GetAchievementDisplayAttribute(ach.name.c_str(), "name");
-                ach.description = steamUserStats->GetAchievementDisplayAttribute(ach.name.c_str(), "desc");
-                const char *hidden = steamUserStats->GetAchievementDisplayAttribute(ach.name.c_str(), "hidden");
-                if (strlen(hidden) && hidden[0] == '1') {
-                    ach.hidden = true;
-                } else {
-                    ach.hidden = false;
-                }
-
-                bool achieved = false;
-                uint32 unlock_time = 0;
-                if (steamUserStats->GetAchievementAndUnlockTime(ach.name.c_str(), &achieved, &unlock_time)) {
-                    ach.achieved = achieved;
-                    ach.unlock_time = unlock_time;
-                } else {
-                    ach.achieved = false;
-                    ach.unlock_time = 0;
-                }
-
-                achievements.push_back(ach);
-            }
-
-            PRINT_DEBUG("POPULATE OVERLAY ACHIEVEMENTS DONE\n");
-        }
     }
 }
 
