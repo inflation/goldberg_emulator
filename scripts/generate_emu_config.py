@@ -112,7 +112,7 @@ def download_achievement_images(game_id, image_names, output_folder):
                 print("error could not download", name)
             q.task_done()
 
-    num_threads = 5
+    num_threads = 20
     for i in range(num_threads):
         threading.Thread(target=downloader_thread, daemon=True).start()
 
@@ -143,7 +143,8 @@ def generate_achievement_stats(client, game_id, output_directory, backup_directo
                         images_to_download.append(ach["icon_gray"])
                 break
             else:
-                print("no schema", out)
+                pass
+                # print("no schema", out)
 
     if (len(images_to_download) > 0):
         if not os.path.exists(achievement_images_dir):
@@ -189,6 +190,26 @@ def download_published_file(client, published_file_id, backup_directory):
         return data
     return None
 
+def get_inventory_info(client, game_id):
+    return client.send_um_and_wait('Inventory.GetItemDefMeta#1', {
+            'appid': game_id
+        })
+
+def generate_inventory(client, game_id):
+    inventory = get_inventory_info(client, appid)
+    if inventory.header.eresult != EResult.OK:
+        return None
+
+    url = "https://api.steampowered.com/IGameInventory/GetItemDefArchive/v0001?appid={}&digest={}".format(game_id, inventory.body.digest)
+    try:
+        with urllib.request.urlopen(url) as response:
+            return response.read()
+    except urllib.error.HTTPError as e:
+        print("HTTPError getting", url, e.code)
+    except urllib.error.URLError as e:
+        print("URLError getting", url, e.code)
+    return None
+
 def get_dlc(raw_infos):
     try:
         try:
@@ -226,8 +247,8 @@ for appid in appids:
 
     if "common" in game_info:
         game_info_common = game_info["common"]
-        if "community_visible_stats" in game_info_common:
-            generate_achievement_stats(client, appid, out_dir, backup_dir)
+        #if "community_visible_stats" in game_info_common: #NOTE: checking this seems to skip stats on a few games so it's commented out
+        generate_achievement_stats(client, appid, out_dir, backup_dir)
         if "supported_languages" in game_info_common:
             with open(os.path.join(out_dir, "supported_languages.txt"), 'w') as f:
                 languages = game_info_common["supported_languages"]
@@ -294,6 +315,34 @@ for appid in appids:
                     enabled_branches = details["enabled_branches"]
                 print(id, controller_type)
                 out_vdf = download_published_file(client, int(id), os.path.join(backup_dir, controller_type + str(id)))
+
+    inventory_data = generate_inventory(client, appid)
+    if inventory_data is not None:
+        out_inventory = {}
+        default_items = {}
+        inventory = json.loads(inventory_data.rstrip(b"\x00"))
+        raw_inventory = json.dumps(inventory, indent=4)
+        with open(os.path.join(backup_dir, "inventory.json"), "w") as f:
+            f.write(raw_inventory)
+        for i in inventory:
+            index = str(i["itemdefid"])
+            x = {}
+            for t in i:
+                if i[t] is True:
+                    x[t] = "true"
+                elif i[t] is False:
+                    x[t] = "false"
+                else:
+                    x[t] = str(i[t])
+            out_inventory[index] = x
+            default_items[index] = 1
+
+        out_json_inventory = json.dumps(out_inventory, indent=2)
+        with open(os.path.join(out_dir, "items.json"), "w") as f:
+            f.write(out_json_inventory)
+        out_json_inventory = json.dumps(default_items, indent=2)
+        with open(os.path.join(out_dir, "default_items.json"), "w") as f:
+            f.write(out_json_inventory)
 
     game_info_backup = json.dumps(game_info, indent=4)
     with open(os.path.join(backup_dir, "product_info.json"), "w") as f:
