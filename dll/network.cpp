@@ -122,7 +122,7 @@ static void get_broadcast_info(uint16 port)
     }
 }
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__APPLE__)
 
 static void get_broadcast_info(uint16 port)
 {

@@ -201,6 +201,14 @@ std::string get_lib_path() {
 
   return ".";
 }
+#elif __APPLE__
+std::string get_lib_path() {
+  std::string library_path = "./";
+  Dl_info infos;
+  dladdr((void *)&get_lib_path, &infos);
+  library_path = infos.dli_fname;
+  return library_path;
+}
 #endif
 
 std::string get_full_lib_path()
@@ -237,8 +245,10 @@ std::string get_current_path()
     std::string path;
 #if defined(STEAM_WIN32)
     char *buffer = _getcwd( NULL, 0 );
-#else
+#elif __LINUX__
     char *buffer = get_current_dir_name();
+#else
+    char *buffer = getcwd(NULL, 0);
 #endif
     if (buffer) {
         path = buffer;
@@ -258,11 +268,18 @@ std::string canonical_path(std::string path)
         output = utf8_encode(buffer);
         free(buffer);
     }
-#else
+#elif defined (__LINUX__)
     char *buffer = canonicalize_file_name(path.c_str());
     if (buffer) {
         output = buffer;
         free(buffer);
+    }
+#else
+    char *resolved_name = (char *)malloc(1024);
+    char *buffer = realpath(path.c_str(), resolved_name);
+    if (buffer) {
+      output = buffer;
+      free(buffer);
     }
 #endif
 

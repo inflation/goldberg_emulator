@@ -31,6 +31,17 @@
 #define PATH_SEPARATOR_CHAR '/'
 #define STEAM_PATH_CACHE_SIZE 4096
 
+#ifdef __APPLE__
+#define dirent64 dirent
+#define readdir64 readdir
+#define fopen64 fopen
+#define scandir64 scandir
+#define open64 open
+#define statvfs64 statvfs
+#define __wrap___xstat64 __wrap___xstat
+#define __wrap___lxstat64 __wrap___lxstat
+#endif
+
 const char *STEAM_PATH;
 size_t STEAM_PATH_SIZE;
 
@@ -290,7 +301,11 @@ STEAMAPI_API int __wrap_access(const char *path, int mode)
 STEAMAPI_API int __wrap___xstat(int ver, const char * path, struct stat * stat_buf)
 {
     const char *path_lowercased = lowercase_path(path, false, false);
+    #ifdef __APPLE__
+    int result = stat(path_lowercased, stat_buf);
+    #else
     int result = __xstat(ver, path_lowercased, stat_buf);
+    #endif
     if (path_lowercased != path) {
         free((void *)path_lowercased);
     }
@@ -305,7 +320,11 @@ STEAMAPI_API int __wrap_stat(const char * path, struct stat * stat_buf)
 STEAMAPI_API int __wrap___lxstat(int ver, const char * path, struct stat * stat_buf)
 {
     const char *path_lowercased = lowercase_path(path, false, false);
+    #ifdef __APPLE__
+    int result = lstat(path_lowercased, stat_buf);
+    #else
     int result = __lxstat(ver, path_lowercased, stat_buf);
+    #endif
     if (path_lowercased != path) {
         free((void *)path_lowercased);
     }
@@ -347,6 +366,7 @@ STEAMAPI_API DIR *__wrap_opendir(const char *path)
     return result;
 }
 
+#ifndef __APPLE__
 STEAMAPI_API int __wrap___xstat64(int ver, const char *path, struct stat64 *stat_buf)
 {
     const char *path_lowercased = lowercase_path(path, false, false);
@@ -356,7 +376,9 @@ STEAMAPI_API int __wrap___xstat64(int ver, const char *path, struct stat64 *stat
     }
     return result;
 }
+#endif
 
+#ifndef __APPLE__
 STEAMAPI_API int __wrap___lxstat64(int ver, const char *path, struct stat64 *stat_buf)
 {
     const char *path_lowercased = lowercase_path(path, false, false);
@@ -366,6 +388,7 @@ STEAMAPI_API int __wrap___lxstat64(int ver, const char *path, struct stat64 *sta
     }
     return result;
 }
+#endif
 
 STEAMAPI_API int __wrap_statvfs(const char *path, struct statvfs *buf)
 {
@@ -448,7 +471,11 @@ STEAMAPI_API int __wrap_link(const char *path1, const char *path2)
 STEAMAPI_API int __wrap_mknod(const char *path, mode_t mode, dev_t dev)
 {
     const char *path_lowercased = lowercase_path(path, true, true);
+    #ifdef __APPLE__
+    int result = mknod(path_lowercased, mode, dev);
+    #else
     int result = __xmknod(1, path_lowercased, mode, &dev);
+    #endif
     if (path_lowercased != path) {
         free((void *)path_lowercased);
     }
@@ -459,7 +486,11 @@ STEAMAPI_API int __wrap_mount(const char *source, const char *target, const char
 {
     const char *source_lowercased = lowercase_path(source, false, false);
     const char *target_lowercased = lowercase_path(target, false, false);
+    #ifdef __APPLE__
+    int result = mount(source_lowercased, target_lowercased, mountflags, (void *)data);
+    #else
     int result = mount(source_lowercased, target_lowercased, filesystemtype, mountflags, data);
+    #endif
     if (source_lowercased != source) {
         free((void *)source_lowercased);
     }
@@ -553,6 +584,8 @@ STEAMAPI_API void *__wrap_dlopen(const char *path, int mode)
     return result;
 }
 
+#ifdef __APPLE__
+#else
 STEAMAPI_API void *__wrap_dlmopen(Lmid_t lmid, const char *path, int flags)
 {
     const char *path_lowercased = lowercase_path(path, false, false);
@@ -562,5 +595,6 @@ STEAMAPI_API void *__wrap_dlmopen(Lmid_t lmid, const char *path, int flags)
     }
     return result;
 }
+#endif
 
 #endif
