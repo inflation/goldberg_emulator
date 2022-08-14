@@ -104,7 +104,7 @@ inline void reset_LastError()
     SetLastError(0);
 }
 
-#elif defined(__LINUX__)
+#elif defined(__LINUX__) || defined(__APPLE__)
     #include <arpa/inet.h>
 
     #include <sys/types.h>
@@ -117,7 +117,11 @@ inline void reset_LastError()
     #include <sys/time.h>
 
     #include <netinet/in.h>
+    #ifdef __LINUX__
     #include <linux/netdevice.h>
+    #else
+    #include <net/if.h>
+    #endif
 
     #include <fcntl.h>
     #include <unistd.h>
