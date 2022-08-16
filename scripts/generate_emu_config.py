@@ -183,12 +183,17 @@ def download_published_file(client, published_file_id, backup_directory):
     with open(os.path.join(backup_directory, "info.txt"), "w") as f:
         f.write(str(ugc_info.body))
 
-    with urllib.request.urlopen(file_details.file_url) as response:
-        data = response.read()
-        with open(os.path.join(backup_directory, file_details.filename.replace("/", "_").replace("\\", "_")), "wb") as f:
-            f.write(data)
-        return data
-    return None
+    if len(file_details.file_url) > 0:
+        with urllib.request.urlopen(file_details.file_url) as response:
+            data = response.read()
+            with open(os.path.join(backup_directory, file_details.filename.replace("/", "_").replace("\\", "_")), "wb") as f:
+                f.write(data)
+            return data
+        return None
+    else:
+        print("Could not download file", published_file_id, "no url (you can ignore this if the game doesn't need a controller config)")
+        return None
+
 
 def get_inventory_info(client, game_id):
     return client.send_um_and_wait('Inventory.GetItemDefMeta#1', {
