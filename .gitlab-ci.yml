@@ -59,7 +59,7 @@ build_windows:
   image: fedora:35
 
   script:
-      - dnf -y install wine wget p7zip sed dos2unix
+      - dnf -y install wine wget p7zip sed dos2unix python
       - unix2dos *.txt
       - unix2dos files_example/*.txt files_example/*/*.txt
       - sed -i 's/..\\vcpkg\\installed\\/.\\protobuf_/g' build_set_protobuf_directories.bat
