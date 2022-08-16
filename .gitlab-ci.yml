@@ -69,27 +69,9 @@ build_windows:
       - 7za x protobuf_x86-windows-static.7z -oprotobuf_x86-windows-static
       - 7za x protobuf_x64-windows-static.7z -oprotobuf_x64-windows-static
       - 7za x sdk_standalone.7z -osdk_standalone
-      - DLL_FILES="$(ls dll/*.cpp | tr "\n" " ")"; sed "s|dll/\*.cpp|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls detours/*.cpp | tr "\n" " ")"; sed "s|detours/\*.cpp|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls overlay_experimental/*.cpp | tr "\n" " ")"; sed "s|overlay_experimental/\*.cpp|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls overlay_experimental/windows/*.cpp | tr "\n" " ")"; sed "s|overlay_experimental/windows/\*.cpp|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls ImGui/*.cpp | tr "\n" " ")"; sed "s|ImGui/\*.cpp|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls ImGui/backends/imgui_impl_dx*.cpp | tr "\n" " ")"; sed "s|ImGui/backends/imgui_impl_dx\*.cpp|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls overlay_experimental/System/*.cpp | tr "\n" " ")"; sed "s|overlay_experimental/System/\*.cpp|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls dll/*.proto | tr "\n" " " | sed "s/.proto/.pb.cc/g")"; sed "s|dll/\*.cc|$DLL_FILES|g" -i *.bat
-      - DLL_FILES="$(ls steamclient_loader/*.cpp | tr "\n" " ")"; sed "s|steamclient_loader/\*.cpp|$DLL_FILES|g" -i *.bat
-      - sed "s| /MP12 | /MP4 |g" -i *.bat
+      - python generate_build_win_bat.py
       - export WINEDEBUG=-all
-      - wine cmd /c build_win_debug_experimental.bat
-      - mkdir debug_experimental
-      - mv steam_api.dll steam_api64.dll debug_experimental/
-      - wine cmd /c build_win_release.bat
-      - mv debug_experimental release/
-      - rm -f steamclient.dll steamclient64.dll
-      - wine cmd /c build_win_debug_experimental_steamclient.bat
-      - mkdir release/debug_experimental_steamclient
-      - mv steamclient.dll steamclient64.dll release/debug_experimental_steamclient/
-      - cp Readme_debug.txt release/debug_experimental/Readme.txt
+      - wine cmd /c build_win_release_test.bat
   artifacts:
     paths:
       - release/
