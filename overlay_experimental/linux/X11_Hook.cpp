@@ -101,14 +101,25 @@ bool X11_Hook::StartHook(std::function<bool(bool)>& _key_combination_callback, s
             return false;
         }
 
-        XEventsQueued = libX11.GetSymbol<decltype(::XEventsQueued)>("XEventsQueued");
-        XPending = libX11.GetSymbol<decltype(::XPending)>("XPending");
+        struct {
+            void** func_ptr;
+            void* hook_ptr;
+            const char* func_name;
+        } hook_array[] = {
+            { (void**)&XEventsQueued, &X11_Hook::MyXEventsQueued, "XEventsQueued" },
+            { (void**)&XPending     , &X11_Hook::MyXPending     , "XPending"      },
+        };
 
-        if (XPending == nullptr || XEventsQueued == nullptr)
+        for (auto& entry : hook_array)
         {
-            SPDLOG_WARN("Failed to hook X11: Cannot load functions.({}, {})", DLL_NAME, (void*)XEventsQueued, (void*)XPending);
-            return false;
+            *entry.func_ptr = libX11.GetSymbol<void*>(entry.func_name);
+            if (entry.func_ptr == nullptr)
+            {
+                SPDLOG_ERROR("Failed to hook X11: Event function {} missing.", entry.func_name);
+                return false;
+            }
         }
+
         SPDLOG_INFO("Hooked X11");
 
         _KeyCombinationCallback = std::move(_key_combination_callback);
@@ -124,12 +135,13 @@ bool X11_Hook::StartHook(std::function<bool(bool)>& _key_combination_callback, s
 
         _Hooked = true;
 
-        UnhookAll();
         BeginHook();
-        HookFuncs(
-            std::make_pair<void**, void*>(&(void*&)XEventsQueued, (void*)&X11_Hook::MyXEventsQueued),
-            std::make_pair<void**, void*>(&(void*&)XPending, (void*)&X11_Hook::MyXPending)
-        );
+        
+        for (auto& entry : hook_array)
+        {
+            HookFunc(std::make_pair(entry.func_ptr, entry.hook_ptr));
+        }
+
         EndHook();
     }
     return true;

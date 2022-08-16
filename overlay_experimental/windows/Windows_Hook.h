@@ -37,6 +37,8 @@ private:
     HWND _GameHwnd;
     WNDPROC _GameWndProc;
     POINT _SavedCursorPos;
+    RECT _SavedClipCursor;
+    CONST RECT _DefaultClipCursor;
 
     // In (bool): Is toggle wanted
     // Out(bool): Is the overlay visible, if true, inputs will be disabled
@@ -55,6 +57,8 @@ private:
     decltype(::GetKeyboardState)  *GetKeyboardState;
     decltype(::GetCursorPos)      *GetCursorPos;
     decltype(::SetCursorPos)      *SetCursorPos;
+    decltype(::GetClipCursor)     *GetClipCursor;
+    decltype(::ClipCursor)        *ClipCursor;
 
     static LRESULT CALLBACK HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     static UINT  WINAPI MyGetRawInputBuffer(PRAWINPUT pData, PUINT pcbSize, UINT cbSizeHeader);
@@ -64,6 +68,8 @@ private:
     static BOOL  WINAPI MyGetKeyboardState(PBYTE lpKeyState);
     static BOOL  WINAPI MyGetCursorPos(LPPOINT lpPoint);
     static BOOL  WINAPI MySetCursorPos(int X, int Y);
+    static BOOL  WINAPI MyGetClipCursor(RECT* lpRect);
+    static BOOL  WINAPI MyClipCursor(CONST RECT* lpRect);
 
 public:
     std::string LibraryName;

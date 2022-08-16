@@ -93,24 +93,30 @@ bool Windows_Hook::StartHook(std::function<bool(bool)>& _key_combination_callbac
             return false;
         }
 
-        GetRawInputBuffer = libUser32.GetSymbol<decltype(::GetRawInputBuffer)>("GetRawInputBuffer");
-        GetRawInputData   = libUser32.GetSymbol<decltype(::GetRawInputData)>("GetRawInputData");
-        GetKeyState       = libUser32.GetSymbol<decltype(::GetKeyState)>("GetKeyState");
-        GetAsyncKeyState  = libUser32.GetSymbol<decltype(::GetAsyncKeyState)>("GetAsyncKeyState");
-        GetKeyboardState  = libUser32.GetSymbol<decltype(::GetKeyboardState)>("GetKeyboardState");
-        GetCursorPos      = libUser32.GetSymbol<decltype(::GetCursorPos)>("GetCursorPos");
-        SetCursorPos      = libUser32.GetSymbol<decltype(::SetCursorPos)>("SetCursorPos");
+        struct {
+            void** func_ptr;
+            void* hook_ptr;
+            const char* func_name;
+        } hook_array[] = {
+            { (void**)&GetRawInputBuffer, &Windows_Hook::MyGetRawInputBuffer, "GetRawInputBuffer" },
+            { (void**)&GetRawInputData  , &Windows_Hook::MyGetRawInputData  , "GetRawInputData"   },
+            { (void**)&GetKeyState      , &Windows_Hook::MyGetKeyState      , "GetKeyState"       },
+            { (void**)&GetAsyncKeyState , &Windows_Hook::MyGetAsyncKeyState , "GetAsyncKeyState"  },
+            { (void**)&GetKeyboardState , &Windows_Hook::MyGetKeyboardState , "GetKeyboardState"  },
+            { (void**)&GetCursorPos     , &Windows_Hook::MyGetCursorPos     , "GetCursorPos"      },
+            { (void**)&SetCursorPos     , &Windows_Hook::MySetCursorPos     , "SetCursorPos"      },
+            { (void**)&GetClipCursor    , &Windows_Hook::MyGetClipCursor    , "GetClipCursor"     },
+            { (void**)&ClipCursor       , &Windows_Hook::MyClipCursor       , "ClipCursor"        },
+        };
 
-        if(GetRawInputBuffer == nullptr ||
-           GetRawInputData   == nullptr ||
-           GetKeyState       == nullptr ||
-           GetAsyncKeyState  == nullptr ||
-           GetKeyboardState  == nullptr ||
-           GetCursorPos      == nullptr ||
-           SetCursorPos      == nullptr)
+        for (auto& entry : hook_array)
         {
-            SPDLOG_ERROR("Failed to hook Windows: Events functions missing.");
-            return false;
+            *entry.func_ptr = libUser32.GetSymbol<void*>(entry.func_name);
+            if (entry.func_ptr == nullptr)
+            {
+                SPDLOG_ERROR("Failed to hook Windows: Events function {} missing.", entry.func_name);
+                return false;
+            }
         }
 
         SPDLOG_INFO("Hooked Windows");
@@ -126,15 +132,12 @@ bool Windows_Hook::StartHook(std::function<bool(bool)>& _key_combination_callbac
         }
 
         BeginHook();
-        HookFuncs(
-            std::make_pair<void**, void*>(&(PVOID&)GetRawInputBuffer, &Windows_Hook::MyGetRawInputBuffer),
-            std::make_pair<void**, void*>(&(PVOID&)GetRawInputData  , &Windows_Hook::MyGetRawInputData),
-            std::make_pair<void**, void*>(&(PVOID&)GetKeyState      , &Windows_Hook::MyGetKeyState),
-            std::make_pair<void**, void*>(&(PVOID&)GetAsyncKeyState , &Windows_Hook::MyGetAsyncKeyState),
-            std::make_pair<void**, void*>(&(PVOID&)GetKeyboardState , &Windows_Hook::MyGetKeyboardState),
-            std::make_pair<void**, void*>(&(PVOID&)GetCursorPos     , &Windows_Hook::MyGetCursorPos),
-            std::make_pair<void**, void*>(&(PVOID&)SetCursorPos     , &Windows_Hook::MySetCursorPos)
-        );
+
+        for (auto& entry : hook_array)
+        {
+            HookFunc(std::make_pair(entry.func_ptr, entry.hook_ptr));
+        }
+
         EndHook();
 
         _Hooked = true;
@@ -289,6 +292,11 @@ LRESULT CALLBACK Windows_Hook::HookWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
                         // Save the last known cursor pos when opening the overlay
                         // so we can spoof the GetCursorPos return value.
                         inst->GetCursorPos(&inst->_SavedCursorPos);
+                        inst->GetClipCursor(&inst->_SavedClipCursor);
+                    }
+                    else
+                    {
+                        inst->ClipCursor(&inst->_SavedClipCursor);
                     }
                     inst->_KeyCombinationPushed = true;
                 }
@@ -407,16 +415,33 @@ BOOL WINAPI Windows_Hook::MySetCursorPos(int X, int Y)
 {
     Windows_Hook* inst = Windows_Hook::Inst();
 
-    if (inst->_Initialized && inst->_KeyCombinationCallback(false))
-    {// That way, it will fail only if the real API fails.
-     // Hides error messages on some Unity debug builds.
-        POINT pos;
-        inst->GetCursorPos(&pos);
-        X = pos.x;
-        Y = pos.y;
-    }
+    if (!inst->_Initialized || !inst->_KeyCombinationCallback(false))
+        return inst->SetCursorPos(X, Y);
 
-    return inst->SetCursorPos(X, Y);
+    return TRUE;
+}
+
+BOOL WINAPI Windows_Hook::MyGetClipCursor(RECT* lpRect)
+{
+    Windows_Hook* inst = Windows_Hook::Inst();
+    if (lpRect == nullptr || !inst->_Initialized || !inst->_KeyCombinationCallback(false))
+        return inst->GetClipCursor(lpRect);
+
+    *lpRect = inst->_SavedClipCursor;
+    return TRUE;
+}
+
+BOOL  WINAPI Windows_Hook::MyClipCursor(CONST RECT* lpRect)
+{
+    Windows_Hook* inst = Windows_Hook::Inst();
+    CONST RECT* v = lpRect == nullptr ? &inst->_DefaultClipCursor : lpRect;
+
+    inst->_SavedClipCursor = *v;
+
+    if (!inst->_Initialized || !inst->_KeyCombinationCallback(false))
+        return inst->ClipCursor(v);
+    
+    return inst->ClipCursor(&inst->_DefaultClipCursor);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -427,12 +452,8 @@ Windows_Hook::Windows_Hook() :
     _RecurseCallCount(0),
     _GameHwnd(nullptr),
     _GameWndProc(nullptr),
-    _KeyCombinationPushed(false),
-    GetRawInputBuffer(nullptr),
-    GetRawInputData(nullptr),
-    GetKeyState(nullptr),
-    GetAsyncKeyState(nullptr),
-    GetKeyboardState(nullptr)
+    _DefaultClipCursor{ LONG(0xFFFF8000), LONG(0xFFFF8000), LONG(0x00007FFF), LONG(0x00007FFF) },
+    _KeyCombinationPushed(false)
 {
 }
 
