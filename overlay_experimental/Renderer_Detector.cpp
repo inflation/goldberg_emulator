@@ -68,6 +68,15 @@ public:
         return instance;
     }
 
+    static void deleteInst()
+    {
+        if (instance != nullptr)
+        {
+            delete instance;
+            instance = nullptr;
+        }
+    }
+
     ~Renderer_Detector()
     {
         delete dx9_hook;
@@ -95,7 +104,8 @@ private:
         dx12_hook(nullptr),
         opengl_hook(nullptr),
         vulkan_hook(nullptr),
-        detection_done(false)
+        detection_done(false),
+        force_done(false)
     {
         std::wstring tmp(4096, L'\0');
         tmp.resize(GetSystemDirectoryW(&tmp[0], tmp.size()));
@@ -142,7 +152,7 @@ private:
     OpenGL_Hook* opengl_hook;
     Vulkan_Hook* vulkan_hook;
     
-    bool detection_done;
+    bool detection_done, force_done;
     std::condition_variable stop_detection_cv;
     std::mutex stop_detection_mutex;
 
@@ -1043,7 +1053,7 @@ public:
             std::lock_guard<std::mutex> lk(renderer_mutex);
             if (detection_done)
             {
-                if (renderer_hook != nullptr)
+                if (renderer_hook != nullptr || force_done)
                     return renderer_hook;
 
                 detection_done = false;
@@ -1122,6 +1132,7 @@ public:
         {
             System::scoped_lock lk(renderer_mutex, stop_detection_mutex);
             detection_done = true;
+            force_done = true;
         }
         stop_detection_cv.notify_all();
     }
@@ -1253,7 +1264,7 @@ public:
             std::lock_guard<std::mutex> lk(renderer_mutex);
             if (detection_done)
             {
-                if (renderer_hook != nullptr)
+                if (renderer_hook != nullptr || force_done)
                     return renderer_hook;
 
                 detection_done = false;
@@ -1305,6 +1316,7 @@ public:
         {
             System::scoped_lock lk(renderer_mutex, stop_detection_mutex);
             detection_done = true;
+            force_done = true;
         }
         stop_detection_cv.notify_all();
     }
@@ -1432,7 +1444,7 @@ public:
            std::lock_guard<std::mutex> lk(renderer_mutex);
            if (detection_done)
            {
-               if (renderer_hook != nullptr)
+               if (renderer_hook != nullptr || force_done)
                    return renderer_hook;
 
                detection_done = false;
@@ -1484,6 +1496,7 @@ public:
        {
            System::scoped_lock lk(renderer_mutex, stop_detection_mutex);
            detection_done = true;
+           force_done = true;
         }
        stop_detection_cv.notify_all();
     }
@@ -1503,6 +1516,11 @@ std::future<ingame_overlay::Renderer_Hook*> DetectRenderer(std::chrono::millisec
 void StopRendererDetection()
 {
     Renderer_Detector::Inst()->stop_detection();
+}
+
+void FreeRendererDetection()
+{
+    Renderer_Detector::deleteInst();
 }
 
 }
