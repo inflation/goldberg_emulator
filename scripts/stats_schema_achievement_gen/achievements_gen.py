@@ -11,6 +11,7 @@ STAT_TYPE_BITS = '4'
 
 def generate_stats_achievements(schema, config_directory):
     schema = vdf.binary_loads(schema)
+    # print(schema)
     achievements_out = []
     stats_out = []
 
@@ -54,14 +55,19 @@ def generate_stats_achievements(schema, config_directory):
                     out['default'] = stat['default']
 
                 stats_out += [out]
-            # print(stat_info[s])
+            #print(stat_info[s])
 
 
 
     output_ach = json.dumps(achievements_out, indent=4)
     output_stats = ""
     for s in stats_out:
-        output_stats += "{}={}={}\n".format(s['name'], s['type'], s['default'])
+        default_num = 0
+        if (s['type'] == 'int'):
+            default_num = int(s['default'])
+        else:
+            default_num = float(s['default'])
+        output_stats += "{}={}={}\n".format(s['name'], s['type'], default_num)
 
     # print(output_ach)
     # print(output_stats)
@@ -72,7 +78,7 @@ def generate_stats_achievements(schema, config_directory):
     with open(os.path.join(config_directory, "achievements.json"), 'w') as f:
         f.write(output_ach)
 
-    with open(os.path.join(config_directory, "stats.txt"), 'w') as f:
+    with open(os.path.join(config_directory, "stats.txt"), 'w', encoding='utf-8') as f:
         f.write(output_stats)
 
     return (achievements_out, stats_out)
