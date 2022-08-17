@@ -16,7 +16,7 @@ protobuf_static_steamos:
       - echo $BASE_PREFIX_PATH
       - mkdir deps
       - cd deps
-      - git clone https://github.com/protocolbuffers/protobuf.git
+      - git clone --branch 21.x https://github.com/protocolbuffers/protobuf.git
       - cd protobuf
       - sh autogen.sh
       - ./configure "CC=gcc-4.9 -m32" "CXX=g++-4.9 -m32"  CPPFLAGS="-fPIC -Ofast" CXXFLAGS="-fPIC -Ofast" --prefix=$BASE_PREFIX_PATH/protobuf/prefix_x86/ --disable-shared --enable-static
