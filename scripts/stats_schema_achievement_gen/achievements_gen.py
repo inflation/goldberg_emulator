@@ -64,7 +64,10 @@ def generate_stats_achievements(schema, config_directory):
     for s in stats_out:
         default_num = 0
         if (s['type'] == 'int'):
-            default_num = int(s['default'])
+            try:
+                default_num = int(s['default'])
+            except ValueError:
+                default_num = int(float(s['default']))
         else:
             default_num = float(s['default'])
         output_stats += "{}={}={}\n".format(s['name'], s['type'], default_num)
