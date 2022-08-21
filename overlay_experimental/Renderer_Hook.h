@@ -39,7 +39,8 @@ class Renderer_Hook
 public:
     Renderer_Hook():
         OverlayProc(&DefaultOverlayProc),
-        OverlayHookReady(&DefaultOverlayHookReady)
+        OverlayHookReady(&DefaultOverlayHookReady),
+        ImGuiFontAtlas(nullptr)
     {}
 
     static void DefaultOverlayProc() {}
@@ -47,6 +48,7 @@ public:
     std::function<void()> OverlayProc;
     std::function<void(bool)> OverlayHookReady;
 
+    void *ImGuiFontAtlas;
     virtual bool StartHook(std::function<bool(bool)> key_combination_callback, std::set<ToggleKey> toggle_keys) = 0;
     virtual bool IsStarted() = 0;
     // Returns a Handle to the renderer image ressource or nullptr if it failed to create the resource, the handle can be used in ImGui's Image calls, image_buffer must be RGBA ordered

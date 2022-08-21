@@ -264,7 +264,7 @@ void DX12_Hook::_PrepareForOverlay(IDXGISwapChain* pSwapChain, ID3D12CommandQueu
 
         //auto heaps = std::move(get_free_texture_heap());
 
-        ImGui::CreateContext();
+        ImGui::CreateContext((ImFontAtlas *)ImGuiFontAtlas);
         ImGui_ImplDX12_Init(pDevice, bufferCount, DXGI_FORMAT_R8G8B8A8_UNORM, pSrvDescHeap,
             pSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
             pSrvDescHeap->GetGPUDescriptorHandleForHeapStart());

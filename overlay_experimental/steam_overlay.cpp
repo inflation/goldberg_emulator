@@ -128,7 +128,8 @@ Steam_Overlay::Steam_Overlay(Settings* settings, SteamCallResults* callback_resu
     i_have_lobby(false),
     show_achievements(false),
     show_settings(false),
-    _renderer(nullptr)
+    _renderer(nullptr),
+    fonts_atlas(nullptr)
 {
     strncpy(username_text, settings->get_local_name(), sizeof(username_text));
 
@@ -709,11 +710,10 @@ void Steam_Overlay::BuildNotifications(int width, int height)
 
 void Steam_Overlay::CreateFonts()
 {
-    //TODO: remove from dx_whatever hook
-    if(ImGui::GetCurrentContext() == nullptr)
-        ImGui::CreateContext();
+    if (fonts_atlas) return;
 
-    ImGuiIO& io = ImGui::GetIO();
+    ImFontAtlas *Fonts = new ImFontAtlas();
+
     ImFontConfig fontcfg;
 
     float font_size = 16.0;
@@ -727,7 +727,7 @@ void Steam_Overlay::CreateFonts()
         font_builder.AddText(x.description.c_str());
     }
 
-    font_builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+    font_builder.AddRanges(Fonts->GetGlyphRangesDefault());
 
     ImVector<ImWchar> ranges;
     font_builder.BuildRanges(&ranges);
@@ -744,11 +744,11 @@ void Steam_Overlay::CreateFonts()
     ImFont *font = NULL;
 
 #if defined(__WINDOWS__)
-    font = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\micross.ttf", font_size, &fontcfg);
+    font = Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\micross.ttf", font_size, &fontcfg);
 #endif
 
     if (!font) {
-        font = io.Fonts->AddFontDefault(&fontcfg);
+        font = Fonts->AddFontDefault(&fontcfg);
     }
 
     font_notif = font_default = font;
@@ -757,15 +757,16 @@ void Steam_Overlay::CreateFonts()
         PRINT_DEBUG("loading extra fonts\n");
         fontcfg.MergeMode = true;
 #if defined(__WINDOWS__)
-        io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\simsun.ttc", font_size, &fontcfg);
-        io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", font_size, &fontcfg);
+        Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\simsun.ttc", font_size, &fontcfg);
+        Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", font_size, &fontcfg);
 #endif
     }
 
-    io.Fonts->Build();
+    Fonts->Build();
+    fonts_atlas = (void *)Fonts;
 
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding = 0.0; // Disable round window
+    // ImGuiStyle& style = ImGui::GetStyle();
+    // style.WindowRounding = 0.0; // Disable round window
     reset_LastError();
 }
 
@@ -1048,6 +1049,7 @@ void Steam_Overlay::RunCallbacks()
             auto callback = std::bind(&Steam_Overlay::OpenOverlayHook, this, std::placeholders::_1);
             PRINT_DEBUG("start renderer\n", _renderer);
             std::set<ingame_overlay::ToggleKey> keys = {ingame_overlay::ToggleKey::SHIFT, ingame_overlay::ToggleKey::TAB};
+            _renderer->ImGuiFontAtlas = fonts_atlas;
             bool started = _renderer->StartHook(callback, keys);
             PRINT_DEBUG("tried to start renderer %u\n", started);
     }

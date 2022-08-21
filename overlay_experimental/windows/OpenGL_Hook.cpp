@@ -86,7 +86,7 @@ void OpenGL_Hook::_PrepareForOverlay(HDC hDC)
 
     if (!_Initialized)
     {
-        ImGui::CreateContext();
+        ImGui::CreateContext((ImFontAtlas *)ImGuiFontAtlas);
         ImGui_ImplOpenGL3_Init();
 
         _LastWindow = hWnd;

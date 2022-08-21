@@ -84,7 +84,7 @@ void OpenGLX_Hook::_PrepareForOverlay(Display* display, GLXDrawable drawable)
 {
     if( !_Initialized )
     {
-        ImGui::CreateContext();
+        ImGui::CreateContext((ImFontAtlas *)ImGuiFontAtlas);
         ImGui_ImplOpenGL3_Init();
 
         //int attributes[] = { //can't be const b/c X11 doesn't like it.  Not sure if that's intentional or just stupid.

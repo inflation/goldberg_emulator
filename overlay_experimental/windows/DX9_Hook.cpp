@@ -133,7 +133,7 @@ void DX9_Hook::_PrepareForOverlay(IDirect3DDevice9 *pDevice, HWND destWindow)
         pDevice->AddRef();
         _pDevice = pDevice;
 
-        ImGui::CreateContext();
+        ImGui::CreateContext((ImFontAtlas *)ImGuiFontAtlas);
         ImGui_ImplDX9_Init(pDevice);
 
         _LastWindow = destWindow;

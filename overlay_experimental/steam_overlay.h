@@ -102,6 +102,7 @@ class Steam_Overlay
     std::string show_url;
     std::vector<Overlay_Achievement> achievements;
     bool show_achievements, show_settings;
+    void *fonts_atlas;
 
     bool disable_forced, local_save, warning_forced;
     uint32_t appid;

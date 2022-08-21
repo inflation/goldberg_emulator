@@ -147,7 +147,7 @@ void DX11_Hook::_PrepareForOverlay(IDXGISwapChain* pSwapChain)
             return;
         
         if(ImGui::GetCurrentContext() == nullptr)
-            ImGui::CreateContext();
+            ImGui::CreateContext((ImFontAtlas *)ImGuiFontAtlas);
         
         ImGui_ImplDX11_Init(pDevice, pContext);
         
