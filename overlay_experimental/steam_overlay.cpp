@@ -207,7 +207,7 @@ void Steam_Overlay::UnSetupOverlay()
     if (!Ready() && future_renderer.valid()) {
         if (future_renderer.wait_for(std::chrono::milliseconds{500}) ==  std::future_status::ready) {
             future_renderer.get();
-            ingame_overlay::FreeRendererDetection();
+            ingame_overlay::FreeDetector();
         }
     }
 }

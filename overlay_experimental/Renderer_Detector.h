@@ -31,5 +31,6 @@ namespace ingame_overlay {
 
 std::future<Renderer_Hook*> DetectRenderer(std::chrono::milliseconds timeout = std::chrono::milliseconds{ -1 });
 void StopRendererDetection();
-void FreeRendererDetection();
+void FreeDetector();
+
 }
