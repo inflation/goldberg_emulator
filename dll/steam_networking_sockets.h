@@ -752,7 +752,7 @@ EResult SendMessageToConnection( HSteamNetConnection hConn, const void *pData, u
     if (connect_socket == s->connect_sockets.end()) return k_EResultInvalidParam;
     if (connect_socket->second.status == CONNECT_SOCKET_CLOSED) return k_EResultNoConnection;
     if (connect_socket->second.status == CONNECT_SOCKET_TIMEDOUT) return k_EResultNoConnection;
-    if (connect_socket->second.status != CONNECT_SOCKET_CONNECTED) return k_EResultInvalidState;
+    if (connect_socket->second.status != CONNECT_SOCKET_CONNECTED && connect_socket->second.status != CONNECT_SOCKET_CONNECTING) return k_EResultInvalidState;
 
     Common_Message msg;
     msg.set_source_id(connect_socket->second.created_by.ConvertToUint64());
@@ -2084,8 +2084,14 @@ void Callback(Common_Message *msg)
         } else if (msg->networking_sockets().type() == Networking_Sockets::DATA) {
             auto connect_socket = s->connect_sockets.find(msg->networking_sockets().connection_id());
             if (connect_socket != s->connect_sockets.end()) {
-                if (connect_socket->second.remote_identity.GetSteamID64() == msg->source_id() && connect_socket->second.status == CONNECT_SOCKET_CONNECTED) {
+                if (connect_socket->second.remote_identity.GetSteamID64() == msg->source_id() && (connect_socket->second.status == CONNECT_SOCKET_CONNECTED)) {
                     PRINT_DEBUG("Steam_Networking_Sockets: got data len %u on connection %u\n", msg->networking_sockets().data().size(), connect_socket->first);
+                    connect_socket->second.data.push(msg->networking_sockets());
+                }
+            } else {
+                connect_socket = std::find_if(s->connect_sockets.begin(), s->connect_sockets.end(), [msg](const auto &in) {return in.second.remote_identity.GetSteamID64() == msg->source_id() && (in.second.status == CONNECT_SOCKET_NOT_ACCEPTED || in.second.status == CONNECT_SOCKET_CONNECTED) && in.second.remote_id == msg->networking_sockets().connection_id_from();});
+                if (connect_socket != s->connect_sockets.end()) {
+                    PRINT_DEBUG("Steam_Networking_Sockets: got data len %u on not accepted connection %u\n", msg->networking_sockets().data().size(), connect_socket->first);
                     connect_socket->second.data.push(msg->networking_sockets());
                 }
             }
