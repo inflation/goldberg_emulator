@@ -215,6 +215,11 @@ static int set_socket_nonblocking(sock_t sock)
 #endif
 }
 
+static bool disable_nagle(sock_t sock)
+{
+    int set = 1;
+    return (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *)&set, sizeof(set)) == 0);
+}
 
 static void kill_socket(sock_t sock)
 {
@@ -978,6 +983,7 @@ void Networking::Run()
         struct TCP_Socket socket;
         if (set_socket_nonblocking(sock)) {
             PRINT_DEBUG("SET NONBLOCK\n");
+            disable_nagle(sock);
             socket.sock = sock;
             socket.received_data = true;
             socket.last_heartbeat_received = std::chrono::high_resolution_clock::now();
@@ -1031,6 +1037,7 @@ void Networking::Run()
             sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if (is_socket_valid(sock) && set_socket_nonblocking(sock)) {
                 PRINT_DEBUG("NEW SOCKET %u %u\n", sock, conn.tcp_socket_outgoing.sock);
+                disable_nagle(sock);
                 connect_socket(sock, conn.tcp_ip_port);
                 conn.tcp_socket_outgoing.sock = sock;
                 conn.tcp_socket_outgoing.last_heartbeat_received = std::chrono::high_resolution_clock::now();

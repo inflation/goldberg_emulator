@@ -117,6 +117,7 @@ inline void reset_LastError()
     #include <sys/time.h>
 
     #include <netinet/in.h>
+    #include <netinet/tcp.h>
     #include <linux/netdevice.h>
 
     #include <fcntl.h>
