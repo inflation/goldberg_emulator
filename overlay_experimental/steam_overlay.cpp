@@ -568,7 +568,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
             }
         }
 
-        ImGui::InputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, 0 }, ImGuiInputTextFlags_ReadOnly);
+        ImGui::InputTextMultiline("##chat_history", &state.chat_history[0], state.chat_history.length(), { -1.0f, -2.0f * ImGui::GetFontSize() }, ImGuiInputTextFlags_ReadOnly);
         // TODO: Fix the layout of the chat line + send button.
         // It should be like this: chat input should fill the window size minus send button size (button size is fixed)
         // |------------------------------|
@@ -597,6 +597,7 @@ void Steam_Overlay::BuildFriendWindow(Friend const& frd, friend_window_state& st
         if (ImGui::InputText("##chat_line", state.chat_input, max_chat_len, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             send_chat_msg = true;
+            ImGui::SetKeyboardFocusHere(-1);
         }
         ImGui::PopItemWidth();
 
@@ -987,7 +988,7 @@ void Steam_Overlay::Callback(Common_Message *msg)
         {
             Steam_Messages const& steam_message = msg->steam_messages();
             // Change color to cyan for friend
-            friend_info->second.chat_history.append(steam_message.message()).append("\n", 1);
+            friend_info->second.chat_history.append(friend_info->first.name() + ": " + steam_message.message()).append("\n", 1);
             if (!(friend_info->second.window_state & window_state_show))
             {
                 friend_info->second.window_state |= window_state_need_attention;
@@ -1113,7 +1114,7 @@ void Steam_Overlay::RunCallbacks()
                     msg.set_dest_id(friend_id);
                     network->sendTo(&msg, true);
 
-                    friend_info->second.chat_history.append(input).append("\n", 1);
+                    friend_info->second.chat_history.append(get_steam_client()->settings_client->get_local_name()).append(": ").append(input).append("\n", 1);
                 }
                 *input = 0; // Reset the input field
                 friend_info->second.window_state &= ~window_state_send_message;
