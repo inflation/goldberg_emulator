@@ -27,6 +27,8 @@ static uint32_t upper_range_ips[MAX_BROADCASTS];
 #define HEARTBEAT_TIMEOUT 20.0
 #define USER_TIMEOUT 20.0
 
+#define MAX_UDP_SIZE 16384
+
 #if defined(STEAM_WIN32)
 
 //windows xp support
@@ -925,7 +927,7 @@ void Networking::Run()
     }
 
     IP_PORT ip_port;
-    char data[2048];
+    char data[MAX_UDP_SIZE];
     int len;
 
     PRINT_DEBUG("RECV UDP\n");
@@ -1178,7 +1180,7 @@ bool Networking::sendTo(Common_Message *msg, bool reliable, Connection *conn)
     if (!enabled) return false;
 
     size_t size = msg->ByteSizeLong();
-    if (size >= 65000) reliable = true; //too big for UDP
+    if (size >= MAX_UDP_SIZE) reliable = true; //too big for UDP
 
     bool ret = false;
     CSteamID dest_id((uint64)msg->dest_id());
