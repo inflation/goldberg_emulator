@@ -824,7 +824,7 @@ static bool network_functions_attached = false;
 BOOL WINAPI DllMain( HINSTANCE, DWORD dwReason, LPVOID ) {
     switch ( dwReason ) {
         case DLL_PROCESS_ATTACH:
-            if (!file_exists(get_full_program_path() + "disable_lan_only.txt")) {
+            if (!file_exists(get_full_program_path() + "disable_lan_only.txt") && !file_exists(get_full_program_path() + "\\steam_settings\\disable_lan_only.txt")) {
                 PRINT_DEBUG("Hooking lan only functions\n");
                 DetourTransactionBegin();
                 DetourUpdateThread( GetCurrentThread() );
