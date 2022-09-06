@@ -809,17 +809,20 @@ bool SetLobbyData( CSteamID steamIDLobby, const char *pchKey, const char *pchVal
     std::lock_guard<std::recursive_mutex> lock(global_mutex);
 
     Lobby *lobby = get_lobby(steamIDLobby);
-    if (!lobby || lobby->owner() != settings->get_local_steam_id().ConvertToUint64() || lobby->deleted()) {
+    if (!lobby || lobby->deleted()) {
         return false;
     }
 
-    auto result = caseinsensitive_find(lobby->values(), pchKey);
     bool changed = true;
-    if (result == lobby->values().end()) {
-        (*lobby->mutable_values())[pchKey] = pchValue;
-    } else {
-        if (result->second == std::string(pchValue)) changed = false;
-        (*lobby->mutable_values())[result->first] = pchValue;
+    //callback is always triggered when setlobbydata is called from non owner however no data is actually changed.
+    if (lobby->owner() == settings->get_local_steam_id().ConvertToUint64()) {
+        auto result = caseinsensitive_find(lobby->values(), pchKey);
+        if (result == lobby->values().end()) {
+            (*lobby->mutable_values())[pchKey] = pchValue;
+        } else {
+            if (result->second == std::string(pchValue)) changed = false;
+            (*lobby->mutable_values())[result->first] = pchValue;
+        }
     }
 
     if (changed)
