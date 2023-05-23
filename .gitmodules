@@ -1,4 +1,0 @@
-[submodule "protobuf"]
-	path = vendored/protobuf
-	url = https://github.com/protocolbuffers/protobuf
-	branch = v23.0

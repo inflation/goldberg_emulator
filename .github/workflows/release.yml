@@ -1,0 +1,22 @@
+﻿name: Release
+on: push
+jobs:
+  build-macos:
+    name: Build on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: CMake configure
+        run: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: make -Cbuild -j$(sysctl -n hw.ncpu) steam_api
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: latest
+          files: |
+            build/libsteam_api.dylib
+            build/lobby_connect
+            build/generate_interfaces_file

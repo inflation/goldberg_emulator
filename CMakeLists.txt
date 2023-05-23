@@ -1,5 +1,5 @@
 # Based on: https://github.com/ttroy50/cmake-examples/blob/master/03-code-generation/protobuf/CMakeLists.txt
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.24)
 
 # Set the project name
 project(goldberg_emulator)
@@ -30,9 +30,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (APPLE)
 	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
-	set(protobuf_BUILD_TESTS OFF CACHE BOOL "Disable tests" FORCE)
-	set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "Disable protoc" FORCE)
-	add_subdirectory(vendored/protobuf)
+	set(protobuf_BUILD_TESTS CACHE BOOL OFF FORCE)
+
+	include(FetchContent)
+	set(FetchContent_Quiet CACHE BOOL OFF FORCE)
+	FetchContent_Declare(
+	  Protobuf
+	  PREFIX			protobuf
+	  GIT_REPOSITORY    https://github.com/protocolbuffers/protobuf
+	  GIT_TAG           v23.1
+	  GIT_SUBMODULES	"third_party/abseil-cpp"
+	  GIT_SHALLOW		ON
+	  GIT_PROGRESS		ON
+	  OVERRIDE_FIND_PACKAGE
+	)
 endif()
 
 # Find the protobuf compiler and libraries
