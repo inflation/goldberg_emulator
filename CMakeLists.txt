@@ -30,8 +30,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (APPLE)
 	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
-	set(protobuf_BUILD_TESTS OFF)
-	set(protobuf_BUILD_PROTOC_BINARIES OFF)
+	set(protobuf_BUILD_TESTS OFF CACHE BOOL "Disable tests" FORCE)
+	set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE BOOL "Disable protoc" FORCE)
 	add_subdirectory(vendored/protobuf)
 endif()
 
